@@ -1,0 +1,11 @@
+language: haskell
+notifications:
+  email: false
+install:
+ - travis_retry cabal update
+ - cabal install alex happy hspec
+before_script:
+- cabal configure --enable-tests
+- cabal build
+script:
+- cabal test --show-details=always --test-options="--color"
