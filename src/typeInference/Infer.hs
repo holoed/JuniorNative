@@ -1,17 +1,17 @@
-module Infer where
+module TypeInference.Infer where
 
 import Data.Map (empty)
 import Data.Set (fromList, insert)
-import Monads
-import RecursionSchemes
-import Ast
-import Types
-import BuiltIns
-import Environment
-import Substitutions
-import InferMonad
-import Unification
-import PrettyTypes
+import Utilities.Monads
+import Utilities.RecursionSchemes
+import Base.Ast
+import TypeInference.Types
+import TypeInference.BuiltIns
+import TypeInference.Environment
+import TypeInference.Substitutions
+import TypeInference.InferMonad
+import TypeInference.Unification
+import TypeInference.PrettyTypes
 
 valueToType :: Prim -> Type
 valueToType (I _) = intCon

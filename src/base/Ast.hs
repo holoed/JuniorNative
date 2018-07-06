@@ -1,8 +1,8 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Ast where
+module Base.Ast where
 
-import Fixpoint
+import Utilities.Fixpoint
 
 data Prim = I Int | B Bool | S String deriving (Eq, Show)
 

@@ -1,4 +1,4 @@
-module Monads where
+module Utilities.Monads where
 
 import Control.Monad.Identity
 import Control.Monad.Trans

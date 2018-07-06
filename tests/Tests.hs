@@ -1,10 +1,10 @@
 module Main where
 
 import Test.Hspec
-import Types
-import Environment
-import Infer (infer)
-import Parser (parseExpr)
+import TypeInference.Types
+import TypeInference.Environment
+import TypeInference.Infer (infer)
+import Parser.Parser (parseExpr)
 
 env :: Env
 env = toEnv [("id", TyLam (TyVar "a") (TyVar "a")),

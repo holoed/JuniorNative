@@ -1,11 +1,11 @@
-module Unification where
+module TypeInference.Unification where
 
 import Data.Set (member)
 import Control.Monad (foldM)
-import Types
-import Substitutions
-import Monads
-import InferMonad
+import TypeInference.Types
+import TypeInference.Substitutions
+import Utilities.Monads
+import TypeInference.InferMonad
 
 mgu :: Type -> Type -> Substitutions -> TypeM Substitutions
 mgu a b subs =

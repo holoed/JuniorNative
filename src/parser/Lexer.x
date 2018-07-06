@@ -1,11 +1,11 @@
 {
 {-# LANGUAGE FlexibleContexts #-}
-module Lexer (
+module Parser.Lexer (
   Token(..),
   scanTokens
 ) where
 
-import Ast
+import Base.Ast
 
 import Control.Monad.Except
 

@@ -1,6 +1,6 @@
-module PrettyTypes where
+module TypeInference.PrettyTypes where
 
-import Types
+import TypeInference.Types
 import Control.Monad
 import Control.Monad.Trans.State
 import qualified Data.Map as Map

@@ -1,6 +1,6 @@
-module BuiltIns where
+module TypeInference.BuiltIns where
 
-import Types
+import TypeInference.Types
 
 boolCon :: Type
 boolCon = TyCon "Bool" []
@@ -9,4 +9,4 @@ intCon :: Type
 intCon = TyCon "Int" []
 
 tupleCon :: [Type] -> Type
-tupleCon = TyCon "Tuple" 
+tupleCon = TyCon "Tuple"

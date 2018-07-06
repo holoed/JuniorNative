@@ -1,9 +1,9 @@
-module Environment where
+module TypeInference.Environment where
 
 import Data.Maybe
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import Types
+import TypeInference.Types
 import Prelude hiding (lookup)
 
 type Env = Map.Map String TypeScheme
