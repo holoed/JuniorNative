@@ -18,6 +18,20 @@ cabal-version:       >=1.10
 executable JuniorNative
   main-is:             Main.hs
   other-extensions:    DeriveFunctor, UndecidableInstances
+  other-modules:       Ast,
+                       BuiltIns,
+                       Environment,
+                       Fixpoint,
+                       Infer,
+                       InferMonad,
+                       Lexer,
+                       Monads,
+                       Parser,
+                       PrettyTypes,
+                       RecursionSchemes,
+                       Substitutions,
+                       Types,
+                       Unification
   build-depends:       base,
                        array,
                        containers,
@@ -32,6 +46,20 @@ test-suite tests
   ghc-options:         -Wall -fno-warn-orphans
   type:                exitcode-stdio-1.0
   main-is:             Tests.hs
+  other-modules:       Ast,
+                       BuiltIns,
+                       Environment,
+                       Fixpoint,
+                       Infer,
+                       InferMonad,
+                       Lexer,
+                       Monads,
+                       Parser,
+                       PrettyTypes,
+                       RecursionSchemes,
+                       Substitutions,
+                       Types,
+                       Unification
   hs-source-dirs:      tests, src
   build-tools:         happy, alex
   build-depends:       base,

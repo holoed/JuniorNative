@@ -8,4 +8,4 @@ data ClosureF a = LookupEnv a Int
                 | MakeEnv [a]
                 | MakeClosure a a
 
-type ClosedAst = ExpF :+: ClosureF
+type ClosedExpF = ExpF :+: ClosureF
