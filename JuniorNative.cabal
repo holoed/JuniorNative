@@ -31,7 +31,10 @@ executable JuniorNative
                        RecursionSchemes,
                        Substitutions,
                        Types,
-                       Unification
+                       Unification,
+                       CoProduct,
+                       ClosedAst,
+                       ClosureConversion
   build-depends:       base,
                        array,
                        containers,
@@ -60,7 +63,12 @@ test-suite tests
                        Substitutions,
                        Types,
                        Unification,
+                       CoProduct,
+                       ClosedAst,
+                       ClosureConversion,
+                       ClosureConversionTests,
                        TypeInferenceTests
+
   hs-source-dirs:      tests, src
   build-tools:         happy, alex
   build-depends:       base,

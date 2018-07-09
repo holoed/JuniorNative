@@ -1,4 +1,6 @@
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE DeriveFoldable #-}
 
 module Ast where
 
@@ -12,7 +14,7 @@ data ExpF a = Lit Prim
             | App a a
             | Lam String a
             | Let String a a
-            | IfThenElse a a a deriving (Show, Eq, Functor)
+            | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type Exp = Fix ExpF
 

@@ -26,3 +26,6 @@ throwError s = lift (lift (E.throwE s))
 
 run :: ReaderState r s a -> r -> s -> Either String s
 run m r s = runIdentity (E.runExceptT (S.execStateT (R.runReaderT m r) s))
+
+eval :: ReaderState r s a -> r -> s -> Either String a
+eval m r s = runIdentity (E.runExceptT (S.evalStateT (R.runReaderT m r) s))

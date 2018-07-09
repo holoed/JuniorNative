@@ -2,12 +2,16 @@ module ClosureConversion where
 
 import Ast
 import ClosedAst
+import CoProduct
+import RecursionSchemes
+import Monads
+import Fixpoint
+import Data.Set
 
-type CloseM = ReaderState (Set String) Int
+type CloseM a = ReaderState (Set String) Int a
 
-alg :: ExpF -> CloseM (Fix[ClosedExpF])
-alg = undefined
+alg :: ExpF (CloseM ClosedExp) -> CloseM ClosedExp
+alg x = fmap (\v -> In (Inl v)) (traverse id x)
 
-
-convert :: Fix[ExpF] -> Fix[ClosedExpF]
-convert = undefined
+convert :: Exp -> Either String ClosedExp
+convert e = eval (cataRec alg e) (fromList []) 0
