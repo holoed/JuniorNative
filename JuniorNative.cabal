@@ -59,7 +59,8 @@ test-suite tests
                        RecursionSchemes,
                        Substitutions,
                        Types,
-                       Unification
+                       Unification,
+                       TypeInferenceTests
   hs-source-dirs:      tests, src
   build-tools:         happy, alex
   build-depends:       base,
