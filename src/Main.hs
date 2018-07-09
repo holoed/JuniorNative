@@ -3,15 +3,15 @@ module Main where
 import Control.Monad.Trans
 import qualified Data.Set as Set
 import Data.Map (Map, empty, fromList)
-import Utilities.Fixpoint
-import Utilities.RecursionSchemes
-import Utilities.Monads
-import Base.Ast
-import TypeInference.Types
-import TypeInference.Environment
-import TypeInference.Infer (infer)
+import Fixpoint
+import RecursionSchemes
+import Monads
+import Ast
+import Types
+import Environment
+import Infer (infer)
 import System.Console.Haskeline
-import Parser.Parser (parseExpr)
+import Parser (parseExpr)
 
 env :: Env
 env = toEnv [("==", TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),

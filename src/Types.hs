@@ -1,4 +1,4 @@
-module TypeInference.Types where
+module Types where
 
 import Data.List (intercalate)
 import Data.Set (Set, empty, union, singleton)

@@ -1,10 +1,10 @@
-module TypeInference.InferMonad where
+module InferMonad where
 
 import Control.Monad
-import Utilities.Monads
-import TypeInference.Types
-import TypeInference.Substitutions
-import TypeInference.Environment
+import Monads
+import Types
+import Substitutions
+import Environment
 import Data.Map (fromList)
 import Data.Set (Set, toList, (\\), map, unions)
 import Prelude hiding (map)

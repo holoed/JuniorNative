@@ -1,6 +1,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 
-module Utilities.Fixpoint where
+module Fixpoint where
 
 fix :: ((a -> b) -> (a -> b)) -> (a -> b)
 fix f = f (fix f)

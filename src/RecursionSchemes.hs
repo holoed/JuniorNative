@@ -1,6 +1,6 @@
-module Utilities.RecursionSchemes where
+module RecursionSchemes where
 
-import Utilities.Fixpoint
+import Fixpoint
 
 -- Recursion Schemes
 

@@ -1,4 +1,4 @@
-module ClosureConversion.FreeVariables where
+module FreeVariables where
 
 import Ast
 import RecursionSchemes

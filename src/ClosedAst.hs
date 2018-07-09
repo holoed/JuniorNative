@@ -1,5 +1,5 @@
 {-# LANGUAGE TypeOperators #-}
-module ClosureConversion.ClosedAst where
+module ClosedAst where
 
 import Ast
 import CoProduct

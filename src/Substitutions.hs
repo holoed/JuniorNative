@@ -1,8 +1,8 @@
-module TypeInference.Substitutions where
+module Substitutions where
 
 import Data.Maybe
 import qualified Data.Map as Map
-import TypeInference.Types
+import Types
 import Prelude hiding (lookup)
 
 type Substitutions = Map.Map String Type

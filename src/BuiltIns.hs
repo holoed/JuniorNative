@@ -1,6 +1,6 @@
-module TypeInference.BuiltIns where
+module BuiltIns where
 
-import TypeInference.Types
+import Types
 
 boolCon :: Type
 boolCon = TyCon "Bool" []

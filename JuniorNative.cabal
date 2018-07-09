@@ -17,20 +17,6 @@ cabal-version:       >=1.10
 
 executable JuniorNative
   main-is:             Main.hs
-  other-modules:       Parser.Parser,
-                       Parser.Lexer,
-                       Base.Ast
-                       TypeInference.BuiltIns
-                       TypeInference.Environment
-                       TypeInference.Infer
-                       TypeInference.InferMonad
-                       TypeInference.PrettyTypes
-                       TypeInference.Substitutions
-                       TypeInference.Types
-                       TypeInference.Unification
-                       Utilities.Fixpoint
-                       Utilities.Monads
-                       Utilities.RecursionSchemes
   other-extensions:    DeriveFunctor, UndecidableInstances
   build-depends:       base,
                        array,
@@ -46,20 +32,6 @@ test-suite tests
   ghc-options:         -Wall -fno-warn-orphans
   type:                exitcode-stdio-1.0
   main-is:             Tests.hs
-  other-modules:       Parser.Parser,
-                       Parser.Lexer,
-                       Base.Ast
-                       TypeInference.BuiltIns
-                       TypeInference.Environment
-                       TypeInference.Infer
-                       TypeInference.InferMonad
-                       TypeInference.PrettyTypes
-                       TypeInference.Substitutions
-                       TypeInference.Types
-                       TypeInference.Unification
-                       Utilities.Fixpoint
-                       Utilities.Monads
-                       Utilities.RecursionSchemes
   hs-source-dirs:      tests, src
   build-tools:         happy, alex
   build-depends:       base,

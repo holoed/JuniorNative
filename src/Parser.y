@@ -1,13 +1,13 @@
 {
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Parser.Parser (
+module Parser (
   parseExpr,
   parseTokens,
 ) where
 
-import Parser.Lexer
-import Base.Ast
+import Lexer
+import Ast
 
 import Control.Monad.Except
 

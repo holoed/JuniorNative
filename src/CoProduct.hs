@@ -1,5 +1,5 @@
 {-# LANGUAGE TypeOperators #-}
-module Utilities.CoProduct where
+module CoProduct where
 
 data (f :+: g) e = Inl (f e) | Inr (g e)
 
