@@ -18,3 +18,6 @@ tests =
 
     it "close a literal" $
       "42" --> "(Inl (Lit (I 42)))"
+
+    it "close a lambda with no free vars" $
+      "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inl (Var \"x\"))))))"

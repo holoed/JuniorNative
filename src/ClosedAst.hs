@@ -15,3 +15,12 @@ data ClosureF a = LookupEnv a Int
 type ClosedExpF = ExpF :+: ClosureF
 
 type ClosedExp = Fix ClosedExpF
+
+mkClosure :: ClosedExp -> ClosedExp -> ClosedExp
+mkClosure env lam = In (Inr (MakeClosure env lam))
+
+mkEnv :: [ClosedExp] -> ClosedExp
+mkEnv vars = In (Inr (MakeEnv vars))
+
+cLam :: String -> ClosedExp -> ClosedExp
+cLam s e = In (Inl (Lam s e))
