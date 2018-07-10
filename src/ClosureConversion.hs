@@ -8,7 +8,7 @@ import Monads
 import Fixpoint
 import Data.Set
 
-type CloseM a = ReaderState (Set String) Int a
+type CloseM = ReaderState (Set String) Int
 
 alg :: ExpF (CloseM ClosedExp) -> CloseM ClosedExp
 alg (Lam n e) = fmap (mkClosure (mkEnv []) . cLam n) e
