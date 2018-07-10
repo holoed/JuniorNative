@@ -21,3 +21,6 @@ tests =
 
     it "close a lambda with no free vars" $
       "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inl (Var \"x\"))))))"
+
+    it "close a lambda with a free vars" $
+      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inl (Var \"x\"))))))))))"

@@ -17,10 +17,13 @@ type ClosedExpF = ExpF :+: ClosureF
 type ClosedExp = Fix ClosedExpF
 
 mkClosure :: ClosedExp -> ClosedExp -> ClosedExp
-mkClosure env lam = In (Inr (MakeClosure env lam))
+mkClosure env clam = In (Inr (MakeClosure env clam))
 
 mkEnv :: [ClosedExp] -> ClosedExp
 mkEnv vars = In (Inr (MakeEnv vars))
 
 cLam :: String -> ClosedExp -> ClosedExp
 cLam s e = In (Inl (Lam s e))
+
+cVar :: String -> ClosedExp
+cVar s = In (Inl (Var s))
