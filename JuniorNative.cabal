@@ -64,8 +64,10 @@ test-suite tests
                        Types,
                        Unification,
                        CoProduct,
+                       Annotations,
                        ClosedAst,
                        ClosureConversion,
+                       AnnotationsTests,
                        ClosureConversionTests,
                        TypeInferenceTests
 
