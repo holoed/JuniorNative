@@ -17,3 +17,7 @@ unwrap = cataRec alg
 wrap :: Functor f => x -> Fix f -> Fix (Ann x f)
 wrap x = cataRec alg
   where alg e = In (Ann x e)
+
+mapAnn :: Functor f => (a -> b) -> Fix (Ann a f) -> Fix (Ann b f)
+mapAnn f = cataRec alg
+    where alg (Ann x e) = In (Ann (f x) e)
