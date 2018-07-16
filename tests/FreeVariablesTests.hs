@@ -24,3 +24,6 @@ tests =
     it "Free vars of an application" $
       freeVarsExp (app (var "f") (var "x")) `shouldBe`
         In (Ann (fromList ["f", "x"]) $ App (In (Ann (fromList ["f"]) (Var "f"))) (In (Ann (fromList ["f", "x"]) (Var "x"))))
+
+    it "Free vars of a lambda" $
+      freeVarsExp (lam "x" (var "x")) `shouldBe` In (Ann (fromList []) (Lam "x" (In (Ann (fromList ["x"]) (Var "x")))))

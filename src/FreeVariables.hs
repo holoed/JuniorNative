@@ -32,7 +32,11 @@ alg2 (MkTuple xs) = do xs' <- sequence xs
 alg2 (App e1 e2) = do e1' <- e1
                       e2' <- e2
                       fvs <- get
-                      return $ In (Ann fvs $ App e1' e2')    
+                      return $ In (Ann fvs $ App e1' e2')
+alg2 (Lam s e) = do e' <- e
+                    modify (Set.delete s)
+                    fvs <- get
+                    return $ In (Ann fvs $ Lam s e')    
 
 freeVarsExp :: Exp -> Fix (Ann (Set.Set String) ExpF)
 freeVarsExp e = evalState (cataRec alg2 e) (Set.fromList [])
