@@ -31,6 +31,12 @@ alg (Let s v b) = do v' <- v
                      modify (Set.delete s)
                      fvs <- get
                      return $ In (Ann fvs $ Let s v' b')
+alg (IfThenElse p e1 e2) = do p' <- p
+                              e1' <- e1
+                              e2' <- e2
+                              fvs <- get
+                              return $ In (Ann fvs $ IfThenElse p' e1' e2')
+
 
 freeVars :: Exp -> Fix (Ann (Set.Set String) ExpF)
 freeVars e = evalState (cataRec alg e) (Set.fromList [])

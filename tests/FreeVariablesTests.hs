@@ -36,3 +36,9 @@ tests =
       freeVars (leT "x" (lit $ I 42) (leT "y" (lit $ I 24) (var "x"))) `shouldBe`
         In (Ann (fromList []) (Let "x" (In (Ann (fromList []) (Lit $ I 42)))
           (In (Ann (fromList ["x"]) (Let "y" (In (Ann (fromList []) (Lit $ I 24))) (In (Ann (fromList ["x"]) (Var "x"))))))))
+
+    it "Free vars of if then else" $
+      freeVars (ifThenElse (var "x") (var "y") (var "z")) `shouldBe`
+        In (Ann (fromList ["x", "y", "z"]) (IfThenElse (In (Ann (fromList ["x"]) (Var "x")))
+                                                       (In (Ann (fromList ["x", "y"]) (Var "y")))
+                                                       (In (Ann (fromList ["x", "y", "z"]) (Var "z")))))
