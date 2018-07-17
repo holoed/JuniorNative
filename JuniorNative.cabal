@@ -33,7 +33,9 @@ executable JuniorNative
                        Types,
                        Unification,
                        CoProduct,
+                       Annotations,
                        ClosedAst,
+                       FreeVariables,
                        ClosureConversion
   build-depends:       base,
                        array,
@@ -66,8 +68,10 @@ test-suite tests
                        CoProduct,
                        Annotations,
                        ClosedAst,
+                       FreeVariables,
                        ClosureConversion,
                        AnnotationsTests,
+                       FreeVariablesTests,
                        ClosureConversionTests,
                        TypeInferenceTests
 

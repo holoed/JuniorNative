@@ -12,18 +12,27 @@ tests =
   describe "Free Variables Tests" $ do
 
     it "Free vars of a literal" $
-      freeVarsExp (lit $ I 42) `shouldBe` In (Ann (fromList []) (Lit $ I 42))
+      freeVars (lit $ I 42) `shouldBe` In (Ann (fromList []) (Lit $ I 42))
 
     it "Free vars of a variable" $
-      freeVarsExp (var "x") `shouldBe` In (Ann (fromList ["x"]) (Var "x"))
+      freeVars (var "x") `shouldBe` In (Ann (fromList ["x"]) (Var "x"))
 
     it "Free vars of a tuple" $
-      freeVarsExp (mkTuple [var "x", var "y"]) `shouldBe`
+      freeVars (mkTuple [var "x", var "y"]) `shouldBe`
         In (Ann (fromList ["x", "y"]) $ MkTuple [In (Ann (fromList ["x"]) (Var "x")), In (Ann (fromList ["x", "y"]) (Var "y"))])
 
     it "Free vars of an application" $
-      freeVarsExp (app (var "f") (var "x")) `shouldBe`
+      freeVars (app (var "f") (var "x")) `shouldBe`
         In (Ann (fromList ["f", "x"]) $ App (In (Ann (fromList ["f"]) (Var "f"))) (In (Ann (fromList ["f", "x"]) (Var "x"))))
 
-    it "Free vars of a lambda" $
-      freeVarsExp (lam "x" (var "x")) `shouldBe` In (Ann (fromList []) (Lam "x" (In (Ann (fromList ["x"]) (Var "x")))))
+    it "Free vars of a lambda" $ do
+      freeVars (lam "x" (var "x")) `shouldBe` In (Ann (fromList []) (Lam "x" (In (Ann (fromList ["x"]) (Var "x")))))
+      freeVars (lam "x" (lam "y" (var "x"))) `shouldBe`
+        In (Ann (fromList []) (Lam "x" (In (Ann (fromList ["x"]) (Lam "y" (In (Ann (fromList ["x"]) (Var "x"))))))))
+
+    it "Free vars of a let" $ do
+      freeVars (leT "x" (lit $ I 42) (var "x")) `shouldBe`
+        In (Ann (fromList []) (Let "x" (In (Ann (fromList []) (Lit $ I 42))) (In (Ann (fromList ["x"]) (Var "x")))))
+      freeVars (leT "x" (lit $ I 42) (leT "y" (lit $ I 24) (var "x"))) `shouldBe`
+        In (Ann (fromList []) (Let "x" (In (Ann (fromList []) (Lit $ I 42)))
+          (In (Ann (fromList ["x"]) (Let "y" (In (Ann (fromList []) (Lit $ I 24))) (In (Ann (fromList ["x"]) (Var "x"))))))))
