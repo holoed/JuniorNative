@@ -5,18 +5,26 @@ import ClosedAst
 import CoProduct
 import RecursionSchemes
 import Monads
+import Annotations
+import FreeVariables (freeVars)
 import Fixpoint
 import Data.Set
+import qualified Data.Map as Map
 
-type CloseM = ReaderState (Set String) Int
+type Subst = Map.Map String ClosedExp
 
-alg :: ExpF (CloseM ClosedExp) -> CloseM ClosedExp
-alg (Lam n e) = do
-     e' <- local (insert n) e
-     ctx <- ask
-     let newEnv = mkEnv (fmap cVar (toList ctx))
+type CloseM = ReaderState Subst Int
+
+alg :: Ann (Set String) ExpF (CloseM ClosedExp) -> CloseM ClosedExp
+alg (Ann fv (Lam n e)) = do
+     let s = [(x, In (Inr $ LookupEnv (In $ Inl $ Var "envID") i)) | (x, i) <- toList fv `zip` [0..]]
+     let s' = fmap (In . Inl . Var) (toList fv)
+     e' <- local (\_ -> Map.fromList s) e
+     let newEnv = mkEnv s'
      return $ (mkClosure newEnv . cLam n) e'
-alg x = fmap (In . Inl) (traverse id x)
+alg (Ann _ x) = fmap (In . Inl) (traverse id x)
 
 convert :: Exp -> Either String ClosedExp
-convert e = eval (cataRec alg e) (fromList []) 0
+convert e =
+  let e' = freeVars e in
+  eval (cataRec alg e') (Map.fromList []) 0
