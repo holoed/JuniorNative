@@ -20,7 +20,7 @@ tests =
       "42" --> "(Inl (Lit (I 42)))"
 
     it "close a lambda with no free vars" $
-      "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inl (Var \"x\"))))))"
+      "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inl (Var \"x\"))))))"
 
     it "close a lambda with a free vars" $
-      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inr (LookupEnv (Inl (Var \"_env1\")) 0))))))))))"
+      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inr (ClosedLam \"_env1\" \"y\" (Inr (LookupEnv (Inl (Var \"_env1\")) 0))))))))))"

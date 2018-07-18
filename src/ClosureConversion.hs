@@ -29,7 +29,7 @@ alg (Ann fv (Lam n e)) = do
      let s' = fmap (In . Inl . Var) (toList fv)
      e' <- local (\_ -> Map.fromList s) e
      let newEnv = mkEnv s'
-     return $ (mkClosure newEnv . cLam n) e'
+     return $ (mkClosure newEnv . cLam env n) e'
 alg (Ann _ (Var s)) = do
      ctx <- ask
      let v = fromMaybe (In (Inl (Var s))) (Map.lookup s ctx)
