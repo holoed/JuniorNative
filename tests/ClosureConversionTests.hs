@@ -23,4 +23,4 @@ tests =
       "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inl (Var \"x\"))))))"
 
     it "close a lambda with a free vars" $
-      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inl (Var \"x\"))))))))))"
+      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inr (LookupEnv (Inl (Var \"_env1\")) 0))))))))))"

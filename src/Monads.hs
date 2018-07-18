@@ -21,6 +21,9 @@ get = lift S.get
 put :: s -> ReaderState r s ()
 put s = lift (S.put s)
 
+modify :: (s -> s) -> ReaderState r s ()
+modify f = get >>= (put . f)
+
 throwError :: String -> ReaderState r s a
 throwError s = lift (lift (E.throwE s))
 
