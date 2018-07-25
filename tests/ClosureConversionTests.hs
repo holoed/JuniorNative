@@ -22,5 +22,6 @@ tests =
     it "close a lambda with no free vars" $
       "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inl (Var \"x\"))))))"
 
-    it "close a lambda with a free vars" $
+    it "close a lambda with a free vars" $ do
       "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inr (ClosedLam \"_env1\" \"y\" (Inr (LookupEnv (Inl (Var \"_env1\")) 0))))))))))"
+      "\\x -> \\y -> \\z -> (x, y, z)" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inr (ClosedLam \"_env1\" \"y\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\")),(Inl (Var \"y\"))])) (Inr (ClosedLam \"_env2\" \"z\" (Inl (MkTuple [(Inr (LookupEnv (Inl (Var \"_env1\")) 0)),(Inr (LookupEnv (Inl (Var \"_env2\")) 1)),(Inl (Var \"z\"))]))))))))))))))"
