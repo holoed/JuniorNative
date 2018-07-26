@@ -8,9 +8,8 @@ import Ast
 import CoProduct
 import Fixpoint
 
-data ClosureF a = LookupEnv a Int
-                | MakeEnv [a]
-                | ClosedLam String String a
+data ClosureF a = LookupEnv String Int
+                | MakeEnv String [a]
                 | MakeClosure a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type ClosedExpF = ExpF :+: ClosureF
@@ -20,11 +19,11 @@ type ClosedExp = Fix ClosedExpF
 mkClosure :: ClosedExp -> ClosedExp -> ClosedExp
 mkClosure env clam = In (Inr (MakeClosure env clam))
 
-mkEnv :: [ClosedExp] -> ClosedExp
-mkEnv vars = In (Inr (MakeEnv vars))
+mkEnv :: String -> [ClosedExp] -> ClosedExp
+mkEnv envId vars = In (Inr (MakeEnv envId vars))
 
-cLam :: String -> String -> ClosedExp -> ClosedExp
-cLam env s e = In (Inr (ClosedLam env s e))
+cLam :: String -> ClosedExp -> ClosedExp
+cLam s e = In (Inl (Lam s e))
 
 cVar :: String -> ClosedExp
 cVar s = In (Inl (Var s))

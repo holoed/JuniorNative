@@ -20,8 +20,14 @@ tests =
       "42" --> "(Inl (Lit (I 42)))"
 
     it "close a lambda with no free vars" $
-      "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inl (Var \"x\"))))))"
+      "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv \"_env0\" [])) (Inl (Lam \"x\" (Inl (Var \"x\"))))))"
 
-    it "close a lambda with a free vars" $ do
-      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inr (ClosedLam \"_env1\" \"y\" (Inr (LookupEnv (Inl (Var \"_env1\")) 0))))))))))"
-      "\\x -> \\y -> \\z -> (x, y, z)" --> "(Inr (MakeClosure (Inr (MakeEnv [])) (Inr (ClosedLam \"_env0\" \"x\" (Inr (MakeClosure (Inr (MakeEnv [(Inl (Var \"x\"))])) (Inr (ClosedLam \"_env1\" \"y\" (Inr (MakeClosure (Inr (MakeEnv [(Inr (LookupEnv (Inl (Var \"_env1\")) 0)),(Inl (Var \"y\"))])) (Inr (ClosedLam \"_env2\" \"z\" (Inl (MkTuple [(Inr (LookupEnv (Inl (Var \"_env1\")) 0)),(Inr (LookupEnv (Inl (Var \"_env2\")) 1)),(Inl (Var \"z\"))]))))))))))))))"
+    it "close a lambda with a free vars" $
+      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv \"_env0\" [])) (Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv \"_env1\" [(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inr (LookupEnv \"_env1\" 0))))))))))"
+
+    it "close a lambda with more than a free vars" $
+      "\\x -> \\y -> \\z -> (x, y, z)" -->
+           ("(Inr (MakeClosure (Inr (MakeEnv \"_env0\" [])) " ++
+           "(Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv \"_env1\" [(Inl (Var \"x\"))])) " ++
+           "(Inl (Lam \"y\" (Inr (MakeClosure (Inr (MakeEnv \"_env2\" [(Inr (LookupEnv \"_env1\" 0)),(Inl (Var \"y\"))])) " ++
+           "(Inl (Lam \"z\" (Inl (MkTuple [(Inr (LookupEnv \"_env1\" 0)),(Inr (LookupEnv \"_env2\" 1)),(Inl (Var \"z\"))]))))))))))))))")
