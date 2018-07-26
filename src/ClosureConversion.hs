@@ -27,7 +27,7 @@ alg (Ann fv (Lam n e)) = do
      env <- gensym "env"
      ctx <- ask
      let s = [(x, fromMaybe (In (Inr $ LookupEnv (In $ Inl $ Var env) i)) (Map.lookup x ctx)) | (x, i) <- toList fv `zip` [0..]]
-     let s' = fmap (In . Inl . Var) (toList fv)
+     let s' = fmap (\x -> fromMaybe (In $ Inl $ Var x) (Map.lookup x ctx)) (toList fv)
      e' <- local (\_ -> Map.fromList s) e
      let newEnv = mkEnv s'
      return $ (mkClosure newEnv . cLam env n) e'
