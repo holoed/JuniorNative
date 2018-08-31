@@ -19,11 +19,11 @@ tests =
 
     it "Free vars of a tuple" $
       freeVars (mkTuple [var "x", var "y"]) `shouldBe`
-        In (Ann (fromList ["x", "y"]) $ MkTuple [In (Ann (fromList ["x"]) (Var "x")), In (Ann (fromList ["x", "y"]) (Var "y"))])
+        In (Ann (fromList ["x", "y"]) $ MkTuple [In (Ann (fromList ["x"]) (Var "x")), In (Ann (fromList ["y"]) (Var "y"))])
 
     it "Free vars of an application" $
       freeVars (app (var "f") (var "x")) `shouldBe`
-        In (Ann (fromList ["f", "x"]) $ App (In (Ann (fromList ["f"]) (Var "f"))) (In (Ann (fromList ["f", "x"]) (Var "x"))))
+        In (Ann (fromList ["f", "x"]) $ App (In (Ann (fromList ["f"]) (Var "f"))) (In (Ann (fromList ["x"]) (Var "x"))))
 
     it "Free vars of a lambda" $ do
       freeVars (lam "x" (var "x")) `shouldBe` In (Ann (fromList []) (Lam "x" (In (Ann (fromList ["x"]) (Var "x")))))
@@ -40,5 +40,5 @@ tests =
     it "Free vars of if then else" $
       freeVars (ifThenElse (var "x") (var "y") (var "z")) `shouldBe`
         In (Ann (fromList ["x", "y", "z"]) (IfThenElse (In (Ann (fromList ["x"]) (Var "x")))
-                                                       (In (Ann (fromList ["x", "y"]) (Var "y")))
-                                                       (In (Ann (fromList ["x", "y", "z"]) (Var "z")))))
+                                                       (In (Ann (fromList ["y"]) (Var "y")))
+                                                       (In (Ann (fromList ["z"]) (Var "z")))))
