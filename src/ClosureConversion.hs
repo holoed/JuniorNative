@@ -26,9 +26,9 @@ alg :: Ann (Set String) ExpF (CloseM ClosedExp) -> CloseM ClosedExp
 alg (Ann fv (Lam n e)) = do
      env <- gensym "env"
      ctx <- ask
-     let s = [(x, fromMaybe (In (Inr $ LookupEnv env i)) (Map.lookup x ctx)) | (x, i) <- toList fv `zip` [0..]]
+     let s = Map.fromList [(x, fromMaybe (In (Inr $ LookupEnv env i)) (Map.lookup x ctx)) | (x, i) <- toList fv `zip` [0..]]
      let s' = fmap (\x -> fromMaybe (In $ Inl $ Var x) (Map.lookup x ctx)) (toList fv)
-     e' <- local (\_ -> Map.fromList s) e
+     e' <- local (\_ -> s) e
      let newEnv = mkEnv env s'
      return $ (mkClosure newEnv . cLam n) e'
 alg (Ann _ (Var s)) = do

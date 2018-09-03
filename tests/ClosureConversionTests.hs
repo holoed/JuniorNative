@@ -31,3 +31,6 @@ tests =
            "(Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv \"_env1\" [(Inl (Var \"x\"))])) " ++
            "(Inl (Lam \"y\" (Inr (MakeClosure (Inr (MakeEnv \"_env2\" [(Inr (LookupEnv \"_env1\" 0)),(Inl (Var \"y\"))])) " ++
            "(Inl (Lam \"z\" (Inl (MkTuple [(Inr (LookupEnv \"_env1\" 0)),(Inr (LookupEnv \"_env2\" 1)),(Inl (Var \"z\"))]))))))))))))))")
+
+    it "close a let binding" $
+      "let x = 42 in x" --> "(Inl (Let \"x\" (Inl (Lit (I 42))) (Inl (Var \"x\"))))"
