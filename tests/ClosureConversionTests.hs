@@ -32,5 +32,9 @@ tests =
            "(Inl (Lam \"y\" (Inr (MakeClosure (Inr (MakeEnv \"_env2\" [(Inr (LookupEnv \"_env1\" 0)),(Inl (Var \"y\"))])) " ++
            "(Inl (Lam \"z\" (Inl (MkTuple [(Inr (LookupEnv \"_env1\" 0)),(Inr (LookupEnv \"_env2\" 1)),(Inl (Var \"z\"))]))))))))))))))")
 
-    it "close a let binding" $
+    it "close a let binding" $ do
       "let x = 42 in x" --> "(Inl (Let \"x\" (Inl (Lit (I 42))) (Inl (Var \"x\"))))"
+      "let f = \\x -> let g = \\y -> x + y in g 5 in f" --> "(Inl (Let \"f\" (Inr (MakeClosure (Inr (MakeEnv \"_env0\" [(Inl (Var \"+\"))])) (Inl (Lam \"x\" (Inl (Let \"g\" (Inr (MakeClosure (Inr (MakeEnv \"_env1\" [(Inr (LookupEnv \"_env0\" 0)),(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inl (App (Inl (App (Inr (LookupEnv \"_env0\" 0)) (Inr (LookupEnv \"_env1\" 1)))) (Inl (Var \"y\")))))))) (Inl (App (Inl (Var \"g\")) (Inl (Lit (I 5))))))))))) (Inl (Var \"f\"))))"
+      "let f = \\x -> let y = x + 1 in y + x in f" --> "(Inl (Let \"f\" (Inr (MakeClosure (Inr (MakeEnv \"_env0\" [(Inl (Var \"+\"))])) (Inl (Lam \"x\" (Inl (Let \"y\" (Inl (App (Inl (App (Inr (LookupEnv \"_env0\" 0)) (Inl (Var \"x\")))) (Inl (Lit (I 1))))) (Inl (App (Inl (App (Inr (LookupEnv \"_env0\" 0)) (Inl (Var \"y\")))) (Inl (Var \"x\")))))))))) (Inl (Var \"f\"))))"
+
+ 
