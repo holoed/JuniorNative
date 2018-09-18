@@ -19,3 +19,6 @@ tests =
 
      it "Rename simple lambda shadowing" $
        "\\x -> \\x -> x" --> "(Lam \"x0\" (Lam \"x1\" (Var \"x1\")))"
+
+     it "Rename curry function" $
+       "\\f -> \\x -> \\y -> f (x, y)" --> "(Lam \"f0\" (Lam \"x1\" (Lam \"y2\" (App (Var \"f0\") (MkTuple [(Var \"x1\"),(Var \"y2\")])))))"
