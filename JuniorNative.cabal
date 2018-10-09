@@ -27,6 +27,7 @@ executable JuniorNative
                        Lexer,
                        Monads,
                        Parser,
+                       PrettyPrinter,
                        AlphaRename,
                        PrettyTypes,
                        RecursionSchemes,
@@ -43,7 +44,8 @@ executable JuniorNative
                        containers,
                        mtl,
                        transformers,
-                       haskeline
+                       haskeline,
+                       pretty
   hs-source-dirs:      src
   build-tools:         happy, alex
   default-language:    Haskell2010
@@ -61,6 +63,7 @@ test-suite tests
                        Lexer,
                        Monads,
                        Parser,
+                       PrettyPrinter,
                        AlphaRename,
                        PrettyTypes,
                        RecursionSchemes,
@@ -85,5 +88,6 @@ test-suite tests
                        containers,
                        mtl,
                        transformers,
+                       pretty,
                        hspec
   default-language:    Haskell2010

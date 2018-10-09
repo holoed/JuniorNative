@@ -12,6 +12,7 @@ import Environment
 import Infer (infer)
 import System.Console.Haskeline
 import Parser (parseExpr)
+import PrettyPrinter
 
 env :: Env
 env = toEnv [("==", TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
@@ -23,6 +24,7 @@ env = toEnv [("==", TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
 process :: String -> IO ()
 process input = do
   let ast = parseExpr input
+  putStrLn (either id pretty ast)
   putStrLn (either id (show . infer env) ast)
 
 main :: IO ()
