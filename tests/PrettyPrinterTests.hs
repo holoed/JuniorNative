@@ -17,5 +17,6 @@ tests =
     it "Print a lam" $
        "\\x -> x" --> "(\\x -> x)"
 
-    it "Print an app" $
-       "x y" --> "x y"
+    it "Print an app" $ do
+       "x y" --> "(x y)"
+       "x y z" --> "((x y) z)"
