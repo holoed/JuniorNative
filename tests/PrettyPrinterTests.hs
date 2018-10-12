@@ -11,8 +11,9 @@ tests :: SpecWith ()
 tests =
   describe "Pretty Printer Tests" $ do
 
-    it "Print a lit" $
+    it "Print a lit" $ do
       "42" --> "42"
+      "True" --> "True"
   
     it "Print a var" $
        "x" --> "x"
