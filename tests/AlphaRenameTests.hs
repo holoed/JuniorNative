@@ -23,3 +23,6 @@ tests =
 
      it "Rename curry function" $
        "\\f -> \\x -> \\y -> f (x, y)" --> "\\f0 -> \\x1 -> \\y2 -> f0 (x1, y2)"
+
+     it "Rename a tuple" $
+       "\\x -> \\y -> (x, y)" --> "\\x0 -> \\y1 -> (x0, y1)"
