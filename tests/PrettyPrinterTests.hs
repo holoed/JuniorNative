@@ -32,3 +32,4 @@ tests =
     it "Print an app with lam" $ do
        "(\\x -> x) 42" --> "(\\x -> x) 42"
        "(\\x -> x) (\\y -> y)" --> "(\\x -> x) (\\y -> y)"
+       "(\\x -> x) (f y)" --> "(\\x -> x) (f y)"

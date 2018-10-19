@@ -3,6 +3,7 @@ module PrettyPrinter where
 import Ast
 import Fixpoint
 import RecursionSchemes
+import Data.List
 import Text.PrettyPrint
 import Control.Monad.Reader
 
@@ -30,6 +31,9 @@ alg (App e1 e2) = do
   e1' <- local ("AppL" :) e1
   e2' <- local ("AppR" :) e2
   return $ parensIf ("App":p) (e1' <+> e2')
+alg (MkTuple es) = do
+  es' <- sequence es
+  return $ parens $ hcat $ intersperse (text ", ") es'
 
 pretty :: Exp -> String
 pretty = render . (\e -> runReader (cataRec alg e) [])
