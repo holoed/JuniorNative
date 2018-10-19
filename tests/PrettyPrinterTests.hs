@@ -1,3 +1,4 @@
+
 module PrettyPrinterTests where
 
 import Test.Hspec
@@ -33,3 +34,7 @@ tests =
        "(\\x -> x) 42" --> "(\\x -> x) 42"
        "(\\x -> x) (\\y -> y)" --> "(\\x -> x) (\\y -> y)"
        "(\\x -> x) (f y)" --> "(\\x -> x) (f y)"
+
+    it "Print a let" $ do
+       "let n = 4 in n" --> "let n = 4 in n"
+       "let f = \\x -> x + 1 in f" --> "let f = \\x -> + x 1 in f"
