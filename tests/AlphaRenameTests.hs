@@ -26,3 +26,7 @@ tests =
 
      it "Rename a tuple" $
        "\\x -> \\y -> (x, y)" --> "\\x0 -> \\y1 -> (x0, y1)"
+
+     it "Rename a let" $ do
+       "let x = 4 in x" --> "let x0 = 4 in x0"
+       "let f = \\x -> x in f 5" --> "let f0 = \\x1 -> x1 in f0 5"

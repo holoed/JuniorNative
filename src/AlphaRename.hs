@@ -27,6 +27,10 @@ alg (Lam x e) = do x' <- newName x
 alg (Var x) = do ctx <- ask
                  let x' = maybe x id (lookup x ctx)
                  return $ var x'
+alg (Let n v b) = do n' <- newName n
+                     v' <- local (insert n n') v
+                     b' <- local (insert n n') b
+                     return $ leT n' v' b'
 alg x = fmap In (traverse id x)
 
 rename :: Exp -> Exp
