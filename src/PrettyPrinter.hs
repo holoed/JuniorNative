@@ -1,7 +1,8 @@
 module PrettyPrinter where
 
+import CoProduct
 import Ast
-import Fixpoint
+import ClosedAst
 import RecursionSchemes
 import Data.List
 import Text.PrettyPrint
@@ -45,3 +46,14 @@ alg (Let n v b) = do
 
 pretty :: Exp -> String
 pretty = render . (\e -> runReader (cataRec alg e) [])
+
+algC :: ClosureF (Reader [String] Doc) -> Reader [String] Doc
+algC (LookupEnv s n) = return $ text "lookupEnv" <+> text s <+> text (show n)
+algC (MakeEnv s env) = return $ text "mkEnv" <+> text s 
+algC (MakeClosure e1 e2) = do
+  e1' <- e1
+  e2' <- e2
+  return $ e1' <+> e2'
+
+prettyClosed :: ClosedExp -> String
+prettyClosed = render . (\e ->runReader (cataRec (liftAlg alg algC) e) [])

@@ -4,37 +4,37 @@ import Test.Hspec
 import Fixpoint
 import ClosedAst
 import ClosureConversion (convert)
+import PrettyPrinter
 import Parser (parseExpr)
 
 close :: String -> Either String (Fix ClosedExpF)
 close s = parseExpr s >>= convert
 
 (-->) :: String -> String -> Expectation
-(-->) x y = either id show (close x) `shouldBe` y
+(-->) x y = either id prettyClosed (close x) `shouldBe` y
 
 tests :: SpecWith ()
 tests =
   describe "Closure Conversion Tests" $ do
 
     it "close a literal" $
-      "42" --> "(Inl (Lit (I 42)))"
+      "42" --> "42"
 
     it "close a lambda with no free vars" $
-      "\\x -> x" --> "(Inr (MakeClosure (Inr (MakeEnv \"_env0\" [])) (Inl (Lam \"x\" (Inl (Var \"x\"))))))"
+      "\\x -> x" --> "mkEnv _env0 \\x -> x"
 
     it "close a lambda with a free vars" $
-      "\\x -> \\y -> x" --> "(Inr (MakeClosure (Inr (MakeEnv \"_env0\" [])) (Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv \"_env1\" [(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inr (LookupEnv \"_env1\" 0))))))))))"
+      "\\x -> \\y -> x" --> "mkEnv _env0 \\x -> mkEnv _env1 \\y -> lookupEnv _env1 0"
 
     it "close a lambda with more than a free vars" $
       "\\x -> \\y -> \\z -> (x, y, z)" -->
-           ("(Inr (MakeClosure (Inr (MakeEnv \"_env0\" [])) " ++
-           "(Inl (Lam \"x\" (Inr (MakeClosure (Inr (MakeEnv \"_env1\" [(Inl (Var \"x\"))])) " ++
-           "(Inl (Lam \"y\" (Inr (MakeClosure (Inr (MakeEnv \"_env2\" [(Inr (LookupEnv \"_env1\" 0)),(Inl (Var \"y\"))])) " ++
-           "(Inl (Lam \"z\" (Inl (MkTuple [(Inr (LookupEnv \"_env1\" 0)),(Inr (LookupEnv \"_env2\" 1)),(Inl (Var \"z\"))]))))))))))))))")
+         "mkEnv _env0 \\x -> mkEnv _env1 \\y -> mkEnv _env2 \\z -> (lookupEnv _env1 0, lookupEnv _env2 1, z)"
 
     it "close a let binding" $ do
-      "let x = 42 in x" --> "(Inl (Let \"x\" (Inl (Lit (I 42))) (Inl (Var \"x\"))))"
-      "let f = \\x -> let g = \\y -> x + y in g 5 in f" --> "(Inl (Let \"f\" (Inr (MakeClosure (Inr (MakeEnv \"_env0\" [(Inl (Var \"+\"))])) (Inl (Lam \"x\" (Inl (Let \"g\" (Inr (MakeClosure (Inr (MakeEnv \"_env1\" [(Inr (LookupEnv \"_env0\" 0)),(Inl (Var \"x\"))])) (Inl (Lam \"y\" (Inl (App (Inl (App (Inr (LookupEnv \"_env0\" 0)) (Inr (LookupEnv \"_env1\" 1)))) (Inl (Var \"y\")))))))) (Inl (App (Inl (Var \"g\")) (Inl (Lit (I 5))))))))))) (Inl (Var \"f\"))))"
-      "let f = \\x -> let y = x + 1 in y + x in f" --> "(Inl (Let \"f\" (Inr (MakeClosure (Inr (MakeEnv \"_env0\" [(Inl (Var \"+\"))])) (Inl (Lam \"x\" (Inl (Let \"y\" (Inl (App (Inl (App (Inr (LookupEnv \"_env0\" 0)) (Inl (Var \"x\")))) (Inl (Lit (I 1))))) (Inl (App (Inl (App (Inr (LookupEnv \"_env0\" 0)) (Inl (Var \"y\")))) (Inl (Var \"x\")))))))))) (Inl (Var \"f\"))))"
+      "let x = 42 in x" --> "let x = 42 in x"
+      "let f = \\x -> let g = \\y -> x + y in g 5 in f" -->
+        "let f = mkEnv _env0 \\x -> let g = mkEnv _env1 \\y -> lookupEnv _env0 0 lookupEnv _env1 1 y in g 5 in f"
+      "let f = \\x -> let y = x + 1 in y + x in f" -->
+        "let f = mkEnv _env0 \\x -> let y = lookupEnv _env0 0 x 1 in lookupEnv _env0 0 y x in f"
 
  
