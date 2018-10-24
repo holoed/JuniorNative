@@ -35,6 +35,6 @@ tests =
       "let f = \\x -> let g = \\y -> x + y in g 5 in f" -->
         "let f = mkEnv _env0 \\x -> let g = mkEnv _env1 \\y -> lookupEnv _env0 0 lookupEnv _env1 1 y in g 5 in f"
       "let f = \\x -> let y = x + 1 in y + x in f" -->
-        "let f = mkEnv _env0 \\x -> let y = lookupEnv _env0 0 x 1 in lookupEnv _env0 0 y x in f"
+         "let f = mkEnv _env0 \\x -> let y = lookupEnv _env0 0 x 1 in lookupEnv _env0 0 y x in f"
 
  
