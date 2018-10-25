@@ -43,6 +43,11 @@ alg (Let n v b) = do
   v' <- v
   b' <- local ("LetB" :) b
   return $ parensIf ("Let":p) $ text "let" <+> text n <+> char '=' <+> v' <+> text "in" <+> b'
+alg (IfThenElse p t f) = do
+  p' <- p
+  t' <- t
+  f' <- f
+  return $ text "if" <+> p' <+> text "then" <+> t' <+> text "else" <+> f'
 
 pretty :: Exp -> String
 pretty = render . (\e -> runReader (cataRec alg e) [])
