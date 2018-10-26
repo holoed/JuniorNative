@@ -42,3 +42,4 @@ tests =
 
     it "Print an if then else" $ do
       "if true then 5 else 6" --> "if true then 5 else 6"
+      "(if true then f else g) 5" --> "(if true then f else g) 5"
