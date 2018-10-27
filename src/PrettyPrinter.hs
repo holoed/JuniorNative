@@ -19,6 +19,7 @@ parensIf ("Lam":"AppR":_) d = parens d
 parensIf ("Let":"AppR":_) d = parens d
 parensIf ("If" :"AppL":_) d = parens d
 parensIf ("If" :"AppR":_) d = parens d
+parensIf ("If" :"Then":_) d = parens d
 parensIf _ d = d
 
 alg :: ExpF (Reader [String] Doc) -> Reader [String] Doc 
@@ -48,8 +49,8 @@ alg (Let n v b) = do
 alg (IfThenElse q t f) = do
   p <- ask
   q' <- q
-  t' <- t
-  f' <- f
+  t' <- local ("Then":) t
+  f' <- local ("Else":) f
   return $ parensIf ("If":p) $ text "if" <+> q' <+> text "then" <+> t' <+> text "else" <+> f'
 
 pretty :: Exp -> String

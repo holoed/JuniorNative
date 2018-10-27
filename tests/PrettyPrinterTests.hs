@@ -44,3 +44,7 @@ tests =
       "if true then 5 else 6" --> "if true then 5 else 6"
       "(if true then f else g) 5" --> "(if true then f else g) 5"
       "f (if true then 5 else 6)" --> "f (if true then 5 else 6)"
+      "if true then (if false then 5 else 6) else 7" --> "if true then (if false then 5 else 6) else 7"
+
+    it "Print a mix" $ do
+      "(let x = 4 in x) (if true then 5 else 6)" --> "(let x = 4 in x) (if true then 5 else 6)"
