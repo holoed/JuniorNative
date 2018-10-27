@@ -17,7 +17,8 @@ parensIf ("Lam":"AppL":_) d = parens d
 parensIf ("Let":"AppL":_) d = parens d
 parensIf ("Lam":"AppR":_) d = parens d
 parensIf ("Let":"AppR":_) d = parens d
-parensIf ("If" :"AppL":_) d = parens d 
+parensIf ("If" :"AppL":_) d = parens d
+parensIf ("If" :"AppR":_) d = parens d
 parensIf _ d = d
 
 alg :: ExpF (Reader [String] Doc) -> Reader [String] Doc 
