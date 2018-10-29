@@ -58,7 +58,9 @@ pretty = render . (\e -> runReader (cataRec alg e) [])
 
 algC :: ClosureF (Reader [String] Doc) -> Reader [String] Doc
 algC (LookupEnv s n) = return $ text "lookupEnv" <+> text s <+> text (show n)
-algC (MakeEnv s env) = return $ text "mkEnv" <+> text s 
+algC (MakeEnv s env) = do
+  env' <- sequence env
+  return $ text "mkEnv" <+> text s <+> text "[" <> (hcat $ intersperse (text ", ") env') <> text "]"
 algC (MakeClosure e1 e2) = do
   e1' <- e1
   e2' <- e2
