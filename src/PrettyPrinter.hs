@@ -57,14 +57,14 @@ pretty :: Exp -> String
 pretty = render . (\e -> runReader (cataRec alg e) [])
 
 algC :: ClosureF (Reader [String] Doc) -> Reader [String] Doc
-algC (LookupEnv s n) = return $ text "lookupEnv" <+> quotes (text s) <+> text (show n)
+algC (LookupEnv s n) = return $ parens $ text "lookupEnv" <+> quotes (text s) <+> text (show n)
 algC (MakeEnv s env) = do
   env' <- sequence env
   return $ text "mkEnv" <+> quotes (text s) <+> text "[" <> (hcat $ intersperse (text ", ") env') <> text "]"
 algC (MakeClosure e1 e2) = do
   e1' <- e1
   e2' <- e2
-  return $ e1' <+> e2'
+  return $ text "mkClosure" <+> parens e1' <+> parens e2'
 
 prettyClosed :: ClosedExp -> String
 prettyClosed = render . (\e ->runReader (cataRec (liftAlg alg algC) e) [])
