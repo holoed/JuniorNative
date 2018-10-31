@@ -10,7 +10,8 @@ import Fixpoint
 
 data ClosureF a = LookupEnv String Int
                 | MakeEnv String [a]
-                | MakeClosure a a deriving (Show, Eq, Functor, Traversable, Foldable)
+                | MakeClosure a a
+                deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type ClosedExpF = ExpF :+: ClosureF
 

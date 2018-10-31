@@ -22,15 +22,24 @@ gensym prefix = do
   modify (+1)
   return $ "_" ++ prefix ++ show n
 
+extract :: (String, Int) -> String -> Map.Map String ClosedExp -> ClosedExp
+extract (x, i) env ctx =
+  fromMaybe (In (Inr $ LookupEnv env i)) (Map.lookup x ctx)
+
+newCtx :: Set String -> String -> Map.Map String ClosedExp -> Map.Map String ClosedExp
+newCtx fv env ctx  =
+  Map.fromList [(x, extract (x, i) env ctx) | (x, i) <- toList fv `zip` [0..]]
+
+newEnv :: Set String -> Map.Map String ClosedExp -> [ClosedExp]
+newEnv fv ctx =
+  fmap (\x -> fromMaybe (In $ Inl $ Var x) (Map.lookup x ctx)) (toList fv)
+
 alg :: Ann (Set String) ExpF (CloseM ClosedExp) -> CloseM ClosedExp
 alg (Ann fv (Lam n e)) = do
      env <- gensym "env"
      ctx <- ask
-     let s = Map.fromList [(x, fromMaybe (In (Inr $ LookupEnv env i)) (Map.lookup x ctx)) | (x, i) <- toList fv `zip` [0..]]
-     let s' = fmap (\x -> fromMaybe (In $ Inl $ Var x) (Map.lookup x ctx)) (toList fv)
-     e' <- local (\_ -> s) e
-     let newEnv = mkEnv env s'
-     return $ (mkClosure newEnv . cLam n) e'
+     e' <- local (newCtx fv env) e
+     return $ (mkClosure (mkEnv env (newEnv fv ctx)) . cLam n) e'
 alg (Ann _ (Var s)) = do
      ctx <- ask
      let v = fromMaybe (In (Inl (Var s))) (Map.lookup s ctx)
