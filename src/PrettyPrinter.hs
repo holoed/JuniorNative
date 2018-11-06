@@ -60,7 +60,7 @@ algC :: ClosureF (Reader [String] Doc) -> Reader [String] Doc
 algC (LookupEnv s n) = return $ parens $ text "lookupEnv" <+> quotes (text s) <+> text (show n)
 algC (MakeEnv s env) = do
   env' <- sequence env
-  return $ text "mkEnv" <+> quotes (text s) <+> text "[" <> (hcat $ intersperse (text ", ") env') <> text "]"
+  return $ text "mkEnv" <+> quotes (text s) <+> text "[" <> hcat (intersperse (text ", ") env') <> text "]"
 algC (MakeClosure e1 e2) = do
   e1' <- e1
   e2' <- e2

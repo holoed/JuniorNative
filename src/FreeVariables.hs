@@ -20,10 +20,10 @@ alg (App e1 e2) = do (e1', fvs1) <- listen e1
                      (e2', fvs2) <- listen e2
                      return $ In (Ann (fvs1 `union` fvs2) $ App e1' e2')
 alg (Lam s e) = pass (do (e', fvs) <- listen e
-                         return $ (In (Ann (delete s fvs) $ Lam s e'), delete s))
+                         return (In (Ann (delete s fvs) $ Lam s e'), delete s))
 alg (Let s v b) = pass (do (v', fvs1) <- listen v
                            (b', fvs2) <- listen b
-                           return $ (In (Ann (delete s $ fvs1 `union` fvs2)  $ Let s v' b'), delete s))
+                           return (In (Ann (delete s $ fvs1 `union` fvs2)  $ Let s v' b'), delete s))
 alg (IfThenElse p e1 e2) = do (p', fvs1) <- listen p
                               (e1',fvs2) <- listen e1
                               (e2',fvs3) <- listen e2

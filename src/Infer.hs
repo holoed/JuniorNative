@@ -64,7 +64,7 @@ alg (MkTuple es) =
      ts <- mapM (const newTyVar) es
      let t = tupleCon ts
      updateSubs $ mgu t bt
-     es' <- sequence (fmap (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts))
+     es' <- traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
      return (mkTuple es')
 
 infer :: Env -> Exp -> Either String Type

@@ -2,6 +2,7 @@ module AlphaRename where
 
 import Ast
 import Data.Map
+import Data.Maybe
 import Control.Monad.Trans.Reader
 import Control.Monad.State
 import Fixpoint
@@ -17,7 +18,7 @@ newName s = do (index, names) <- get
                else do let s' = s ++ show index
                        let names' = insert s' s names
                        put (index + 1, names')
-                       return $ s' 
+                       return s' 
                 
 
 alg :: ExpF (AlphaM Exp) -> AlphaM Exp
@@ -25,7 +26,7 @@ alg (Lam x e) = do x' <- newName x
                    e' <- local (insert x x') e
                    return $ lam x' e'
 alg (Var x) = do ctx <- ask
-                 let x' = maybe x id (lookup x ctx)
+                 let x' = fromMaybe x (lookup x ctx)
                  return $ var x'
 alg (Let n v b) = do n' <- newName n
                      v' <- local (insert n n') v

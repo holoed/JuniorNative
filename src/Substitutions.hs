@@ -11,7 +11,7 @@ extend :: String -> Type -> Substitutions -> Substitutions
 extend = Map.insert
 
 lookup :: String -> Substitutions -> Type
-lookup v = fromMaybe (TyVar v) . (Map.lookup v)
+lookup v = fromMaybe (TyVar v) . Map.lookup v
 
 substitute :: Substitutions -> Type -> Type
 substitute s t@(TyVar n) = let t' = lookup n s in
