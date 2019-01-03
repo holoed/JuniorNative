@@ -38,7 +38,8 @@ executable JuniorNative
                        Annotations,
                        ClosedAst,
                        FreeVariables,
-                       ClosureConversion
+                       ClosureConversion,
+                       Compiler
   build-depends:       base,
                        array,
                        containers,
@@ -75,6 +76,7 @@ test-suite tests
                        ClosedAst,
                        FreeVariables,
                        ClosureConversion,
+                       Compiler,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
