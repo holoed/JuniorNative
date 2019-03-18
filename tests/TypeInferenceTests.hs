@@ -77,3 +77,6 @@ tests =
       "let f = \\x -> x in (f 5, f True)" --> "(Int, Bool)"
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
       "let f = \\x -> let g = \\y -> (x, y) in (g 3, g True) in f" --> "(a -> ((a, Int), (a, Bool)))"
+
+    it "Apply function with wrong tuple arity" $ do
+      "let f = \\x -> (fst x, snd x) in f (1, 2, 3)" --> "Unable to unify (T11, T12, T13) with (aT8T10, T4T10)"
