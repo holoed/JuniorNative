@@ -81,7 +81,8 @@ test-suite tests
                        AnnotationsTests,
                        FreeVariablesTests,
                        ClosureConversionTests,
-                       TypeInferenceTests
+                       TypeInferenceTests,
+                       PrettyPrinterTests
 
   hs-source-dirs:      tests, src
   build-tools:         happy, alex

@@ -7,7 +7,7 @@ import RecursionSchemes
 import Data.List
 import Text.PrettyPrint
 import Control.Monad.Reader
-
+import Prelude hiding ((<>))
 
 parensIf :: [String] -> Doc -> Doc
 parensIf ("AppL":"Lam":_) d = parens d
