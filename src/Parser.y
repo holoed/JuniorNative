@@ -36,6 +36,7 @@ import Control.Monad.Except
     else  { TokenElse }
     in    { TokenIn }
     NUM   { TokenNum $$ }
+    STRING { TokenString $$ }
     VAR   { TokenSym $$ }
     '\\'  { TokenLambda }
     '->'  { TokenArrow }
@@ -73,6 +74,7 @@ Fact : Fact Atom                   { app $1 $2 }
 Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple $2 }
      | NUM                         { lit $1 }
+     | STRING                      { lit $1 }
      | VAR                         { var $1 }
      | true                        { lit (B True) }
      | false                       { lit (B False) }

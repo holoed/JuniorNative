@@ -15,7 +15,8 @@ tests =
     it "Print a lit" $ do
       "42" --> "42"
       "True" --> "True"
-  
+      "\"Hello\"" --> "\"Hello\""
+
     it "Print a var" $ do
        "x" --> "x"
        "foo" --> "foo"

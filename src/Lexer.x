@@ -16,6 +16,8 @@ import Control.Monad.Except
 $digit = 0-9
 $alpha = [a-zA-Z]
 $eol   = [\n]
+$graphic = $printable # $white
+@string = \" ($graphic # \")* \"
 
 tokens :-
 
@@ -35,6 +37,7 @@ tokens :-
   else                          { \s -> TokenElse }
   in                            { \s -> TokenIn }
   $digit+                       { \s -> TokenNum (I $ read s) }
+  @string                       { \s -> TokenString (S s) }
   "->"                          { \s -> TokenArrow }
   "=="                          { \s -> TokenEql }
   \=                            { \s -> TokenEq }
@@ -60,6 +63,7 @@ data Token
   | TokenTrue
   | TokenFalse
   | TokenNum Prim
+  | TokenString Prim
   | TokenSym String
   | TokenArrow
   | TokenEq
