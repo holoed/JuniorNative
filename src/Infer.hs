@@ -70,7 +70,7 @@ alg (MkTuple es) =
 infer :: Env -> Exp -> Either String Type
 infer env e = fmap f (run m ctx state)
   where
-        f (subs, _) = pretty (substitute subs bt)
+        f ((subs, _), _) = pretty (substitute subs bt)
         m = cataRec alg e
         bt =  TyVar "TBase"
         ctx = (env, bt, fromList [])

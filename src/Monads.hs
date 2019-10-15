@@ -1,34 +1,33 @@
 module Monads where
 
-import Control.Monad.Identity
 import Control.Monad.Trans
-import qualified Control.Monad.Trans.Reader as R
-import qualified Control.Monad.Trans.State.Lazy as S
+import Control.Monad.Identity
+import qualified Control.Monad.Trans.RWS.Lazy as S
 import qualified Control.Monad.Trans.Except as E
 
 -- ReaderState Monad
-type ReaderState r s = R.ReaderT r (S.StateT s (E.ExceptT String Identity))
+type ReaderState r w s = S.RWST r w s (E.ExceptT String Identity)
 
-ask :: ReaderState r s r
-ask = R.ask
+ask :: Monoid w => ReaderState r w s r
+ask = S.ask
 
-local :: (r -> r) -> ReaderState r s a -> ReaderState r s a
-local = R.local
+local :: Monoid w => (r -> r) -> ReaderState r w s a -> ReaderState r w s a
+local = S.local
 
-get :: ReaderState r s s
-get = lift S.get
+get :: Monoid w => ReaderState r w s s
+get = S.get
 
-put :: s -> ReaderState r s ()
-put s = lift (S.put s)
+put :: Monoid w => s -> ReaderState r w s ()
+put s = S.put s
 
-modify :: (s -> s) -> ReaderState r s ()
+modify :: Monoid w => (s -> s) -> ReaderState r w s ()
 modify f = get >>= (put . f)
 
-throwError :: String -> ReaderState r s a
-throwError s = lift (lift (E.throwE s))
+throwError :: Monoid w => String -> ReaderState r w s a
+throwError s = lift (E.throwE s)
 
-run :: ReaderState r s a -> r -> s -> Either String s
-run m r s = runIdentity (E.runExceptT (S.execStateT (R.runReaderT m r) s))
+run :: Monoid w => ReaderState r w s a -> r -> s -> Either String (s, w)
+run m r s = runIdentity (E.runExceptT (S.execRWST m r s))
 
-eval :: ReaderState r s a -> r -> s -> Either String a
-eval m r s = runIdentity (E.runExceptT (S.evalStateT (R.runReaderT m r) s))
+eval :: Monoid w => ReaderState r w s a -> r -> s -> Either String (a, w)
+eval m r s = runIdentity (E.runExceptT (S.evalRWST m r s))
