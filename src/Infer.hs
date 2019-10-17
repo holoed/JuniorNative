@@ -16,7 +16,7 @@ import PrettyTypes
 valueToType :: Prim -> Type
 valueToType (I _) = intCon
 valueToType (B _) = boolCon
-valueToType _ = undefined
+valueToType (S _) = strCon
 
 alg :: ExpF (TypeM Exp) -> TypeM Exp
 alg (Lit v) =

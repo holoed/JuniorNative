@@ -26,8 +26,9 @@ tests :: SpecWith ()
 tests =
   describe "Type Inference Tests" $ do
 
-    it "type of a literal" $
+    it "type of a literal" $ do
       "42" --> "Int"
+      "\"Hello\"" --> "String"
 
     it "type of simple math" $ do
       "12 + 24" --> "Int"
