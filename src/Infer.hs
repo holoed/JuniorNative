@@ -21,13 +21,13 @@ valueToType (S _) = strCon
 alg :: ExpF (TypeM Exp) -> TypeM Exp
 alg (Lit v) =
   do bt <- getBaseType
-     updateSubs $ mgu (valueToType v) bt
+     mgu (valueToType v) bt
      return (lit v)
 
 alg (Var n) =
   do bt <- getBaseType
      t <- getTypeForName n
-     updateSubs $ mgu t bt
+     mgu t bt
      return (var n)
 
 alg (App e1 e2) =
@@ -41,7 +41,7 @@ alg (Lam n e) =
      t1@(TyVar t1n) <- newTyVar
      t2 <- newTyVar
      let t = TyLam t1 t2
-     updateSubs $ mgu t bt
+     mgu t bt
      e' <- local (\(env, _, sv) -> (addScheme n (Identity t1) env, t2, insert t1n sv)) e
      return (lam n e')
 
@@ -63,7 +63,7 @@ alg (MkTuple es) =
   do bt <- getBaseType
      ts <- mapM (const newTyVar) es
      let t = tupleCon ts
-     updateSubs $ mgu t bt
+     mgu t bt
      es' <- traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
      return (mkTuple es')
 

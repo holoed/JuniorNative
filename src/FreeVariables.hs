@@ -4,13 +4,13 @@ import Ast
 import Fixpoint
 import Annotations
 import RecursionSchemes
-import Data.Set 
+import Data.Set
 import Control.Monad.Writer
 
 type FreeVarsM = Writer (Set String)
 type FreeVarsExp = Fix (Ann (Set String) ExpF)
 
-alg :: ExpF (FreeVarsM (Fix (Ann (Set String) ExpF))) -> FreeVarsM (Fix (Ann (Set String) ExpF))
+alg :: ExpF (FreeVarsM FreeVarsExp) -> FreeVarsM FreeVarsExp
 alg (Lit x) = return $ In (Ann empty (Lit x))
 alg (Var s) = do tell (singleton s)
                  return $ In (Ann (singleton s) (Var s))
