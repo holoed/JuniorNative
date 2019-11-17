@@ -17,8 +17,7 @@ newTyVar = do (subs, i) <- get
               return (TyVar ("T" ++ show i))
 
 refreshNames :: Set String -> TypeM Substitutions
-refreshNames ns = do (TyVar n') <- newTyVar
-                     return $ fromList (fmap (\n -> (n, TyVar (n ++ n'))) (toList ns))
+refreshNames ns = newTyVar >>= (\(TyVar n') -> return $ fromList (fmap (\n -> (n, TyVar (n ++ n'))) (toList ns))) 
 
 getBaseType :: TypeM Type
 getBaseType = fmap (\(_,b,_) -> b) ask

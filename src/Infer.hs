@@ -38,10 +38,11 @@ alg (App e1 e2) =
 
 alg (Lam n e) =
   do bt <- getBaseType
-     t1@(TyVar t1n) <- newTyVar
+     t1 <- newTyVar
      t2 <- newTyVar
      let t = TyLam t1 t2
      mgu t bt
+     let (TyVar t1n) = t1
      e' <- local (\(env, _, sv) -> (addScheme n (Identity t1) env, t2, insert t1n sv)) e
      return (lam n e')
 
@@ -53,7 +54,8 @@ alg (IfThenElse p e1 e2) =
      return (ifThenElse p' e1' e2')
 
 alg (Let n e1 e2) =
-  do t@(TyVar tn) <- newTyVar
+  do t <- newTyVar
+     let (TyVar tn) = t
      e1' <- local (\(env, _, sv) -> (addScheme n (Identity t) env, t, insert tn sv)) e1
      (subs, _) <- get
      e2' <- local (\(env, bt, sv) -> (addScheme n (generalise sv (substitute subs t)) env, bt, sv)) e2
