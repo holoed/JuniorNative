@@ -5,18 +5,7 @@
 module Ast where
 
 import Fixpoint
-
-type Precedence = Integer
-
-data Associativity = LeftAssoc | RightAssoc | NonAssoc deriving (Eq, Show)
-
-type Operator = (String, Precedence, Associativity)
-
-mulOp    = ("*", 15, LeftAssoc)
-divOp    = ("/", 15, LeftAssoc)
-plusOp   = ("+", 14, LeftAssoc)
-subOp    = ("-", 14, LeftAssoc)
-eqeqOp   = ("==", 11, LeftAssoc) 
+import Operators
 
 data Prim = I Int | B Bool | S String deriving (Eq, Show)
 

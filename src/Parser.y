@@ -7,6 +7,7 @@ module Parser (
 ) where
 
 import Lexer
+import Operators
 import Ast
 
 import Control.Monad.Except
@@ -68,7 +69,7 @@ Form : Form '+' Form               { infixApp plusOp $1 $3 }
      | Form '==' Form              { infixApp eqeqOp $1 $3 }
      | Fact                        { $1 }
 
-Fact : Fact Atom                   { app $1 $2 }
+Fact : Fact Atom                   { infixApp juxtaOp $1 $2 }
      | Atom                        { $1 }
 
 Atom : '(' Expr ')'                { $2 }

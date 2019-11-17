@@ -23,6 +23,10 @@ alg (App e1 e2) = do
   e1' <- e1
   e2' <- e2
   return $ (e1' <+> e2')
+alg (InfixApp op e1 e2) = do
+    e1' <- e1
+    e2' <- e2
+    return $ (e1' <+> e2')
 alg (MkTuple es) = do
   es' <- sequence es
   return $ parens $ hcat $ intersperse (text ", ") es'

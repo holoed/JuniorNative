@@ -4,6 +4,7 @@ import Data.Map (empty)
 import Data.Set (fromList, insert)
 import Monads
 import RecursionSchemes
+import Fixpoint
 import Ast
 import Types
 import BuiltIns
@@ -73,7 +74,14 @@ infer :: Env -> Exp -> Either String Type
 infer env e = fmap f (run m ctx state)
   where
         f ((subs, _), _) = pretty (substitute subs bt)
-        m = cataRec alg e
+        m = cataRec alg (desugarOps e)
         bt =  TyVar "TBase"
         ctx = (env, bt, fromList [])
         state = (empty, 0)
+
+
+desugarOps :: Exp -> Exp
+desugarOps = cataRec alg
+    where alg (InfixApp (txt, _, _) e1 e2) | txt /= " " = app (app (var txt) e1) e2
+          alg (InfixApp (txt, _, _) e1 e2) = app e1 e2
+          alg e = In e  
