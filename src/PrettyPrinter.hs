@@ -6,14 +6,14 @@ import RecursionSchemes
 import Data.List
 import Text.PrettyPrint
 import Control.Monad.Writer hiding ((<>))
-import Prelude hiding (Left, Right)
+import Prelude hiding (Left, Right, (<>))
 
 parenthesize :: Doc -> Doc
 parenthesize d = text "(" <> d <> text ")"
 
 noparens ::Operator -> Operator -> Associativity -> Bool
 noparens (_, pi, fi) (_, po, fo) side = pi > po || other fi side
-  where other Postfix Left = true
+  where other Postfix Left = True
 
 unwrapOp ::[Operator] -> Operator
 unwrapOp [] = maxOp
