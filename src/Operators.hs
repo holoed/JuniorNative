@@ -12,6 +12,7 @@ type Operator = (String, Precedence, Fixity)
 
 maxOp    = ("<maximum-precedence-operator>", 99, Infix NonAssoc)              
 juxtaOp  = (" ", 20, Infix Left)
+lamOp    = ("->", 18, Infix Right)
 mulOp    = ("*", 15, Infix Left)
 divOp    = ("/", 15, Infix Left)
 plusOp   = ("+", 14, Infix Left)
