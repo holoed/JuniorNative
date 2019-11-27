@@ -6,7 +6,7 @@ import RecursionSchemes
 import Data.List
 import Text.PrettyPrint
 import Control.Monad.Writer hiding ((<>))
-import Prelude hiding (Left, Right)
+import Prelude hiding (Left, Right, (<>))
 
 parenthesize :: Doc -> Doc
 parenthesize d = text "(" <> d <> text ")"
