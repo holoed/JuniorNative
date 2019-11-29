@@ -48,3 +48,6 @@ tests =
 
     it "Print a mix" $ do
       "(let x = 4 in x) (if true then 5 else 6)" --> "(let x = 4 in x) (if true then 5 else 6)"
+
+    it "Print a tuple" $ do
+      "(\\x -> x + 1, \\y -> y - 1)" --> "(\\x -> x + 1, \\y -> y - 1)"
