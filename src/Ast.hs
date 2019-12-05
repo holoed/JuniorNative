@@ -5,6 +5,7 @@
 module Ast where
 
 import Fixpoint
+import Operators
 
 data Prim = I Int | B Bool | S String deriving (Eq, Show)
 
@@ -12,6 +13,7 @@ data ExpF a = Lit Prim
             | Var String
             | MkTuple [a]
             | App a a
+            | InfixApp Operator a a
             | Lam String a
             | Let String a a
             | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
@@ -26,6 +28,9 @@ var s = In (Var s)
 
 app :: Exp -> Exp -> Exp
 app e1 e2 = In (App e1 e2)
+
+infixApp :: Operator -> Exp -> Exp -> Exp
+infixApp op e1 e2 = In (InfixApp op e1 e2)
 
 lam :: String -> Exp -> Exp
 lam s e = In (Lam s e)

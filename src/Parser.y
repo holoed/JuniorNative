@@ -7,6 +7,7 @@ module Parser (
 ) where
 
 import Lexer
+import Operators
 import Ast
 
 import Control.Monad.Except
@@ -61,14 +62,14 @@ Expr : let VAR '=' Expr in Expr    { leT $2 $4 $6 }
      | if Expr then Expr else Expr { ifThenElse $2 $4 $6 }
      | Form                        { $1 }
 
-Form : Form '+' Form               { app (app (var "+") $1) $3 }
-     | Form '-' Form               { app (app (var "-") $1) $3 }
-     | Form '*' Form               { app (app (var "*") $1) $3 }
-     | Form '/' Form               { app (app (var "/") $1) $3 }
-     | Form '==' Form              { app (app (var "==") $1) $3 }
+Form : Form '+' Form               { infixApp plusOp $1 $3 }
+     | Form '-' Form               { infixApp subOp $1 $3 }
+     | Form '*' Form               { infixApp mulOp $1 $3 }
+     | Form '/' Form               { infixApp divOp $1 $3 }
+     | Form '==' Form              { infixApp eqeqOp $1 $3 }
      | Fact                        { $1 }
 
-Fact : Fact Atom                   { app $1 $2 }
+Fact : Fact Atom                   { infixApp juxtaOp $1 $2 }
      | Atom                        { $1 }
 
 Atom : '(' Expr ')'                { $2 }

@@ -1,26 +1,31 @@
 module PrettyPrinter where
 
 import Ast
+import Operators
 import RecursionSchemes
 import Data.List
 import Text.PrettyPrint
-import Control.Monad.Reader
-import Prelude hiding ((<>))
+import Control.Monad.Writer hiding ((<>))
+import Prelude hiding (Left, Right, (<>))
 
-parensIf :: [String] -> Doc -> Doc
-parensIf ("AppL":"Lam":_) d = parens d
-parensIf ("AppL":"Let":_) d = parens d
-parensIf ("App":"AppR":_) d = parens d
-parensIf ("Lam":"AppL":_) d = parens d
-parensIf ("Let":"AppL":_) d = parens d
-parensIf ("Lam":"AppR":_) d = parens d
-parensIf ("Let":"AppR":_) d = parens d
-parensIf ("If" :"AppL":_) d = parens d
-parensIf ("If" :"AppR":_) d = parens d
-parensIf ("If" :"Then":_) d = parens d
-parensIf _ d = d
+parenthesize :: Doc -> Doc
+parenthesize d = text "(" <> d <> text ")"
 
-alg :: ExpF (Reader [String] Doc) -> Reader [String] Doc
+noparens ::Operator -> Operator -> Associativity -> Bool
+noparens (_, pi, fi) (_, po, fo) side = pi > po || other fi side
+  where other Postfix Left  = True
+        other Prefix  Right = True
+        other (Infix Left) Left = pi == po && fo == Infix Left
+        other (Infix Right) Right = pi == po && fo == Infix Right
+        other _ NonAssoc = fi == fo
+        other _ _ = False
+       
+bracket :: Associativity -> Operator -> [Operator] -> Doc -> Doc
+bracket side outer [] doc = doc
+bracket side outer (inner:_) doc =
+  if noparens inner outer side then doc else parenthesize doc
+
+alg :: ExpF (Writer [Operator] Doc) -> Writer [Operator] Doc
 alg (Lit (I v)) =
    return $ text (show v)
 alg (Lit (B b)) =
@@ -30,28 +35,29 @@ alg (Lit (S s)) =
 alg (Var x) =
    return $ text x
 alg (Lam n e) = do
-  p  <- ask
-  e' <- local ("Lam":) e
-  return $ parensIf ("Lam" :p) $ char '\\' <> text n <+> text "->" <+> e'
-alg (App e1 e2) = do
-  p <- ask
-  e1' <- local ("AppL" :) e1
-  e2' <- local ("AppR" :) e2
-  return $ parensIf ("App":p) (e1' <+> e2')
+  e' <- e
+  _ <- tell [lamOp]
+  return $ char '\\' <> text n <+> text "->" <+> e'
+alg (InfixApp op@(opName, _, _) e1 e2) = do
+    (e1', l) <- listen e1
+    (e2', r) <- listen e2
+    _ <- tell [op]
+    let opTxt = if opName == " " then opName else " " ++ opName ++ " "
+    return $ ((bracket Left op l e1') <> text opTxt <> (bracket Right op r e2'))
 alg (MkTuple es) = do
   es' <- sequence es
   return $ parens $ hcat $ intersperse (text ", ") es'
 alg (Let n v b) = do
-  p <- ask
   v' <- v
-  b' <- local ("LetB" :) b
-  return $ parensIf ("Let":p) $ text "let" <+> text n <+> char '=' <+> v' <+> text "in" <+> b'
+  b' <- b
+  _ <- tell [minOp]
+  return $ text "let" <+> text n <+> char '=' <+> v' <+> text "in" <+> b'
 alg (IfThenElse q t f) = do
-  p <- ask
   q' <- q
-  t' <- local ("Then":) t
-  f' <- local ("Else":) f
-  return $ parensIf ("If":p) $ text "if" <+> q' <+> text "then" <+> t' <+> text "else" <+> f'
+  t' <- t
+  f' <- f
+  _ <- tell [minOp]
+  return $ text "if" <+> q' <+> text "then" <+> t' <+> text "else" <+> f'
 
 pretty :: Exp -> String
-pretty = render . (\e -> runReader (cataRec alg e) [])
+pretty = render . (\e -> fst $ runWriter (cataRec alg e))
