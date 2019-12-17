@@ -9,7 +9,7 @@ import Data.Map (fromList)
 import Data.Set (Set, toList, (\\), map, unions)
 import Prelude hiding (map)
 
-type TypeM = ReaderState (Env, Type, Set String) [Int] (Substitutions, Int)
+type TypeM = ReaderWriterState (Env, Type, Set String) [Int] (Substitutions, Int)
 
 newTyVar :: TypeM Type
 newTyVar = do (subs, i) <- get
