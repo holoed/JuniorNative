@@ -1,4 +1,4 @@
-module QualifiedTypes
+module QualifiedTypes where
 
 import Types
   
