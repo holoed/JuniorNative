@@ -9,7 +9,7 @@ import Data.Map (fromList)
 import Data.Set (Set, toList, (\\), map, unions)
 import Prelude hiding (map)
 
-type TypeM = ReaderWriterState (Env, Type, Set String) [Int] (Substitutions, Int)
+type TypeM = ReaderWriterState (Env, Type, Set String) (Set Pred) (Substitutions, Int)
 
 newTyVar :: TypeM Type
 newTyVar = do (subs, i) <- get
@@ -32,8 +32,8 @@ updateSubs f =
       put (subs', index)
 
 -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
-mkForAll :: Set String -> Type -> TypeM Type
-mkForAll sv t = do
+mkForAll :: Set String -> Qual Type -> TypeM Type
+mkForAll sv (ps :=> t) = do
   (subs, _) <- get
   let subSv = map (substitute subs . TyVar) sv
   let tyToRefresh = getTVarsOfType t \\ unions (toList (map getTVarsOfType subSv))
@@ -44,9 +44,9 @@ getTypeForName n =
   do env <- getEnv
      unless (containsScheme n env) $ throwError ("Name " ++ n ++ " not found.")
      case findScheme n env of
-       ForAll sv t -> mkForAll sv t
-       Identity t -> return t
+       ForAll sv qt -> mkForAll sv qt
+       Identity (ps :=> t) -> return t
 
-generalise :: Set String -> Type -> TypeScheme
-generalise sv t@(TyLam _ _) = ForAll sv t
-generalise _ t = Identity t
+generalise :: Set String -> Qual Type -> TypeScheme
+generalise sv (ps :=> t@(TyLam _ _)) = ForAll sv (ps :=> t)
+generalise _ qt = Identity qt

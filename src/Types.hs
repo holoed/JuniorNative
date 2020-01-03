@@ -3,6 +3,12 @@ module Types where
 import Data.List (intercalate)
 import Data.Set (Set, empty, union, singleton)
 
+-- Qualified 
+
+data Pred = IsIn String Type deriving (Eq, Ord, Show)
+
+data Qual t = [Pred] :=> t deriving Eq
+
 -- Type
 
 data Type = TyCon String [Type]
@@ -18,8 +24,8 @@ instance Show Type where
 
 -- Type Schemes
 
-data TypeScheme = ForAll (Set String) Type
-                | Identity Type
+data TypeScheme = ForAll (Set String) (Qual Type)
+                | Identity (Qual Type)
 
 getTVarsOfType :: Type -> Set String
 getTVarsOfType (TyVar n) = singleton n
