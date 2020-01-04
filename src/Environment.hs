@@ -18,7 +18,7 @@ addScheme :: String -> TypeScheme -> Env -> Env
 addScheme = Map.insert
 
 toScheme :: Type -> TypeScheme
-toScheme t = ForAll Set.empty ([] :=> t)
+toScheme t = ForAll Set.empty (Set.fromList [] :=> t)
 
 toEnv :: [(String, Type)] -> Env
 toEnv = Map.map toScheme . Map.fromList

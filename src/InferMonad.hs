@@ -1,6 +1,7 @@
 module InferMonad where
 
 import Control.Monad
+import Control.Monad.Writer
 import Monads
 import Types
 import Substitutions
@@ -34,6 +35,7 @@ updateSubs f =
 -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
 mkForAll :: Set String -> Qual Type -> TypeM Type
 mkForAll sv (ps :=> t) = do
+  _ <- tell ps
   (subs, _) <- get
   let subSv = map (substitute subs . TyVar) sv
   let tyToRefresh = getTVarsOfType t \\ unions (toList (map getTVarsOfType subSv))
@@ -45,7 +47,7 @@ getTypeForName n =
      unless (containsScheme n env) $ throwError ("Name " ++ n ++ " not found.")
      case findScheme n env of
        ForAll sv qt -> mkForAll sv qt
-       Identity (ps :=> t) -> return t
+       Identity (_ :=> t) -> return t
 
 generalise :: Set String -> Qual Type -> TypeScheme
 generalise sv (ps :=> t@(TyLam _ _)) = ForAll sv (ps :=> t)

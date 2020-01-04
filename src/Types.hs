@@ -7,7 +7,7 @@ import Data.Set (Set, empty, union, singleton)
 
 data Pred = IsIn String Type deriving (Eq, Ord, Show)
 
-data Qual t = [Pred] :=> t deriving Eq
+data Qual t = Set Pred :=> t deriving Eq
 
 -- Type
 
