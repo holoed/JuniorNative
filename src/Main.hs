@@ -15,11 +15,11 @@ import Parser (parseExpr)
 import PrettyPrinter
 
 env :: Env
-env = toEnv [("==", TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
-             ("+",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-             ("-",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-             ("*",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-             ("/",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a")))]
+env = toEnv [("==", Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
+             ("+",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+             ("-",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+             ("*",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+             ("/",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a")))]
 
 process :: String -> IO ()
 process input = do

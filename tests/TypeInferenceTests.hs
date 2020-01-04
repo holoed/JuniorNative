@@ -1,5 +1,6 @@
 module TypeInferenceTests where
 
+import qualified Data.Set as Set
 import Test.Hspec
 import Types
 import Environment
@@ -7,14 +8,14 @@ import Infer (infer)
 import Parser (parseExpr)
 
 env :: Env
-env = toEnv [("id", TyLam (TyVar "a") (TyVar "a")),
-            ("==", TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
-            ("-",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("+",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("*",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("/",  TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("fst", TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "a")),
-            ("snd", TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b"))]
+env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a") (TyVar "a")),
+            ("==", Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
+            ("-",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("+",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("*",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("/",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("fst", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "a")),
+            ("snd", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b"))]
 
 typeOf :: String -> Either String Type
 typeOf s = parseExpr s >>= infer env

@@ -17,8 +17,8 @@ containsScheme = Map.member
 addScheme :: String -> TypeScheme -> Env -> Env
 addScheme = Map.insert
 
-toScheme :: Type -> TypeScheme
-toScheme t = ForAll Set.empty (Set.fromList [] :=> t)
+toScheme :: Qual Type -> TypeScheme
+toScheme qt = ForAll Set.empty qt
 
-toEnv :: [(String, Type)] -> Env
+toEnv :: [(String, Qual Type)] -> Env
 toEnv = Map.map toScheme . Map.fromList
