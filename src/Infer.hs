@@ -70,10 +70,10 @@ alg (MkTuple es) =
      es' <- traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
      return (mkTuple es')
 
-infer :: Env -> Exp -> Either String Type
+infer :: Env -> Exp -> Either String (Qual Type)
 infer env e = fmap f (run m ctx state)
   where
-        f ((subs, _), _) = pretty (substitute subs bt)
+        f ((subs, _), ps) = ps :=> pretty (substitute subs bt)
         m = cataRec alg (desugarOps e)
         bt =  TyVar "TBase"
         ctx = (env, bt, fromList [])

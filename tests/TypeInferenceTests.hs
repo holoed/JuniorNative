@@ -15,9 +15,11 @@ env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a") (TyVar "a")),
             ("*",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("/",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("fst", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "a")),
-            ("snd", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b"))]
+            ("snd", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b")),
+            ("add",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a")))
+     ]
 
-typeOf :: String -> Either String Type
+typeOf :: String -> Either String (Qual Type)
 typeOf s = parseExpr s >>= infer env
 
 (-->) :: String -> String -> Expectation
@@ -38,6 +40,7 @@ tests =
 
     it "type of a name" $ do
       "id" --> "(a -> a)"
+      "add" --> "Num a => (a -> (a -> a))"
       "foo" --> "Name foo not found."
 
     it "type of identity" $
