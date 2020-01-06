@@ -73,6 +73,7 @@ tests =
       "let x = 42 in x" --> "Int"
       "let pair = (True, 12) in pair" --> "(Bool, Int)"
       "let x = if (True) then 2 else 3 in x + 1" --> "Int"
+      "let foo = \\x -> add x x in foo" --> "Num a => (a -> a)"
 
     it "type of functions" $ do
       "let f = \\x -> x in f" --> "(a -> a)"
