@@ -20,3 +20,7 @@ mgu a b =
       (TyCon name1 args1, TyCon name2 args2) | name1 == name2 && length args1 == length args2 ->
                            foldM_ (\_ (a', b') -> mgu a' b') () (zip args1 args2)
       (x, y) -> throwError ("Unable to unify " ++ show x ++ " with " ++ show y)
+
+mguPred :: Pred -> Pred -> TypeM ()
+mguPred (IsIn n1 t1) (IsIn n2 t2) | n1 == n2 = mgu t1 t2
+mguPred _ _ = fail "Classes Differ"

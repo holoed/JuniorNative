@@ -6,6 +6,7 @@ import Types
 import Environment
 import Infer (infer)
 import Parser (parseExpr)
+import Substitutions
 
 env :: Env
 env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a") (TyVar "a")),
@@ -16,14 +17,16 @@ env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a") (TyVar "a")),
             ("/",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("fst", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "a")),
             ("snd", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b")),
-            ("add",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a")))
+            ("add",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyCon "Int" []) (TyVar "a")),
+            ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a")] :=> TyLam (TyCon "Double" []) (TyVar "a"))
      ]
 
-typeOf :: String -> Either String (Qual Type)
+typeOf :: String -> Either String (Substitutions, Qual Type)
 typeOf s = parseExpr s >>= infer env
 
 (-->) :: String -> String -> Expectation
-(-->) x y = either id show (typeOf x) `shouldBe` y
+(-->) x y = either id (show . snd) (typeOf x) `shouldBe` y
 
 tests :: SpecWith ()
 tests =

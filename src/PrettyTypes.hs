@@ -6,6 +6,7 @@ import Control.Monad.Trans.State
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Char (intToDigit, digitToInt)
+import Data.Set as Set
 
 getName :: String -> State (Map.Map String Char, Char) Char
 getName k = do success <- containsKey
@@ -21,15 +22,28 @@ getName k = do success <- containsKey
                 addName = do (m, i) <- get
                              put (Map.insert k i m, intToDigit (digitToInt i + 1))
 
+runT :: Type -> State (Map.Map String Char, Char) Type
+runT (TyVar name) = do newName <- getName name
+                       return (TyVar [newName])
+
+runT (TyLam args body) = do argsAcc <- runT args
+                            bodyAcc <- runT body
+                            return (TyLam argsAcc bodyAcc)
+
+runT (TyCon name typeArgs) = do list <- mapM runT typeArgs
+                                return (TyCon name list)
+
+
+runP :: Pred -> State (Map.Map String Char, Char) Pred
+runP (IsIn n t) = fmap (IsIn n) (runT t)
+
+runPs :: Set.Set Pred -> State (Map.Map String Char, Char) (Set.Set Pred)
+runPs ps = fmap (Set.fromList) (sequence (fmap runP (Set.toList ps)))
+
 pretty :: Type -> Type
-pretty t = evalState (run t) (Map.empty, 'a')
-        where run :: Type -> State (Map.Map String Char, Char) Type
-              run (TyVar name) = do newName <- getName name
-                                    return (TyVar [newName])
-
-              run (TyLam args body) = do argsAcc <- run args
-                                         bodyAcc <- run body
-                                         return (TyLam argsAcc bodyAcc)
-
-              run (TyCon name typeArgs) = do list <- mapM run typeArgs
-                                             return (TyCon name list)
+pretty t = evalState (runT t) (Map.empty, 'a')
+        
+prettyQ :: Qual Type -> Qual Type
+prettyQ (ps :=> t) = evalState (do ps' <- runPs ps
+                                   t' <- runT t 
+                                   return (ps' :=> t')) (Map.empty, 'a')

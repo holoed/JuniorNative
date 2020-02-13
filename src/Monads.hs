@@ -26,6 +26,9 @@ modify f = get >>= (put . f)
 throwError :: Monoid w => String -> ReaderWriterState r w s a
 throwError s = lift (E.throwE s)
 
+listen :: Monoid w => ReaderWriterState r w s a -> ReaderWriterState r w s (a, w)
+listen = S.listen
+
 run :: Monoid w => ReaderWriterState r w s a -> r -> s -> Either String (s, w)
 run m r s = runIdentity (E.runExceptT (S.execRWST m r s))
 

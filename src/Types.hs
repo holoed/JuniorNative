@@ -1,8 +1,8 @@
 module Types where
 
 import Data.List (intercalate)
-import Data.Set (Set, empty, union, singleton, null, foldl)
-import Prelude hiding (null)
+import Data.Set (Set, empty, union, singleton, null, foldl, map, unions, toList, filter, empty, (\\))
+import Prelude hiding (null, map, filter)
 
 -- Qualified 
 
@@ -16,7 +16,7 @@ instance Show Pred where
 instance Show a => Show (Qual a) where
   show (ps :=> t) = 
     if (null ps) then show t
-    else (Data.Set.foldl (\acc x -> acc ++ (show x)) "" ps) ++ " => " ++ show t
+    else (Data.Set.foldl (\acc x -> if acc /= "" then acc ++ "," ++ (show x) else show x) "" ps) ++ " => " ++ show t
 
 -- Type
 
@@ -40,3 +40,14 @@ getTVarsOfType :: Type -> Set String
 getTVarsOfType (TyVar n) = singleton n
 getTVarsOfType (TyLam t1 t2) = getTVarsOfType t1 `union` getTVarsOfType t2
 getTVarsOfType (TyCon _ args) = Prelude.foldl (\ acc t -> acc `union` getTVarsOfType t) empty args
+
+getTVarsOfPred :: Pred -> Set String
+getTVarsOfPred (IsIn _ t) = getTVarsOfType t
+
+getTVarsOfQType :: Qual Type -> Set String
+getTVarsOfQType (ps :=> t) = unions (fmap getTVarsOfPred (toList ps)) `union` getTVarsOfType t 
+
+clean :: Qual Type -> Qual Type 
+clean (ps :=> t) = filter p ps :=> t
+  where tvs = getTVarsOfType t 
+        p x = getTVarsOfPred x \\ tvs == empty

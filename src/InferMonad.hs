@@ -33,20 +33,21 @@ updateSubs f =
       put (subs', index)
 
 -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
-mkForAll :: Set String -> Qual Type -> TypeM Type
-mkForAll sv (ps :=> t) = do
-  _ <- tell ps
+mkForAll :: Set String -> Qual Type -> TypeM (Qual Type)
+mkForAll sv qt = do
   (subs, _) <- get
   let subSv = map (substitute subs . TyVar) sv
-  let tyToRefresh = getTVarsOfType t \\ unions (toList (map getTVarsOfType subSv))
-  fmap (`substitute` t) (refreshNames tyToRefresh)
+  let tyToRefresh = getTVarsOfQType qt \\ unions (toList (map getTVarsOfType subSv))
+  fmap (`substituteQ` qt) (refreshNames tyToRefresh)
 
 getTypeForName :: String -> TypeM Type
 getTypeForName n =
   do env <- getEnv
      unless (containsScheme n env) $ throwError ("Name " ++ n ++ " not found.")
      case findScheme n env of
-       ForAll sv qt -> mkForAll sv qt
+       ForAll sv qt -> do (ps :=> t) <- mkForAll sv qt
+                          tell ps
+                          return t
        Identity (_ :=> t) -> return t
 
 generalise :: Set String -> Qual Type -> TypeScheme

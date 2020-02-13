@@ -57,9 +57,9 @@ alg (IfThenElse p e1 e2) =
 alg (Let n e1 e2) =
   do t <- newTyVar
      let (TyVar tn) = t
-     e1' <- local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
+     (e1', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
      (subs, _) <- get
-     e2' <- local (\(env, bt, sv) -> (addScheme n (generalise sv (fromList [] :=> (substitute subs t))) env, bt, sv)) e2
+     e2' <- local (\(env, bt, sv) -> (addScheme n (generalise sv (substituteQ subs (ps :=> t))) env, bt, sv)) e2
      return (leT n e1' e2')
 
 alg (MkTuple es) =
@@ -70,10 +70,10 @@ alg (MkTuple es) =
      es' <- traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
      return (mkTuple es')
 
-infer :: Env -> Exp -> Either String (Qual Type)
+infer :: Env -> Exp -> Either String (Substitutions, Qual Type)
 infer env e = fmap f (run m ctx state)
   where
-        f ((subs, _), ps) = ps :=> pretty (substitute subs bt)
+        f ((subs, _), ps) =  (subs, prettyQ (clean (substituteQ subs (ps :=> bt))))
         m = cataRec alg (desugarOps e)
         bt =  TyVar "TBase"
         ctx = (env, bt, fromList [])
