@@ -12,12 +12,11 @@ env :: Env
 env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a") (TyVar "a")),
             ("==", Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
             ("-",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("+",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("+",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("*",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("/",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("fst", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "a")),
             ("snd", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b")),
-            ("add",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyCon "Int" []) (TyVar "a")),
             ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a")] :=> TyLam (TyCon "Double" []) (TyVar "a"))
      ]
@@ -43,7 +42,6 @@ tests =
 
     it "type of a name" $ do
       "id" --> "(a -> a)"
-      "add" --> "Num a => (a -> (a -> a))"
       "foo" --> "Name foo not found."
 
     it "type of identity" $
@@ -77,7 +75,7 @@ tests =
       "let x = 42 in x" --> "Int"
       "let pair = (True, 12) in pair" --> "(Bool, Int)"
       "let x = if (True) then 2 else 3 in x + 1" --> "Int"
-      "let foo = \\x -> add x x in foo" --> "Num a => (a -> a)"
+      "let foo = \\x -> x + x in foo" --> "Num a => (a -> a)"
 
     it "type of functions" $ do
       "let f = \\x -> x in f" --> "(a -> a)"

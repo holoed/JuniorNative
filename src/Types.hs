@@ -51,3 +51,7 @@ clean :: Qual Type -> Qual Type
 clean (ps :=> t) = filter p ps :=> t
   where tvs = getTVarsOfType t 
         p x = getTVarsOfPred x \\ tvs == empty
+
+deleteTautology :: Qual Type -> Qual Type
+deleteTautology (ps :=> t) = filter p ps :=> t
+  where p (IsIn _ t') = getTVarsOfType t' /= empty

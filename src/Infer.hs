@@ -80,7 +80,7 @@ alg (MkTuple es) =
 infer :: Env -> Exp -> Either String (Substitutions, Qual Type)
 infer env e = fmap f (run m ctx state)
   where
-        f ((subs, _), ps) =  (subs, prettyQ (clean (substituteQ subs (ps :=> bt))))
+        f ((subs, _), ps) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) (ps :=> bt))
         m = cataRec alg (desugarOps e)
         bt =  TyVar "TBase"
         ctx = (env, bt, fromList [])
