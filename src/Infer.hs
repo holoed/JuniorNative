@@ -1,7 +1,7 @@
 module Infer where
 
 import Data.Map (empty)
-import Data.Set (fromList, insert)
+import Data.Set (fromList, insert, union)
 import Annotations
 import Monads
 import RecursionSchemes
@@ -30,16 +30,17 @@ alg (Lit v) =
 
 alg (Var n) =
   do bt <- getBaseType
-     t <- getTypeForName n
+     (t, ps) <- listen (getTypeForName n)
      mgu t bt
-     return (tvar (fromList [] :=> bt) n)
+     return (tvar (ps :=> bt) n)
 
 alg (App e1 e2) =
   do t1 <- newTyVar
-     e1' <- local (\(env, t, sv) -> (env, TyLam t1 t, sv)) e1
-     e2' <- local (\(env, _, sv)  -> (env, t1, sv)) e2
+     (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyLam t1 t, sv)) e1
+     (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
      bt <- getBaseType
-     return (tapp (fromList [] :=> bt) e1' e2')
+     qt <- substituteQM ((ps1 `union` ps2) :=> bt)
+     return (tapp qt e1' e2')
 
 alg (Lam n e) =
   do bt <- getBaseType
@@ -48,33 +49,33 @@ alg (Lam n e) =
      let t = TyLam t1 t2
      mgu t bt
      let (TyVar t1n) = t1
-     e' <- local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
-     return (tlam (fromList [] :=> t) n e')
+     (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
+     return (tlam (ps :=> t) n e')
 
 alg (IfThenElse p e1 e2) =
-  do p' <- local (\(env, _, sv) -> (env, boolCon, sv)) p
-     e1' <- e1
+  do (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
+     (e1', ps2) <- listen e1
      (subs, _) <- get
-     e2' <- local (\(env, t, sv) -> (env, substitute subs t, sv)) e2
+     (e2', ps3) <- listen $ local (\(env, t, sv) -> (env, substitute subs t, sv)) e2
      bt <- getBaseType
-     return (tifThenElse (fromList [] :=> bt) p' e1' e2')
+     return (tifThenElse ((ps1 `union` ps2 `union` ps3) :=> bt) p' e1' e2')
 
 alg (Let n e1 e2) =
   do t <- newTyVar
      let (TyVar tn) = t
-     (e1', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
+     (e1', ps1) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
      (subs, _) <- get
-     e2' <- local (\(env, bt, sv) -> (addScheme n (generalise sv (substituteQ subs (ps :=> t))) env, bt, sv)) e2
+     (e2', ps2) <- listen $ local (\(env, bt, sv) -> (addScheme n (generalise sv (substituteQ subs (ps1 :=> t))) env, bt, sv)) e2
      bt <- getBaseType
-     return (tleT (fromList [] :=> bt) n e1' e2')
+     return (tleT ((ps1 `union` ps2) :=> bt) n e1' e2')
 
 alg (MkTuple es) =
   do bt <- getBaseType
      ts <- mapM (const newTyVar) es
      let t = tupleCon ts
      mgu t bt
-     es' <- traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
-     return (tmkTuple (fromList [] :=> t) es')
+     (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
+     return (tmkTuple (ps :=> t) es')
 
 infer :: Env -> Exp -> Either String (Substitutions, Qual Type)
 infer env e = fmap f (run m ctx state)
