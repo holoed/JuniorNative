@@ -46,6 +46,8 @@ tokens :-
   [\-]                          { \s -> TokenSub }
   [\*]                          { \s -> TokenMul }
   [\/]                          { \s -> TokenDiv }
+  [\>]                          { \s -> TokenGt  }
+  [\<]                          { \s -> TokenLt  }
   \(                            { \s -> TokenLParen }
   \)                            { \s -> TokenRParen }
   ","                           { \s -> TokenComma }
@@ -72,6 +74,8 @@ data Token
   | TokenSub
   | TokenMul
   | TokenDiv
+  | TokenGt
+  | TokenLt
   | TokenLParen
   | TokenRParen
   | TokenComma

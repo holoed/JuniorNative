@@ -47,11 +47,14 @@ import Control.Monad.Except
     '-'   { TokenSub }
     '*'   { TokenMul }
     '/'   { TokenDiv }
+    '>'   { TokenGt }
+    '<'   { TokenLt }
     ','   { TokenComma }
     '('   { TokenLParen }
     ')'   { TokenRParen }
 
 -- Operators
+%nonassoc '>' '<'
 %left '=='
 %left '+' '-'
 %left '*' '/'
@@ -67,6 +70,8 @@ Form : Form '+' Form               { infixApp plusOp $1 $3 }
      | Form '*' Form               { infixApp mulOp $1 $3 }
      | Form '/' Form               { infixApp divOp $1 $3 }
      | Form '==' Form              { infixApp eqeqOp $1 $3 }
+     | Form '>' Form               { infixApp gtOp $1 $3 }
+     | Form '<' Form               { infixApp ltOp $1 $3 }
      | Fact                        { $1 }
 
 Fact : Fact Atom                   { infixApp juxtaOp $1 $2 }

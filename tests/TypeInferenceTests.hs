@@ -10,11 +10,13 @@ import Substitutions
 
 env :: Env
 env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a") (TyVar "a")),
-            ("==", Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
-            ("-",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("==", Set.fromList [IsIn "Eq" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
+            ("-",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
             ("+",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("*",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("/",  Set.fromList [] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("*",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            ("/",  Set.fromList [IsIn "Fractional" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
+            (">",  Set.fromList [IsIn "Ord" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
+            ("<",  Set.fromList [IsIn "Ord" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
             ("fst", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "a")),
             ("snd", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b")),
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyCon "Int" []) (TyVar "a")),
@@ -39,6 +41,10 @@ tests =
       "12 + 24" --> "Int"
       "2 * (3 + 2)" --> "Int"
       "3 - (2 / 3)" --> "Int"
+
+    it "type of simple class constraints" $ do 
+      "2 > 3" --> "Bool"
+      "\\x -> (x + x) < (x * x)" --> "(Num a, Ord a) => (a -> Bool)"
 
     it "type of a name" $ do
       "id" --> "(a -> a)"

@@ -1,7 +1,7 @@
 module Types where
 
 import Data.List (intercalate)
-import Data.Set (Set, empty, union, singleton, null, foldl, map, unions, toList, filter, empty, (\\))
+import Data.Set (Set, empty, union, singleton, null, foldl, map, unions, toList, filter, empty, (\\), size)
 import Prelude hiding (null, map, filter)
 
 -- Qualified 
@@ -16,7 +16,10 @@ instance Show Pred where
 instance Show a => Show (Qual a) where
   show (ps :=> t) = 
     if (null ps) then show t
-    else (Data.Set.foldl (\acc x -> if acc /= "" then acc ++ "," ++ (show x) else show x) "" ps) ++ " => " ++ show t
+    else
+      let cs =  Data.Set.foldl (\acc x -> if acc /= "" then acc ++ ", " ++ (show x) else show x) "" ps in
+      let cs' = if size ps > 1 then "(" ++ cs ++ ")" else cs in
+      cs' ++ " => " ++ show t
 
 -- Type
 
