@@ -48,7 +48,7 @@ alg (Lam n e) =
      t2 <- newTyVar
      let t = TyLam t1 t2
      mgu t bt
-     let (TyVar t1n) = t1
+     let (TyVar t1n _) = t1
      (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
      return (tlam (ps :=> t) n e')
 
@@ -62,7 +62,7 @@ alg (IfThenElse p e1 e2) =
 
 alg (Let n e1 e2) =
   do t <- newTyVar
-     let (TyVar tn) = t
+     let (TyVar tn _) = t
      (e1', ps1) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
      (subs, _) <- get
      (e2', ps2) <- listen $ local (\(env, bt, sv) -> (addScheme n (generalise sv (substituteQ subs (ps1 :=> t))) env, bt, sv)) e2
@@ -82,7 +82,7 @@ infer env e = fmap f (run m ctx state)
   where
         f ((subs, _), ps) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) (ps :=> bt))
         m = cataRec alg (desugarOps e)
-        bt =  TyVar "TBase"
+        bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])
         state = (empty, 0)
 

@@ -12,14 +12,15 @@ extend :: String -> Type -> Substitutions -> Substitutions
 extend = Map.insert
 
 lookup :: String -> Substitutions -> Type
-lookup v = fromMaybe (TyVar v) . Map.lookup v
+lookup v = fromMaybe (TyVar v 0) . Map.lookup v
 
 substitute :: Substitutions -> Type -> Type
-substitute s t@(TyVar n) = let t' = lookup n s in
+substitute s t@(TyVar n _) = let t' = lookup n s in
                      if t == t' then t'
                      else substitute s t'
-substitute s (TyLam a r) = TyLam (substitute s a) (substitute s r)
-substitute s (TyCon name tyArgs) = TyCon name (fmap (s `substitute`) tyArgs)
+substitute s (TyLam t1 t2) = TyLam (substitute s t1) (substitute s t2)
+substitute s (TyApp t1 t2) = TyApp (substitute s t1) (substitute s t2)
+substitute s (TyCon name) = TyCon name
 
 substitutePredicate :: Substitutions -> Pred -> Pred
 substitutePredicate s (IsIn name t) = IsIn name (substitute s t) 

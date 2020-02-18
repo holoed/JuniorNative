@@ -23,16 +23,18 @@ getName k = do success <- containsKey
                              put (Map.insert k i m, intToDigit (digitToInt i + 1))
 
 runT :: Type -> State (Map.Map String Char, Char) Type
-runT (TyVar name) = do newName <- getName name
-                       return (TyVar [newName])
+runT (TyVar name k) = do newName <- getName name
+                         return (TyVar [newName] k)
 
 runT (TyLam args body) = do argsAcc <- runT args
                             bodyAcc <- runT body
                             return (TyLam argsAcc bodyAcc)
 
-runT (TyCon name typeArgs) = do list <- mapM runT typeArgs
-                                return (TyCon name list)
+runT (TyApp t1 t2) = do t1' <- runT t1
+                        t2' <- runT t2
+                        return (TyApp t1' t2')
 
+runT (TyCon name) = return (TyCon name)
 
 runP :: Pred -> State (Map.Map String Char, Char) Pred
 runP (IsIn n t) = fmap (IsIn n) (runT t)

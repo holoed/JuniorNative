@@ -12,13 +12,14 @@ mgu a b =
   do
     (subs, _) <- get
     case (substitute subs a, substitute subs b) of
-      (TyVar ta, TyVar tb) | ta == tb -> return ()
-      (TyVar ta, _) | not (member ta (getTVarsOfType b)) -> updateSubs (return . extend ta b)
-      (_, TyVar _) -> mgu b a
+      (TyVar ta _, TyVar tb _) | ta == tb -> return ()
+      (TyVar ta _, _) | not (member ta (getTVarsOfType b)) -> updateSubs (return . extend ta b)
+      (_, TyVar _ _) -> mgu b a
       (TyLam a1 b1, TyLam a2 b2) -> do mgu b1 b2
                                        mgu a1 a2
-      (TyCon name1 args1, TyCon name2 args2) | name1 == name2 && length args1 == length args2 ->
-                           foldM_ (\_ (a', b') -> mgu a' b') () (zip args1 args2)
+      (TyApp a1 b1, TyApp a2 b2) -> do mgu a1 a2
+                                       mgu b1 b2                                       
+      (TyCon name1, TyCon name2) | name1 == name2 -> return ()
       (x, y) -> throwError ("Unable to unify " ++ show x ++ " with " ++ show y)
 
 mguPred :: Pred -> Pred -> TypeM ()

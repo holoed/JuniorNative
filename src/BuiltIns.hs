@@ -3,13 +3,13 @@ module BuiltIns where
 import Types
 
 boolCon :: Type
-boolCon = TyCon "Bool" []
+boolCon = TyCon "Bool" 
 
 intCon :: Type
-intCon = TyCon "Int" []
+intCon = TyCon "Int" 
 
 strCon :: Type
-strCon = TyCon "String" []
+strCon = TyCon "String" 
 
 tupleCon :: [Type] -> Type
-tupleCon = TyCon "Tuple"
+tupleCon = foldl TyApp (TyCon "Tuple")

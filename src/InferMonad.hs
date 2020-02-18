@@ -15,10 +15,10 @@ type TypeM = ReaderWriterState (Env, Type, Set String) (Set Pred) (Substitutions
 newTyVar :: TypeM Type
 newTyVar = do (subs, i) <- get
               put (subs, i + 1)
-              return (TyVar ("T" ++ show i))
+              return (TyVar ("T" ++ show i) 0)
 
 refreshNames :: Set String -> TypeM Substitutions
-refreshNames ns = newTyVar >>= (\(TyVar n') -> return $ fromList (fmap (\n -> (n, TyVar (n ++ n'))) (toList ns))) 
+refreshNames ns = newTyVar >>= (\(TyVar n' k) -> return $ fromList (fmap (\n -> (n, TyVar (n ++ n') k)) (toList ns))) 
 
 getBaseType :: TypeM Type
 getBaseType = fmap (\(_,b,_) -> b) ask
@@ -36,7 +36,7 @@ updateSubs f =
 mkForAll :: Set String -> Qual Type -> TypeM (Qual Type)
 mkForAll sv qt = do
   (subs, _) <- get
-  let subSv = map (substitute subs . TyVar) sv
+  let subSv = map (substitute subs . (\n -> TyVar n 0)) sv
   let tyToRefresh = getTVarsOfQType qt \\ unions (toList (map getTVarsOfType subSv))
   fmap (`substituteQ` qt) (refreshNames tyToRefresh)
 

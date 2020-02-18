@@ -23,14 +23,17 @@ instance Show a => Show (Qual a) where
 
 -- Type
 
-data Type = TyCon String [Type]
-          | TyVar String
+data Type = TyCon String 
+          | TyVar String Int 
+          | TyApp Type Type
           | TyLam Type Type deriving (Eq, Ord)
 
 instance Show Type where
-  show (TyCon name []) = name
-  show (TyCon "Tuple" xs) = "(" ++ intercalate ", " (fmap show xs) ++ ")"
-  show (TyVar name) = name
+  show (TyCon name) = name
+  show (TyVar name _) = name
+  show (TyApp (TyApp (TyCon "Tuple") t1) t2) = "(" ++ show t1 ++ ", " ++ show t2 ++ ")"
+  show (TyApp (TyApp (TyApp (TyCon "Tuple") t1) t2) t3) = "(" ++ show t1 ++ ", " ++ show t2 ++ ", " ++ show t3 ++ ")"
+  show (TyApp t1 t2) = show t1 ++ " " ++ show t2
   show (TyLam t1 t2) = "(" ++ show t1 ++ " -> " ++ show t2 ++ ")"
   show _ = error "Not yet supported"
 
@@ -40,9 +43,10 @@ data TypeScheme = ForAll (Set String) (Qual Type)
                 | Identity (Qual Type)
 
 getTVarsOfType :: Type -> Set String
-getTVarsOfType (TyVar n) = singleton n
+getTVarsOfType (TyVar n _) = singleton n
+getTVarsOfType (TyApp t1 t2) = getTVarsOfType t1 `union` getTVarsOfType t2
 getTVarsOfType (TyLam t1 t2) = getTVarsOfType t1 `union` getTVarsOfType t2
-getTVarsOfType (TyCon _ args) = Prelude.foldl (\ acc t -> acc `union` getTVarsOfType t) empty args
+getTVarsOfType (TyCon _) = empty
 
 getTVarsOfPred :: Pred -> Set String
 getTVarsOfPred (IsIn _ t) = getTVarsOfType t

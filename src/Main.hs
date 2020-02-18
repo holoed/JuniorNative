@@ -16,18 +16,18 @@ import PrettyPrinter
 import LiftNumbers
 
 env :: Env
-env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a") (TyVar "a")),
-            ("==", Set.fromList [IsIn "Eq" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
-            ("-",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("+",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("*",  Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            ("/",  Set.fromList [IsIn "Fractional" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyVar "a"))),
-            (">",  Set.fromList [IsIn "Ord" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
-            ("<",  Set.fromList [IsIn "Ord" (TyVar "a")] :=> TyLam (TyVar "a") (TyLam (TyVar "a") (TyCon "Bool" []))),
-            ("fst", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "a")),
-            ("snd", Set.fromList [] :=> TyLam (TyCon "Tuple" [TyVar "a", TyVar "b"]) (TyVar "b")),
-            ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a")] :=> TyLam (TyCon "Int" []) (TyVar "a")),
-            ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a")] :=> TyLam (TyCon "Double" []) (TyVar "a"))
+env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
+            ("==", Set.fromList [IsIn "Eq" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyCon "Bool"))),
+            ("-",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
+            ("+",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
+            ("*",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
+            ("/",  Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
+            (">",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyCon "Bool"))),
+            ("<",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyCon "Bool"))),
+            ("fst", Set.fromList [] :=> TyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
+            ("snd", Set.fromList [] :=> TyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
+            ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyCon "Int") (TyVar "a" 0)),
+            ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> TyLam (TyCon "Double") (TyVar "a" 0))
      ]
 
 process :: String -> IO ()
