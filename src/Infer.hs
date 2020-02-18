@@ -35,7 +35,7 @@ alg (Var n) =
      return (tvar (ps :=> bt) n)
 
 alg (App e1 e2) =
-  do t1 <- newTyVar
+  do t1 <- newTyVar 0
      (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyLam t1 t, sv)) e1
      (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
      bt <- getBaseType
@@ -44,8 +44,8 @@ alg (App e1 e2) =
 
 alg (Lam n e) =
   do bt <- getBaseType
-     t1 <- newTyVar
-     t2 <- newTyVar
+     t1 <- newTyVar 0
+     t2 <- newTyVar 0
      let t = TyLam t1 t2
      mgu t bt
      let (TyVar t1n _) = t1
@@ -61,7 +61,7 @@ alg (IfThenElse p e1 e2) =
      return (tifThenElse ((ps1 `union` ps2 `union` ps3) :=> bt) p' e1' e2')
 
 alg (Let n e1 e2) =
-  do t <- newTyVar
+  do t <- newTyVar 0
      let (TyVar tn _) = t
      (e1', ps1) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
      (subs, _) <- get
@@ -71,7 +71,7 @@ alg (Let n e1 e2) =
 
 alg (MkTuple es) =
   do bt <- getBaseType
-     ts <- mapM (const newTyVar) es
+     ts <- mapM (const (newTyVar 0)) es
      let t = tupleCon ts
      mgu t bt
      (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)

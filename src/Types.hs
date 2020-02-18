@@ -42,16 +42,16 @@ instance Show Type where
 data TypeScheme = ForAll (Set String) (Qual Type)
                 | Identity (Qual Type)
 
-getTVarsOfType :: Type -> Set String
-getTVarsOfType (TyVar n _) = singleton n
+getTVarsOfType :: Type -> Set (String, Int)
+getTVarsOfType (TyVar n k) = singleton (n, k)
 getTVarsOfType (TyApp t1 t2) = getTVarsOfType t1 `union` getTVarsOfType t2
 getTVarsOfType (TyLam t1 t2) = getTVarsOfType t1 `union` getTVarsOfType t2
 getTVarsOfType (TyCon _) = empty
 
-getTVarsOfPred :: Pred -> Set String
+getTVarsOfPred :: Pred -> Set (String, Int)
 getTVarsOfPred (IsIn _ t) = getTVarsOfType t
 
-getTVarsOfQType :: Qual Type -> Set String
+getTVarsOfQType :: Qual Type -> Set (String, Int)
 getTVarsOfQType (ps :=> t) = unions (fmap getTVarsOfPred (toList ps)) `union` getTVarsOfType t 
 
 clean :: Qual Type -> Qual Type 

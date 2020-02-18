@@ -6,16 +6,16 @@ import qualified Data.Set as Set
 import Types
 import Prelude hiding (lookup)
 
-type Substitutions = Map.Map String Type
+type Substitutions = Map.Map (String, Int) Type
 
-extend :: String -> Type -> Substitutions -> Substitutions
+extend :: (String, Int) -> Type -> Substitutions -> Substitutions
 extend = Map.insert
 
-lookup :: String -> Substitutions -> Type
-lookup v = fromMaybe (TyVar v 0) . Map.lookup v
+lookup :: (String, Int) -> Substitutions -> Type
+lookup (n, k) = fromMaybe (TyVar n k) . Map.lookup (n, k)
 
 substitute :: Substitutions -> Type -> Type
-substitute s t@(TyVar n _) = let t' = lookup n s in
+substitute s t@(TyVar n k) = let t' = lookup (n, k) s in
                      if t == t' then t'
                      else substitute s t'
 substitute s (TyLam t1 t2) = TyLam (substitute s t1) (substitute s t2)

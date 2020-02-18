@@ -12,13 +12,13 @@ import Prelude hiding (map)
 
 type TypeM = ReaderWriterState (Env, Type, Set String) (Set Pred) (Substitutions, Int)
 
-newTyVar :: TypeM Type
-newTyVar = do (subs, i) <- get
-              put (subs, i + 1)
-              return (TyVar ("T" ++ show i) 0)
+newTyVar :: Int -> TypeM Type
+newTyVar k = do (subs, i) <- get
+                put (subs, i + 1)
+                return (TyVar ("T" ++ show i) k)
 
-refreshNames :: Set String -> TypeM Substitutions
-refreshNames ns = newTyVar >>= (\(TyVar n' k) -> return $ fromList (fmap (\n -> (n, TyVar (n ++ n') k)) (toList ns))) 
+refreshNames :: Set (String, Int) -> TypeM Substitutions
+refreshNames ns = newTyVar 0 >>= (\(TyVar n' k) -> return $ fromList (fmap (\(n, k') -> ((n, k), TyVar (n ++ n') k')) (toList ns))) 
 
 getBaseType :: TypeM Type
 getBaseType = fmap (\(_,b,_) -> b) ask
