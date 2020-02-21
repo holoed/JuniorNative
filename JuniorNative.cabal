@@ -36,7 +36,9 @@ executable JuniorNative
                        Unification,
                        CoProduct,
                        Annotations,
-                       FreeVariables
+                       FreeVariables,
+                       LiftNumbers,
+                       ContextReduction
   build-depends:       base,
                        array,
                        containers,

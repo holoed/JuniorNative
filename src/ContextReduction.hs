@@ -18,9 +18,17 @@ inHnf (IsIn c t) = hnf t
           hnf (TyApp t _) = hnf t
 
 tryInst :: Qual Pred -> Pred -> TypeM (Maybe (Set Pred))
-tryInst qp p = catchError 
-               (do let (ps :=> p') = qp
-                   mguPred p' p 
+tryInst (ps :=> p') p = catchError 
+               (do mguPred p' p 
                    (subs, _) <- get
-                   return $ Just (substitutePredicates subs ps)) (const $ return $ Just empty)
+                   return $ Just (substitutePredicates subs ps)) 
+                (const $ return $ Just empty)
+
+insts :: Set (Qual Pred) -> Pred -> Set (Qual Pred)
+insts classEnv p@(IsIn c _) = 
+    Data.Set.filter (\(_ :=> (IsIn c2 _)) -> c == c2) classEnv
+
+-- byInst :: Set (Qual Pred) -> Pred -> Maybe (Set Pred)
+-- byInst classEnv p@(IsIn c _) =
+--     let ps = Data.Set.filter (\Qual _ (IsIn c2 _) -> c == c2) classEnv
 
