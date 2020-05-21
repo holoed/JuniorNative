@@ -37,9 +37,9 @@ byInst classEnv p = msum [tryInst it p | it <- insts classEnv p]
 
 toHnf :: [Qual Pred] -> Pred -> TypeM [Pred]
 toHnf classEnv p = if (inHnf p) then return [p]
-                   else do x <- byInst classEnv p 
+                   else do x <- catchError (byInst classEnv p) (const $ return $ Nothing)
                            case x of
-                             Nothing -> throwError "context reduction"
+                             Nothing -> throwError $ "Cannot find class instance for " ++ (show p)
                              Just ps -> toHnfs classEnv ps
 
 toHnfs :: [Qual Pred] -> [Pred] -> TypeM [Pred]

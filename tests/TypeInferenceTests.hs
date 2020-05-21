@@ -68,9 +68,10 @@ tests =
 
     it "type of conditionals" $ do
       "if True then 5 else 6" --> "Num a => a"
-      -- "if True then 5 else False" --> "Unable to unify Bool with Int"
-      -- "if True then True else 5" -->  "Unable to unify Int with Bool"
-      -- "if 5 then True else False" --> "Unable to unify Int with Bool"
+      "if True then 5 else False" --> "Cannot find class instance for Num Bool"
+      "if True then True else 5" -->  "Cannot find class instance for Num Bool"
+      "if 5 then True else False" --> "Cannot find class instance for Num Bool"
+      "if \"5\" then True else False" --> "Unable to unify String with Bool"
 
     it "type of tuple" $ do
       "(2, True)" --> "Num a => (a, Bool)"

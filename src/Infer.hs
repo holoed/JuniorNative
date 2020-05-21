@@ -58,8 +58,10 @@ alg (IfThenElse p e1 e2) =
      (e1', ps2) <- listen e1
      (subs, _) <- get
      (e2', ps3) <- listen $ local (\(env, t, sv) -> (env, substitute subs t, sv)) e2
+     (subs', _) <- get
      bt <- getBaseType
-     return (tifThenElse ((ps1 `union` ps2 `union` ps3) :=> bt) p' e1' e2')
+     let qt = substituteQ subs' ((ps1 `union` ps2 `union` ps3) :=> bt)
+     return (tifThenElse qt p' e1' e2')
 
 alg (Let n e1 e2) =
   do t <- newTyVar 0
