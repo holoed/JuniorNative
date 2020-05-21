@@ -2,10 +2,8 @@ module Infer where
 
 import Data.Map (empty)
 import Data.Set (fromList, insert, union)
-import Annotations
 import Monads
 import RecursionSchemes
-import Fixpoint
 import Ast
 import TypedAst
 import Types
@@ -34,6 +32,22 @@ alg (Var n) =
      (t, ps) <- listen (getTypeForName n)
      mgu t bt
      return (tvar (ps :=> bt) n)
+
+alg (InfixApp (" ", _, _) e1 e2) =
+  do t1 <- newTyVar 0
+     (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyLam t1 t, sv)) e1
+     (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
+     bt <- getBaseType
+     qt <- substituteQM ((ps1 `union` ps2) :=> bt)
+     return (tapp qt e1' e2')
+
+alg (InfixApp op@(n, _, _) e1 e2) =
+   do (TyLam t1 (TyLam t2 t3), ps) <- listen (getTypeForName n) 
+      (e1', ps1) <- listen $ local (\(env, _, sv) -> (env, t1, sv)) e1
+      (e2', ps2) <- listen $ local (\(env, _, sv) -> (env, t2, sv)) e2
+      bt <- getBaseType
+      mgu t3 bt 
+      return (tinfixApp ((ps `union` ps1 `union` ps2) :=> bt) op e1' e2')
 
 alg (App e1 e2) =
   do t1 <- newTyVar 0
@@ -84,14 +98,8 @@ infer :: Env -> Exp -> Either String (Substitutions, Qual Type)
 infer env e = fmap f (run (m >>= resolvePreds []) ctx state)
   where
         f (_, (subs, _), ps) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) (ps :=> bt))
-        m = cataRec alg (desugarOps e)
+        m = cataRec alg e
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])
         state = (empty, 0)
-
-
-desugarOps :: Exp -> Exp
-desugarOps = cataRec alg
-    where alg (InfixApp (txt, _, _) e1 e2) | txt /= " " = app (app (var txt) e1) e2
-          alg (InfixApp (txt, _, _) e1 e2) = app e1 e2
-          alg e = In e  
+ 

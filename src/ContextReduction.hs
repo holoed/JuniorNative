@@ -20,7 +20,7 @@ inHnf (IsIn _ t) = hnf t
     where hnf (TyVar _ _) = True
           hnf (TyCon _) = False
           hnf (TyLam _ _) = False
-          hnf (TyApp t _) = hnf t
+          hnf (TyApp t' _) = hnf t'
 
 tryInst :: Qual Pred -> Pred -> TypeM (Maybe [Pred])
 tryInst (ps :=> p') p = catchError 
@@ -30,7 +30,7 @@ tryInst (ps :=> p') p = catchError
                 (const $ return $ Just [])
 
 insts :: [Qual Pred] -> Pred -> [Qual Pred]
-insts classEnv p@(IsIn c _) = filter (\(_ :=> (IsIn c2 _)) -> c == c2) classEnv
+insts classEnv (IsIn c _) = filter (\(_ :=> (IsIn c2 _)) -> c == c2) classEnv
 
 byInst :: [Qual Pred] -> Pred -> TypeM (Maybe [Pred])
 byInst classEnv p = msum [tryInst it p | it <- insts classEnv p]
