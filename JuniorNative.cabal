@@ -38,7 +38,10 @@ executable JuniorNative
                        Annotations,
                        FreeVariables,
                        LiftNumbers,
-                       ContextReduction
+                       ContextReduction,
+                       LiftNumbers, 
+                       Operators, 
+                       TypedAst
   build-depends:       base,
                        array,
                        containers,
@@ -71,8 +74,12 @@ test-suite tests
                        Types,
                        Unification,
                        CoProduct,
-                       Annotations,
+                       Annotations,                   
                        FreeVariables,
+                       LiftNumbers, 
+                       ContextReduction,
+                       Operators, 
+                       TypedAst
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,

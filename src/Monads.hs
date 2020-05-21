@@ -32,8 +32,8 @@ catchError m f = S.RWST (\r -> \s -> E.catchE (S.runRWST m r s) (\e -> S.runRWST
 listen :: Monoid w => ReaderWriterState r w s a -> ReaderWriterState r w s (a, w)
 listen = S.listen
 
-run :: Monoid w => ReaderWriterState r w s a -> r -> s -> Either String (s, w)
-run m r s = runIdentity (E.runExceptT (S.execRWST m r s))
+run :: Monoid w => ReaderWriterState r w s a -> r -> s -> Either String (a, s, w)
+run m r s = runIdentity (E.runExceptT (S.runRWST m r s))
 
 eval :: Monoid w => ReaderWriterState r w s a -> r -> s -> Either String (a, w)
 eval m r s = runIdentity (E.runExceptT (S.evalRWST m r s))

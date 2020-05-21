@@ -1,18 +1,22 @@
 module ContextReduction where
 
+import TypedAst
+import Fixpoint
+import Annotations
 import Types
 import InferMonad
 import Unification
 import Substitutions
 import Monads
 import Control.Monad
-import Data.Set (toList)
+import Data.Set (toList, fromList)
+import RecursionSchemes
 
 -- Typing Haskell in Haskell Context Reduction
 -- https://web.cecs.pdx.edu/~mpj/thih/thih.pdf
 
 inHnf :: Pred -> Bool
-inHnf (IsIn c t) = hnf t 
+inHnf (IsIn _ t) = hnf t 
     where hnf (TyVar _ _) = True
           hnf (TyCon _) = False
           hnf (TyLam _ _) = False
@@ -31,14 +35,21 @@ insts classEnv p@(IsIn c _) = filter (\(_ :=> (IsIn c2 _)) -> c == c2) classEnv
 byInst :: [Qual Pred] -> Pred -> TypeM (Maybe [Pred])
 byInst classEnv p = msum [tryInst it p | it <- insts classEnv p]
 
+toHnf :: [Qual Pred] -> Pred -> TypeM [Pred]
+toHnf classEnv p = if (inHnf p) then return [p]
+                   else do x <- byInst classEnv p 
+                           case x of
+                             Nothing -> throwError "context reduction"
+                             Just ps -> toHnfs classEnv ps
+
 toHnfs :: [Qual Pred] -> [Pred] -> TypeM [Pred]
 toHnfs classEnv ps = do pss <- mapM (toHnf classEnv) ps
-                        return (concat pss)
+                        return (concat pss)                      
 
-toHnf :: [Qual Pred] -> Pred -> TypeM [Pred]
-toHnf classEnv p = do x <- byInst classEnv p 
-                      case x of
-                       Nothing -> fail "context reduction"
-                       Just ps -> toHnfs classEnv ps
-
-                       
+resolvePreds :: [Qual Pred] -> TypedExp -> TypeM TypedExp
+resolvePreds classEnv =  cataRec alg
+    where alg (Ann qt x) = do (subs, _) <- get
+                              let (ps :=> t) = substituteQ subs qt
+                              ps' <- toHnfs classEnv (toList ps)
+                              y <- traverse id (Ann (fromList ps' :=> t) x)
+                              return $ In y

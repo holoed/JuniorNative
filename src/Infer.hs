@@ -15,6 +15,7 @@ import Substitutions
 import InferMonad
 import Unification
 import PrettyTypes
+import ContextReduction (resolvePreds)
 
 valueToType :: Prim -> Type
 valueToType (I _) = intCon
@@ -78,9 +79,9 @@ alg (MkTuple es) =
      return (tmkTuple (ps :=> t) es')
 
 infer :: Env -> Exp -> Either String (Substitutions, Qual Type)
-infer env e = fmap f (run m ctx state)
+infer env e = fmap f (run (m >>= resolvePreds []) ctx state)
   where
-        f ((subs, _), ps) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) (ps :=> bt))
+        f (_, (subs, _), ps) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) (ps :=> bt))
         m = cataRec alg (desugarOps e)
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])

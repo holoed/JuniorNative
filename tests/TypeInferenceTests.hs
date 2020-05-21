@@ -68,7 +68,6 @@ tests =
 
     it "type of conditionals" $ do
       "if True then 5 else 6" --> "Num a => a"
-      -- TODO: Implement Context Reduction step 
       -- "if True then 5 else False" --> "Unable to unify Bool with Int"
       -- "if True then True else 5" -->  "Unable to unify Int with Bool"
       -- "if 5 then True else False" --> "Unable to unify Int with Bool"
