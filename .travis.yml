@@ -1,12 +1,11 @@
 language: haskell
-cabal: "2.4"
 ghc:
-  - "8.6.5"
+  - "8.0.2"
 notifications:
   email: false
 install:
  - travis_retry cabal update
- - cabal install alex happy hspec string-interpolate
+ - cabal install alex happy hspec 
 before_script:
 - cabal configure --enable-tests
 - cabal build
