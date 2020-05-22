@@ -48,8 +48,7 @@ executable JuniorNative
                        mtl,
                        transformers,
                        haskeline,
-                       pretty,
-                       string-interpolate
+                       pretty
   hs-source-dirs:      src
   build-tools:         happy, alex
   default-language:    Haskell2010
@@ -95,7 +94,7 @@ test-suite tests
                        mtl,
                        transformers,
                        pretty,
-                       string-interpolate,
+                       interpolate,
                        hspec-core,
                        hspec
   default-language:    Haskell2010

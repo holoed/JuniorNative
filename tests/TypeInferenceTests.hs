@@ -10,7 +10,7 @@ import Infer (infer)
 import Parser (parseExpr)
 import Substitutions
 import LiftNumbers
-import Data.String.Interpolate ( i )
+import Data.String.Interpolate (i)
 
 env :: Env
 env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
