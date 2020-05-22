@@ -42,7 +42,8 @@ alg (InfixApp (" ", _, _) e1 e2) =
      return (tapp qt e1' e2')
 
 alg (InfixApp op@(n, _, _) e1 e2) =
-   do (TyLam t1 (TyLam t2 t3), ps) <- listen (getTypeForName n) 
+   do t <- listen (getTypeForName n) 
+      let (TyLam t1 (TyLam t2 t3), ps) = t
       (e1', ps1) <- listen $ local (\(env, _, sv) -> (env, t1, sv)) e1
       (e2', ps2) <- listen $ local (\(env, _, sv) -> (env, t2, sv)) e2
       bt <- getBaseType

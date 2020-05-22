@@ -22,6 +22,9 @@ env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
             ("snd", Set.fromList [] :=> TyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
             ("filter", Set.fromList [] :=> TyLam (TyLam (TyVar "a" 0) (TyCon "Bool")) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
             ("hd", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
+            ("tl", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
+            ("singleton", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
+            ("isEmpty", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
             ("concat", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyCon "Int") (TyVar "a" 0)),
             ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> TyLam (TyCon "Double") (TyVar "a" 0))
@@ -96,7 +99,7 @@ tests =
       "let f = \\x -> x in (f 5, f True)" --> "Num a => (a, Bool)"
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
       "let f = \\x -> let g = \\y -> (x, y) in (g 3, g True) in f" --> "Num a => (b -> ((b, a), (b, Bool)))"
-      ("let foo = \\xs -> concat (filter (\\y -> y < hd xs) xs) (filter (\\y -> y > hd xs) xs) in foo") --> "Ord a => (List a -> List a)"
+      ("let qsort = \\xs -> if (isEmpty xs) then xs else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs))) (singleton (hd xs))) (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort") --> "Ord a => (List a -> List a)"
 
     it "Apply function with wrong tuple arity" $ do
       "let f = \\x -> (fst x, snd x) in f (1, 2, 3)" --> "Unable to unify Tuple T11 with Tuple"
