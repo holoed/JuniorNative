@@ -3,6 +3,8 @@ module Infer where
 import Data.Map (empty)
 import Data.Set (fromList, insert, union)
 import Monads
+import Fixpoint
+import Annotations
 import RecursionSchemes
 import Ast
 import TypedAst
@@ -95,10 +97,10 @@ alg (MkTuple es) =
      (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
      return (tmkTuple (ps :=> t) es')
 
-infer :: Env -> Exp -> Either String (Substitutions, Qual Type)
-infer env e = fmap f (run (m >>= resolvePreds []) ctx state)
+infer :: [Qual Pred] -> Env -> Exp -> Either String (Substitutions, Qual Type)
+infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
   where
-        f (_, (subs, _), ps) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) (ps :=> bt))
+        f (In(Ann qt _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) qt)
         m = cataRec alg e
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])
