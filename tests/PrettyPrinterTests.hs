@@ -6,7 +6,6 @@ import SynExpToExp
 import PrettyPrinter
 import Parser (parseExpr)
 import Data.String.Interpolate (i)
-import Data.String.Interpolate.Util
 import Data.List (intercalate)
 import Data.Char (isSpace)
 
