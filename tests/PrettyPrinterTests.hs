@@ -1,11 +1,12 @@
 module PrettyPrinterTests where
 
 import Test.Hspec
+import SynExpToExp
 import PrettyPrinter
 import Parser (parseExpr)
 
 (-->) :: String -> String -> Expectation
-(-->) x y = either id pretty (parseExpr x) `shouldBe` y
+(-->) x y = either id (pretty . fromExp . toExp) (parseExpr x) `shouldBe` y
 
 tests :: SpecWith ()
 tests =
@@ -23,6 +24,7 @@ tests =
     it "Print a lam" $ do
        "\\x -> x" --> "\\x -> x"
        "\\x -> \\y -> y" --> "\\x -> \\y -> y"
+       "\\x y -> y" --> "\\x -> \\y -> y"
 
     it "Print an app" $ do
        "x y" --> "x y"
@@ -37,7 +39,7 @@ tests =
 
     it "Print a let" $ do
        "let n = 4 in n" --> "let n = 4 in n"
-       "let f = \\x -> x + 1 in f" --> "let f = \\x -> x + 1 in f"
+       "let f x = x + 1 in f" --> "let f = \\x -> x + 1 in f"
        "(let x = 4 in x) (let y = 5 in y)" --> "(let x = 4 in x) (let y = 5 in y)"
 
     it "Print an if then else" $ do
@@ -55,4 +57,6 @@ tests =
 
     it "Print operators" $ do
        "2 > 3" --> "2 > 3"
+       "2 < 4" --> "2 < 4"
        "2 == 3" --> "2 == 3"
+

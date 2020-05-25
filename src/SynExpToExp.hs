@@ -24,11 +24,13 @@ fromExp = cataRec alg
     where alg (Ast.Lit x) = PAst.lit x
           alg (Ast.Var s) = PAst.var s
           alg (Ast.MkTuple es) = PAst.mkTuple es 
-          alg (Ast.App (In (PAst.App (In (PAst.Var "*")) e1)) e2) = PAst.infixApp mulOp e1 e2
-          alg (Ast.App (In (PAst.App (In (PAst.Var "/")) e1)) e2) = PAst.infixApp divOp e1 e2
-          alg (Ast.App (In (PAst.App (In (PAst.Var "+")) e1)) e2) = PAst.infixApp plusOp e1 e2
-          alg (Ast.App (In (PAst.App (In (PAst.Var "-")) e1)) e2) = PAst.infixApp subOp e1 e2
-          alg (Ast.App (In (PAst.App (In (PAst.Var "==")) e1)) e2) = PAst.infixApp eqeqOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "*")) e1)) e2) = PAst.infixApp mulOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "/")) e1)) e2) = PAst.infixApp divOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "+")) e1)) e2) = PAst.infixApp plusOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "-")) e1)) e2) = PAst.infixApp subOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "==")) e1)) e2) = PAst.infixApp eqeqOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var ">")) e1)) e2) = PAst.infixApp gtOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "<")) e1)) e2) = PAst.infixApp ltOp e1 e2
           alg (Ast.App e1 e2) = PAst.infixApp juxtaOp e1 e2
           alg (Ast.Lam s e) = PAst.lam [s] e
           alg (Ast.Let s e1 e2) = PAst.leT [s] e1 e2
