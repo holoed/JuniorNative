@@ -22,6 +22,7 @@ valueToType :: Prim -> Type
 valueToType (I _) = intCon
 valueToType (B _) = boolCon
 valueToType (S _) = strCon
+valueToType U     = TyCon "()"
 
 
 alg :: ExpF (TypeM TypedExp) -> TypeM TypedExp
