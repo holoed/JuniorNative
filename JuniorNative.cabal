@@ -41,7 +41,10 @@ executable JuniorNative
                        ContextReduction,
                        LiftNumbers, 
                        Operators, 
-                       TypedAst
+                       TypedAst,
+                       PAst, 
+                       Primitives, 
+                       SynExpToExp
   build-depends:       base,
                        array,
                        containers,
@@ -79,7 +82,10 @@ test-suite tests
                        LiftNumbers, 
                        ContextReduction,
                        Operators, 
-                       TypedAst
+                       TypedAst,
+                       PAst, 
+                       Primitives, 
+                       SynExpToExp
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,

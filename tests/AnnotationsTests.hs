@@ -2,6 +2,7 @@ module AnnotationsTests where
 
 import Test.Hspec
 import Fixpoint
+import Primitives
 import Ast
 import Annotations
 

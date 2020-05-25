@@ -1,5 +1,6 @@
 module LiftNumbers where
 
+import Primitives
 import Ast
 import Fixpoint
 import RecursionSchemes

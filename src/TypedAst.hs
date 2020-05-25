@@ -3,8 +3,8 @@ module TypedAst where
 import Fixpoint
 import Types
 import Annotations
-import Operators
-import Ast (ExpF(Lit, Var, App, InfixApp, Lam, Let, IfThenElse, MkTuple), ExpF, Prim)
+import Primitives
+import Ast (ExpF(Lit, Var, App, Lam, Let, IfThenElse, MkTuple), ExpF)
 
 type TypedExp = Fix (Ann (Qual Type) ExpF)
 
@@ -16,9 +16,6 @@ tvar t s = In (Ann t (Var s))
 
 tapp :: Qual Type -> TypedExp -> TypedExp -> TypedExp
 tapp t e1 e2 = In (Ann t (App e1 e2))
-
-tinfixApp :: Qual Type -> Operator -> TypedExp -> TypedExp -> TypedExp
-tinfixApp t op e1 e2 = In (Ann t (InfixApp op e1 e2))
 
 tlam :: Qual Type -> String -> TypedExp -> TypedExp
 tlam t s e = In (Ann t (Lam s e))

@@ -14,6 +14,7 @@ import System.Console.Haskeline
 import Parser (parseExpr)
 import PrettyPrinter
 import LiftNumbers
+import SynExpToExp (toExp)
 
 env :: Env
 env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
@@ -33,7 +34,7 @@ env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
 process :: String -> IO ()
 process input = do
   let ast = parseExpr input 
-  let ty = ast >>= (infer [] env . liftN)
+  let ty = ast >>= (infer [] env . liftN . toExp)
   putStrLn (either id pretty ast)
   putStrLn (either id (show . snd) ty)
 

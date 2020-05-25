@@ -1,6 +1,7 @@
 module PrettyPrinter where
 
-import Ast
+import Primitives
+import PAst
 import Operators
 import RecursionSchemes
 import Data.List
@@ -21,11 +22,11 @@ noparens (_, pi, fi) (_, po, fo) side = pi > po || other fi side
         other _ _ = False
        
 bracket :: Associativity -> Operator -> [Operator] -> Doc -> Doc
-bracket side outer [] doc = doc
+bracket _ _ [] doc = doc
 bracket side outer (inner:_) doc =
   if noparens inner outer side then doc else parenthesize doc
 
-alg :: ExpF (Writer [Operator] Doc) -> Writer [Operator] Doc
+alg :: SynExpF (Writer [Operator] Doc) -> Writer [Operator] Doc
 alg (Lit (I v)) =
    return $ text (show v)
 alg (Lit (B b)) =
@@ -34,7 +35,7 @@ alg (Lit (S s)) =
    return $ text s 
 alg (Var x) =
    return $ text x
-alg (Lam n e) = do
+alg (Lam [n] e) = do
   e' <- e
   _ <- tell [lamOp]
   return $ char '\\' <> text n <+> text "->" <+> e'
@@ -47,7 +48,7 @@ alg (InfixApp op@(opName, _, _) e1 e2) = do
 alg (MkTuple es) = do
   es' <- sequence es
   return $ parens $ hcat $ intersperse (text ", ") es'
-alg (Let n v b) = do
+alg (Let [n] v b) = do
   v' <- v
   b' <- b
   _ <- tell [minOp]
@@ -59,5 +60,5 @@ alg (IfThenElse q t f) = do
   _ <- tell [minOp]
   return $ text "if" <+> q' <+> text "then" <+> t' <+> text "else" <+> f'
 
-pretty :: Exp -> String
+pretty :: SynExp -> String
 pretty = render . (\e -> fst $ runWriter (cataRec alg e))

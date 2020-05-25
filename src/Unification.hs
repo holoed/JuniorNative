@@ -1,7 +1,6 @@
 module Unification where
 
 import Data.Set (member)
-import Control.Monad (foldM_)
 import Types
 import Substitutions
 import Monads

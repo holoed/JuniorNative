@@ -52,3 +52,7 @@ tests =
     it "Print a tuple" $ do
       "(\\x -> x + 1, \\y -> y - 1)" --> "(\\x -> x + 1, \\y -> y - 1)"
       "\\x -> (x, \\y -> (y, x))" --> "\\x -> (x, \\y -> (y, x))" 
+
+    it "Print operators" $ do
+       "2 > 3" --> "2 > 3"
+       "2 == 3" --> "2 == 3"

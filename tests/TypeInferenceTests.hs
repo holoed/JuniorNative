@@ -6,6 +6,7 @@ import qualified Data.Set as Set
 import Test.Hspec
 import Types
 import Environment
+import SynExpToExp
 import Infer (infer)
 import Parser (parseExpr)
 import Substitutions
@@ -39,7 +40,7 @@ classEnv = [
   ]
 
 typeOf :: String -> Either String (Substitutions, Qual Type)
-typeOf s = parseExpr s >>= (infer classEnv env . liftN)
+typeOf s = parseExpr s >>= (infer classEnv env . liftN . toExp)
 
 (-->) :: String -> String -> Expectation
 (-->) x y = either id (show . snd) (typeOf x) `shouldBe` y
@@ -51,6 +52,9 @@ tests =
     it "type of a literal" $ do
       [i|42|] --> "Num a => a"
       [i|"Hello"|] --> "String"
+
+    it "type of a lambda" $ do
+      [i|\\x y -> x + y|] --> "Num a => (a -> (a -> a))"
 
     it "type of simple math" $ do
       [i|12 + 24|] --> "Num a => a"
@@ -72,10 +76,10 @@ tests =
       [i|\\x -> \\y -> x|] --> "(a -> (b -> a))"
 
     it "type of composition" $
-      [i|\\f -> \\g -> \\x -> g (f x)|] --> "((a -> b) -> ((b -> c) -> (a -> c)))"
+      [i|\\f g x -> g (f x)|] --> "((a -> b) -> ((b -> c) -> (a -> c)))"
 
     it "type of fmap" $
-      [i|\\f -> \\m -> \\ctx -> f (m (ctx))|] --> "((a -> b) -> ((c -> a) -> (c -> b)))"
+      [i|\\f m ctx -> f (m (ctx))|] --> "((a -> b) -> ((c -> a) -> (c -> b)))"
 
     it "type of applying identity to Int" $
       [i|id 42|] --> "Num a => a"
@@ -98,22 +102,23 @@ tests =
       [i|let pair = (True, 12) in pair|] --> "Num a => (Bool, a)"
       [i|let x = if (True) then 2 else 3 in x + 1|] --> "Num a => a"
       [i|let foo = \\x -> x + x in foo|] --> "Num a => (a -> a)"
+      [i|let foo x = x + x in foo|] --> "Num a => (a -> a)"
 
     it "type of functions" $ do
       [i|let f = \\x -> x in f|] --> "(a -> a)"
       [i|let swap = \\p -> (snd p, fst p) in swap|] --> "((a, b) -> (b, a))"
       [i|let fix = \\f -> f (fix f) in fix|] --> "((a -> a) -> a)"
       [i|let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac|] --> "(Eq a, Num a) => (a -> a)"
-      [i|let f = \\x -> x in (f 5, f True)|] --> "Num a => (a, Bool)"
+      [i|let f x = x in (f 5, f True)|] --> "Num a => (a, Bool)"
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
-      [i|let f = \\x -> let g = \\y -> (x, y) in (g 3, g True) in f|] --> "Num a => (b -> ((b, a), (b, Bool)))"
-      [i|let qsort = \\xs -> if (isEmpty xs) then xs 
-                             else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs))) 
-                                                 (singleton (hd xs))) 
-                                                 (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort|] --> "Ord a => (List a -> List a)"
+      [i|let f x = let g y = (x, y) in (g 3, g True) in f|] --> "Num a => (b -> ((b, a), (b, Bool)))"
+      [i|let qsort xs = if (isEmpty xs) then xs 
+                        else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs))) 
+                                            (singleton (hd xs))) 
+                                            (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort|] --> "Ord a => (List a -> List a)"
 
     it "Apply function with wrong tuple arity" $ do
-      [i|let f = \\x -> (fst x, snd x) in f (1, 2, 3)|] --> "Unable to unify Tuple T11 with Tuple"
+      [i|let f x = (fst x, snd x) in f (1, 2, 3)|] --> "Unable to unify Tuple T11 with Tuple"
 
     it "Equality of tuples" $ do
-      [i|let f = \\x -> \\y -> (x, y) == (x, y) in f|] --> "(Eq a, Eq b) => (a -> (b -> Bool))"
+      [i|let f x y = (x, y) == (x, y) in f|] --> "(Eq a, Eq b) => (a -> (b -> Bool))"

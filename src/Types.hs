@@ -1,7 +1,6 @@
 module Types where
 
-import Data.List (intercalate)
-import Data.Set (Set, empty, union, singleton, null, foldl, map, unions, toList, filter, empty, (\\), size)
+import Data.Set (Set, empty, union, singleton, null, foldl, unions, toList, filter, empty, (\\), size)
 import Prelude hiding (null, map, filter)
 
 -- Qualified 
@@ -35,7 +34,6 @@ instance Show Type where
   show (TyApp (TyApp (TyApp (TyCon "Tuple") t1) t2) t3) = "(" ++ show t1 ++ ", " ++ show t2 ++ ", " ++ show t3 ++ ")"
   show (TyApp t1 t2) = show t1 ++ " " ++ show t2
   show (TyLam t1 t2) = "(" ++ show t1 ++ " -> " ++ show t2 ++ ")"
-  show _ = error "Not yet supported"
 
 -- Type Schemes
 

@@ -6,6 +6,7 @@ import Monads
 import Fixpoint
 import Annotations
 import RecursionSchemes
+import Primitives
 import Ast
 import TypedAst
 import Types
@@ -34,23 +35,6 @@ alg (Var n) =
      (t, ps) <- listen (getTypeForName n)
      mgu t bt
      return (tvar (ps :=> bt) n)
-
-alg (InfixApp (" ", _, _) e1 e2) =
-  do t1 <- newTyVar 0
-     (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyLam t1 t, sv)) e1
-     (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
-     bt <- getBaseType
-     qt <- substituteQM ((ps1 `union` ps2) :=> bt)
-     return (tapp qt e1' e2')
-
-alg (InfixApp op@(n, _, _) e1 e2) =
-   do t <- listen (getTypeForName n) 
-      let (TyLam t1 (TyLam t2 t3), ps) = t
-      (e1', ps1) <- listen $ local (\(env, _, sv) -> (env, t1, sv)) e1
-      (e2', ps2) <- listen $ local (\(env, _, sv) -> (env, t2, sv)) e2
-      bt <- getBaseType
-      mgu t3 bt 
-      return (tinfixApp ((ps `union` ps1 `union` ps2) :=> bt) op e1' e2')
 
 alg (App e1 e2) =
   do t1 <- newTyVar 0

@@ -8,7 +8,8 @@ module Parser (
 
 import Lexer
 import Operators
-import Ast
+import Primitives
+import PAst
 
 import Control.Monad.Except
 
@@ -60,8 +61,8 @@ import Control.Monad.Except
 %left '*' '/'
 %%
 
-Expr : let VAR '=' Expr in Expr    { leT $2 $4 $6 }
-     | '\\' VAR '->' Expr          { lam $2 $4 }
+Expr : let Vars '=' Expr in Expr    { leT $2 $4 $6 }
+     | '\\' Vars '->' Expr         { lam $2 $4 }
      | if Expr then Expr else Expr { ifThenElse $2 $4 $6 }
      | Form                        { $1 }
 
@@ -88,13 +89,16 @@ Atom : '(' Expr ')'                { $2 }
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
+Vars : VAR                         { [$1] }
+     | VAR Vars                    { $1 : $2 }
+
 {
 
 parseError :: [Token] -> Except String a
 parseError (l:ls) = throwError (show l)
 parseError [] = throwError "Unexpected end of Input"
 
-parseExpr :: String -> Either String Exp
+parseExpr :: String -> Either String SynExp
 parseExpr input = runExcept $ do
   tokenStream <- scanTokens input
   expr tokenStream

@@ -3,6 +3,7 @@ module FreeVariablesTests where
 import Test.Hspec
 import Fixpoint
 import Annotations
+import Primitives
 import Ast
 import FreeVariables
 import Data.Set
