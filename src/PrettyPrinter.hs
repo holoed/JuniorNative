@@ -54,7 +54,8 @@ alg (Let [n] v b) = do
   v' <- v
   b' <- b
   _ <- tell [minOp]
-  return $ text "let" <+> text n <+> char '=' <+> v' <+> text "in" <+> b'
+  if (b' == text n) then return $ text "let" <+> text n <+> char '=' <+> v'
+  else return $ text "let" <+> text n <+> char '=' <+> v' <+> text "in" <+> b'
 alg (Let (n:xs) v b) = do
   v' <- v
   b' <- b

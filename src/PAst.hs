@@ -44,4 +44,4 @@ mkTuple :: [SynExp] -> SynExp
 mkTuple xs = In (MkTuple xs)
 
 defn :: [String] -> SynExp -> SynExp
-defn s v = In (Let s v (lit U))
+defn s v = In (Let s v (var $ head s))

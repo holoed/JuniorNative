@@ -48,10 +48,12 @@ tests =
        "(\\x -> x) (f y)" --> "(\\x -> x) (f y)"
 
     it "Print a let" $ do
-       "let n = 4 in n" --> "let n = 4 in n"
-       "let f x = x + 1 in f" --> "let f = \\x -> x + 1 in f"
-       "let f x y = (x, y) in f" --> "let f = \\x -> \\y -> (x, y) in f"
-       "(let x = 4 in x) (let y = 5 in y)" --> "(let x = 4 in x) (let y = 5 in y)"
+       "let n = 4" --> "let n = 4"
+       "let f x = x + 1" --> "let f = \\x -> x + 1"
+       "let f x y = (x, y)" --> "let f = \\x -> \\y -> (x, y)"
+       [i|let x = 4
+          let y = 5|] --> [i|let x = 4
+                             let y = 5|]
 
     it "Print an if then else" $ do
       "if true then 5 else 6" --> "if true then 5 else 6"
@@ -60,7 +62,9 @@ tests =
       "if true then (if false then 5 else 6) else 7" --> "if true then if false then 5 else 6 else 7"
 
     it "Print a mix" $ do
-      "(let x = 4 in x) (if true then 5 else 6)" --> "(let x = 4 in x) (if true then 5 else 6)"
+      [i|let x = 4
+         if true then 5 else 6|] --> [i|let x = 4
+                                        if true then 5 else 6|]
 
     it "Print a tuple" $ do
       "(\\x -> x + 1, \\y -> y - 1)" --> "(\\x -> x + 1, \\y -> y - 1)"
@@ -71,8 +75,5 @@ tests =
        "2 < 4" --> "2 < 4"
        "2 == 3" --> "2 == 3"
 
-    it "Print a decl" $ do
-       [i|let x = 12
-          let y = 21|] --> unindent [i|let x = 12 in ()
-                                       let y = 21 in ()|]
+
 

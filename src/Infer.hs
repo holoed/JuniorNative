@@ -24,7 +24,6 @@ valueToType (B _) = boolCon
 valueToType (S _) = strCon
 valueToType U     = TyCon "()"
 
-
 alg :: ExpF (TypeM TypedExp) -> TypeM TypedExp
 alg (Lit v) =
   do bt <- getBaseType
