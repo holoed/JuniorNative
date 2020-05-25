@@ -53,6 +53,11 @@ alg (Let [n] v b) = do
   b' <- b
   _ <- tell [minOp]
   return $ text "let" <+> text n <+> char '=' <+> v' <+> text "in" <+> b'
+alg (Let (n:xs) v b) = do
+  v' <- v
+  b' <- b
+  _ <- tell [minOp]
+  return $ text "let" <+> text n <+> foldr (\x acc -> acc <+> text x) (text $ head xs) (tail xs) <+> char '=' <+> v' <+> text "in" <+> b'
 alg (IfThenElse q t f) = do
   q' <- q
   t' <- t

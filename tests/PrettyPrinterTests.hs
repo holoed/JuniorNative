@@ -40,6 +40,7 @@ tests =
     it "Print a let" $ do
        "let n = 4 in n" --> "let n = 4 in n"
        "let f x = x + 1 in f" --> "let f = \\x -> x + 1 in f"
+       "let f x y = (x, y) in f" --> "let f = \\x -> \\y -> (x, y) in f"
        "(let x = 4 in x) (let y = 5 in y)" --> "(let x = 4 in x) (let y = 5 in y)"
 
     it "Print an if then else" $ do
