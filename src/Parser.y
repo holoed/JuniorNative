@@ -18,9 +18,6 @@ import Control.Monad.Except
 -- Entry point
 %name expr
 
--- Entry point
-%name expr
-
 -- Lexer structure
 %tokentype { Token }
 
@@ -61,7 +58,13 @@ import Control.Monad.Except
 %left '*' '/'
 %%
 
-Expr : let Vars '=' Expr in Expr    { leT $2 $4 $6 }
+Decls : Expr                       { [$1] }
+      | Decl                       { [$1] }   
+      | Decl Decls                 { $1 : $2 }
+
+Decl : let Vars '=' Expr           { leT $2 $4 (lit U) }
+
+Expr : let Vars '=' Expr in Expr   { leT $2 $4 $6 }
      | '\\' Vars '->' Expr         { lam $2 $4 }
      | if Expr then Expr else Expr { ifThenElse $2 $4 $6 }
      | Form                        { $1 }
@@ -98,7 +101,7 @@ parseError :: [Token] -> Except String a
 parseError (l:ls) = throwError (show l)
 parseError [] = throwError "Unexpected end of Input"
 
-parseExpr :: String -> Either String SynExp
+parseExpr :: String -> Either String [SynExp]
 parseExpr input = runExcept $ do
   tokenStream <- scanTokens input
   expr tokenStream

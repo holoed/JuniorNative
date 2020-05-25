@@ -40,7 +40,7 @@ classEnv = [
   ]
 
 typeOf :: String -> Either String (Substitutions, Qual Type)
-typeOf s = parseExpr s >>= (infer classEnv env . liftN . toExp)
+typeOf s = parseExpr s >>= (infer classEnv env . liftN . toExp . head)
 
 (-->) :: String -> String -> Expectation
 (-->) x y = either id (show . snd) (typeOf x) `shouldBe` y

@@ -8,6 +8,8 @@ import Fixpoint
 import Primitives
 import Operators
 
+data Decl a = Decl [String] a
+
 data SynExpF a = Lit Prim
                | Var String
                | MkTuple [a]

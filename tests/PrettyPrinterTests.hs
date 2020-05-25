@@ -1,12 +1,22 @@
+{-# LANGUAGE QuasiQuotes #-}
 module PrettyPrinterTests where
 
 import Test.Hspec
 import SynExpToExp
 import PrettyPrinter
 import Parser (parseExpr)
+import Data.String.Interpolate (i)
+import Data.String.Interpolate.Util
+import Data.List (intercalate)
+import Data.Char (isSpace)
+
+trim :: String -> String
+trim = f . f
+  where f = reverse . dropWhile isSpace
 
 (-->) :: String -> String -> Expectation
-(-->) x y = either id (pretty . fromExp . toExp) (parseExpr x) `shouldBe` y
+(-->) x y = either id ((intercalate "\n") . map (trim . pretty . fromExp . toExp)) (parseExpr x) `shouldBe` 
+                      ((intercalate "\n") $ map trim $ lines y)
 
 tests :: SpecWith ()
 tests =
@@ -60,4 +70,9 @@ tests =
        "2 > 3" --> "2 > 3"
        "2 < 4" --> "2 < 4"
        "2 == 3" --> "2 == 3"
+
+    it "Print a decl" $ do
+       [i|let x = 12
+          let y = 21|] --> unindent [i|let x = 12 in ()
+                                       let y = 21 in ()|]
 

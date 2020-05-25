@@ -34,8 +34,8 @@ env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
 process :: String -> IO ()
 process input = do
   let ast = parseExpr input 
-  let ty = ast >>= (infer [] env . liftN . toExp)
-  putStrLn (either id pretty ast)
+  let ty = ast >>= (infer [] env . liftN . toExp . head)
+  putStrLn (either id pretty (ast >>= return . head))
   putStrLn (either id (show . snd) ty)
 
 main :: IO ()

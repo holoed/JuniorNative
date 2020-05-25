@@ -7,7 +7,7 @@ import Parser (parseExpr)
 import SynExpToExp (fromExp, toExp)
 
 rn :: String -> String
-rn s = either id pretty (fmap (fromExp . rename . toExp) (parseExpr s))
+rn s = either id pretty (fmap (fromExp . rename . toExp . head) (parseExpr s))
 
 (-->) :: String -> String -> Expectation
 (-->) x y = (rn x) `shouldBe` y

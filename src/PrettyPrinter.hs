@@ -33,6 +33,8 @@ alg (Lit (B b)) =
    return $ text (show b)
 alg (Lit (S s)) =
    return $ text s 
+alg (Lit U) =
+   return $ text "()" 
 alg (Var x) =
    return $ text x
 alg (Lam [n] e) = do
