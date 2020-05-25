@@ -62,7 +62,7 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : let Vars '=' Expr           { leT $2 $4 (lit U) }
+Decl : let Vars '=' Expr           { defn $2 $4 }
 
 Expr : let Vars '=' Expr in Expr   { leT $2 $4 $6 }
      | '\\' Vars '->' Expr         { lam $2 $4 }

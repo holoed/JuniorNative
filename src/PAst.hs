@@ -8,8 +8,6 @@ import Fixpoint
 import Primitives
 import Operators
 
-data Decl a = Decl [String] a
-
 data SynExpF a = Lit Prim
                | Var String
                | MkTuple [a]
@@ -44,3 +42,6 @@ ifThenElse p e1 e2 = In (IfThenElse p e1 e2)
 
 mkTuple :: [SynExp] -> SynExp
 mkTuple xs = In (MkTuple xs)
+
+defn :: [String] -> SynExp -> SynExp
+defn s v = In (Let s v (lit U))
