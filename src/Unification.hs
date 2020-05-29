@@ -12,7 +12,7 @@ mgu a b =
     (subs, _) <- get
     case (substitute subs a, substitute subs b) of
       (TyVar ta _, TyVar tb _) | ta == tb -> return ()
-      (TyVar ta k, _) | not (member (ta, k) (getTVarsOfType b)) -> updateSubs (return . extend (ta, k) b)
+      (TyVar ta k, b') | not (member (ta, k) (getTVarsOfType b')) -> updateSubs (return . extend (ta, k) b')
       (_, TyVar _ _) -> mgu b a
       (TyLam a1 b1, TyLam a2 b2) -> do mgu b1 b2
                                        mgu a1 a2
