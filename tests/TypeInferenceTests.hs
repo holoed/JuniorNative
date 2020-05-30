@@ -109,6 +109,7 @@ tests =
       [i|let swap = \\p -> (snd p, fst p) in swap|] --> "((a, b) -> (b, a))"
       [i|let fix = \\f -> f (fix f) in fix|] --> "((a -> a) -> a)"
       [i|let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac|] --> "(Eq a, Num a) => (a -> a)"
+      [i|let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) |] --> "(Eq a, Num a, Num b) => (a -> b)"  
       [i|let f x = x in (f 5, f True)|] --> "Num a => (a, Bool)"
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
       [i|let f x = let g y = (x, y) in (g 3, g True) in f|] --> "Num a => (b -> ((b, a), (b, Bool)))"
