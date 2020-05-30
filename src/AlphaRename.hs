@@ -20,7 +20,6 @@ newName s = do (index, names) <- get
                        put (index + 1, names')
                        return s' 
                 
-
 alg :: ExpF (AlphaM Exp) -> AlphaM Exp
 alg (Lam x e) = do x' <- newName x
                    e' <- local (insert x x') e

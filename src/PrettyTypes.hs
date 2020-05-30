@@ -47,5 +47,5 @@ pretty t = evalState (runT t) (Map.empty, 'a')
         
 prettyQ :: Qual Type -> Qual Type
 prettyQ (ps :=> t) = evalState (do ps' <- runPs ps
-                                   t' <- runT t 
+                                   t'  <- runT t 
                                    return (ps' :=> t')) (Map.empty, 'a')
