@@ -9,31 +9,12 @@ data Pred = IsIn String Type deriving (Eq, Ord)
 
 data Qual t = Set Pred :=> t deriving Eq
 
-instance Show Pred where
-  show (IsIn n t) = n ++ " " ++ show t 
-
-instance Show a => Show (Qual a) where
-  show (ps :=> t) = 
-    if (null ps) then show t
-    else
-      let cs =  Data.Set.foldl (\acc x -> if acc /= "" then acc ++ ", " ++ (show x) else show x) "" ps in
-      let cs' = if size ps > 1 then "(" ++ cs ++ ")" else cs in
-      cs' ++ " => " ++ show t
-
 -- Type
 
 data Type = TyCon String 
           | TyVar String Int 
           | TyApp Type Type
           | TyLam Type Type deriving (Eq, Ord)
-
-instance Show Type where
-  show (TyCon name) = name
-  show (TyVar name _) = name
-  show (TyApp (TyApp (TyCon "Tuple") t1) t2) = "(" ++ show t1 ++ ", " ++ show t2 ++ ")"
-  show (TyApp (TyApp (TyApp (TyCon "Tuple") t1) t2) t3) = "(" ++ show t1 ++ ", " ++ show t2 ++ ", " ++ show t3 ++ ")"
-  show (TyApp t1 t2) = show t1 ++ " " ++ show t2
-  show (TyLam t1 t2) = "(" ++ show t1 ++ " -> " ++ show t2 ++ ")"
 
 -- Type Schemes
 

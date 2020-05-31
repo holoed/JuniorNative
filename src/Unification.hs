@@ -2,6 +2,7 @@ module Unification where
 
 import Data.Set (member)
 import Types
+import TypesPrinter ()
 import Substitutions
 import Monads
 import InferMonad
