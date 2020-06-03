@@ -28,8 +28,10 @@ env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
             ("hd", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
             ("tl", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
             ("singleton", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
+            ("empty", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),          
             ("isEmpty", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
             ("concat", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+            ("cons", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),           
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyCon "Int") (TyVar "a" 0)),
             ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> TyLam (TyCon "Double") (TyVar "a" 0))
      ]
@@ -114,6 +116,7 @@ tests =
       [i|let f x = x in (f 5, f True)|] --> "Num a => (a, Bool)"
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
       [i|let f x = let g y = (x, y) in (g 3, g True) in f|] --> "Num a => b -> ((b, a), (b, Bool))"
+      [i|let map f xs = if isEmpty xs then empty else cons (f (hd xs)) (map f (tl xs))|] --> "(a -> b) -> List a -> List b"
       [i|let qsort xs = if (isEmpty xs) then xs 
                         else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs))) 
                                             (singleton (hd xs))) 

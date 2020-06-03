@@ -27,6 +27,11 @@ env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
             ("<",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyCon "Bool"))),
             ("fst", Set.fromList [] :=> TyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
             ("snd", Set.fromList [] :=> TyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
+            ("isEmpty", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
+            ("empty", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),
+            ("hd", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
+            ("tl", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
+            ("cons", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyCon "Int") (TyVar "a" 0)),
             ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> TyLam (TyCon "Double") (TyVar "a" 0))
      ]
