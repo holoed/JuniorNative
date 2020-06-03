@@ -54,7 +54,7 @@ tests =
       [i|"Hello"|] --> "String"
 
     it "type of a lambda" $ do
-      [i|\\x y -> x + y|] --> "Num a => (a -> (a -> a))"
+      [i|\\x y -> x + y|] --> "Num a => a -> a -> a"
 
     it "type of simple math" $ do
       [i|12 + 24|] --> "Num a => a"
@@ -63,23 +63,23 @@ tests =
 
     it "type of simple class constraints" $ do 
       [i|2 > 3|] --> "Bool"
-      [i|\\x -> (x + x) < (x * x)|] --> "(Num a, Ord a) => (a -> Bool)"
+      [i|\\x -> (x + x) < (x * x)|] --> "(Num a, Ord a) => a -> Bool"
 
     it "type of a name" $ do
-      [i|id|] --> "(a -> a)"
+      [i|id|] --> "a -> a"
       [i|foo|] --> "Name foo not found."
 
     it "type of identity" $
-      [i|\\x -> x|] --> "(a -> a)"
+      [i|\\x -> x|] --> "a -> a"
 
     it "type of nested lam that take 2 arg and return first" $
-      [i|\\x -> \\y -> x|] --> "(a -> (b -> a))"
+      [i|\\x -> \\y -> x|] --> "a -> b -> a"
 
     it "type of composition" $
-      [i|\\f g x -> g (f x)|] --> "((a -> b) -> ((b -> c) -> (a -> c)))"
+      [i|\\f g x -> g (f x)|] --> "(a -> b) -> (b -> c) -> a -> c"
 
     it "type of fmap" $
-      [i|\\f m ctx -> f (m (ctx))|] --> "((a -> b) -> ((c -> a) -> (c -> b)))"
+      [i|\\f m ctx -> f (m (ctx))|] --> "(a -> b) -> (c -> a) -> c -> b"
 
     it "type of applying identity to Int" $
       [i|id 42|] --> "Num a => a"
@@ -94,33 +94,33 @@ tests =
     it "type of tuple" $ do
       [i|(2, True)|] --> "Num a => (a, Bool)"
       [i|(False, 4)|] --> "Num a => (Bool, a)"
-      [i|\\x -> (x, x)|] --> "(a -> (a, a))"
-      [i|\\x -> \\y -> (y, x)|] --> "(a -> (b -> (b, a)))"
+      [i|\\x -> (x, x)|] --> "a -> (a, a)"
+      [i|\\x -> \\y -> (y, x)|] --> "a -> b -> (b, a)"
 
     it "type of let" $ do
       [i|let x = 42 in x|] --> "Num a => a"
       [i|let pair = (True, 12) in pair|] --> "Num a => (Bool, a)"
       [i|let x = if (True) then 2 else 3 in x + 1|] --> "Num a => a"
-      [i|let foo = \\x -> x + x in foo|] --> "Num a => (a -> a)"
-      [i|let foo x = x + x in foo|] --> "Num a => (a -> a)"
+      [i|let foo = \\x -> x + x in foo|] --> "Num a => a -> a"
+      [i|let foo x = x + x in foo|] --> "Num a => a -> a"
 
     it "type of functions" $ do
-      [i|let f = \\x -> x in f|] --> "(a -> a)"
-      [i|let swap = \\p -> (snd p, fst p) in swap|] --> "((a, b) -> (b, a))"
-      [i|let fix = \\f -> f (fix f) in fix|] --> "((a -> a) -> a)"
-      [i|let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac|] --> "(Eq a, Num a) => (a -> a)"
-      [i|let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) |] --> "(Eq a, Num a, Num b) => (a -> b)"  
-      [i|let foldr f z xs = if isEmpty xs then z else f (hd xs) (foldr f z (tl xs))|] --> "((a -> (b -> b)) -> (b -> (List a -> b)))"
+      [i|let f = \\x -> x in f|] --> "a -> a"
+      [i|let swap = \\p -> (snd p, fst p) in swap|] --> "(a, b) -> (b, a)"
+      [i|let fix = \\f -> f (fix f) in fix|] --> "(a -> a) -> a"
+      [i|let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac|] --> "(Eq a, Num a) => a -> a"
+      [i|let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) |] --> "(Eq a, Num a, Num b) => a -> b"  
+      [i|let foldr f z xs = if isEmpty xs then z else f (hd xs) (foldr f z (tl xs))|] --> "(a -> b -> b) -> b -> List a -> b"
       [i|let f x = x in (f 5, f True)|] --> "Num a => (a, Bool)"
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
-      [i|let f x = let g y = (x, y) in (g 3, g True) in f|] --> "Num a => (b -> ((b, a), (b, Bool)))"
+      [i|let f x = let g y = (x, y) in (g 3, g True) in f|] --> "Num a => b -> ((b, a), (b, Bool))"
       [i|let qsort xs = if (isEmpty xs) then xs 
                         else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs))) 
                                             (singleton (hd xs))) 
-                                            (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort|] --> "Ord a => (List a -> List a)"
+                                            (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort|] --> "Ord a => List a -> List a"
 
     it "Apply function with wrong tuple arity" $ do
       [i|let f x = (fst x, snd x) in f (1, 2, 3)|] --> "Unable to unify Tuple T11 with Tuple"
 
     it "Equality of tuples" $ do
-      [i|let f x y = (x, y) == (x, y) in f|] --> "(Eq a, Eq b) => (a -> (b -> Bool))"
+      [i|let f x y = (x, y) == (x, y) in f|] --> "(Eq a, Eq b) => a -> b -> Bool"

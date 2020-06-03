@@ -3,9 +3,10 @@ module TypesPrinter where
 import Types
 import Text.PrettyPrint
 import Data.Set (size, foldl)
-import Prelude hiding ((<>))
+import Prelude hiding (Left, Right, (<>))
 import Control.Monad.Writer hiding ((<>))
 import Operators
+import PrettyPrinter
 
 toDoc :: Type -> Writer [Operator] Doc
 toDoc (TyCon name) = return $ text name
@@ -24,9 +25,10 @@ toDoc (TyApp t1 t2) =
        x2 <- toDoc t2
        return $ x1 <+> x2
 toDoc (TyLam t1 t2) = 
-    do x1 <- toDoc t1
-       x2 <- toDoc t2
-       return $ text "(" <> x1 <+> text "->" <+> x2 <> text ")"
+    do (x1, l) <- listen $ toDoc t1
+       (x2, r) <- listen $ toDoc t2
+       tell [lamOp]
+       return $ ((bracket Left lamOp l x1) <+> text "->" <+> (bracket Right lamOp r x2))
 
 instance Show Type where
   show = render . fst . runWriter . toDoc 
