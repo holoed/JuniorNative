@@ -3,6 +3,7 @@ module TypesPrinter where
 import Types
 import Text.PrettyPrint
 import Data.Set (size, foldl)
+import Prelude hiding ((<>))
 
 toDoc :: Type -> Doc
 toDoc (TyCon name) = text name
