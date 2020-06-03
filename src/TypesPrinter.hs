@@ -4,19 +4,32 @@ import Types
 import Text.PrettyPrint
 import Data.Set (size, foldl)
 import Prelude hiding ((<>))
+import Control.Monad.Writer hiding ((<>))
+import Operators
 
-toDoc :: Type -> Doc
-toDoc (TyCon name) = text name
-toDoc (TyVar name _) = text name
+toDoc :: Type -> Writer [Operator] Doc
+toDoc (TyCon name) = return $ text name
+toDoc (TyVar name _) = return $ text name
 toDoc (TyApp (TyApp (TyCon "Tuple") t1) t2) = 
-    text "(" <> toDoc t1 <> text "," <+> toDoc t2 <> text ")"
+    do x1 <- toDoc t1
+       x2 <- toDoc t2
+       return $ text "(" <> x1 <> text "," <+> x2 <> text ")"
 toDoc (TyApp (TyApp (TyApp (TyCon "Tuple") t1) t2) t3) = 
-    text "(" <> toDoc t1 <> text "," <+> toDoc t2 <> text "," <+> toDoc t3 <> text ")"
-toDoc (TyApp t1 t2) = toDoc t1 <+> toDoc t2
-toDoc (TyLam t1 t2) = text "(" <> toDoc t1 <+> text "->" <+> toDoc t2 <> text ")"
+    do x1 <- toDoc t1
+       x2 <- toDoc t2
+       x3 <- toDoc t3
+       return $ text "(" <> x1 <> text "," <+> x2 <> text "," <+> x3 <> text ")"
+toDoc (TyApp t1 t2) = 
+    do x1 <- toDoc t1
+       x2 <- toDoc t2
+       return $ x1 <+> x2
+toDoc (TyLam t1 t2) = 
+    do x1 <- toDoc t1
+       x2 <- toDoc t2
+       return $ text "(" <> x1 <+> text "->" <+> x2 <> text ")"
 
 instance Show Type where
-  show = render . toDoc 
+  show = render . fst . runWriter . toDoc 
 
 instance Show Pred where
   show (IsIn n t) = n ++ " " ++ show t 
