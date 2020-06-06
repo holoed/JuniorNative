@@ -106,17 +106,35 @@ tests =
       [i|let foo = \\x -> x + x in foo|] --> "Num a => a -> a"
       [i|let foo x = x + x in foo|] --> "Num a => a -> a"
 
-    it "type of functions" $ do
+    it "type of functions 1" $
       [i|let f = \\x -> x in f|] --> "a -> a"
+        
+    it "type of functions 2" $
       [i|let swap = \\p -> (snd p, fst p) in swap|] --> "(a, b) -> (b, a)"
+
+    it "type of functions 3" $ 
       [i|let fix = \\f -> f (fix f) in fix|] --> "(a -> a) -> a"
+
+    it "type of functions 4" $ 
       [i|let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac|] --> "(Eq a, Num a) => a -> a"
+
+    it "type of functions 5" $ 
       [i|let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) |] --> "(Eq a, Num a, Num b) => a -> b"  
+
+    it "type of functions 6" $ 
       [i|let foldr f z xs = if isEmpty xs then z else f (hd xs) (foldr f z (tl xs))|] --> "(a -> b -> b) -> b -> List a -> b"
+
+    it "type of functions 6" $     
       [i|let f x = x in (f 5, f True)|] --> "Num a => (a, Bool)"
+
+    it "type of functions 7" $ 
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
       [i|let f x = let g y = (x, y) in (g 3, g True) in f|] --> "Num a => b -> ((b, a), (b, Bool))"
+
+    it "type of functions 7" $ 
       [i|let map f xs = if isEmpty xs then empty else cons (f (hd xs)) (map f (tl xs))|] --> "(a -> b) -> List a -> List b"
+
+    it "type of functions 8" $
       [i|let qsort xs = if (isEmpty xs) then xs 
                         else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs))) 
                                             (singleton (hd xs))) 
