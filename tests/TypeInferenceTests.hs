@@ -51,16 +51,22 @@ tests :: SpecWith ()
 tests =
   describe "Type Inference Tests" $ do
 
-    it "type of a literal" $ do
-      [i|42|] --> "Num a => a"
-      [i|"Hello"|] --> "String"
+    it "type of a literal 1" $ [i|42|] --> "Num a => a"
+    it "type of a literal 2" $ [i|"Hello"|] --> "String"
 
-    it "type of a lambda" $ do
+    it "type of a lambda" $ 
       [i|\\x y -> x + y|] --> "Num a => a -> a -> a"
 
-    it "type of simple math" $ do
+    it "type of a lambda 2" $
+      [i|\\x -> \\y -> x y|] --> "(a -> b) -> a -> b"
+        
+    it "type of simple math" $ 
       [i|12 + 24|] --> "Num a => a"
+
+    it "type of simple math 2" $
       [i|2 * (3 + 2)|] --> "Num a => a"
+
+    it "type of simple math 3" $
       [i|3 - (2 / 3)|] --> "(Fractional a, Num a) => a"
 
     it "type of simple class constraints" $ do 
