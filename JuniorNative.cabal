@@ -100,7 +100,6 @@ test-suite tests
                        mtl,
                        transformers,
                        pretty,
-                       interpolate,
                        hspec-core,
                        hspec
   default-language:    Haskell2010
