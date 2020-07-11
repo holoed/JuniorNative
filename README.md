@@ -2,6 +2,6 @@
 
 - :heavy_check_mark: Parse
 - :heavy_check_mark: Type Inference
-- [ ] Transform TypeClasses to dictionaries
-- [ ] Closure Conversion
-- [ ] Native Code Gen
+- Transform TypeClasses to dictionaries
+- Closure Conversion
+- Native Code Gen
