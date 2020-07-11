@@ -4,4 +4,4 @@
 - Type Inference
 - Transform TypeClasses to dictionaries
 - Closure Conversion
-- Code Gen
+- Native Code Gen
