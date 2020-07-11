@@ -1,1 +1,7 @@
 # Junior Native [![Build Status](https://travis-ci.org/holoed/JuniorNative.svg?branch=master)](https://travis-ci.org/holoed/JuniorNative)
+
+- Parse
+- Type Inference
+- Transform TypeClasses to dictionaries
+- Closure Conversion
+- Code Gen
