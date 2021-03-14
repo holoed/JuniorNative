@@ -25,11 +25,6 @@ getName k = do success <- containsKey
 runT :: Type -> State (Map.Map String Char, Char) Type
 runT (TyVar name k) = do newName <- getName name
                          return (TyVar [newName] k)
-
-runT (TyLam args body) = do argsAcc <- runT args
-                            bodyAcc <- runT body
-                            return (TyLam argsAcc bodyAcc)
-
 runT (TyApp t1 t2) = do t1' <- runT t1
                         t2' <- runT t2
                         return (TyApp t1' t2')

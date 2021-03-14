@@ -20,15 +20,15 @@ toDoc (TyApp (TyApp (TyApp (TyCon "Tuple") t1) t2) t3) =
        x2 <- toDoc t2
        x3 <- toDoc t3
        return $ text "(" <> x1 <> text "," <+> x2 <> text "," <+> x3 <> text ")"
-toDoc (TyApp t1 t2) = 
-    do x1 <- toDoc t1
-       x2 <- toDoc t2
-       return $ x1 <+> x2
-toDoc (TyLam t1 t2) = 
+toDoc (TyApp (TyApp (TyCon "->") t1) t2) = 
     do (x1, l) <- listen $ toDoc t1
        (x2, r) <- listen $ toDoc t2
        tell [lamOp]
        return $ ((bracket Left lamOp l x1) <+> text "->" <+> (bracket Right lamOp r x2))
+toDoc (TyApp t1 t2) = 
+    do x1 <- toDoc t1
+       x2 <- toDoc t2
+       return $ x1 <+> x2
 
 instance Show Type where
   show = render . fst . runWriter . toDoc 

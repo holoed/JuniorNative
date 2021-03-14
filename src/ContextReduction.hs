@@ -19,7 +19,6 @@ inHnf :: Pred -> Bool
 inHnf (IsIn _ t) = hnf t 
     where hnf (TyVar _ _) = True
           hnf (TyCon _) = False
-          hnf (TyLam _ _) = False
           hnf (TyApp t' _) = hnf t'
 
 tryInst :: Qual Pred -> Pred -> TypeM (Maybe [Pred])

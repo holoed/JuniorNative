@@ -38,7 +38,7 @@ alg (Var n) =
 
 alg (App e1 e2) =
   do t1 <- newTyVar 0
-     (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyLam t1 t, sv)) e1
+     (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyApp (TyApp (TyCon "->") t1) t, sv)) e1
      (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
      bt <- getBaseType
      qt <- substituteQM ((ps1 `union` ps2) :=> bt)
@@ -48,7 +48,7 @@ alg (Lam n e) =
   do bt <- getBaseType
      t1 <- newTyVar 0
      t2 <- newTyVar 0
-     let t = TyLam t1 t2
+     let t = TyApp (TyApp (TyCon "->") t1) t2
      mgu t bt
      let (TyVar t1n _) = t1
      (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
