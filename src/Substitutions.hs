@@ -18,7 +18,6 @@ substitute :: Substitutions -> Type -> Type
 substitute s t@(TyVar n k) = let t' = lookup (n, k) s in
                      if t == t' then t'
                      else substitute s t'
-substitute s (TyLam t1 t2) = TyLam (substitute s t1) (substitute s t2)
 substitute s (TyApp t1 t2) = TyApp (substitute s t1) (substitute s t2)
 substitute s (TyCon name) = TyCon name
 

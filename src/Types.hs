@@ -1,6 +1,6 @@
 module Types where
 
-import Data.Set (Set, empty, union, singleton, null, foldl, unions, toList, filter, empty, (\\), size)
+import Data.Set (Set, empty, union, singleton, unions, toList, filter, empty, (\\))
 import Prelude hiding (null, map, filter)
 
 -- Qualified 
@@ -13,8 +13,7 @@ data Qual t = Set Pred :=> t deriving Eq
 
 data Type = TyCon String 
           | TyVar String Int 
-          | TyApp Type Type
-          | TyLam Type Type deriving (Eq, Ord)
+          | TyApp Type Type deriving (Eq, Ord)
 
 -- Type Schemes
 
@@ -24,7 +23,6 @@ data TypeScheme = ForAll (Set String) (Qual Type)
 getTVarsOfType :: Type -> Set (String, Int)
 getTVarsOfType (TyVar n k) = singleton (n, k)
 getTVarsOfType (TyApp t1 t2) = getTVarsOfType t1 `union` getTVarsOfType t2
-getTVarsOfType (TyLam t1 t2) = getTVarsOfType t1 `union` getTVarsOfType t2
 getTVarsOfType (TyCon _) = empty
 
 getTVarsOfPred :: Pred -> Set (String, Int)

@@ -15,8 +15,6 @@ mgu a b =
       (TyVar ta _, TyVar tb _) | ta == tb -> return ()
       (TyVar ta k, b') | not (member (ta, k) (getTVarsOfType b')) -> updateSubs (return . extend (ta, k) b')
       (_, TyVar _ _) -> mgu b a
-      (TyLam a1 b1, TyLam a2 b2) -> do mgu b1 b2
-                                       mgu a1 a2
       (TyApp a1 b1, TyApp a2 b2) -> do mgu a1 a2
                                        mgu b1 b2                                       
       (TyCon name1, TyCon name2) | name1 == name2 -> return ()

@@ -12,27 +12,30 @@ import Parser (parseExpr)
 import Substitutions
 import LiftNumbers
 
+tyLam :: Type -> Type -> Type
+tyLam t1 t2 = TyApp (TyApp (TyCon "->") t1) t2
+
 env :: Env
-env = toEnv [("id", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyVar "a" 0)),
-            ("==", Set.fromList [IsIn "Eq" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyCon "Bool"))),
-            ("-",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
-            ("+",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
-            ("*",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
-            ("/",  Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyVar "a" 0))),
-            (">",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyCon "Bool"))),
-            ("<",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> TyLam (TyVar "a" 0) (TyLam (TyVar "a" 0) (TyCon "Bool"))),
-            ("fst", Set.fromList [] :=> TyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
-            ("snd", Set.fromList [] :=> TyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
-            ("filter", Set.fromList [] :=> TyLam (TyLam (TyVar "a" 0) (TyCon "Bool")) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-            ("hd", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
-            ("tl", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
-            ("singleton", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
+env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
+            ("==", Set.fromList [IsIn "Eq" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
+            ("-",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
+            ("+",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
+            ("*",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
+            ("/",  Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
+            (">",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
+            ("<",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
+            ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
+            ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
+            ("filter", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyCon "Bool")) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+            ("hd", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
+            ("tl", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
+            ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
             ("empty", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),          
-            ("isEmpty", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
-            ("concat", Set.fromList [] :=> TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-            ("cons", Set.fromList [] :=> TyLam (TyVar "a" 0) (TyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),           
-            ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> TyLam (TyCon "Int") (TyVar "a" 0)),
-            ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> TyLam (TyCon "Double") (TyVar "a" 0))
+            ("isEmpty", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
+            ("concat", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+            ("cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),           
+            ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyCon "Int") (TyVar "a" 0)),
+            ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0))
      ]
 
 classEnv :: [Qual Pred]

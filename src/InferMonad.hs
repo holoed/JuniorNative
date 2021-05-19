@@ -51,7 +51,7 @@ getTypeForName n =
        Identity (_ :=> t) -> return t
 
 generalise :: Set String -> Qual Type -> TypeScheme
-generalise sv (ps :=> t@(TyLam _ _)) = ForAll sv (ps :=> t)
+generalise sv (ps :=> t@(TyApp (TyApp (TyCon "->") _) _)) = ForAll sv (ps :=> t)
 generalise _ qt = Identity qt
 
 substituteQM :: Qual Type -> TypeM (Qual Type)
