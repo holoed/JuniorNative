@@ -13,7 +13,7 @@ maintainer:          edmondo@gmail.com
 -- category:
 build-type:          Simple
 extra-source-files:  ChangeLog.md, README.md
-cabal-version:       >=1.10
+cabal-version:       >=1.2
 
 executable JuniorNative
   main-is:             Main.hs
@@ -52,6 +52,48 @@ executable JuniorNative
                        transformers,
                        haskeline,
                        pretty
+  hs-source-dirs:      src
+  build-tools:         happy, alex
+  default-language:    Haskell2010
+
+executable JuniorService
+  main-is:             Service.hs
+  other-extensions:    DeriveFunctor, UndecidableInstances
+  other-modules:       Ast,
+                       BuiltIns,
+                       Environment,
+                       Fixpoint,
+                       Infer,
+                       InferMonad,
+                       Lexer,
+                       Monads,
+                       Parser,
+                       PrettyPrinter,
+                       AlphaRename,
+                       PrettyTypes,
+                       RecursionSchemes,
+                       Substitutions,
+                       Types,
+                       Unification,
+                       CoProduct,
+                       Annotations,
+                       FreeVariables,
+                       LiftNumbers,
+                       ContextReduction,
+                       LiftNumbers, 
+                       Operators, 
+                       TypedAst,
+                       PAst, 
+                       Primitives, 
+                       SynExpToExp
+  build-depends:       base,
+                       array,
+                       containers,
+                       mtl,
+                       transformers,
+                       pretty,
+                       scotty,
+                       text
   hs-source-dirs:      src
   build-tools:         happy, alex
   default-language:    Haskell2010
