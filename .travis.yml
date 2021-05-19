@@ -1,4 +1,6 @@
 language: haskell
+ghc:
+  - "8.2.2"
 notifications:
   email: false
 install:
