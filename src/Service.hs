@@ -23,6 +23,7 @@ import Data.Text.Lazy
 import System.Environment (lookupEnv)
 import Web.Scotty         (ActionM, ScottyM, scotty)
 import Web.Scotty.Trans
+import Network.Wai.Middleware.RequestLogger
 
 tyLam :: Type -> Type -> Type
 tyLam t1 t2 = TyApp (TyApp (TyCon "->") t1) t2
@@ -54,11 +55,14 @@ process input = do
 
 main :: IO ()
 main = do
+  putStrLn "Junior Service started"
   pStr <- fromMaybe "8080" <$> lookupEnv "PORT"
   let p = read pStr :: Int
   scotty p route
 
 route :: ScottyM()
-route = post "/" $ do
-          code <- param "code"
-          text $ pack $ (process code) ++ "\r\n"
+route = do 
+    middleware logStdoutDev
+    post "/" $ do
+         code <- param "code"
+         text $ pack $ (process code) ++ "\r\n"
