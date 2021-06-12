@@ -20,3 +20,4 @@ ENV PATH /root/.cabal/bin:$PATH
 WORKDIR /opt
 
 ENTRYPOINT ["JuniorService"]
+
