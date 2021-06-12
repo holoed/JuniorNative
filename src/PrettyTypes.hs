@@ -35,12 +35,12 @@ runP :: Pred -> State (Map.Map String Char, Char) Pred
 runP (IsIn n t) = fmap (IsIn n) (runT t)
 
 runPs :: Set.Set Pred -> State (Map.Map String Char, Char) (Set.Set Pred)
-runPs ps = fmap (Set.fromList) (sequence (fmap runP (Set.toList ps)))
+runPs ps = fmap Set.fromList (mapM runP (Set.toList ps))
 
 pretty :: Type -> Type
 pretty t = evalState (runT t) (Map.empty, 'a')
-        
+
 prettyQ :: Qual Type -> Qual Type
 prettyQ (ps :=> t) = evalState (do ps' <- runPs ps
-                                   t'  <- runT t 
+                                   t'  <- runT t
                                    return (ps' :=> t')) (Map.empty, 'a')

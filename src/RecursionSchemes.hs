@@ -1,6 +1,6 @@
 module RecursionSchemes where
 
-import Fixpoint
+import Fixpoint ( Fix(..), fix )
 
 -- Recursion Schemes
 

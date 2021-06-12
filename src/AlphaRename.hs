@@ -18,8 +18,8 @@ newName s = do (index, names) <- get
                else do let s' = s ++ show index
                        let names' = insert s' s names
                        put (index + 1, names')
-                       return s' 
-                
+                       return s'
+
 alg :: ExpF (AlphaM Exp) -> AlphaM Exp
 alg (Lam x e) = do x' <- newName x
                    e' <- local (insert x x') e
@@ -31,7 +31,7 @@ alg (Let n v b) = do n' <- newName n
                      v' <- local (insert n n') v
                      b' <- local (insert n n') b
                      return $ leT n' v' b'
-alg x = fmap In (traverse id x)
+alg x = fmap In (sequenceA x)
 
 rename :: Exp -> Exp
 rename e =

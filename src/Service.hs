@@ -18,7 +18,6 @@ import LiftNumbers
 import SynExpToExp (toExp)
 import Data.Maybe
 import Data.Monoid        ((<>))
-import Data.Text.Lazy     (Text)
 import Data.Text.Lazy
 import System.Environment (lookupEnv)
 import Web.Scotty         (ActionM, ScottyM, scotty)
@@ -26,7 +25,7 @@ import Web.Scotty.Trans
 import Network.Wai.Middleware.RequestLogger
 
 tyLam :: Type -> Type -> Type
-tyLam t1 t2 = TyApp (TyApp (TyCon "->") t1) t2
+tyLam t1 = TyApp (TyApp (TyCon "->") t1)
 
 env :: Env
 env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
@@ -49,8 +48,8 @@ env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
 
 process :: String -> String
 process input = do
-  let ast = parseExpr input 
-  let ty = ast >>= (infer [] env . liftN . toExp . Prelude.head)
+  let ast = parseExpr input
+  let ty = ast >>= infer [] env . liftN . toExp . Prelude.head
   either id (show . snd) ty
 
 main :: IO ()
@@ -61,8 +60,8 @@ main = do
   scotty p route
 
 route :: ScottyM()
-route = do 
+route = do
     middleware logStdoutDev
     post "/" $ do
          code <- param "code"
-         text $ pack $ (process code) ++ "\r\n"
+         text $ pack $ process code ++ "\r\n"

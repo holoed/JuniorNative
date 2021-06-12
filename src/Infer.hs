@@ -84,7 +84,7 @@ alg (MkTuple es) =
 infer :: [Qual Pred] -> Env -> Exp -> Either String (Substitutions, Qual Type)
 infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
   where
-        f (In(Ann qt _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . (substituteQ subs)) qt)
+        f (In(Ann qt _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . substituteQ subs) qt)
         m = cataRec alg e
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])

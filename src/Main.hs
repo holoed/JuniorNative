@@ -15,9 +15,10 @@ import Parser (parseExpr)
 import PrettyPrinter
 import LiftNumbers
 import SynExpToExp (toExp)
+import Data.Functor ((<&>))
 
 tyLam :: Type -> Type -> Type
-tyLam t1 t2 = TyApp (TyApp (TyCon "->") t1) t2
+tyLam t1 = TyApp (TyApp (TyCon "->") t1)
 
 env :: Env
 env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
@@ -41,9 +42,9 @@ env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
 
 process :: String -> IO ()
 process input = do
-  let ast = parseExpr input 
+  let ast = parseExpr input
   let ty = ast >>= (infer [] env . liftN . toExp . head)
-  putStrLn (either id pretty (ast >>= return . head))
+  putStrLn (either id pretty (ast <&> head))
   putStrLn (either id (show . snd) ty)
 
 main :: IO ()

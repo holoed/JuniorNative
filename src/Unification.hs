@@ -1,11 +1,11 @@
 module Unification where
 
 import Data.Set (member)
-import Types
+import Types ( Type(..), Pred(..), getTVarsOfType )
 import TypesPrinter ()
-import Substitutions
-import Monads
-import InferMonad
+import Substitutions ( extend, substitute )
+import Monads ( get, throwError )
+import InferMonad ( TypeM, updateSubs )
 
 mgu :: Type -> Type -> TypeM ()
 mgu a b =
@@ -22,4 +22,4 @@ mgu a b =
 
 mguPred :: Pred -> Pred -> TypeM ()
 mguPred (IsIn n1 t1) (IsIn n2 t2) | n1 == n2 = mgu t1 t2
-mguPred _ _ = fail "Classes Differ"
+mguPred _ _ = throwError "Classes Differ"

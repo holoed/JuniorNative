@@ -1,4 +1,5 @@
-cabal install --only-dependencies
+rm cabal.project.local
+cabal install --only-dependencies --overwrite-policy=always
 cabal configure --enable-tests --ghc-options="-j"
-cabal build -j8
-cabal test --show-details=always --test-option=--color
+cabal new-build -j8 
+cabal new-test --test-show-details=always --test-option=--color

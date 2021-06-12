@@ -18,7 +18,7 @@ get :: Monoid w => ReaderWriterState r w s s
 get = S.get
 
 put :: Monoid w => s -> ReaderWriterState r w s ()
-put s = S.put s
+put = S.put
 
 modify :: Monoid w => (s -> s) -> ReaderWriterState r w s ()
 modify f = get >>= (put . f)
@@ -27,7 +27,7 @@ throwError :: Monoid w => String -> ReaderWriterState r w s a
 throwError s = lift (E.throwE s)
 
 catchError :: ReaderWriterState r w s a -> (String -> ReaderWriterState r w s a) -> ReaderWriterState r w s a
-catchError m f = S.RWST (\r -> \s -> E.catchE (S.runRWST m r s) (\e -> S.runRWST (f e) r s) )
+catchError m f = S.RWST (\ r s -> E.catchE (S.runRWST m r s) (\e -> S.runRWST (f e) r s) )
 
 listen :: Monoid w => ReaderWriterState r w s a -> ReaderWriterState r w s (a, w)
 listen = S.listen
