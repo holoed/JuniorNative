@@ -1,4 +1,4 @@
-FROM haskell:8.2.2
+FROM haskell:8.10.4
 
 RUN cabal update
 
@@ -7,8 +7,6 @@ ADD ./JuniorNative.cabal /opt/JuniorNative.cabal
 
 # Docker will cache this command as a layer, freeing us up to
 # modify source code without re-installing dependencies
-RUN cd /opt && cabal install alex
-RUN cd /opt && cabal install happy
 RUN cd /opt && cabal install --only-dependencies -j4
 
 # Add and Install Application Code
