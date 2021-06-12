@@ -7,7 +7,7 @@ ADD ./JuniorNative.cabal /opt/JuniorNative.cabal
 
 # Docker will cache this command as a layer, freeing us up to
 # modify source code without re-installing dependencies
-RUN cd /opt && cabal install --only-dependencies -j4
+RUN cd /opt && cabal build --only-dependencies 
 
 # Add and Install Application Code
 ADD . /opt
