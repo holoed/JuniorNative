@@ -1,4 +1,4 @@
-# Junior Native [![Build Status](https://travis-ci.org/holoed/JuniorNative.svg?branch=master)](https://travis-ci.org/holoed/JuniorNative)
+# Junior Native ![build workflow](https://github.com/holoed/JuniorNative/actions/workflows/haskell.yml/badge.svg)
 
 - :white_check_mark: Parse
 - :white_check_mark: Type Inference
