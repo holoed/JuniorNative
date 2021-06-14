@@ -43,7 +43,8 @@ executable JuniorNative
                        PAst, 
                        Primitives, 
                        SynExpToExp,
-                       TypesPrinter
+                       TypesPrinter,
+                       DagBindings
   build-depends:       base,
                        array,
                        containers,
@@ -86,7 +87,8 @@ executable JuniorService
                        PAst, 
                        Primitives, 
                        SynExpToExp,
-                       TypesPrinter
+                       TypesPrinter,
+                       DagBindings
   build-depends:       base,
                        array,
                        containers,
@@ -132,12 +134,14 @@ test-suite tests
                        PAst, 
                        Primitives, 
                        SynExpToExp,
-                       TypesPrinter
+                       TypesPrinter,
+                       DagBindings,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
                        TypeInferenceTests,
-                       PrettyPrinterTests
+                       PrettyPrinterTests,
+                       DagBindingsTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex
@@ -147,6 +151,7 @@ test-suite tests
                        mtl,
                        transformers,
                        pretty,
+                       interpolate,
                        hspec-core,
                        hspec,
                        haskeline

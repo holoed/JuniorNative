@@ -3,7 +3,7 @@ module SynExpToExp where
 import qualified Ast
 import qualified PAst
 import Fixpoint ( Fix(In) )
-import Operators ( juxtaOp, mulOp, divOp, plusOp, subOp, eqeqOp, gtOp, ltOp )
+import Operators ( juxtaOp, mulOp, divOp, plusOp, plusplusOp, subOp, eqeqOp, gtOp, ltOp )
 import RecursionSchemes ( cataRec )
 
 toExp :: PAst.SynExp -> Ast.Exp
@@ -32,6 +32,7 @@ fromExp = cataRec alg
           alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "==")) e1)) e2) = PAst.infixApp eqeqOp e1 e2
           alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var ">")) e1)) e2) = PAst.infixApp gtOp e1 e2
           alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "<")) e1)) e2) = PAst.infixApp ltOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "++")) e1)) e2) = PAst.infixApp plusplusOp e1 e2
           alg (Ast.App e1 e2) = PAst.infixApp juxtaOp e1 e2
           alg (Ast.Lam s e) = PAst.lam [s] e
           alg (Ast.Let s e1 e2) = PAst.leT [s] e1 e2

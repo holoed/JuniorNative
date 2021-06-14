@@ -40,7 +40,8 @@ import Control.Monad.Except
     '\\'  { TokenLambda }
     '->'  { TokenArrow }
     '='   { TokenEq }
-    '=='   { TokenEql }
+    '=='  { TokenEql }
+    '++'  { TokenConcat }
     '+'   { TokenAdd }
     '-'   { TokenSub }
     '*'   { TokenMul }
@@ -56,6 +57,7 @@ import Control.Monad.Except
 %left '=='
 %left '+' '-'
 %left '*' '/'
+%left '++'
 %%
 
 Decls : Expr                       { [$1] }
@@ -76,6 +78,7 @@ Form : Form '+' Form               { infixApp plusOp $1 $3 }
      | Form '==' Form              { infixApp eqeqOp $1 $3 }
      | Form '>' Form               { infixApp gtOp $1 $3 }
      | Form '<' Form               { infixApp ltOp $1 $3 }
+     | Form '++' Form              { infixApp plusplusOp $1 $3}
      | Fact                        { $1 }
 
 Fact : Fact Atom                   { infixApp juxtaOp $1 $2 }

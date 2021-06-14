@@ -28,6 +28,9 @@ plusOp   = ("+", 14, Infix Left)
 subOp :: ([Char], Integer, Fixity)
 subOp    = ("-", 14, Infix Left)
 
+plusplusOp :: ([Char], Integer, Fixity)
+plusplusOp = ("++", 12, Infix Left) 
+
 eqeqOp :: ([Char], Integer, Fixity)
 eqeqOp   = ("==", 11, Infix Left) 
 

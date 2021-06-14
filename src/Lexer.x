@@ -43,6 +43,7 @@ tokens :-
   "=="                          { \s -> TokenEql }
   \=                            { \s -> TokenEq }
   \\                            { \s -> TokenLambda }
+  "++"                          { \s -> TokenConcat }
   [\+]                          { \s -> TokenAdd }
   [\-]                          { \s -> TokenSub }
   [\*]                          { \s -> TokenMul }
@@ -69,6 +70,7 @@ data Token
   | TokenString Prim
   | TokenSym String
   | TokenArrow
+  | TokenConcat
   | TokenEq
   | TokenEql
   | TokenAdd
