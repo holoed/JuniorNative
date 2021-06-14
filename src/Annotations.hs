@@ -4,8 +4,8 @@
 
 module Annotations where
 
-import Fixpoint
-import RecursionSchemes
+import Fixpoint ( Fix(In) )
+import RecursionSchemes ( cataRec )
 
 data Ann x f a = Ann x (f a)
     deriving (Eq, Show, Functor, Foldable, Traversable)

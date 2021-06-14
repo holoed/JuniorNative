@@ -1,12 +1,12 @@
 module PrettyPrinter where
 
-import Primitives
-import PAst
-import Operators
-import RecursionSchemes
-import Data.List
-import Text.PrettyPrint
-import Control.Monad.Writer hiding ((<>))
+import Primitives ( Prim(U, I, B, S) )
+import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, Lam, InfixApp, MkTuple, Let) )
+import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
+import RecursionSchemes ( cataRec )
+import Data.List ( intersperse )
+import Text.PrettyPrint ( (<+>), (<>), char, hcat, parens, render, text, Doc )
+import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
 import Prelude hiding (Left, Right, (<>), pi)
 
 parenthesize :: Doc -> Doc

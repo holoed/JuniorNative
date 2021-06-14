@@ -2,20 +2,20 @@ module Infer where
 
 import Data.Map (empty)
 import Data.Set (fromList, insert, union)
-import Monads
-import Fixpoint
-import Annotations
-import RecursionSchemes
-import Primitives
-import Ast
-import TypedAst
-import Types
-import BuiltIns
-import Environment
-import Substitutions
-import InferMonad
-import Unification
-import PrettyTypes
+import Monads ( local, get, listen, run )
+import Fixpoint ( Fix(In) )
+import Annotations ( Ann(Ann) )
+import RecursionSchemes ( cataRec )
+import Primitives ( Prim(..) )
+import Ast ( Exp, ExpF(..) )
+import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple )
+import Types ( TypeScheme(Identity), Type(..), Qual(..), Pred, clean, deleteTautology )
+import BuiltIns ( boolCon, intCon, strCon, tupleCon )
+import Environment ( Env, addScheme )
+import Substitutions ( Substitutions, substitute, substituteQ )
+import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
+import Unification ( mgu )
+import PrettyTypes ( prettyQ )
 import ContextReduction (resolvePreds)
 
 valueToType :: Prim -> Type

@@ -1,10 +1,11 @@
+{-# OPTIONS_GHC -Wno-type-defaults #-}
 module AnnotationsTests where
 
-import Test.Hspec
-import Fixpoint
-import Primitives
-import Ast
-import Annotations
+import Test.Hspec ( describe, it, shouldBe, SpecWith )
+import Fixpoint ( Fix(In) )
+import Primitives ( Prim(I) )
+import Ast ( ExpF(Lit), lit )
+import Annotations ( Ann(Ann), unwrap, wrap, mapAnn )
 
 tests :: SpecWith ()
 tests =

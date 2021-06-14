@@ -1,16 +1,16 @@
 module ContextReduction where
 
-import TypedAst
-import Fixpoint
-import Annotations
-import Types
-import InferMonad
-import Unification
-import Substitutions
-import Monads
-import Control.Monad
+import TypedAst ( TypedExp )
+import Fixpoint ( Fix(In) )
+import Annotations ( Ann(Ann) )
+import Types ( Type(TyApp, TyVar, TyCon), Qual(..), Pred(..) )
+import InferMonad ( TypeM )
+import Unification ( mguPred )
+import Substitutions ( substitutePredicates, substituteQ )
+import Monads ( get, throwError, catchError )
+import Control.Monad ( msum )
 import Data.Set (toList, fromList)
-import RecursionSchemes
+import RecursionSchemes ( cataRec )
 
 -- Typing Haskell in Haskell Context Reduction
 -- https://web.cecs.pdx.edu/~mpj/thih/thih.pdf

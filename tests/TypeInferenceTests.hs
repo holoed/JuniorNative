@@ -3,17 +3,17 @@
 module TypeInferenceTests where
 
 import qualified Data.Set as Set
-import Test.Hspec
-import Types
-import Environment
-import SynExpToExp
+import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import Types ( Type(..), Qual(..), Pred(..) )
+import Environment ( Env, toEnv )
+import SynExpToExp ( toExp )
 import Infer (infer)
 import Parser (parseExpr)
-import Substitutions
-import LiftNumbers
+import Substitutions ( Substitutions )
+import LiftNumbers ( liftN )
 
 tyLam :: Type -> Type -> Type
-tyLam t1 t2 = TyApp (TyApp (TyCon "->") t1) t2
+tyLam t1 = TyApp (TyApp (TyCon "->") t1)
 
 env :: Env
 env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
@@ -30,10 +30,10 @@ env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
             ("hd", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
             ("tl", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
             ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
-            ("empty", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),          
+            ("empty", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),
             ("isEmpty", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
             ("concat", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-            ("cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),           
+            ("cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyCon "Int") (TyVar "a" 0)),
             ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0))
      ]
@@ -56,13 +56,13 @@ tests =
     it "type of a literal 1" $ ["42"] --> "Num a => a"
     it "type of a literal 2" $ ["\"Hello\""] --> "String"
 
-    it "type of a lambda" $ 
+    it "type of a lambda" $
       ["\\x y -> x + y"] --> "Num a => a -> a -> a"
 
     it "type of a lambda 2" $
       ["\\x -> \\y -> x y"] --> "(a -> b) -> a -> b"
-        
-    it "type of simple math" $ 
+
+    it "type of simple math" $
       ["12 + 24"] --> "Num a => a"
 
     it "type of simple math 2" $
@@ -71,7 +71,7 @@ tests =
     it "type of simple math 3" $
       ["3 - (2 / 3)"] --> "(Fractional a, Num a) => a"
 
-    it "type of simple class constraints" $ do 
+    it "type of simple class constraints" $ do
       ["2 > 3"] --> "Bool"
       ["\\x -> (x + x) < (x * x)"] --> "(Num a, Ord a) => a -> Bool"
 
@@ -116,36 +116,36 @@ tests =
 
     it "type of functions 1" $
       ["let f = \\x -> x in f"] --> "a -> a"
-        
+
     it "type of functions 2" $
       ["let swap = \\p -> (snd p, fst p) in swap"] --> "(a, b) -> (b, a)"
 
-    it "type of functions 3" $ 
+    it "type of functions 3" $
       ["let fix = \\f -> f (fix f) in fix"] --> "(a -> a) -> a"
 
-    it "type of functions 4" $ 
+    it "type of functions 4" $
       ["let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac"] --> "(Eq a, Num a) => a -> a"
 
-    it "type of functions 5" $ 
-      ["let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) "] --> "(Eq a, Num a, Num b) => a -> b"  
+    it "type of functions 5" $
+      ["let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) "] --> "(Eq a, Num a, Num b) => a -> b"
 
-    it "type of functions 6" $ 
+    it "type of functions 6" $
       ["let foldr f z xs = if isEmpty xs then z else f (hd xs) (foldr f z (tl xs))"] --> "(a -> b -> b) -> b -> List a -> b"
 
-    it "type of functions 6" $     
+    it "type of functions 6" $
       ["let f x = x in (f 5, f True)"] --> "Num a => (a, Bool)"
 
-    it "type of functions 7" $ 
+    it "type of functions 7" $
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
       ["let f x = let g y = (x, y) in (g 3, g True) in f"] --> "Num a => b -> ((b, a), (b, Bool))"
 
-    it "type of functions 7" $ 
+    it "type of functions 7" $
       ["let map f xs = if isEmpty xs then empty else cons (f (hd xs)) (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
 
     it "type of functions 8" $
-      ["let qsort xs = if (isEmpty xs) then xs", 
-       "                  else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs)))", 
-       "                                      (singleton (hd xs)))", 
+      ["let qsort xs = if (isEmpty xs) then xs",
+       "                  else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs)))",
+       "                                      (singleton (hd xs)))",
        "                                      (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort"] --> "Ord a => List a -> List a"
 
     it "Apply function with wrong tuple arity" $ do

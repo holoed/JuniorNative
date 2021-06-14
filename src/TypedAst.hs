@@ -1,9 +1,9 @@
 module TypedAst where
 
-import Fixpoint
-import Types
-import Annotations
-import Primitives
+import Fixpoint ( Fix(In) )
+import Types ( Type, Qual )
+import Annotations ( Ann(..) )
+import Primitives ( Prim )
 import Ast (ExpF(Lit, Var, App, Lam, Let, IfThenElse, MkTuple), ExpF)
 
 type TypedExp = Fix (Ann (Qual Type) ExpF)

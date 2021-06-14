@@ -1,28 +1,28 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Control.Monad.Trans
+import Control.Monad.Trans ()
 import qualified Data.Set as Set
 import Data.Map (Map, empty, fromList)
-import Fixpoint
-import RecursionSchemes
-import Monads
-import Ast
-import Types
-import Environment
+import Fixpoint ()
+import RecursionSchemes ()
+import Monads ()
+import Ast ()
+import Types ( Type(..), Qual((:=>)), Pred(IsIn) )
+import Environment ( Env, toEnv )
 import Infer (infer)
-import System.Console.Haskeline
+import System.Console.Haskeline ()
 import Parser (parseExpr)
-import PrettyPrinter
-import LiftNumbers
+import PrettyPrinter ()
+import LiftNumbers ( liftN )
 import SynExpToExp (toExp)
-import Data.Maybe
+import Data.Maybe ( fromMaybe )
 import Data.Monoid        ((<>))
-import Data.Text.Lazy
+import Data.Text.Lazy ( pack )
 import System.Environment (lookupEnv)
 import Web.Scotty         (ActionM, ScottyM, scotty)
-import Web.Scotty.Trans
-import Network.Wai.Middleware.RequestLogger
+import Web.Scotty.Trans ( param, text, post, middleware )
+import Network.Wai.Middleware.RequestLogger ( logStdoutDev )
 
 tyLam :: Type -> Type -> Type
 tyLam t1 = TyApp (TyApp (TyCon "->") t1)

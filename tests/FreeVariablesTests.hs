@@ -1,12 +1,20 @@
 module FreeVariablesTests where
 
-import Test.Hspec
-import Fixpoint
-import Annotations
-import Primitives
+import Test.Hspec ( describe, it, shouldBe, SpecWith )
+import Fixpoint ( Fix(In) )
+import Annotations ( Ann(Ann) )
+import Primitives ( Prim(I) )
 import Ast
-import FreeVariables
-import Data.Set
+    ( ExpF(Var, MkTuple, App, Lam, Let, Lit, IfThenElse),
+      lit,
+      var,
+      app,
+      lam,
+      leT,
+      ifThenElse,
+      mkTuple )
+import FreeVariables ( freeVars )
+import Data.Set ( fromList )
 
 tests :: SpecWith ()
 tests =

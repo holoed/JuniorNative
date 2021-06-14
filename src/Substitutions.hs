@@ -1,9 +1,9 @@
 module Substitutions where
 
-import Data.Maybe
+import Data.Maybe ( fromMaybe )
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import Types
+import Types ( Type(..), Qual(..), Pred(..) )
 import Prelude hiding (lookup)
 
 type Substitutions = Map.Map (String, Int) Type
@@ -19,7 +19,7 @@ substitute s t@(TyVar n k) = let t' = lookup (n, k) s in
                      if t == t' then t'
                      else substitute s t'
 substitute s (TyApp t1 t2) = TyApp (substitute s t1) (substitute s t2)
-substitute s (TyCon name) = TyCon name
+substitute _ (TyCon name) = TyCon name
 
 substitutePredicate :: Substitutions -> Pred -> Pred
 substitutePredicate s (IsIn name t) = IsIn name (substitute s t) 

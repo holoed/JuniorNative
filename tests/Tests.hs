@@ -1,6 +1,6 @@
 module Main where
 
-import Test.Hspec
+import Test.Hspec ( hspec )
 import qualified AlphaRenameTests
 import qualified PrettyPrinterTests
 import qualified TypeInferenceTests

@@ -1,7 +1,7 @@
 module Monads where
 
-import Control.Monad.Trans
-import Control.Monad.Identity
+import Control.Monad.Trans ( MonadTrans(lift) )
+import Control.Monad.Identity ( Identity(runIdentity) )
 import qualified Control.Monad.Trans.RWS.Lazy as S
 import qualified Control.Monad.Trans.Except as E
 

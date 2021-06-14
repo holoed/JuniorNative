@@ -1,12 +1,12 @@
 module AlphaRename where
 
-import Ast
-import Data.Map
-import Data.Maybe
-import Control.Monad.Trans.Reader
-import Control.Monad.State
-import Fixpoint
-import RecursionSchemes
+import Ast ( Exp, ExpF(Let, Lam, Var), var, lam, leT )
+import Data.Map ( (!), empty, insert, lookup, member, Map )
+import Data.Maybe ( fromMaybe )
+import Control.Monad.Trans.Reader ( ask, local, ReaderT(runReaderT) )
+import Control.Monad.State ( evalState, State, MonadState(put, get) )
+import Fixpoint ( Fix(In) )
+import RecursionSchemes ( cataRec )
 import Prelude hiding (lookup)
 
 type AlphaM = ReaderT (Map String String) (State (Int, Map String String))

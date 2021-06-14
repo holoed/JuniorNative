@@ -1,16 +1,16 @@
 module AlphaRenameTests where
 
-import Test.Hspec
-import AlphaRename
-import PrettyPrinter
+import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import AlphaRename ( rename )
+import PrettyPrinter ( pretty )
 import Parser (parseExpr)
 import SynExpToExp (fromExp, toExp)
 
 rn :: String -> String
-rn s = either id pretty (fmap (fromExp . rename . toExp . head) (parseExpr s))
+rn s = either id (pretty . (fromExp . rename . toExp . head)) (parseExpr s)
 
 (-->) :: String -> String -> Expectation
-(-->) x y = (rn x) `shouldBe` y
+(-->) x y = rn x `shouldBe` y
 
 tests :: SpecWith ()
 tests =

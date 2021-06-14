@@ -1,11 +1,11 @@
 module InferMonad where
 
-import Control.Monad
-import Control.Monad.Writer
-import Monads
-import Types
-import Substitutions
-import Environment
+import Control.Monad ( unless )
+import Control.Monad.Writer( MonadWriter(tell) )
+import Monads ( ReaderWriterState, ask, get, put, throwError )
+import Types ( TypeScheme(..), Type(..), Qual(..), Pred, getTVarsOfType, getTVarsOfQType )
+import Substitutions ( Substitutions, substitute, substituteQ )
+import Environment ( Env, findScheme, containsScheme )
 import Data.Map (fromList)
 import Data.Set (Set, toList, (\\), map, unions)
 import Prelude hiding (map)

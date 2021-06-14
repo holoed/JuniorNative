@@ -1,12 +1,12 @@
 module TypesPrinter where
 
-import Types
-import Text.PrettyPrint
+import Types ( Type(..), Qual(..), Pred(..) )
+import Text.PrettyPrint ( (<+>), (<>), render, text, Doc )
 import Data.Set (size, foldl)
 import Prelude hiding (Left, Right, (<>))
-import Control.Monad.Writer hiding ((<>))
-import Operators
-import PrettyPrinter
+import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
+import Operators ( Operator, Associativity(Right, Left), lamOp )
+import PrettyPrinter ( bracket )
 
 toDoc :: Type -> Writer [Operator] Doc
 toDoc (TyCon name) = return $ text name

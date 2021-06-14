@@ -1,6 +1,6 @@
 module BuiltIns where
 
-import Types
+import Types ( Type(TyCon, TyApp) )
 
 boolCon :: Type
 boolCon = TyCon "Bool" 

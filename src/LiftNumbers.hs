@@ -1,9 +1,9 @@
 module LiftNumbers where
 
-import Primitives
-import Ast
-import Fixpoint
-import RecursionSchemes
+import Primitives ( Prim(I) )
+import Ast ( Exp, ExpF(Lit), lit, var, app )
+import Fixpoint ( Fix(In) )
+import RecursionSchemes ( cataRec )
 
 liftN :: Exp -> Exp
 liftN = cataRec f

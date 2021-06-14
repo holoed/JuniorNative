@@ -1,9 +1,9 @@
 module Environment where
 
-import Data.Maybe
+import Data.Maybe ( fromJust )
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import Types
+import Types ( TypeScheme(ForAll), Type, Qual )
 import Prelude
 
 type Env = Map.Map String TypeScheme

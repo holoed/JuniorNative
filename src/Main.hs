@@ -1,19 +1,19 @@
 module Main where
 
-import Control.Monad.Trans
+import Control.Monad.Trans ( MonadIO(liftIO) )
 import qualified Data.Set as Set
 import Data.Map (Map, empty, fromList)
-import Fixpoint
-import RecursionSchemes
-import Monads
-import Ast
-import Types
-import Environment
+import Fixpoint ()
+import RecursionSchemes ()
+import Monads ()
+import Ast ()
+import Types ( Type(..), Qual((:=>)), Pred(IsIn) )
+import Environment ( Env, toEnv )
 import Infer (infer)
-import System.Console.Haskeline
+import System.Console.Haskeline ( defaultSettings, getInputLine, outputStrLn, runInputT )
 import Parser (parseExpr)
-import PrettyPrinter
-import LiftNumbers
+import PrettyPrinter ( pretty )
+import LiftNumbers ( liftN )
 import SynExpToExp (toExp)
 import Data.Functor ((<&>))
 

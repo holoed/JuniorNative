@@ -4,8 +4,8 @@
 
 module Ast where
 
-import Fixpoint
-import Primitives
+import Fixpoint ( Fix(In) )
+import Primitives ( Prim )
 
 data ExpF a = Lit Prim
             | Var String

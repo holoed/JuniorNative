@@ -1,12 +1,12 @@
 module PrettyTypes where
 
-import Types
-import Control.Monad
-import Control.Monad.Trans.State
+import Types ( Type(..), Qual(..), Pred(..) )
+import Control.Monad ( unless )
+import Control.Monad.Trans.State ( evalState, get, put, State )
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.Char (intToDigit, digitToInt)
-import Data.Set as Set
+import Data.Set as Set ( fromList, toList, Set )
 
 getName :: String -> State (Map.Map String Char, Char) Char
 getName k = do success <- containsKey

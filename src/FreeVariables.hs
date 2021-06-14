@@ -1,11 +1,11 @@
 module FreeVariables where
 
-import Ast
-import Fixpoint
-import Annotations
-import RecursionSchemes
-import Data.Set
-import Control.Monad.Writer
+import Ast ( Exp, ExpF(..) )
+import Fixpoint ( Fix(In) )
+import Annotations ( Ann(..) )
+import RecursionSchemes ( cataRec )
+import Data.Set ( delete, empty, singleton, union, Set )
+import Control.Monad.Writer ( runWriter, MonadWriter(listen, tell, pass), Writer )
 
 type FreeVarsM = Writer (Set String)
 type FreeVarsExp = Fix (Ann (Set String) ExpF)

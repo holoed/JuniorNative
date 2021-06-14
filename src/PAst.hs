@@ -4,9 +4,9 @@
 
 module PAst where
 
-import Fixpoint
-import Primitives
-import Operators
+import Fixpoint ( Fix(In) )
+import Primitives ( Prim )
+import Operators ( Operator )
 
 data SynExpF a = Lit Prim
                | Var String

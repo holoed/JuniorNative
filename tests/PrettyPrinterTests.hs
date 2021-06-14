@@ -1,9 +1,9 @@
 {-# LANGUAGE QuasiQuotes #-}
 module PrettyPrinterTests where
 
-import Test.Hspec
-import SynExpToExp
-import PrettyPrinter
+import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import SynExpToExp ( toExp, fromExp )
+import PrettyPrinter ( pretty )
 import Parser (parseExpr)
 import Data.List (intercalate)
 import Data.Char (isSpace)
@@ -13,10 +13,10 @@ trim = f . f
   where f = reverse . dropWhile isSpace
 
 (-->) :: [String] -> [String] -> Expectation
-(-->) x y = either id ((intercalate "\n") . map (trim . pretty . fromExp . toExp)) 
+(-->) x y = either id (intercalate "\n" . map (trim . pretty . fromExp . toExp))
                       (parseExpr (intercalate "\n" x))
-            `shouldBe` 
-                      ((intercalate "\n") $ map trim $ y)
+            `shouldBe`
+                      intercalate "\n" (map trim y)
 
 tests :: SpecWith ()
 tests =
@@ -61,14 +61,14 @@ tests =
       ["f (if true then 5 else 6)"] --> ["f (if true then 5 else 6)"]
       ["if true then (if false then 5 else 6) else 7"] --> ["if true then if false then 5 else 6 else 7"]
 
-    it "Print a mix" $ do
+    it "Print a mix" $
       ["let x = 4",
-       "if true then 5 else 6"] --> ["let x = 4",
-                                     "if true then 5 else 6"]
+     "if true then 5 else 6"] --> ["let x = 4",
+                                   "if true then 5 else 6"]
 
     it "Print a tuple" $ do
       ["(\\x -> x + 1, \\y -> y - 1)"] --> ["(\\x -> x + 1, \\y -> y - 1)"]
-      ["\\x -> (x, \\y -> (y, x))"] --> ["\\x -> (x, \\y -> (y, x))"] 
+      ["\\x -> (x, \\y -> (y, x))"] --> ["\\x -> (x, \\y -> (y, x))"]
 
     it "Print operators" $ do
        ["2 > 3"] --> ["2 > 3"]

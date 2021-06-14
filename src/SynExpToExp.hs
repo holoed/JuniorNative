@@ -2,9 +2,9 @@ module SynExpToExp where
 
 import qualified Ast
 import qualified PAst
-import Fixpoint
-import Operators
-import RecursionSchemes
+import Fixpoint ( Fix(In) )
+import Operators ( juxtaOp, mulOp, divOp, plusOp, subOp, eqeqOp, gtOp, ltOp )
+import RecursionSchemes ( cataRec )
 
 toExp :: PAst.SynExp -> Ast.Exp
 toExp = cataRec alg
