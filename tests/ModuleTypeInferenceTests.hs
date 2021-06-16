@@ -5,14 +5,14 @@ import SynExpToExp ( toExp )
 import LiftNumbers ( liftN )
 import Infer ( infer )
 import Parser ( parseExpr )
-import Types ( Pred(..), Qual(..), Type(..) )
+import Types ( Pred(..), Qual(..), Type(..), TypeScheme (ForAll) )
 import Environment ( toEnv, Env )
 import Substitutions ( Substitutions )
 import DagBindings (chunks)
 import Modules (bindingsDict)
 import Data.Set as Set (Set, fromList )
 import Data.String.Interpolate ( i )
-import Data.Map.Strict (keys, (!))
+import Data.Map.Strict (keys, (!), union, toList, restrictKeys)
 import Data.Bifunctor ( Bifunctor(second) )
 import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
 
@@ -56,17 +56,26 @@ typeOf :: [String] -> Either String (Substitutions, Qual Type)
 typeOf s = parseExpr (unlines s) >>= infer classEnv env . liftN . toExp . head
 
 (-->) :: String -> [(String, String)] -> Expectation
-(-->) x y = (second (either error (show . snd)) <$> ret)  `shouldBe` y
+(-->) x y = (\(n, ForAll _ qt) -> (n, show qt)) <$> toList ret `shouldBe` y
     where es = either error (toExp <$>) (parseExpr x)
           ns = (fst <$>) $ concat $ chunks globals es
           dict = bindingsDict es
-          ret = (\n -> (n, (infer classEnv env . liftN . (dict!)) n)) <$> ns
+          bs = (\n -> (n, dict!n)) <$> ns
+          f env' (n, e) = 
+             let t = (snd . either error id . infer classEnv env' . liftN) e in
+             toEnv [(n, t)] `union` env'    
+          ret = restrictKeys (foldl f env bs) (fromList ns)
 
 tests :: SpecWith ()
 tests =
-  describe "Module Type Inference Tests" $
+  describe "Module Type Inference Tests" $ do
 
     it "Simple bindings" $
            [i| let x = 12
-               let y = True |] --> [("y", "Bool"),
-                                    ("x", "Num a => a")]
+               let y = True |] --> [("x","Num a => a"),
+                                    ("y","Bool")]
+
+    it "Dependent bindings" $
+           [i| let x = 12
+               let y = (x + 1, True) |] --> [("x","Num a => a"),
+                                             ("y","Num a => (a, Bool)")]
