@@ -3,6 +3,7 @@ module Main where
 
 import Control.Monad.Trans ()
 import qualified Data.Set as Set
+import Data.List (intercalate)
 import Data.Map (Map, empty, fromList)
 import Data.HashMap.Strict ((!))
 import Fixpoint ()
@@ -68,5 +69,6 @@ route = do
     post "/" $ do
          body <- jsonData :: ActionM Object
          let code = fromJson $ body ! Text.pack "code"
-         text $ Lazy.pack $ show (typeOfModule classEnv env code) ++ "\r\n"
+         text $ Lazy.pack $ format (typeOfModule classEnv env code) ++ "\r\n"
   where fromJson (String s) = Text.unpack (Text.replace "\\n" "\n" s)
+        format = intercalate "\n" . ((\(n, t) -> n ++ ": " ++ t) <$>)
