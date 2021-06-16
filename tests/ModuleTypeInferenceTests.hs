@@ -13,7 +13,6 @@ import Modules (bindingsDict)
 import Data.Set as Set (Set, fromList )
 import Data.String.Interpolate ( i )
 import Data.Map.Strict (keys, (!), union, toList, restrictKeys)
-import Data.Bifunctor ( Bifunctor(second) )
 import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
 
 tyLam :: Type -> Type -> Type
@@ -30,11 +29,12 @@ env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
             ("<",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
             ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
             ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
-            ("isEmpty", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
+            ("null", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
             ("empty", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),
             ("hd", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
             ("tl", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
             ("cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+            ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyCon "Int") (TyVar "a" 0)),
             ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0))]
 
@@ -62,7 +62,7 @@ typeOf s = parseExpr (unlines s) >>= infer classEnv env . liftN . toExp . head
           dict = bindingsDict es
           bs = (\n -> (n, dict!n)) <$> ns
           f env' (n, e) = 
-             let t = (snd . either error id . infer classEnv env' . liftN) e in
+             let t = (either (\_ -> fromList [] :=> TyCon "error") snd . infer classEnv env' . liftN) e in
              toEnv [(n, t)] `union` env'    
           ret = restrictKeys (foldl f env bs) (fromList ns)
 
@@ -79,3 +79,24 @@ tests =
            [i| let x = 12
                let y = (x + 1, True) |] --> [("x","Num a => a"),
                                              ("y","Num a => (a, Bool)")]
+
+    it "Many nodes" $ [i|       
+                      let foldr f v xs = 
+                         if (null xs) then v 
+                         else f (hd xs) (foldr f v (tl xs)) 
+
+                      let concat xs ys = foldr cons ys xs
+                     
+                      let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) empty
+                    
+                      let quicksort f xs =
+                        if (null xs) then xs else  
+                        let pivot = hd xs in
+                        let rest = tl xs in
+                        let lessThan = filter (\\x -> f x < f pivot) rest in 
+                        let greaterThan = filter (\\x -> f x > f pivot) rest in
+                        concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
+                      |] --> [("concat","List a -> List a -> List a"),
+                              ("filter","(a -> Bool) -> List a -> List a"),
+                              ("foldr","(a -> b -> b) -> b -> List a -> b"),
+                              ("quicksort","Ord a => (b -> a) -> List b -> List b")]
