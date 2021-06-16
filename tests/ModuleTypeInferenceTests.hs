@@ -1,17 +1,11 @@
 {-# LANGUAGE QuasiQuotes #-}
 module ModuleTypeInferenceTests where
 
-import SynExpToExp ( toExp )
-import LiftNumbers ( liftN )
-import Infer ( infer )
-import Parser ( parseExpr )
-import Types ( Pred(..), Qual(..), Type(..), TypeScheme (ForAll) )
+import Types ( Pred(..), Qual(..), Type(..) )
 import Environment ( toEnv, Env )
-import DagBindings (chunks)
-import Modules (bindingsDict)
-import Data.Set as Set (Set, fromList )
+import Modules (typeOfModule)
+import Data.Set as Set (fromList )
 import Data.String.Interpolate ( i )
-import Data.Map.Strict (keys, (!), union, toList, restrictKeys)
 import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
 
 tyLam :: Type -> Type -> Type
@@ -42,22 +36,8 @@ classEnv = [
   Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
   ]
 
-globals :: Set String
-globals = fromList $ keys env
-
-typeOfModule :: String -> [(String, String)] 
-typeOfModule x = (\(n, ForAll _ qt) -> (n, show qt)) <$> toList ret 
-    where es = either error (toExp <$>) (parseExpr x)
-          ns = (fst <$>) $ concat $ chunks globals es
-          dict = bindingsDict es
-          bs = (\n -> (n, dict!n)) <$> ns
-          f env' (n, e) = 
-             let t = (either (\err -> fromList [] :=> TyCon err) snd . infer classEnv env' . liftN) e in
-             toEnv [(n, t)] `union` env'    
-          ret = restrictKeys (foldl f env bs) (fromList ns)
-
 (-->) :: String -> [(String, String)] -> Expectation
-(-->) x y = typeOfModule x `shouldBe` y
+(-->) x y = typeOfModule classEnv env x `shouldBe` y
 
 tests :: SpecWith ()
 tests =
