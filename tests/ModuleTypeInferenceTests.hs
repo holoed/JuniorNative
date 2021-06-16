@@ -7,7 +7,6 @@ import Infer ( infer )
 import Parser ( parseExpr )
 import Types ( Pred(..), Qual(..), Type(..), TypeScheme (ForAll) )
 import Environment ( toEnv, Env )
-import Substitutions ( Substitutions )
 import DagBindings (chunks)
 import Modules (bindingsDict)
 import Data.Set as Set (Set, fromList )
@@ -46,17 +45,8 @@ classEnv = [
 globals :: Set String
 globals = fromList $ keys env
 
-process :: String -> String
-process input = do
-  let ast = parseExpr input
-  let ty = ast >>= infer classEnv env . liftN . toExp . Prelude.head
-  either id (show . snd) ty
-
-typeOf :: [String] -> Either String (Substitutions, Qual Type)
-typeOf s = parseExpr (unlines s) >>= infer classEnv env . liftN . toExp . head
-
-(-->) :: String -> [(String, String)] -> Expectation
-(-->) x y = (\(n, ForAll _ qt) -> (n, show qt)) <$> toList ret `shouldBe` y
+typeOfModule :: String -> [(String, String)] 
+typeOfModule x = (\(n, ForAll _ qt) -> (n, show qt)) <$> toList ret 
     where es = either error (toExp <$>) (parseExpr x)
           ns = (fst <$>) $ concat $ chunks globals es
           dict = bindingsDict es
@@ -65,6 +55,9 @@ typeOf s = parseExpr (unlines s) >>= infer classEnv env . liftN . toExp . head
              let t = (either (\_ -> fromList [] :=> TyCon "error") snd . infer classEnv env' . liftN) e in
              toEnv [(n, t)] `union` env'    
           ret = restrictKeys (foldl f env bs) (fromList ns)
+
+(-->) :: String -> [(String, String)] -> Expectation
+(-->) x y = typeOfModule x `shouldBe` y
 
 tests :: SpecWith ()
 tests =
