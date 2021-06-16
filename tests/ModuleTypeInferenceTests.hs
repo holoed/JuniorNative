@@ -52,7 +52,7 @@ typeOfModule x = (\(n, ForAll _ qt) -> (n, show qt)) <$> toList ret
           dict = bindingsDict es
           bs = (\n -> (n, dict!n)) <$> ns
           f env' (n, e) = 
-             let t = (either (\_ -> fromList [] :=> TyCon "error") snd . infer classEnv env' . liftN) e in
+             let t = (either (\err -> fromList [] :=> TyCon err) snd . infer classEnv env' . liftN) e in
              toEnv [(n, t)] `union` env'    
           ret = restrictKeys (foldl f env bs) (fromList ns)
 
