@@ -4,6 +4,7 @@ module Main where
 import Control.Monad.Trans ()
 import qualified Data.Set as Set
 import Data.Map (Map, empty, fromList)
+import Data.HashMap.Strict ((!))
 import Fixpoint ()
 import RecursionSchemes ()
 import Monads ()
@@ -16,13 +17,16 @@ import Parser (parseExpr)
 import PrettyPrinter ()
 import LiftNumbers ( liftN )
 import SynExpToExp (toExp)
+import Modules (typeOfModule)
 import Data.Maybe ( fromMaybe )
 import Data.Monoid        ((<>))
-import Data.Text.Lazy ( pack )
+import Data.Text.Lazy as Lazy ( pack )
+import Data.Text as Text (pack, unpack, replace)
 import System.Environment (lookupEnv)
 import Web.Scotty         (ActionM, ScottyM, scotty)
-import Web.Scotty.Trans ( param, text, post, middleware )
+import Web.Scotty.Trans ( jsonData, text, post, middleware )
 import Network.Wai.Middleware.RequestLogger ( logStdoutDev )
+import Data.Aeson (FromJSON, ToJSON, Object, Value(String))
 
 tyLam :: Type -> Type -> Type
 tyLam t1 = TyApp (TyApp (TyCon "->") t1)
@@ -51,12 +55,6 @@ classEnv = [
   Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
   ]
 
-process :: String -> String
-process input = do
-  let ast = parseExpr input
-  let ty = ast >>= infer classEnv env . liftN . toExp . Prelude.head
-  either id (show . snd) ty
-
 main :: IO ()
 main = do
   putStrLn "Junior Service started"
@@ -68,5 +66,7 @@ route :: ScottyM()
 route = do
     middleware logStdoutDev
     post "/" $ do
-         code <- param "code"
-         text $ pack $ process code ++ "\r\n"
+         body <- jsonData :: ActionM Object
+         let code = fromJson $ body ! Text.pack "code"
+         text $ Lazy.pack $ show (typeOfModule classEnv env code) ++ "\r\n"
+  where fromJson (String s) = Text.unpack (Text.replace "\\n" "\n" s)

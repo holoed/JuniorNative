@@ -44,7 +44,8 @@ executable JuniorNative
                        Primitives, 
                        SynExpToExp,
                        TypesPrinter,
-                       DagBindings
+                       DagBindings,
+                       Modules
   build-depends:       base,
                        array,
                        containers,
@@ -88,7 +89,8 @@ executable JuniorService
                        Primitives, 
                        SynExpToExp,
                        TypesPrinter,
-                       DagBindings
+                       DagBindings,
+                       Modules
   build-depends:       base,
                        array,
                        containers,
@@ -98,7 +100,9 @@ executable JuniorService
                        scotty,
                        text,
                        wai-extra,
-                       haskeline
+                       haskeline,
+                       aeson,
+                       unordered-containers
   hs-source-dirs:      src
   build-tool-depends:  happy:happy, alex:alex
   default-language:    Haskell2010
