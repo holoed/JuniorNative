@@ -136,12 +136,14 @@ test-suite tests
                        SynExpToExp,
                        TypesPrinter,
                        DagBindings,
+                       Modules,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
                        TypeInferenceTests,
                        PrettyPrinterTests,
-                       DagBindingsTests
+                       DagBindingsTests,
+                       ModuleTypeInferenceTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex

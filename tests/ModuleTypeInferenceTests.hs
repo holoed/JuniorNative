@@ -1,28 +1,20 @@
-{-# LANGUAGE OverloadedStrings #-}
-module Main where
+{-# LANGUAGE QuasiQuotes #-}
+module ModuleTypeInferenceTests where
 
-import Control.Monad.Trans ()
-import qualified Data.Set as Set
-import Data.Map (Map, empty, fromList)
-import Fixpoint ()
-import RecursionSchemes ()
-import Monads ()
-import Ast ()
-import Types ( Type(..), Qual((:=>)), Pred(IsIn) )
-import Environment ( Env, toEnv )
-import Infer (infer)
-import System.Console.Haskeline ()
-import Parser (parseExpr)
-import PrettyPrinter ()
+import SynExpToExp ( toExp )
 import LiftNumbers ( liftN )
-import SynExpToExp (toExp)
-import Data.Maybe ( fromMaybe )
-import Data.Monoid        ((<>))
-import Data.Text.Lazy ( pack )
-import System.Environment (lookupEnv)
-import Web.Scotty         (ActionM, ScottyM, scotty)
-import Web.Scotty.Trans ( param, text, post, middleware )
-import Network.Wai.Middleware.RequestLogger ( logStdoutDev )
+import Infer ( infer )
+import Parser ( parseExpr )
+import Types ( Pred(..), Qual(..), Type(..) )
+import Environment ( toEnv, Env )
+import Substitutions ( Substitutions )
+import DagBindings (chunks)
+import Modules (bindingsDict)
+import Data.Set as Set (Set, fromList )
+import Data.String.Interpolate ( i )
+import Data.Map.Strict (keys, (!))
+import Data.Bifunctor ( Bifunctor(second) )
+import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
 
 tyLam :: Type -> Type -> Type
 tyLam t1 = TyApp (TyApp (TyCon "->") t1)
@@ -51,22 +43,30 @@ classEnv = [
   Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
   ]
 
+globals :: Set String
+globals = fromList $ keys env
+
 process :: String -> String
 process input = do
   let ast = parseExpr input
   let ty = ast >>= infer classEnv env . liftN . toExp . Prelude.head
   either id (show . snd) ty
 
-main :: IO ()
-main = do
-  putStrLn "Junior Service started"
-  pStr <- fromMaybe "8080" <$> lookupEnv "PORT"
-  let p = read pStr :: Int
-  scotty p route
+typeOf :: [String] -> Either String (Substitutions, Qual Type)
+typeOf s = parseExpr (unlines s) >>= infer classEnv env . liftN . toExp . head
 
-route :: ScottyM()
-route = do
-    middleware logStdoutDev
-    post "/" $ do
-         code <- param "code"
-         text $ pack $ process code ++ "\r\n"
+(-->) :: String -> [(String, String)] -> Expectation
+(-->) x y = (second (either error (show . snd)) <$> ret)  `shouldBe` y
+    where es = either error (toExp <$>) (parseExpr x)
+          ns = (fst <$>) $ concat $ chunks globals es
+          dict = bindingsDict es
+          ret = (\n -> (n, (infer classEnv env . liftN . (dict!)) n)) <$> ns
+
+tests :: SpecWith ()
+tests =
+  describe "Module Type Inference Tests" $
+
+    it "Simple bindings" $
+           [i| let x = 12
+               let y = True |] --> [("y", "Bool"),
+                                    ("x", "Num a => a")]

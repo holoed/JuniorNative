@@ -7,6 +7,7 @@ import qualified TypeInferenceTests
 import qualified AnnotationsTests
 import qualified FreeVariablesTests
 import qualified DagBindingsTests
+import qualified ModuleTypeInferenceTests
 
 
 main :: IO ()
@@ -17,3 +18,5 @@ main = hspec $ do
     AnnotationsTests.tests
     FreeVariablesTests.tests
     DagBindingsTests.tests 
+    ModuleTypeInferenceTests.tests 
+    
