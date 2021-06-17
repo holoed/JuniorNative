@@ -6,7 +6,7 @@ import Ast (Exp, ExpF (Let, Let))
 import Data.Set (Set, toList)
 import FreeVariables (freeVars)
 import qualified Data.Graph as G
-import Data.List ( intersect, groupBy )
+import Data.List ( intersect, groupBy, sortBy )
 
 getName :: Exp -> String
 getName (In (Let s _ _)) = s
@@ -20,6 +20,6 @@ deps :: Set String -> [Exp] -> [(String, [String])]
 deps globals = foldl (\acc x -> (getName x, getDeps globals x) : acc) []
 
 chunks :: Set String -> [Exp] -> [[(String, [String])]]
-chunks globals es = reverse $ groupBy (\x y -> intersect (snd x) (snd y) == snd x) sg
+chunks globals es = [reverse sg]
     where (g, f, _) = (G.graphFromEdges . ((\(x, y) -> (x, x, y)) <$>) . deps globals) es
           sg = (\(_, y, z) -> (y, z)) . f <$> G.topSort g

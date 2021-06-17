@@ -27,7 +27,6 @@ env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
             ("hd", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
             ("tl", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
             ("cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-            ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
             ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyCon "Int") (TyVar "a" 0)),
             ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0))]
 
@@ -62,6 +61,8 @@ tests =
                      
                       let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) empty
                     
+                      let singleton x = cons x empty
+
                       let quicksort f xs =
                         if (null xs) then xs else  
                         let pivot = hd xs in
@@ -72,4 +73,5 @@ tests =
                       |] --> [("concat","List a -> List a -> List a"),
                               ("filter","(a -> Bool) -> List a -> List a"),
                               ("foldr","(a -> b -> b) -> b -> List a -> b"),
-                              ("quicksort","Ord a => (b -> a) -> List b -> List b")]
+                              ("quicksort","Ord a => (b -> a) -> List b -> List b"),
+                              ("singleton","a -> List a")]

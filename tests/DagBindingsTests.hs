@@ -9,7 +9,7 @@ import Data.Set (Set, fromList)
 import Test.Hspec ( it, describe, shouldBe, SpecWith )
 
 globals :: Set [Char]
-globals = fromList ["+", "-", "/", "++", "==", ">", "<", "hd", "tl", "null", "empty", "cons", "singleton"]
+globals = fromList ["+", "-", "/", "++", "==", ">", "<", "hd", "tl", "null", "empty", "cons"]
 
 tests :: SpecWith ()
 tests = do
@@ -27,7 +27,7 @@ tests = do
                         let lessThan = filter (\\x -> f x < f (hd xs)) (tl xs) in 
                         let greaterThan = filter (\\x -> f x > f (hd xs)) (tl xs) in
                         (quickSort f lessThan) ++ singleton (hd xs) ++ (quickSort f greaterThan)
-                    |] --> [("quicksort",["filter","quickSort"])]
+                    |] --> [("quicksort",["filter","quickSort", "singleton"])]
 
    it "Multi bindings deps" $ [i| let x = 12
                                   let y = 32
@@ -42,16 +42,16 @@ tests = do
 
     it "two indipendent nodes" $ 
                [i| let x = 12
-                   let y = 32 |] --> [[("y", []), ("x", [])]]
+                   let y = 32 |] --> [[("x", []), ("y", [])]]
 
     it "two dependent nodes" $ 
                [i| let x = 12
-                   let y = x + 1 |] --> [[("x", [])],[("y", ["x"])]]
+                   let y = x + 1 |] --> [[("x", []), ("y", ["x"])]]
 
     it "one node depending on two" $ 
                [i| let x = 12
                    let y = 32
-                   let z = x + y |] --> [[("y", []), ("x", [])],[("z", ["x", "y"])]]
+                   let z = x + y |] --> [[("x", []), ("y", []), ("z", ["x", "y"])]]
 
     it "Many nodes" $ [i|       
                       let foldr f v xs = 
@@ -62,12 +62,14 @@ tests = do
                      
                       let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) empty
                     
+                      let singleton x = cons x empty
+
                       let quicksort f xs =
                         if (null xs) then xs else  
                         let lessThan = filter (\\x -> f x < f (hd xs)) (tl xs) in 
                         let greaterThan = filter (\\x -> f x > f (hd xs)) (tl xs) in
                         concat (concat (quicksort f lessThan) (singleton (hd xs))) (quicksort f greaterThan)
-                      |] --> [[("foldr",[])],[("filter",["foldr"]),("concat",["foldr"])],[("quicksort",["concat","filter"])]]
+                      |] --> [[("foldr",[]),("concat",["foldr"]),("filter",["foldr"]),("singleton",[]),("quicksort",["concat","filter","singleton"])]]
                        
 
 
