@@ -99,6 +99,7 @@ executable JuniorService
                        pretty,
                        scotty,
                        text,
+                       wai,
                        wai-extra,
                        wai-cors,
                        haskeline,

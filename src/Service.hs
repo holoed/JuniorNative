@@ -16,9 +16,8 @@ import Data.Monoid        ((<>))
 import Data.Text.Lazy as Lazy ( pack )
 import Data.Text as Text (pack, unpack, replace)
 import System.Environment (lookupEnv)
-import Web.Scotty         (ActionM, ScottyM, scotty)
+import Web.Scotty         (ActionM, ScottyM, scotty, addHeader)
 import Web.Scotty.Trans ( body, jsonData, text, post, middleware )
-import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.RequestLogger ( logStdoutDev )
 import Data.Aeson (FromJSON, ToJSON, Object, Value(String))
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
@@ -60,9 +59,9 @@ main = do
 route :: ScottyM()
 route = do
     middleware logStdoutDev
-    middleware simpleCors
     post "/" $ do
          code <- body
+         addHeader "Access-Control-Allow-Origin" "*"
          text $ Lazy.pack $ format (typeOfModule classEnv env (Char8.unpack code)) ++ "\r\n"
   where fromJson (String s) = Text.unpack (Text.replace "\\n" "\n" s)
         format = Data.List.intercalate "\n" . ((\(n, t) -> n ++ ": " ++ t) <$>)
