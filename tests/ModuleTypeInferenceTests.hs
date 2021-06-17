@@ -70,8 +70,8 @@ tests =
                         let lessThan = filter (\\x -> f x < f pivot) rest in 
                         let greaterThan = filter (\\x -> f x > f pivot) rest in
                         concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
-                      |] --> [("concat","List a -> List a -> List a"),
+                      |] --> [("foldr","(a -> b -> b) -> b -> List a -> b"),
+                              ("concat","List a -> List a -> List a"),
                               ("filter","(a -> Bool) -> List a -> List a"),
-                              ("foldr","(a -> b -> b) -> b -> List a -> b"),
-                              ("quicksort","Ord a => (b -> a) -> List b -> List b"),
-                              ("singleton","a -> List a")]
+                              ("singleton","a -> List a"),
+                              ("quicksort","Ord a => (b -> a) -> List b -> List b")]

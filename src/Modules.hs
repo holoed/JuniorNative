@@ -6,6 +6,7 @@ import Infer ( infer )
 import Environment ( Env, toEnv )
 import Data.Map as Map ( keysSet, fromList, toList, (!), union, restrictKeys, Map )
 import Data.Set as Set (fromList)
+import Data.List (sortOn)
 import Types ( Qual((:=>)), Type(TyCon), TypeScheme(ForAll), Pred ) 
 import SynExpToExp ( toExp )
 import Parser ( parseExpr )
@@ -16,7 +17,7 @@ bindingsDict :: [Exp] -> Map String Exp
 bindingsDict es = Map.fromList ((\e@(In (Let s _ _)) -> (s, e)) <$> es)
 
 typeOfModule :: [Qual Pred] -> Env -> String -> [(String, String)] 
-typeOfModule classEnv env x = (\(n, ForAll _ qt) -> (n, show qt)) <$> Map.toList ret 
+typeOfModule classEnv env x = sortedRet
     where es = either error (toExp <$>) (parseExpr x)
           ns = (fst <$>) $ concat $ chunks (Map.keysSet env) es
           dict = bindingsDict es
@@ -24,4 +25,7 @@ typeOfModule classEnv env x = (\(n, ForAll _ qt) -> (n, show qt)) <$> Map.toList
           f env' (n, e) = 
              let t = (either (\err -> Set.fromList [] :=> TyCon err) snd . infer classEnv env' . liftN) e in
              toEnv [(n, t)] `union` env'    
-          ret = restrictKeys (foldl f env bs) (Set.fromList ns)
+          finalEnv = restrictKeys (foldl f env bs) (Set.fromList ns)
+          unsortedRet = (\(n, ForAll _ qt) -> (n, show qt)) <$> Map.toList finalEnv
+          orderDict = Map.fromList (zip ns [1..])
+          sortedRet = sortOn ((orderDict!) . fst) unsortedRet
