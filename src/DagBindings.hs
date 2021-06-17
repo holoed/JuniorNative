@@ -6,7 +6,6 @@ import Ast (Exp, ExpF (Let, Let))
 import Data.Set (Set, toList)
 import FreeVariables (freeVars)
 import qualified Data.Graph as G
-import Data.List ( intersect, groupBy, sortBy )
 
 getName :: Exp -> String
 getName (In (Let s _ _)) = s

@@ -27,5 +27,5 @@ typeOfModule classEnv env x = sortedRet
              toEnv [(n, t)] `union` env'    
           finalEnv = restrictKeys (foldl f env bs) (Set.fromList ns)
           unsortedRet = (\(n, ForAll _ qt) -> (n, show qt)) <$> Map.toList finalEnv
-          orderDict = Map.fromList (zip ns [1..])
+          orderDict = Map.fromList (zip ns ([1..] :: [Int]))
           sortedRet = sortOn ((orderDict!) . fst) unsortedRet
