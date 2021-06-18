@@ -4,6 +4,7 @@ import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
 import Ast (Exp, ExpF (Let, Let))
 import Data.Set (Set, toList)
+import Data.List (groupBy)
 import FreeVariables (freeVars)
 import qualified Data.Graph as G
 
@@ -19,6 +20,6 @@ deps :: Set String -> [Exp] -> [(String, [String])]
 deps globals = foldl (\acc x -> (getName x, getDeps globals x) : acc) []
 
 chunks :: Set String -> [Exp] -> [[(String, [String])]]
-chunks globals es = [reverse sg]
+chunks globals es = groupBy (\x y -> snd x == snd y) (reverse sg)
     where (g, f, _) = (G.graphFromEdges . ((\(x, y) -> (x, x, y)) <$>) . deps globals) es
           sg = (\(_, y, z) -> (y, z)) . f <$> G.topSort g

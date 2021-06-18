@@ -46,12 +46,12 @@ tests = do
 
     it "two dependent nodes" $ 
                [i| let x = 12
-                   let y = x + 1 |] --> [[("x", []), ("y", ["x"])]]
+                   let y = x + 1 |] --> [[("x", [])], [("y", ["x"])]]
 
     it "one node depending on two" $ 
                [i| let x = 12
                    let y = 32
-                   let z = x + y |] --> [[("x", []), ("y", []), ("z", ["x", "y"])]]
+                   let z = x + y |] --> [[("x", []), ("y", [])], [("z", ["x", "y"])]]
 
     it "Many nodes" $ [i|       
                       let foldr f v xs = 
@@ -69,7 +69,7 @@ tests = do
                         let lessThan = filter (\\x -> f x < f (hd xs)) (tl xs) in 
                         let greaterThan = filter (\\x -> f x > f (hd xs)) (tl xs) in
                         concat (concat (quicksort f lessThan) (singleton (hd xs))) (quicksort f greaterThan)
-                      |] --> [[("foldr",[]),("concat",["foldr"]),("filter",["foldr"]),("singleton",[]),("quicksort",["concat","filter","singleton"])]]
+                      |] --> [[("foldr",[])],[("concat",["foldr"]),("filter",["foldr"])],[("singleton",[])],[("quicksort",["concat","filter","singleton"])]]
                        
 
 
