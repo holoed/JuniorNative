@@ -7,9 +7,10 @@ import SynExpToExp ( toExp )
 import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)
 import Test.Hspec ( it, describe, shouldBe, SpecWith )
+import System.IO
 
 globals :: Set [Char]
-globals = fromList ["+", "-", "/", "++", "==", ">", "<", "hd", "tl", "null", "empty", "cons"]
+globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "hd", "tl", "null", "empty", "cons"]
 
 tests :: SpecWith ()
 tests = do
@@ -37,6 +38,9 @@ tests = do
 
     let build code = chunks globals $ toExp <$> either error id (parseExpr code)
     let (-->) x y = build x `shouldBe` y
+    let (--->) x y = do handle <- openFile x ReadMode
+                        contents <- hGetContents handle
+                        contents --> y
 
     it "single node" $ "let x = 42" --> [[("x",[])]]
 
@@ -71,5 +75,13 @@ tests = do
                         concat (concat (quicksort f lessThan) (singleton (hd xs))) (quicksort f greaterThan)
                       |] --> [[("foldr",[])],[("concat",["foldr"]),("filter",["foldr"])],[("singleton",[])],[("quicksort",["concat","filter","singleton"])]]
                        
-
+    it "Complex example" $ "tests/example.jnr" ---> [
+        [("foldr",[])],
+        [("concat",["foldr"])],
+        [("foldl",[])],
+        [("join",["concat","foldl"])],
+        [("map",["foldr"])],
+        [("bind",["join","map"])],
+        [("filter",["foldr"])],
+        [("product",["foldl"]), ("sum",["foldl"])]]
 
