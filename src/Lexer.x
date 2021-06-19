@@ -12,7 +12,7 @@ import Control.Monad.Except
 
 }
 
-%wrapper "basic"
+%wrapper "posn"
 
 $digit = 0-9
 $alpha = [a-zA-Z]
@@ -30,30 +30,30 @@ tokens :-
   "#".*                         ;
 
   -- Syntax
-  let                           { \s -> TokenLet }
-  True                          { \s -> TokenTrue }
-  False                         { \s -> TokenFalse }
-  if                            { \s -> TokenIf }
-  then                          { \s -> TokenThen }
-  else                          { \s -> TokenElse }
-  in                            { \s -> TokenIn }
-  $digit+                       { \s -> TokenNum (I $ read s) }
-  @string                       { \s -> TokenString (S s) }
-  "->"                          { \s -> TokenArrow }
-  "=="                          { \s -> TokenEql }
-  \=                            { \s -> TokenEq }
-  \\                            { \s -> TokenLambda }
-  "++"                          { \s -> TokenConcat }
-  [\+]                          { \s -> TokenAdd }
-  [\-]                          { \s -> TokenSub }
-  [\*]                          { \s -> TokenMul }
-  [\/]                          { \s -> TokenDiv }
-  [\>]                          { \s -> TokenGt  }
-  [\<]                          { \s -> TokenLt  }
-  \(                            { \s -> TokenLParen }
-  \)                            { \s -> TokenRParen }
-  ","                           { \s -> TokenComma }
-  $alpha [$alpha $digit \_ \']* { \s -> TokenSym s }
+  let                           {\p s -> TokenLet }
+  True                          {\p s -> TokenTrue }
+  False                         {\p s -> TokenFalse }
+  if                            {\p s -> TokenIf }
+  then                          {\p s -> TokenThen }
+  else                          {\p s -> TokenElse }
+  in                            {\p s -> TokenIn }
+  $digit+                       {\p s -> TokenNum (I $ read s) }
+  @string                       {\p s -> TokenString (S s) }
+  "->"                          {\p s -> TokenArrow }
+  "=="                          {\p s -> TokenEql }
+  \=                            {\p s -> TokenEq }
+  \\                            {\p s -> TokenLambda }
+  "++"                          {\p s -> TokenConcat }
+  [\+]                          {\p s -> TokenAdd }
+  [\-]                          {\p s -> TokenSub }
+  [\*]                          {\p s -> TokenMul }
+  [\/]                          {\p s -> TokenDiv }
+  [\>]                          {\p s -> TokenGt  }
+  [\<]                          {\p s -> TokenLt  }
+  \(                            {\p s -> TokenLParen }
+  \)                            {\p s -> TokenRParen }
+  ","                           {\p s -> TokenComma }
+  $alpha [$alpha $digit \_ \']* {\p s -> TokenSym s }
 
 {
 
@@ -86,15 +86,15 @@ data Token
   deriving (Eq,Show)
 
 scanTokens :: String -> Except String [Token]
-scanTokens str = go ('\n',[],str) where
-  go inp@(_,_bs,str) =
+scanTokens str = go (alexStartPos, '\n',[],str) where
+  go inp@(pos, _,_bs,str) =
     case alexScan inp 0 of
      AlexEOF -> return []
-     AlexError _ -> throwError "Invalid lexeme."
+     AlexError ((AlexPn _ line column),_,_,_) -> throwError $ "lexical error at " ++ (show line) ++ " line, " ++ (show column) ++ " column"
      AlexSkip  inp' len     -> go inp'
      AlexToken inp' len act -> do
       res <- go inp'
-      let rest = act (take len str)
+      let rest = act pos (take len str)
       return (rest : res)
 
 }
