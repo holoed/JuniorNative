@@ -7,6 +7,7 @@ import Modules (typeOfModule)
 import Data.Set as Set (fromList )
 import Data.String.Interpolate ( i )
 import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
+import System.IO
 
 tyLam :: Type -> Type -> Type
 tyLam t1 = TyApp (TyApp (TyCon "->") t1)
@@ -37,6 +38,11 @@ classEnv = [
 
 (-->) :: String -> [(String, String)] -> Expectation
 (-->) x y = typeOfModule classEnv env x `shouldBe` y
+
+(--->) :: FilePath -> [(String, String)] -> Expectation 
+(--->) x y = do handle <- openFile x ReadMode
+                contents <- hGetContents handle
+                contents --> y
 
 tests :: SpecWith ()
 tests =
@@ -75,3 +81,15 @@ tests =
                               ("filter","(a -> Bool) -> List a -> List a"),
                               ("singleton","a -> List a"),
                               ("quicksort","Ord a => (b -> a) -> List b -> List b")]
+
+    it "Complex example" $ "tests/example.jnr" ---> [
+      ("foldr","(a -> b -> b) -> b -> List a -> b"),
+      ("concat","List a -> List a -> List a"),
+      ("foldl","(a -> b -> a) -> a -> List b -> a"),
+      ("join","List List a -> List a"),
+      ("map","(a -> b) -> List a -> List b"),
+      ("bind","(a -> List b) -> List a -> List b"),
+      ("filter","(a -> Bool) -> List a -> List a"),
+      ("product","Num a => List a -> a"),
+      ("sum","Num a => List a -> a")
+     ]
