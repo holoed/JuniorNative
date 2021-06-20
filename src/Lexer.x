@@ -34,7 +34,7 @@ tokens :-
   let                           {\p s -> TokenLet p }
   True                          {\p s -> TokenTrue p }
   False                         {\p s -> TokenFalse p }
-  if                            {\p s -> TokenIf }
+  if                            {\p s -> TokenIf p }
   then                          {\p s -> TokenThen }
   else                          {\p s -> TokenElse }
   in                            {\p s -> TokenIn }
@@ -60,7 +60,7 @@ tokens :-
 
 data Token
   = TokenLet AlexPosn
-  | TokenIf
+  | TokenIf AlexPosn
   | TokenThen
   | TokenElse
   | TokenIn

@@ -8,12 +8,12 @@ import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
 import Operators ( Operator )
 
-data Pos = Pos !Int  -- absolute character offset
+data Loc = Loc !Int  -- absolute character offset
                !Int  -- line number
                !Int  -- column number
 
-zeroPos :: Pos
-zeroPos = Pos 0 0 0
+zeroLoc :: Loc
+zeroLoc = Loc 0 0 0
 
 data SynExpF a = Lit Prim
                | Var String
@@ -26,8 +26,8 @@ data SynExpF a = Lit Prim
 
 type SynExp = Fix SynExpF
 
-lit :: Pos -> Prim -> SynExp
-lit p v = In (Lit v)
+lit :: Loc -> Prim -> SynExp
+lit l v = In (Lit v)
 
 var :: String -> SynExp
 var s = In (Var s)
@@ -44,11 +44,11 @@ lam s e = In (Lam s e)
 leT :: [String] -> SynExp -> SynExp -> SynExp
 leT s v b = In (Let s v b)
 
-ifThenElse :: SynExp -> SynExp -> SynExp -> SynExp
-ifThenElse p e1 e2 = In (IfThenElse p e1 e2)
+ifThenElse :: Loc -> SynExp -> SynExp -> SynExp -> SynExp
+ifThenElse l p e1 e2 = In (IfThenElse p e1 e2)
 
 mkTuple :: [SynExp] -> SynExp
 mkTuple xs = In (MkTuple xs)
 
-defn :: Pos -> [String] -> SynExp -> SynExp
-defn p s v = In (Let s v (var $ head s))
+defn :: Loc -> [String] -> SynExp -> SynExp
+defn l s v = In (Let s v (var $ head s))

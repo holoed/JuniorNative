@@ -30,7 +30,7 @@ import Control.Monad.Except
     let   { TokenLet $$ }
     true  { TokenTrue $$ }
     false { TokenFalse $$ }
-    if    { TokenIf }
+    if    { TokenIf $$ }
     then  { TokenThen }
     else  { TokenElse }
     in    { TokenIn }
@@ -64,11 +64,11 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : let Vars '=' Expr           { defn (mkPos $1) $2 $4 }
+Decl : let Vars '=' Expr           { defn (mkLoc $1) $2 $4 }
 
 Expr : let Vars '=' Expr in Expr   { leT $2 $4 $6 }
      | '\\' Vars '->' Expr         { lam $2 $4 }
-     | if Expr then Expr else Expr { ifThenElse $2 $4 $6 }
+     | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Form                        { $1 }
 
 Form : Form '+' Form               { infixApp plusOp $1 $3 }
@@ -86,11 +86,11 @@ Fact : Fact Atom                   { infixApp juxtaOp $1 $2 }
 
 Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple $2 }
-     | NUM                         { lit (mkPos (fst $1)) (snd $1) }
-     | STRING                      { lit (mkPos (fst $1)) (snd $1) }
+     | NUM                         { lit (mkLoc (fst $1)) (snd $1) }
+     | STRING                      { lit (mkLoc (fst $1)) (snd $1) }
      | VAR                         { var $1 }
-     | true                        { lit (mkPos $1) (B True) }
-     | false                       { lit (mkPos $1) (B False) }
+     | true                        { lit (mkLoc $1) (B True) }
+     | false                       { lit (mkLoc $1) (B False) }
 
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
@@ -100,8 +100,8 @@ Vars : VAR                         { [$1] }
 
 {
 
-mkPos :: AlexPosn -> Pos
-mkPos (AlexPn x y z) = Pos x y z
+mkLoc :: AlexPosn -> Loc
+mkLoc (AlexPn x y z) = Loc x y z
 
 parseError :: [Token] -> Except String a
 parseError (l:ls) = throwError (show l)
