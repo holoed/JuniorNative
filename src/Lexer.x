@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Lexer (
   Token(..),
+  AlexPosn(..),
   scanTokens
 ) where
 
@@ -30,7 +31,7 @@ tokens :-
   "#".*                         ;
 
   -- Syntax
-  let                           {\p s -> TokenLet }
+  let                           {\p s -> TokenLet p }
   True                          {\p s -> TokenTrue }
   False                         {\p s -> TokenFalse }
   if                            {\p s -> TokenIf }
@@ -58,7 +59,7 @@ tokens :-
 {
 
 data Token
-  = TokenLet
+  = TokenLet AlexPosn
   | TokenIf
   | TokenThen
   | TokenElse

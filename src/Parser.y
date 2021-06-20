@@ -27,7 +27,7 @@ import Control.Monad.Except
 
 -- Token Names
 %token
-    let   { TokenLet }
+    let   { TokenLet $$ }
     true  { TokenTrue }
     false { TokenFalse }
     if    { TokenIf }
@@ -64,7 +64,7 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : let Vars '=' Expr           { defn $2 $4 }
+Decl : let Vars '=' Expr           { defn (mkPos $1) $2 $4 }
 
 Expr : let Vars '=' Expr in Expr   { leT $2 $4 $6 }
      | '\\' Vars '->' Expr         { lam $2 $4 }
@@ -99,6 +99,9 @@ Vars : VAR                         { [$1] }
      | VAR Vars                    { $1 : $2 }
 
 {
+
+mkPos :: AlexPosn -> Pos
+mkPos (AlexPn x y z) = Pos x y z
 
 parseError :: [Token] -> Except String a
 parseError (l:ls) = throwError (show l)

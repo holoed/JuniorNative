@@ -8,6 +8,10 @@ import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
 import Operators ( Operator )
 
+data Pos = Pos !Int  -- absolute character offset
+               !Int  -- line number
+               !Int  -- column number
+
 data SynExpF a = Lit Prim
                | Var String
                | MkTuple [a]
@@ -43,5 +47,5 @@ ifThenElse p e1 e2 = In (IfThenElse p e1 e2)
 mkTuple :: [SynExp] -> SynExp
 mkTuple xs = In (MkTuple xs)
 
-defn :: [String] -> SynExp -> SynExp
-defn s v = In (Let s v (var $ head s))
+defn :: Pos -> [String] -> SynExp -> SynExp
+defn p s v = In (Let s v (var $ head s))
