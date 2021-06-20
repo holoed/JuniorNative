@@ -32,14 +32,14 @@ tokens :-
 
   -- Syntax
   let                           {\p s -> TokenLet p }
-  True                          {\p s -> TokenTrue }
-  False                         {\p s -> TokenFalse }
+  True                          {\p s -> TokenTrue p }
+  False                         {\p s -> TokenFalse p }
   if                            {\p s -> TokenIf }
   then                          {\p s -> TokenThen }
   else                          {\p s -> TokenElse }
   in                            {\p s -> TokenIn }
-  $digit+                       {\p s -> TokenNum (I $ read s) }
-  @string                       {\p s -> TokenString (S s) }
+  $digit+                       {\p s -> TokenNum (p, (I $ read s)) }
+  @string                       {\p s -> TokenString (p, (S s)) }
   "->"                          {\p s -> TokenArrow }
   "=="                          {\p s -> TokenEql }
   \=                            {\p s -> TokenEq }
@@ -65,10 +65,10 @@ data Token
   | TokenElse
   | TokenIn
   | TokenLambda
-  | TokenTrue
-  | TokenFalse
-  | TokenNum Prim
-  | TokenString Prim
+  | TokenTrue AlexPosn
+  | TokenFalse AlexPosn
+  | TokenNum (AlexPosn, Prim)
+  | TokenString (AlexPosn, Prim)
   | TokenSym String
   | TokenArrow
   | TokenConcat

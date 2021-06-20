@@ -28,8 +28,8 @@ import Control.Monad.Except
 -- Token Names
 %token
     let   { TokenLet $$ }
-    true  { TokenTrue }
-    false { TokenFalse }
+    true  { TokenTrue $$ }
+    false { TokenFalse $$ }
     if    { TokenIf }
     then  { TokenThen }
     else  { TokenElse }
@@ -86,11 +86,11 @@ Fact : Fact Atom                   { infixApp juxtaOp $1 $2 }
 
 Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple $2 }
-     | NUM                         { lit $1 }
-     | STRING                      { lit $1 }
+     | NUM                         { lit (mkPos (fst $1)) (snd $1) }
+     | STRING                      { lit (mkPos (fst $1)) (snd $1) }
      | VAR                         { var $1 }
-     | true                        { lit (B True) }
-     | false                       { lit (B False) }
+     | true                        { lit (mkPos $1) (B True) }
+     | false                       { lit (mkPos $1) (B False) }
 
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }

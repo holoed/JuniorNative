@@ -12,6 +12,9 @@ data Pos = Pos !Int  -- absolute character offset
                !Int  -- line number
                !Int  -- column number
 
+zeroPos :: Pos
+zeroPos = Pos 0 0 0
+
 data SynExpF a = Lit Prim
                | Var String
                | MkTuple [a]
@@ -23,8 +26,8 @@ data SynExpF a = Lit Prim
 
 type SynExp = Fix SynExpF
 
-lit :: Prim -> SynExp
-lit v = In (Lit v)
+lit :: Pos -> Prim -> SynExp
+lit p v = In (Lit v)
 
 var :: String -> SynExp
 var s = In (Var s)

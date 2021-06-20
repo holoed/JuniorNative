@@ -22,7 +22,7 @@ toExp = cataRec alg
 
 fromExp :: Ast.Exp -> PAst.SynExp
 fromExp = cataRec alg
-    where alg (Ast.Lit x) = PAst.lit x
+    where alg (Ast.Lit x) = PAst.lit PAst.zeroPos x
           alg (Ast.Var s) = PAst.var s
           alg (Ast.MkTuple es) = PAst.mkTuple es
           alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "*")) e1)) e2) = PAst.infixApp mulOp e1 e2
