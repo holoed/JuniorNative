@@ -39,11 +39,11 @@ app e1 e2 = In (Ann zeroLoc (App e1 e2))
 infixApp :: Loc -> Operator -> SynExp -> SynExp -> SynExp
 infixApp l op e1 e2 = In (Ann l (InfixApp op e1 e2))
 
-lam :: Loc -> [String] -> SynExp -> SynExp
-lam l s e = In (Ann l (Lam s e))
+lam :: Loc -> [(Loc, String)] -> SynExp -> SynExp
+lam l s e = In (Ann l (Lam (snd <$> s) e))
 
-leT :: Loc -> [String] -> SynExp -> SynExp -> SynExp
-leT l s v b = In (Ann l (Let s v b))
+leT :: Loc -> [(Loc, String)] -> SynExp -> SynExp -> SynExp
+leT l s v b = In (Ann l (Let (snd <$> s) v b))
 
 ifThenElse :: Loc -> SynExp -> SynExp -> SynExp -> SynExp
 ifThenElse l p e1 e2 = In (Ann l (IfThenElse p e1 e2))
@@ -51,5 +51,5 @@ ifThenElse l p e1 e2 = In (Ann l (IfThenElse p e1 e2))
 mkTuple :: Loc -> [SynExp] -> SynExp
 mkTuple l xs = In (Ann l (MkTuple xs))
 
-defn :: Loc -> [String] -> SynExp -> SynExp
-defn l s v = In (Ann l (Let s v (var l $ head s)))
+defn :: Loc -> [(Loc, String)] -> SynExp -> SynExp
+defn l s v = In (Ann l (Let (snd <$> s) v (var l $ head (snd <$> s))))

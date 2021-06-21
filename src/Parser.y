@@ -95,8 +95,8 @@ Atom : '(' Expr ')'                { $2 }
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
-Vars : VAR                         { [snd $1] }
-     | VAR Vars                    { snd $1 : $2 }
+Vars : VAR                         { [(mkLoc $ fst $1, snd $1)] }
+     | VAR Vars                    { (mkLoc $ fst $1, snd $1) : $2 }
 
 {
 
