@@ -8,6 +8,7 @@ import Data.List ( intersperse )
 import Text.PrettyPrint ( (<+>), (<>), char, hcat, parens, render, text, Doc )
 import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
 import Prelude hiding (Left, Right, (<>), pi)
+import Annotations ( unwrap ) 
 
 parenthesize :: Doc -> Doc
 parenthesize d = text "(" <> d <> text ")"
@@ -71,4 +72,4 @@ alg (IfThenElse q t f) = do
 alg _ = error "Undefined"
 
 pretty :: SynExp -> String
-pretty = render . (fst . runWriter . cataRec alg)
+pretty = render . (fst . runWriter . cataRec alg . unwrap)

@@ -66,7 +66,7 @@ Decls : Expr                       { [$1] }
 
 Decl : let Vars '=' Expr           { defn (mkLoc $1) $2 $4 }
 
-Expr : let Vars '=' Expr in Expr   { leT $2 $4 $6 }
+Expr : let Vars '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
      | '\\' Vars '->' Expr         { lam (mkLoc $1) $2 $4 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Form                        { $1 }

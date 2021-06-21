@@ -7,6 +7,7 @@ module PAst where
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
 import Operators ( Operator )
+import Annotations ( Ann(..) ) 
 
 data Loc = Loc !Int  -- absolute character offset
                !Int  -- line number
@@ -24,31 +25,31 @@ data SynExpF a = Lit Prim
                | Let [String] a a
                | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
-type SynExp = Fix SynExpF
+type SynExp = Fix (Ann Loc SynExpF)
 
 lit :: Loc -> Prim -> SynExp
-lit l v = In (Lit v)
+lit l v = In (Ann l (Lit v))
 
 var :: Loc -> String -> SynExp
-var l s = In (Var s)
+var l s = In (Ann l (Var s))
 
 app :: SynExp -> SynExp -> SynExp
-app e1 e2 = In (App e1 e2)
+app e1 e2 = In (Ann zeroLoc (App e1 e2))
 
 infixApp :: Loc -> Operator -> SynExp -> SynExp -> SynExp
-infixApp l op e1 e2 = In (InfixApp op e1 e2)
+infixApp l op e1 e2 = In (Ann l (InfixApp op e1 e2))
 
 lam :: Loc -> [String] -> SynExp -> SynExp
-lam l s e = In (Lam s e)
+lam l s e = In (Ann l (Lam s e))
 
-leT :: [String] -> SynExp -> SynExp -> SynExp
-leT s v b = In (Let s v b)
+leT :: Loc -> [String] -> SynExp -> SynExp -> SynExp
+leT l s v b = In (Ann l (Let s v b))
 
 ifThenElse :: Loc -> SynExp -> SynExp -> SynExp -> SynExp
-ifThenElse l p e1 e2 = In (IfThenElse p e1 e2)
+ifThenElse l p e1 e2 = In (Ann l (IfThenElse p e1 e2))
 
 mkTuple :: Loc -> [SynExp] -> SynExp
-mkTuple l xs = In (MkTuple xs)
+mkTuple l xs = In (Ann l (MkTuple xs))
 
 defn :: Loc -> [String] -> SynExp -> SynExp
-defn l s v = In (Let s v (var l $ head s))
+defn l s v = In (Ann l (Let s v (var l $ head s)))
