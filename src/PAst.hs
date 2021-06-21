@@ -35,8 +35,8 @@ var l s = In (Var s)
 app :: SynExp -> SynExp -> SynExp
 app e1 e2 = In (App e1 e2)
 
-infixApp :: Operator -> SynExp -> SynExp -> SynExp
-infixApp op e1 e2 = In (InfixApp op e1 e2)
+infixApp :: Loc -> Operator -> SynExp -> SynExp -> SynExp
+infixApp l op e1 e2 = In (InfixApp op e1 e2)
 
 lam :: Loc -> [String] -> SynExp -> SynExp
 lam l s e = In (Lam s e)
@@ -47,8 +47,8 @@ leT s v b = In (Let s v b)
 ifThenElse :: Loc -> SynExp -> SynExp -> SynExp -> SynExp
 ifThenElse l p e1 e2 = In (IfThenElse p e1 e2)
 
-mkTuple :: [SynExp] -> SynExp
-mkTuple xs = In (MkTuple xs)
+mkTuple :: Loc -> [SynExp] -> SynExp
+mkTuple l xs = In (MkTuple xs)
 
 defn :: Loc -> [String] -> SynExp -> SynExp
 defn l s v = In (Let s v (var l $ head s))

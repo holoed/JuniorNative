@@ -24,16 +24,16 @@ fromExp :: Ast.Exp -> PAst.SynExp
 fromExp = cataRec alg
     where alg (Ast.Lit x) = PAst.lit PAst.zeroLoc x
           alg (Ast.Var s) = PAst.var PAst.zeroLoc s
-          alg (Ast.MkTuple es) = PAst.mkTuple es
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "*")) e1)) e2) = PAst.infixApp mulOp e1 e2
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "/")) e1)) e2) = PAst.infixApp divOp e1 e2
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "+")) e1)) e2) = PAst.infixApp plusOp e1 e2
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "-")) e1)) e2) = PAst.infixApp subOp e1 e2
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "==")) e1)) e2) = PAst.infixApp eqeqOp e1 e2
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var ">")) e1)) e2) = PAst.infixApp gtOp e1 e2
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "<")) e1)) e2) = PAst.infixApp ltOp e1 e2
-          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "++")) e1)) e2) = PAst.infixApp plusplusOp e1 e2
-          alg (Ast.App e1 e2) = PAst.infixApp juxtaOp e1 e2
+          alg (Ast.MkTuple es) = PAst.mkTuple PAst.zeroLoc  es
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "*")) e1)) e2) = PAst.infixApp PAst.zeroLoc mulOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "/")) e1)) e2) = PAst.infixApp PAst.zeroLoc divOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "+")) e1)) e2) = PAst.infixApp PAst.zeroLoc plusOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "-")) e1)) e2) = PAst.infixApp PAst.zeroLoc subOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "==")) e1)) e2) = PAst.infixApp PAst.zeroLoc eqeqOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var ">")) e1)) e2) = PAst.infixApp PAst.zeroLoc gtOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "<")) e1)) e2) = PAst.infixApp PAst.zeroLoc ltOp e1 e2
+          alg (Ast.App (In (PAst.InfixApp (" ", _, _) (In (PAst.Var "++")) e1)) e2) = PAst.infixApp PAst.zeroLoc plusplusOp e1 e2
+          alg (Ast.App e1 e2) = PAst.infixApp PAst.zeroLoc juxtaOp e1 e2
           alg (Ast.Lam s e) = PAst.lam PAst.zeroLoc [s] e
           alg (Ast.Let s e1 e2) = PAst.leT [s] e1 e2
           alg (Ast.IfThenElse p e1 e2) = PAst.ifThenElse PAst.zeroLoc  p e1 e2

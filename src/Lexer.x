@@ -3,6 +3,7 @@
 module Lexer (
   Token(..),
   AlexPosn(..),
+  alexStartPos,
   scanTokens
 ) where
 
@@ -41,17 +42,17 @@ tokens :-
   $digit+                       {\p s -> TokenNum (p, (I $ read s)) }
   @string                       {\p s -> TokenString (p, (S s)) }
   "->"                          {\p s -> TokenArrow p }
-  "=="                          {\p s -> TokenEql }
-  \=                            {\p s -> TokenEq }
+  "=="                          {\p s -> TokenEql p }
+  \=                            {\p s -> TokenEq p }
   \\                            {\p s -> TokenLambda p }
-  "++"                          {\p s -> TokenConcat }
-  [\+]                          {\p s -> TokenAdd }
-  [\-]                          {\p s -> TokenSub }
-  [\*]                          {\p s -> TokenMul }
-  [\/]                          {\p s -> TokenDiv }
-  [\>]                          {\p s -> TokenGt  }
-  [\<]                          {\p s -> TokenLt  }
-  \(                            {\p s -> TokenLParen }
+  "++"                          {\p s -> TokenConcat p }
+  [\+]                          {\p s -> TokenAdd p }
+  [\-]                          {\p s -> TokenSub p }
+  [\*]                          {\p s -> TokenMul p }
+  [\/]                          {\p s -> TokenDiv p }
+  [\>]                          {\p s -> TokenGt p  }
+  [\<]                          {\p s -> TokenLt p  }
+  \(                            {\p s -> TokenLParen p }
   \)                            {\p s -> TokenRParen }
   ","                           {\p s -> TokenComma }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
@@ -71,16 +72,16 @@ data Token
   | TokenString (AlexPosn, Prim)
   | TokenSym (AlexPosn, String)
   | TokenArrow AlexPosn
-  | TokenConcat
-  | TokenEq
-  | TokenEql
-  | TokenAdd
-  | TokenSub
-  | TokenMul
-  | TokenDiv
-  | TokenGt
-  | TokenLt
-  | TokenLParen
+  | TokenConcat AlexPosn
+  | TokenEq AlexPosn
+  | TokenEql AlexPosn
+  | TokenAdd AlexPosn
+  | TokenSub AlexPosn
+  | TokenMul AlexPosn
+  | TokenDiv AlexPosn
+  | TokenGt AlexPosn
+  | TokenLt AlexPosn
+  | TokenLParen AlexPosn
   | TokenRParen
   | TokenComma
   | TokenEOF

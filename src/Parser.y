@@ -39,17 +39,17 @@ import Control.Monad.Except
     VAR   { TokenSym $$ }
     '\\'  { TokenLambda $$ }
     '->'  { TokenArrow $$ }
-    '='   { TokenEq }
-    '=='  { TokenEql }
-    '++'  { TokenConcat }
-    '+'   { TokenAdd }
-    '-'   { TokenSub }
-    '*'   { TokenMul }
-    '/'   { TokenDiv }
-    '>'   { TokenGt }
-    '<'   { TokenLt }
+    '='   { TokenEq $$ }
+    '=='  { TokenEql $$ }
+    '++'  { TokenConcat $$ }
+    '+'   { TokenAdd $$ }
+    '-'   { TokenSub $$ }
+    '*'   { TokenMul $$ }
+    '/'   { TokenDiv $$ }
+    '>'   { TokenGt  $$ }
+    '<'   { TokenLt  $$ }
     ','   { TokenComma }
-    '('   { TokenLParen }
+    '('   { TokenLParen $$ }
     ')'   { TokenRParen }
 
 -- Operators
@@ -71,21 +71,21 @@ Expr : let Vars '=' Expr in Expr   { leT $2 $4 $6 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Form                        { $1 }
 
-Form : Form '+' Form               { infixApp plusOp $1 $3 }
-     | Form '-' Form               { infixApp subOp $1 $3 }
-     | Form '*' Form               { infixApp mulOp $1 $3 }
-     | Form '/' Form               { infixApp divOp $1 $3 }
-     | Form '==' Form              { infixApp eqeqOp $1 $3 }
-     | Form '>' Form               { infixApp gtOp $1 $3 }
-     | Form '<' Form               { infixApp ltOp $1 $3 }
-     | Form '++' Form              { infixApp plusplusOp $1 $3}
+Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
+     | Form '-' Form               { infixApp (mkLoc $2) subOp $1 $3 }
+     | Form '*' Form               { infixApp (mkLoc $2) mulOp $1 $3 }
+     | Form '/' Form               { infixApp (mkLoc $2) divOp $1 $3 }
+     | Form '==' Form              { infixApp (mkLoc $2) eqeqOp $1 $3 }
+     | Form '>' Form               { infixApp (mkLoc $2) gtOp $1 $3 }
+     | Form '<' Form               { infixApp (mkLoc $2) ltOp $1 $3 }
+     | Form '++' Form              { infixApp (mkLoc $2) plusplusOp $1 $3}
      | Fact                        { $1 }
 
-Fact : Fact Atom                   { infixApp juxtaOp $1 $2 }
+Fact : Fact Atom                   { infixApp (mkLoc alexStartPos) juxtaOp $1 $2 }
      | Atom                        { $1 }
 
 Atom : '(' Expr ')'                { $2 }
-     | '(' Exprs ')'               { mkTuple $2 }
+     | '(' Exprs ')'               { mkTuple (mkLoc $1) $2 }
      | NUM                         { lit (mkLoc (fst $1)) (snd $1) }
      | STRING                      { lit (mkLoc (fst $1)) (snd $1) }
      | VAR                         { var (mkLoc (fst $1)) (snd $1) }
