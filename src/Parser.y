@@ -31,14 +31,14 @@ import Control.Monad.Except
     true  { TokenTrue $$ }
     false { TokenFalse $$ }
     if    { TokenIf $$ }
-    then  { TokenThen }
-    else  { TokenElse }
-    in    { TokenIn }
+    then  { TokenThen $$ }
+    else  { TokenElse $$ }
+    in    { TokenIn $$ }
     NUM   { TokenNum $$ }
     STRING { TokenString $$ }
     VAR   { TokenSym $$ }
-    '\\'  { TokenLambda }
-    '->'  { TokenArrow }
+    '\\'  { TokenLambda $$ }
+    '->'  { TokenArrow $$ }
     '='   { TokenEq }
     '=='  { TokenEql }
     '++'  { TokenConcat }
@@ -67,7 +67,7 @@ Decls : Expr                       { [$1] }
 Decl : let Vars '=' Expr           { defn (mkLoc $1) $2 $4 }
 
 Expr : let Vars '=' Expr in Expr   { leT $2 $4 $6 }
-     | '\\' Vars '->' Expr         { lam $2 $4 }
+     | '\\' Vars '->' Expr         { lam (mkLoc $1) $2 $4 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Form                        { $1 }
 
@@ -88,15 +88,15 @@ Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple $2 }
      | NUM                         { lit (mkLoc (fst $1)) (snd $1) }
      | STRING                      { lit (mkLoc (fst $1)) (snd $1) }
-     | VAR                         { var $1 }
+     | VAR                         { var (mkLoc (fst $1)) (snd $1) }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }
 
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
-Vars : VAR                         { [$1] }
-     | VAR Vars                    { $1 : $2 }
+Vars : VAR                         { [snd $1] }
+     | VAR Vars                    { snd $1 : $2 }
 
 {
 

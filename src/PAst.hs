@@ -29,8 +29,8 @@ type SynExp = Fix SynExpF
 lit :: Loc -> Prim -> SynExp
 lit l v = In (Lit v)
 
-var :: String -> SynExp
-var s = In (Var s)
+var :: Loc -> String -> SynExp
+var l s = In (Var s)
 
 app :: SynExp -> SynExp -> SynExp
 app e1 e2 = In (App e1 e2)
@@ -38,8 +38,8 @@ app e1 e2 = In (App e1 e2)
 infixApp :: Operator -> SynExp -> SynExp -> SynExp
 infixApp op e1 e2 = In (InfixApp op e1 e2)
 
-lam :: [String] -> SynExp -> SynExp
-lam s e = In (Lam s e)
+lam :: Loc -> [String] -> SynExp -> SynExp
+lam l s e = In (Lam s e)
 
 leT :: [String] -> SynExp -> SynExp -> SynExp
 leT s v b = In (Let s v b)
@@ -51,4 +51,4 @@ mkTuple :: [SynExp] -> SynExp
 mkTuple xs = In (MkTuple xs)
 
 defn :: Loc -> [String] -> SynExp -> SynExp
-defn l s v = In (Let s v (var $ head s))
+defn l s v = In (Let s v (var l $ head s))

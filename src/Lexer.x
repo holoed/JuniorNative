@@ -35,15 +35,15 @@ tokens :-
   True                          {\p s -> TokenTrue p }
   False                         {\p s -> TokenFalse p }
   if                            {\p s -> TokenIf p }
-  then                          {\p s -> TokenThen }
-  else                          {\p s -> TokenElse }
-  in                            {\p s -> TokenIn }
+  then                          {\p s -> TokenThen p }
+  else                          {\p s -> TokenElse p }
+  in                            {\p s -> TokenIn p }
   $digit+                       {\p s -> TokenNum (p, (I $ read s)) }
   @string                       {\p s -> TokenString (p, (S s)) }
-  "->"                          {\p s -> TokenArrow }
+  "->"                          {\p s -> TokenArrow p }
   "=="                          {\p s -> TokenEql }
   \=                            {\p s -> TokenEq }
-  \\                            {\p s -> TokenLambda }
+  \\                            {\p s -> TokenLambda p }
   "++"                          {\p s -> TokenConcat }
   [\+]                          {\p s -> TokenAdd }
   [\-]                          {\p s -> TokenSub }
@@ -54,23 +54,23 @@ tokens :-
   \(                            {\p s -> TokenLParen }
   \)                            {\p s -> TokenRParen }
   ","                           {\p s -> TokenComma }
-  $alpha [$alpha $digit \_ \']* {\p s -> TokenSym s }
+  $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
 
 {
 
 data Token
   = TokenLet AlexPosn
   | TokenIf AlexPosn
-  | TokenThen
-  | TokenElse
-  | TokenIn
-  | TokenLambda
+  | TokenThen AlexPosn
+  | TokenElse AlexPosn
+  | TokenIn AlexPosn
+  | TokenLambda AlexPosn
   | TokenTrue AlexPosn
   | TokenFalse AlexPosn
   | TokenNum (AlexPosn, Prim)
   | TokenString (AlexPosn, Prim)
-  | TokenSym String
-  | TokenArrow
+  | TokenSym (AlexPosn, String)
+  | TokenArrow AlexPosn
   | TokenConcat
   | TokenEq
   | TokenEql
