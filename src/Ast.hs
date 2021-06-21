@@ -6,6 +6,22 @@ module Ast where
 
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
+import Data.Map ( Map ) 
+import Annotations ( Ann(..) )
+
+data Loc = Loc !Int  -- absolute character offset
+               !Int  -- line number
+               !Int  -- column number 
+               deriving (Show, Eq)
+
+data ExpLoc = LitLoc Loc
+            | VarLoc Loc
+            | TupleLoc Loc
+            | AppLoc
+            | LamLoc Loc Loc
+            | LetLoc Loc Loc
+            | IfThenElseLoc Loc
+            deriving (Show, Eq)
 
 data ExpF a = Lit Prim
             | Var String
@@ -15,25 +31,25 @@ data ExpF a = Lit Prim
             | Let String a a
             | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
-type Exp = Fix ExpF
+type Exp = Fix (Ann ExpLoc ExpF)
 
-lit :: Prim -> Exp
-lit v = In (Lit v)
+lit :: Loc -> Prim -> Exp
+lit l v = In (Ann (LitLoc l) (Lit v))
 
-var :: String -> Exp
-var s = In (Var s)
+var :: Loc -> String -> Exp
+var l s = In (Ann (VarLoc l) (Var s))
 
 app :: Exp -> Exp -> Exp
-app e1 e2 = In (App e1 e2)
+app e1 e2 = In (Ann AppLoc (App e1 e2))
 
-lam :: String -> Exp -> Exp
-lam s e = In (Lam s e)
+lam :: Loc -> (String, Loc) -> Exp -> Exp
+lam l (s, l') e = In (Ann (LamLoc l l') (Lam s e))
 
-leT :: String -> Exp -> Exp -> Exp
-leT s v b = In (Let s v b)
+leT :: Loc -> (String, Loc) -> Exp -> Exp -> Exp
+leT l (s, l') v b = In (Ann (LetLoc l l') (Let s v b))
 
-ifThenElse :: Exp -> Exp -> Exp -> Exp
-ifThenElse p e1 e2 = In (IfThenElse p e1 e2)
+ifThenElse :: Loc -> Exp -> Exp -> Exp -> Exp
+ifThenElse l p e1 e2 = In (Ann (IfThenElseLoc l) (IfThenElse p e1 e2))
 
-mkTuple :: [Exp] -> Exp
-mkTuple xs = In (MkTuple xs)
+mkTuple :: Loc -> [Exp] -> Exp
+mkTuple l xs = In (Ann (TupleLoc l) (MkTuple xs))

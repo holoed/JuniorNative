@@ -7,7 +7,7 @@ import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
-import Ast ( Exp, ExpF(..) )
+import Ast ( Exp, ExpF(..), ExpLoc(..) )
 import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), Pred, clean, deleteTautology )
 import BuiltIns ( boolCon, intCon, strCon, tupleCon )
@@ -24,19 +24,19 @@ valueToType (B _) = boolCon
 valueToType (S _) = strCon
 valueToType U     = TyCon "()"
 
-alg :: ExpF (TypeM TypedExp) -> TypeM TypedExp
-alg (Lit v) =
+alg :: Ann ExpLoc ExpF (TypeM TypedExp) -> TypeM TypedExp
+alg (Ann (LitLoc l) (Lit v)) =
   do bt <- getBaseType
      mgu (valueToType v) bt
      return (tlit (fromList [] :=> bt) v)
 
-alg (Var n) =
+alg (Ann (VarLoc l) (Var n)) =
   do bt <- getBaseType
      (t, ps) <- listen (getTypeForName n)
      mgu t bt
      return (tvar (ps :=> bt) n)
 
-alg (App e1 e2) =
+alg (Ann AppLoc (App e1 e2)) =
   do t1 <- newTyVar 0
      (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyApp (TyApp (TyCon "->") t1) t, sv)) e1
      (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
@@ -44,7 +44,7 @@ alg (App e1 e2) =
      qt <- substituteQM ((ps1 `union` ps2) :=> bt)
      return (tapp qt e1' e2')
 
-alg (Lam n e) =
+alg (Ann (LamLoc l l') (Lam n e)) =
   do bt <- getBaseType
      t1 <- newTyVar 0
      t2 <- newTyVar 0
@@ -54,7 +54,7 @@ alg (Lam n e) =
      (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
      return (tlam (ps :=> t) n e')
 
-alg (IfThenElse p e1 e2) =
+alg (Ann (IfThenElseLoc l) (IfThenElse p e1 e2)) =
   do (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
      (e1', ps2) <- listen e1
      (subs, _) <- get
@@ -64,7 +64,7 @@ alg (IfThenElse p e1 e2) =
      let qt = substituteQ subs' ((ps1 `union` ps2 `union` ps3) :=> bt)
      return (tifThenElse qt p' e1' e2')
 
-alg (Let n e1 e2) =
+alg (Ann (LetLoc l l') (Let n e1 e2)) =
   do t <- newTyVar 0
      let (TyVar tn _) = t
      (e1', ps1) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
@@ -73,7 +73,7 @@ alg (Let n e1 e2) =
      bt <- getBaseType
      return (tleT ((ps1 `union` ps2) :=> bt) n e1' e2')
 
-alg (MkTuple es) =
+alg (Ann (TupleLoc l) (MkTuple es)) =
   do bt <- getBaseType
      ts <- mapM (const (newTyVar 0)) es
      let t = tupleCon ts

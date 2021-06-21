@@ -9,11 +9,11 @@ import FreeVariables (freeVars)
 import qualified Data.Graph as G
 
 getName :: Exp -> String
-getName (In (Let s _ _)) = s
+getName (In (Ann _ (Let s _ _))) = s
 getName _ = error "Expected a let binding"
 
 getDeps :: Set String -> Exp -> [String]
-getDeps globals e = toList xs
+getDeps globals e = toList (snd xs)
     where (In (Ann xs (Let _ _ _))) = freeVars globals e
 
 deps :: Set String -> [Exp] -> [(String, [String])]
