@@ -46,6 +46,8 @@ tokens :-
   \=                            {\p s -> TokenEq p }
   \\                            {\p s -> TokenLambda p }
   "++"                          {\p s -> TokenConcat p }
+  "&&"                          {\p s -> TokenAnd p }
+  "||"                          {\p s -> TokenOr p }
   [\+]                          {\p s -> TokenAdd p }
   [\-]                          {\p s -> TokenSub p }
   [\*]                          {\p s -> TokenMul p }
@@ -73,6 +75,8 @@ data Token
   | TokenSym (AlexPosn, String)
   | TokenArrow AlexPosn
   | TokenConcat AlexPosn
+  | TokenAnd AlexPosn
+  | TokenOr AlexPosn
   | TokenEq AlexPosn
   | TokenEql AlexPosn
   | TokenAdd AlexPosn

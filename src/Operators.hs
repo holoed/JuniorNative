@@ -35,13 +35,19 @@ eqeqOp :: ([Char], Integer, Fixity)
 eqeqOp   = ("==", 11, Infix Left) 
 
 gtOp :: ([Char], Integer, Fixity)
-gtOp     = (">", 10, Infix Left)
+gtOp     = (">", 10, Infix NonAssoc)
 
 ltOp :: ([Char], Integer, Fixity)
-ltOp     = ("<",  9, Infix Left)
+ltOp     = ("<",  9, Infix NonAssoc)
+
+andOp :: ([Char], Integer, Fixity)
+andOp = ("&&", 8, Infix Right)
+
+orOp :: ([Char], Integer, Fixity)
+orOp = ("||", 7, Infix Right)  
 
 lamOp :: ([Char], Integer, Fixity)
-lamOp    = ("->", 8, Infix Right)
+lamOp    = ("->", 6, Infix Right)
 
 minOp :: ([Char], Integer, Fixity)
 minOp    = ("<minimum-precedence-operator>", 0, Infix NonAssoc)

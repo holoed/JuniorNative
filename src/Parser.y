@@ -41,6 +41,8 @@ import Control.Monad.Except
     '->'  { TokenArrow $$ }
     '='   { TokenEq $$ }
     '=='  { TokenEql $$ }
+    '&&'  { TokenAnd $$ }
+    '||'  { TokenOr $$ }
     '++'  { TokenConcat $$ }
     '+'   { TokenAdd $$ }
     '-'   { TokenSub $$ }
@@ -53,6 +55,8 @@ import Control.Monad.Except
     ')'   { TokenRParen }
 
 -- Operators
+%right '||'
+%right '&&'
 %nonassoc '>' '<'
 %left '=='
 %left '+' '-'
@@ -75,6 +79,8 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '-' Form               { infixApp (mkLoc $2) subOp $1 $3 }
      | Form '*' Form               { infixApp (mkLoc $2) mulOp $1 $3 }
      | Form '/' Form               { infixApp (mkLoc $2) divOp $1 $3 }
+     | Form '&&' Form              { infixApp (mkLoc $2) andOp $1 $3 }
+     | Form '||' Form              { infixApp (mkLoc $2) orOp $1 $3 }
      | Form '==' Form              { infixApp (mkLoc $2) eqeqOp $1 $3 }
      | Form '>' Form               { infixApp (mkLoc $2) gtOp $1 $3 }
      | Form '<' Form               { infixApp (mkLoc $2) ltOp $1 $3 }

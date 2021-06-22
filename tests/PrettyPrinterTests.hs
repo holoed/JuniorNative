@@ -78,6 +78,12 @@ tests =
     it "Print Associativity" $ do
       ["2 + 3 > 1 + 2"] --> ["2 + 3 > 1 + 2"]
       ["xs ++ ys == ys ++ xs"] --> ["xs ++ ys == ys ++ xs"]
+      ["3 > 2 && 4 < 5"] --> ["3 > 2 && 4 < 5"]
+      ["3 > 2 || 4 < 5"] --> ["3 > 2 || 4 < 5"]
+      ["3 > 2 || 4 < 5 && 2 > 3 || 4 > 5"] --> ["3 > 2 || 4 < 5 && 2 > 3 || 4 > 5"]
+      ["(True || False) && (True || False)"] --> ["(True || False) && (True || False)"]
+      ["True || False && True || False"] --> ["True || False && True || False"]
+      ["True || (False && True) || False"] --> ["True || False && True || False"]
 
 
 
