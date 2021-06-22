@@ -4,27 +4,27 @@ import Fixpoint ( Fix(In) )
 import Types ( Type, Qual )
 import Annotations ( Ann(..) )
 import Primitives ( Prim )
-import Ast (ExpF(Lit, Var, App, Lam, Let, IfThenElse, MkTuple), ExpF)
+import Ast (ExpF(Lit, Var, App, Lam, Let, IfThenElse, MkTuple), ExpF, ExpLoc(..), Loc)
 
-type TypedExp = Fix (Ann (Qual Type) ExpF)
+type TypedExp = Fix (Ann (ExpLoc, Qual Type) ExpF)
 
-tlit :: Qual Type -> Prim -> TypedExp
-tlit t v = In (Ann t (Lit v))
+tlit :: Loc -> Qual Type -> Prim -> TypedExp
+tlit l t v = In (Ann (LitLoc l, t) (Lit v))
 
-tvar :: Qual Type -> String -> TypedExp
-tvar t s = In (Ann t (Var s))
+tvar :: Loc -> Qual Type -> String -> TypedExp
+tvar l t s = In (Ann (VarLoc l, t) (Var s))
 
 tapp :: Qual Type -> TypedExp -> TypedExp -> TypedExp
-tapp t e1 e2 = In (Ann t (App e1 e2))
+tapp t e1 e2 = In (Ann (AppLoc, t) (App e1 e2))
 
-tlam :: Qual Type -> String -> TypedExp -> TypedExp
-tlam t s e = In (Ann t (Lam s e))
+tlam :: Loc -> Qual Type -> (String, Loc) -> TypedExp -> TypedExp
+tlam l t (s, l') e = In (Ann (LamLoc l l', t) (Lam s e))
 
-tleT :: Qual Type -> String -> TypedExp -> TypedExp -> TypedExp
-tleT t s v b = In (Ann t (Let s v b))
+tleT :: Loc -> Qual Type -> (String, Loc) -> TypedExp -> TypedExp -> TypedExp
+tleT l t (s, l') v b = In (Ann (LetLoc l l', t) (Let s v b))
 
-tifThenElse :: Qual Type -> TypedExp -> TypedExp -> TypedExp -> TypedExp
-tifThenElse t p e1 e2 = In (Ann t (IfThenElse p e1 e2))
+tifThenElse :: Loc -> Qual Type -> TypedExp -> TypedExp -> TypedExp -> TypedExp
+tifThenElse l t p e1 e2 = In (Ann (IfThenElseLoc l, t) (IfThenElse p e1 e2))
 
-tmkTuple :: Qual Type -> [TypedExp] -> TypedExp
-tmkTuple t xs = In (Ann t (MkTuple xs))
+tmkTuple :: Loc -> Qual Type -> [TypedExp] -> TypedExp
+tmkTuple l t xs = In (Ann (TupleLoc l, t) (MkTuple xs))

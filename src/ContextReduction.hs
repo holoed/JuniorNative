@@ -47,8 +47,9 @@ toHnfs classEnv ps = do pss <- mapM (toHnf classEnv) ps
 
 resolvePreds :: [Qual Pred] -> TypedExp -> TypeM TypedExp
 resolvePreds classEnv =  cataRec alg
-    where alg (Ann qt x) = do (subs, _) <- get
-                              let (ps :=> t) = substituteQ subs qt
-                              ps' <- toHnfs classEnv (toList ps)
-                              y <- sequenceA (Ann (fromList ps' :=> t) x)
-                              return $ In y
+    where alg (Ann (l, qt) x) = do 
+            (subs, _) <- get
+            let (ps :=> t) = substituteQ subs qt
+            ps' <- toHnfs classEnv (toList ps)
+            y <- sequenceA (Ann (l, fromList ps' :=> t) x)
+            return $ In y

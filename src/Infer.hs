@@ -2,7 +2,7 @@ module Infer where
 
 import Data.Map (empty)
 import Data.Set (fromList, insert, union)
-import Monads ( local, get, listen, run )
+import Monads ( local, get, listen, run, throwError )
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
 import RecursionSchemes ( cataRec )
@@ -28,13 +28,13 @@ alg :: Ann ExpLoc ExpF (TypeM TypedExp) -> TypeM TypedExp
 alg (Ann (LitLoc l) (Lit v)) =
   do bt <- getBaseType
      mgu (valueToType v) bt
-     return (tlit (fromList [] :=> bt) v)
+     return (tlit l (fromList [] :=> bt) v)
 
 alg (Ann (VarLoc l) (Var n)) =
   do bt <- getBaseType
      (t, ps) <- listen (getTypeForName n)
      mgu t bt
-     return (tvar (ps :=> bt) n)
+     return (tvar l (ps :=> bt) n)
 
 alg (Ann AppLoc (App e1 e2)) =
   do t1 <- newTyVar 0
@@ -52,7 +52,7 @@ alg (Ann (LamLoc l l') (Lam n e)) =
      mgu t bt
      let (TyVar t1n _) = t1
      (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
-     return (tlam (ps :=> t) n e')
+     return (tlam l (ps :=> t) (n, l') e')
 
 alg (Ann (IfThenElseLoc l) (IfThenElse p e1 e2)) =
   do (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
@@ -62,7 +62,7 @@ alg (Ann (IfThenElseLoc l) (IfThenElse p e1 e2)) =
      (subs', _) <- get
      bt <- getBaseType
      let qt = substituteQ subs' ((ps1 `union` ps2 `union` ps3) :=> bt)
-     return (tifThenElse qt p' e1' e2')
+     return (tifThenElse l qt p' e1' e2')
 
 alg (Ann (LetLoc l l') (Let n e1 e2)) =
   do t <- newTyVar 0
@@ -71,7 +71,7 @@ alg (Ann (LetLoc l l') (Let n e1 e2)) =
      (subs, _) <- get
      (e2', ps2) <- listen $ local (\(env, bt, sv) -> (addScheme n (generalise sv (substituteQ subs (ps1 :=> t))) env, bt, sv)) e2
      bt <- getBaseType
-     return (tleT ((ps1 `union` ps2) :=> bt) n e1' e2')
+     return (tleT l ((ps1 `union` ps2) :=> bt) (n, l') e1' e2')
 
 alg (Ann (TupleLoc l) (MkTuple es)) =
   do bt <- getBaseType
@@ -79,12 +79,14 @@ alg (Ann (TupleLoc l) (MkTuple es)) =
      let t = tupleCon ts
      mgu t bt
      (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
-     return (tmkTuple (ps :=> t) es')
+     return (tmkTuple l (ps :=> t) es')
+
+alg _ = throwError "Undefined"
 
 infer :: [Qual Pred] -> Env -> Exp -> Either String (Substitutions, Qual Type)
 infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
   where
-        f (In(Ann qt _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . substituteQ subs) qt)
+        f (In(Ann (_, qt) _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . substituteQ subs) qt)
         m = cataRec alg e
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])

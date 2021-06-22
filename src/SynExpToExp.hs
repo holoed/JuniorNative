@@ -47,3 +47,4 @@ fromExp = cataRec alg
           alg (Ann (Ast.LamLoc l l') (Ast.Lam s e)) = PAst.lam (toSynLoc l) [(toSynLoc l', s)] e
           alg (Ann (Ast.LetLoc l l') (Ast.Let s e1 e2)) = PAst.leT (toSynLoc l) [(toSynLoc l', s)] e1 e2
           alg (Ann (Ast.IfThenElseLoc l) (Ast.IfThenElse p e1 e2)) = PAst.ifThenElse (toSynLoc l) p e1 e2
+          alg _ = error "Undefined"
