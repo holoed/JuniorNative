@@ -99,7 +99,7 @@ tests =
       ["if True then 5 else False"] --> "Cannot find class instance for Num Bool"
       ["if True then True else 5"] -->  "Cannot find class instance for Num Bool"
       ["if 5 then True else False"] --> "Cannot find class instance for Num Bool"
-      ["if \"5\" then True else False"] --> "Unable to unify String with Bool"
+      ["if \"5\" then True else False"] --> "Unable to unify String with Bool at line 1 column 4"
 
     it "type of tuple" $ do
       ["(2, True)"] --> "Num a => (a, Bool)"
@@ -149,7 +149,10 @@ tests =
        "                                      (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort"] --> "Ord a => List a -> List a"
 
     it "Apply function with wrong tuple arity" $ do
-      ["let f x = (fst x, snd x) in f (1, 2, 3)"] --> "Unable to unify Tuple T11 with Tuple"
+      ["let f x = (fst x, snd x) in f (1, 2, 3)"] --> "Unable to unify Tuple T11 with Tuple at line 1 column 31"
 
     it "Equality of tuples" $ do
       ["let f x y = (x, y) == (x, y) in f"] --> "(Eq a, Eq b) => a -> b -> Bool"
+
+    it "Equality of tuples Error" $ do
+      ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T12 with Tuple at line 1 column 25"  

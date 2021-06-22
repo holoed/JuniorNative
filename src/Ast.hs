@@ -6,13 +6,15 @@ module Ast where
 
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
-import Data.Map ( Map ) 
 import Annotations ( Ann(..) )
 
 data Loc = Loc !Int  -- absolute character offset
                !Int  -- line number
                !Int  -- column number 
-               deriving (Show, Eq)
+               deriving Eq
+
+instance Show Loc where 
+    show (Loc _ l c) = "line " ++ show l ++ " column " ++ show c
 
 data ExpLoc = LitLoc Loc
             | VarLoc Loc
@@ -21,7 +23,11 @@ data ExpLoc = LitLoc Loc
             | LamLoc Loc Loc
             | LetLoc Loc Loc
             | IfThenElseLoc Loc
-            deriving (Show, Eq)
+            deriving (Eq, Show)
+
+extractLoc :: ExpLoc -> Loc
+extractLoc (VarLoc l) = l
+extractLoc _ = error "undefined"
 
 data ExpF a = Lit Prim
             | Var String

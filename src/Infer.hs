@@ -27,13 +27,13 @@ valueToType U     = TyCon "()"
 alg :: Ann ExpLoc ExpF (TypeM TypedExp) -> TypeM TypedExp
 alg (Ann (LitLoc l) (Lit v)) =
   do bt <- getBaseType
-     mgu (valueToType v) bt
+     mgu l (valueToType v) bt
      return (tlit l (fromList [] :=> bt) v)
 
 alg (Ann (VarLoc l) (Var n)) =
   do bt <- getBaseType
      (t, ps) <- listen (getTypeForName n)
-     mgu t bt
+     mgu l t bt
      return (tvar l (ps :=> bt) n)
 
 alg (Ann AppLoc (App e1 e2)) =
@@ -49,7 +49,7 @@ alg (Ann (LamLoc l l') (Lam n e)) =
      t1 <- newTyVar 0
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t1) t2
-     mgu t bt
+     mgu l t bt
      let (TyVar t1n _) = t1
      (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
      return (tlam l (ps :=> t) (n, l') e')
@@ -77,7 +77,7 @@ alg (Ann (TupleLoc l) (MkTuple es)) =
   do bt <- getBaseType
      ts <- mapM (const (newTyVar 0)) es
      let t = tupleCon ts
-     mgu t bt
+     mgu l t bt
      (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
      return (tmkTuple l (ps :=> t) es')
 
