@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 module SynExpToExp where
 
 import qualified Ast
@@ -26,7 +27,7 @@ toExp = cataRec alg
           alg (Ann (PAst.LetLoc l l') (PAst.Let [s] e1 e2)) =
               Ast.leT (mkLoc l) (s, mkLoc $ l'!s) e1 e2
           alg (Ann (PAst.LetLoc l l') (PAst.Let (s:ss) e1 e2)) =
-              Ast.leT (mkLoc l) (s, mkLoc $ l'!s) (foldr (Ast.lam (mkLoc l)) e1 ((\s -> (s, mkLoc $ l'!s)) <$> ss)) e2
+              Ast.leT (mkLoc l) (s, mkLoc $ l'!s) (foldr (Ast.lam (mkLoc l)) e1 ((, mkLoc $ l'!s) <$> ss)) e2
           alg (Ann (PAst.IfThenElseLoc l) (PAst.IfThenElse p e1 e2)) = Ast.ifThenElse (mkLoc l) p e1 e2
           alg _ = error "Undefined"
 
