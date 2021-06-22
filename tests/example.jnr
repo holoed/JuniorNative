@@ -6,17 +6,48 @@ let foldr f v xs =
   if (null xs) then v
   else f (hd xs) (foldr f v (tl xs))
   
- let concat xs ys = foldr cons ys xs
+let concat xs ys = foldr cons ys xs
  
- let join = foldl concat empty
+let join = foldl concat empty
  
- let map f = foldr (\x xs -> cons (f x) xs) empty
+let map f = foldr (\x xs -> cons (f x) xs) empty
  
- let bind f xs = join (map f xs)
+let bind f xs = join (map f xs)
 
- let sum xs = foldl (\x y -> x + y) 0 xs
+let sum xs = foldl (\x y -> x + y) 0 xs
  
- let product xs = foldl (\x y -> x * y) 1 xs
+let product xs = foldl (\x y -> x * y) 1 xs
  
- let filter p = foldr (\x xs -> if (p x) then cons x xs else xs) empty 
+let filter p = foldr (\x xs -> if (p x) then cons x xs else xs) empty 
+
+let foldr f v xs = 
+    if (null xs) then v 
+    else f (hd xs) (foldr f v (tl xs)) 
+        
+let concat xs ys = foldr cons ys xs
+        
+let singleton x = cons x empty
+        
+let quicksort f xs =
+    if (null xs) then xs else  
+    let pivot = hd xs in
+    let rest = tl xs in
+    let lessThan = filter (\x -> f x < f pivot) rest in 
+    let greaterThan = filter (\x -> f x > f pivot) rest in
+    concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
+    
+let reverse xs = foldl (\xs x -> cons x xs) empty xs
+
+let range f startIndex endIndex = 
+	let range' acc endIndex = 
+    	if startIndex > endIndex then acc
+        else range' (cons (f endIndex) acc) (endIndex - 1) in
+    range' empty endIndex
+    
+let partition n xs = 
+	let partition' n acc xs = 
+    	if (n == 0 || null xs) then (reverse acc, xs)
+        else partition' (n - 1) (cons (hd xs) acc) (tl xs) in
+    partition' n empty xs 
+       
  

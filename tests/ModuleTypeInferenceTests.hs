@@ -21,6 +21,8 @@ env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
             ("/",  Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
             (">",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
             ("<",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
+            ("&&",  Set.fromList [] :=> tyLam (TyCon "Bool") (tyLam (TyCon "Bool") (TyCon "Bool"))),
+            ("||",  Set.fromList [] :=> tyLam (TyCon "Bool") (tyLam (TyCon "Bool") (TyCon "Bool"))),           
             ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
             ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
             ("null", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
@@ -83,13 +85,19 @@ tests =
                               ("quicksort","Ord a => (b -> a) -> List b -> List b")]
 
     it "Complex example" $ "tests/example.jnr" ---> [
-      ("foldr","(a -> b -> b) -> b -> List a -> b"),
-      ("concat","List a -> List a -> List a"),
-      ("foldl","(a -> b -> a) -> a -> List b -> a"),
-      ("join","List List a -> List a"),
-      ("map","(a -> b) -> List a -> List b"),
-      ("bind","(a -> List b) -> List a -> List b"),
-      ("filter","(a -> Bool) -> List a -> List a"),
-      ("product","Num a => List a -> a"),
-      ("sum","Num a => List a -> a")
-     ]
+        ("foldl","(a -> b -> a) -> a -> List b -> a"),
+        ("join","List List a -> List a"),
+        ("map","(a -> b) -> List a -> List b"),
+        ("bind","(a -> List b) -> List a -> List b"),
+        ("concat","List a -> List a -> List a"),
+        ("filter","(a -> Bool) -> List a -> List a"),
+        ("foldr","(a -> b -> b) -> b -> List a -> b"),
+        ("reverse","List a -> List a"),
+        ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
+        ("product","Num a => List a -> a"),
+        ("singleton","a -> List a"),
+        ("quicksort","Ord a => (b -> a) -> List b -> List b"),
+        ("range","(Num a, Ord a) => (a -> b) -> a -> a -> List b"),
+        ("sum","Num a => List a -> a")
+       ]
+
