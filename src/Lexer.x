@@ -7,7 +7,7 @@ module Lexer (
   scanTokens
 ) where
 
-import PAst
+import PAst ()
 import Primitives
 
 import Control.Monad.Except

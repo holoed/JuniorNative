@@ -23,4 +23,4 @@ mgu l a b =
 
 mguPred :: Loc -> Pred -> Pred -> TypeM ()
 mguPred l (IsIn n1 t1) (IsIn n2 t2) | n1 == n2 = mgu l t1 t2
-mguPred l _ _ = throwError "Classes Differ"
+mguPred _ _ _ = throwError "Classes Differ"
