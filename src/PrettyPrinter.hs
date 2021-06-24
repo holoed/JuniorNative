@@ -1,14 +1,14 @@
 module PrettyPrinter where
 
 import Primitives ( Prim(U, I, D, B, S) )
-import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, Lam, InfixApp, MkTuple, Let) )
+import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, Let) )
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Data.List ( intersperse )
 import Text.PrettyPrint ( (<+>), (<>), char, hcat, parens, render, text, Doc )
 import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
 import Prelude hiding (Left, Right, (<>), pi)
-import Annotations ( unwrap ) 
+import Annotations ( unwrap )
 
 parenthesize :: Doc -> Doc
 parenthesize d = text "(" <> d <> text ")"
@@ -38,12 +38,15 @@ alg (Lit (S s)) =
    return $ text s
 alg (Lit U) =
    return $ text "()"
+alg (VarPat x) =
+   return $ text x
 alg (Var x) =
    return $ text x
-alg (Lam [n] e) = do
+alg (Lam ns e) = do
+  ns' <- sequence ns
   e' <- e
   _ <- tell [lamOp]
-  return $ char '\\' <> text n <+> text "->" <+> e'
+  return $ char '\\' <> head ns' <+> text "->" <+> e'
 alg (InfixApp op@(opName, _, _) e1 e2) = do
     (e1', l) <- listen e1
     (e2', r) <- listen e2
@@ -54,17 +57,20 @@ alg (MkTuple es) = do
   es' <- sequence es
   return $ parens $ hcat $ intersperse (text ", ") es'
 alg (Let [n] v b) = do
+  n' <- n
   v' <- v
   b' <- b
   _ <- tell [minOp]
-  if b' == text n then return $ text "let" <+> text n <+> char '=' <+> v'
-  else return $ text "let" <+> text n <+> char '=' <+> v' <+> text "in" <+> b'
-alg (Let (n:xs) v b) = do
+  if b' == n' then return $ text "let" <+> n' <+> char '=' <+> v'
+  else return $ text "let" <+> n' <+> char '=' <+> v' <+> text "in" <+> b'
+alg (Let ns v b) = do
+  ns' <- sequence ns
+  let n:xs = ns'
   v' <- v
   b' <- b
   _ <- tell [minOp]
-  if b' == text n then return $ text "let" <+> text n <+> foldr (\x acc -> acc <+> text x) (text $ head xs) (tail xs) <+> char '=' <+> v'
-  else return $ text "let" <+> text n <+> foldr (\x acc -> acc <+> text x) (text $ head xs) (tail xs) <+> char '=' <+> v' <+> text "in" <+> b'
+  if b' == n then return $ text "let" <+> n <+> foldr (\x acc -> acc <+> x) (head xs) (tail xs) <+> char '=' <+> v'
+  else return $ text "let" <+> n <+> foldr (\x acc -> acc <+> x) (head xs) (tail xs) <+> char '=' <+> v' <+> text "in" <+> b'
 alg (IfThenElse q t f) = do
   q' <- q
   t' <- t

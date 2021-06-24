@@ -68,10 +68,10 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : let Vars '=' Expr           { defn (mkLoc $1) $2 $4 }
+Decl : let Pats '=' Expr           { defn (mkLoc $1) $2 $4 }
 
-Expr : let Vars '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
-     | '\\' Vars '->' Expr         { lam (mkLoc $1) $2 $4 }
+Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
+     | '\\' Pats '->' Expr         { lam (mkLoc $1) $2 $4 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Form                        { $1 }
 
@@ -101,8 +101,10 @@ Atom : '(' Expr ')'                { $2 }
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
-Vars : VAR                         { [(mkLoc $ fst $1, snd $1)] }
-     | VAR Vars                    { (mkLoc $ fst $1, snd $1) : $2 }
+Pat  : VAR                         { varPat (mkLoc (fst $1)) (snd $1) }
+
+Pats : Pat                         { [$1] }
+     | Pat Pats                    { $1 : $2 }
 
 {
 

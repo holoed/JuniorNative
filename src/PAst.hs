@@ -2,65 +2,60 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE DeriveFoldable #-}
 
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module PAst where
 
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
 import Operators ( Operator )
 import Annotations ( Ann(..) )
-import Data.Map ( Map, fromList )
-import Data.Tuple (swap)
 
 data Loc = Loc !Int  -- absolute character offset
                !Int  -- line number
-               !Int  -- column number
+               !Int  -- column number 
+               deriving Show
 
 zeroLoc :: Loc
 zeroLoc = Loc 0 0 0
 
-data SynLoc = LitLoc Loc
-            | VarLoc Loc
-            | TupleLoc Loc
-            | AppLoc
-            | InfixAppLoc Loc
-            | LamLoc Loc (Map String Loc)
-            | LetLoc Loc (Map String Loc)
-            | IfThenElseLoc Loc
-
 data SynExpF a = Lit Prim
                | Var String
+               | VarPat String
                | MkTuple [a]
                | App a a
                | InfixApp Operator a a
-               | Lam [String] a
-               | Let [String] a a
+               | Lam [a] a
+               | Let [a] a a
                | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
-type SynExp = Fix (Ann SynLoc SynExpF)
+type SynExp = Fix (Ann (Maybe Loc) SynExpF)
 
 lit :: Loc -> Prim -> SynExp
-lit l v = In (Ann (LitLoc l) (Lit v))
+lit l v = In (Ann (Just l) (Lit v))
 
 var :: Loc -> String -> SynExp
-var l s = In (Ann (VarLoc l) (Var s))
+var l s = In (Ann (Just l) (Var s))
+
+varPat :: Loc -> String -> SynExp
+varPat l s = In (Ann (Just l) (VarPat s))
 
 app :: SynExp -> SynExp -> SynExp
-app e1 e2 = In (Ann AppLoc (App e1 e2))
+app e1 e2 = In (Ann Nothing (App e1 e2))
 
 infixApp :: Loc -> Operator -> SynExp -> SynExp -> SynExp
-infixApp l op e1 e2 = In (Ann (InfixAppLoc l) (InfixApp op e1 e2))
+infixApp l op e1 e2 = In (Ann (Just l) (InfixApp op e1 e2))
 
-lam :: Loc -> [(Loc, String)] -> SynExp -> SynExp
-lam l s e = In (Ann (LamLoc l (fromList $ swap <$> s)) (Lam (snd <$> s) e))
+lam :: Loc -> [SynExp] -> SynExp -> SynExp
+lam l s e = In (Ann (Just l) (Lam s e))
 
-leT :: Loc -> [(Loc, String)] -> SynExp -> SynExp -> SynExp
-leT l s v b = In (Ann (LetLoc l (fromList $ swap <$> s)) (Let (snd <$> s) v b))
+leT :: Loc -> [SynExp] -> SynExp -> SynExp -> SynExp
+leT l s v b = In (Ann (Just l) (Let s v b))
 
 ifThenElse :: Loc -> SynExp -> SynExp -> SynExp -> SynExp
-ifThenElse l p e1 e2 = In (Ann (IfThenElseLoc l) (IfThenElse p e1 e2))
+ifThenElse l p e1 e2 = In (Ann (Just l) (IfThenElse p e1 e2))
 
 mkTuple :: Loc -> [SynExp] -> SynExp
-mkTuple l xs = In (Ann (TupleLoc l) (MkTuple xs))
+mkTuple l xs = In (Ann (Just l) (MkTuple xs))
 
-defn :: Loc -> [(Loc, String)] -> SynExp -> SynExp
-defn l s v = In (Ann (LetLoc l (fromList $ swap <$> s)) (Let (snd <$> s) v (var l $ head (snd <$> s))))
+defn :: Loc -> [SynExp] -> SynExp -> SynExp
+defn l (p@(In (Ann (Just l') (VarPat s))):ps) v = In (Ann (Just l) (Let (p:ps) v (var l' s)))
