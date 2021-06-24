@@ -48,17 +48,17 @@ alg (Ann Nothing  (App e1 e2)) =
      qt <- substituteQM ((ps1 `union` ps2) :=> bt)
      return (tapp qt e1' e2')
 
-alg (Ann (Just l) (Lam ps e)) =
-  do ps' <- sequence ps
-     let n = head $ getName <$> ps'
+alg (Ann (Just l) (Lam ns e)) =
+  do ns' <- sequence ns
+     let n = head $ getName <$> ns'
      bt <- getBaseType
      t1 <- newTyVar 0
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t1) t2
      mgu l t bt
      let (TyVar t1n _) = t1
-     (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
-     return (tlam l (ps :=> t) (head ps') e')
+     (e', ps'') <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
+     return (tlam l (ps'' :=> t) (head ns') e')
 
 alg (Ann (Just l) (IfThenElse p e1 e2)) =
   do (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
