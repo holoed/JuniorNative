@@ -7,8 +7,8 @@ import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
-import Ast ( Exp, ExpF(..), ExpLoc(..) )
-import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple )
+import Ast ( Exp, ExpF(..), Loc )
+import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), Pred, clean, deleteTautology )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, tupleCon )
 import Environment ( Env, addScheme )
@@ -18,6 +18,9 @@ import Unification ( mgu )
 import PrettyTypes ( prettyQ )
 import ContextReduction (resolvePreds)
 
+getName :: TypedExp -> String 
+getName (In (Ann _ (VarPat s))) = s
+
 valueToType :: Prim -> Type
 valueToType (I _) = intCon
 valueToType (D _) = doubleCon
@@ -25,19 +28,19 @@ valueToType (B _) = boolCon
 valueToType (S _) = strCon
 valueToType U     = TyCon "()"
 
-alg :: Ann ExpLoc ExpF (TypeM TypedExp) -> TypeM TypedExp
-alg (Ann (LitLoc l) (Lit v)) =
+alg :: Ann (Maybe Loc) ExpF (TypeM TypedExp) -> TypeM TypedExp
+alg (Ann (Just l) (Lit v)) =
   do bt <- getBaseType
      mgu l (valueToType v) bt
      return (tlit l (fromList [] :=> bt) v)
 
-alg (Ann (VarLoc l) (Var n)) =
+alg (Ann (Just l) (Var n)) =
   do bt <- getBaseType
      (t, ps) <- listen (getTypeForName n)
      mgu l t bt
      return (tvar l (ps :=> bt) n)
 
-alg (Ann AppLoc (App e1 e2)) =
+alg (Ann Nothing  (App e1 e2)) =
   do t1 <- newTyVar 0
      (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyApp (TyApp (TyCon "->") t1) t, sv)) e1
      (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
@@ -45,17 +48,19 @@ alg (Ann AppLoc (App e1 e2)) =
      qt <- substituteQM ((ps1 `union` ps2) :=> bt)
      return (tapp qt e1' e2')
 
-alg (Ann (LamLoc l l') (Lam n e)) =
-  do bt <- getBaseType
+alg (Ann (Just l) (Lam ps e)) =
+  do ps' <- sequence ps
+     let n = head $ getName <$> ps'
+     bt <- getBaseType
      t1 <- newTyVar 0
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t1) t2
      mgu l t bt
      let (TyVar t1n _) = t1
      (e', ps) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
-     return (tlam l (ps :=> t) (n, l') e')
+     return (tlam l (ps :=> t) (head ps') e')
 
-alg (Ann (IfThenElseLoc l) (IfThenElse p e1 e2)) =
+alg (Ann (Just l) (IfThenElse p e1 e2)) =
   do (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
      (e1', ps2) <- listen e1
      (subs, _) <- get
@@ -65,22 +70,28 @@ alg (Ann (IfThenElseLoc l) (IfThenElse p e1 e2)) =
      let qt = substituteQ subs' ((ps1 `union` ps2 `union` ps3) :=> bt)
      return (tifThenElse l qt p' e1' e2')
 
-alg (Ann (LetLoc l l') (Let n e1 e2)) =
-  do t <- newTyVar 0
+alg (Ann (Just l) (Let ps e1 e2)) =
+  do ps' <- sequence ps
+     let n = head $ getName <$> ps'
+     t <- newTyVar 0
      let (TyVar tn _) = t
      (e1', ps1) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
      (subs, _) <- get
      (e2', ps2) <- listen $ local (\(env, bt, sv) -> (addScheme n (generalise sv (substituteQ subs (ps1 :=> t))) env, bt, sv)) e2
      bt <- getBaseType
-     return (tleT l ((ps1 `union` ps2) :=> bt) (n, l') e1' e2')
+     return (tleT l ((ps1 `union` ps2) :=> bt) (head ps') e1' e2')
 
-alg (Ann (TupleLoc l) (MkTuple es)) =
+alg (Ann (Just l) (MkTuple es)) =
   do bt <- getBaseType
      ts <- mapM (const (newTyVar 0)) es
      let t = tupleCon ts
      mgu l t bt
      (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
      return (tmkTuple l (ps :=> t) es')
+
+alg (Ann (Just l) (VarPat s)) = do
+  t <- newTyVar 0
+  return $ tvarPat l (fromList [] :=> t) s
 
 alg _ = throwError "Undefined"
 

@@ -1,8 +1,8 @@
 module AlphaRename where
 
-import Ast ( Exp, ExpF(Let, Lam, Var), var, lam, leT, ExpLoc(..) )
+import Ast ( Exp, ExpF(Let, Lam, Var, VarPat), var, lam, leT, Loc )
 import Data.Map ( (!), empty, insert, lookup, member, Map )
-import Data.Maybe ( fromMaybe )
+import Data.Maybe ( fromMaybe, fromJust )
 import Control.Monad.Trans.Reader ( ask, local, ReaderT(runReaderT) )
 import Control.Monad.State ( evalState, State, MonadState(put, get) )
 import Fixpoint ( Fix(In) )
@@ -11,6 +11,9 @@ import Prelude hiding (lookup)
 import Annotations (Ann(..))
 
 type AlphaM = ReaderT (Map String String) (State (Int, Map String String))
+
+extractName :: Exp -> (Maybe Loc, String) 
+extractName (In (Ann l (VarPat s))) = (l, s)
 
 newName :: String -> AlphaM String
 newName s = do (index, names) <- get
@@ -21,19 +24,23 @@ newName s = do (index, names) <- get
                        put (index + 1, names')
                        return s'
 
-alg :: Ann ExpLoc ExpF (AlphaM Exp) -> AlphaM Exp
-alg (Ann (LamLoc l l') (Lam x e)) = do x' <- newName x
-                                       e' <- local (insert x x') e
-                                       return $ lam l (x', l') e'
-alg (Ann (VarLoc l) (Var x)) = 
+alg :: Ann (Maybe Loc) ExpF (AlphaM Exp) -> AlphaM Exp
+alg (Ann (Just l) (Lam [p] e)) = do p' <- p
+                                    let x = extractName p'
+                                    x' <- newName (snd x)                                   
+                                    e' <- local (insert (snd x) x') e
+                                    return $ lam l [var (fromJust $ fst x) x'] e'
+alg (Ann (Just l) (Var x)) = 
                   do ctx <- ask
                      let x' = fromMaybe x (lookup x ctx)
                      return $ var l x'
-alg (Ann (LetLoc l l') (Let n v b)) = 
-                  do n' <- newName n
-                     v' <- local (insert n n') v
-                     b' <- local (insert n n') b
-                     return $ leT l (n', l') v' b'
+alg (Ann (Just l) (Let [p] v b)) = 
+                  do p' <- p
+                     let x = extractName p'
+                     x' <- newName (snd x) 
+                     v' <- local (insert (snd x) x') v
+                     b' <- local (insert (snd x) x') b
+                     return $ leT l [var (fromJust $ fst x) x'] v' b'
 alg x = fmap In (sequenceA x)
 
 rename :: Exp -> Exp

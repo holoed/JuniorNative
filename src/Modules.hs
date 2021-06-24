@@ -1,6 +1,6 @@
 module Modules where
 
-import Ast ( Exp, ExpF(Let) )
+import Ast ( Exp, ExpF(Let, VarPat) )
 import Fixpoint ( Fix(In) )
 import Infer ( infer )
 import Environment ( Env, toEnv )
@@ -15,7 +15,7 @@ import LiftNumbers ( liftN )
 import Annotations (Ann(..))
 
 bindingsDict :: [Exp] -> Map String Exp 
-bindingsDict es = Map.fromList ((\e@(In (Ann _ (Let s _ _))) -> (s, e)) <$> es)
+bindingsDict es = Map.fromList ((\e@(In (Ann _ (Let [In (Ann _ (VarPat s))] _ _))) -> (s, e)) <$> es)
 
 typeOfModule :: [Qual Pred] -> Env -> String -> [(String, String)] 
 typeOfModule classEnv env x = sortedRet

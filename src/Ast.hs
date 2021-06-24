@@ -16,46 +16,37 @@ data Loc = Loc !Int  -- absolute character offset
 instance Show Loc where 
     show (Loc _ l c) = "line " ++ show l ++ " column " ++ show c
 
-data ExpLoc = LitLoc Loc
-            | VarLoc Loc
-            | TupleLoc Loc
-            | AppLoc
-            | LamLoc Loc Loc
-            | LetLoc Loc Loc
-            | IfThenElseLoc Loc
-            deriving (Eq, Show)
-
-extractLoc :: ExpLoc -> Loc
-extractLoc (VarLoc l) = l
-extractLoc _ = error "undefined"
-
 data ExpF a = Lit Prim
             | Var String
+            | VarPat String
             | MkTuple [a]
             | App a a
-            | Lam String a
-            | Let String a a
+            | Lam [a] a
+            | Let [a] a a
             | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
-type Exp = Fix (Ann ExpLoc ExpF)
+type Exp = Fix (Ann (Maybe Loc) ExpF)
 
 lit :: Loc -> Prim -> Exp
-lit l v = In (Ann (LitLoc l) (Lit v))
+lit l v = In (Ann (Just l) (Lit v))
 
 var :: Loc -> String -> Exp
-var l s = In (Ann (VarLoc l) (Var s))
+var l s = In (Ann (Just l) (Var s))
+
+varPat :: Loc -> String -> Exp
+varPat l s = In (Ann (Just l) (VarPat s))
 
 app :: Exp -> Exp -> Exp
-app e1 e2 = In (Ann AppLoc (App e1 e2))
+app e1 e2 = In (Ann Nothing  (App e1 e2))
 
-lam :: Loc -> (String, Loc) -> Exp -> Exp
-lam l (s, l') e = In (Ann (LamLoc l l') (Lam s e))
+lam :: Loc -> [Exp] -> Exp -> Exp
+lam l ps e = In (Ann (Just l) (Lam ps e))
 
-leT :: Loc -> (String, Loc) -> Exp -> Exp -> Exp
-leT l (s, l') v b = In (Ann (LetLoc l l') (Let s v b))
+leT :: Loc -> [Exp] -> Exp -> Exp -> Exp
+leT l ps v b = In (Ann (Just l) (Let ps v b))
 
 ifThenElse :: Loc -> Exp -> Exp -> Exp -> Exp
-ifThenElse l p e1 e2 = In (Ann (IfThenElseLoc l) (IfThenElse p e1 e2))
+ifThenElse l p e1 e2 = In (Ann (Just l) (IfThenElse p e1 e2))
 
 mkTuple :: Loc -> [Exp] -> Exp
-mkTuple l xs = In (Ann (TupleLoc l) (MkTuple xs))
+mkTuple l xs = In (Ann (Just l) (MkTuple xs))

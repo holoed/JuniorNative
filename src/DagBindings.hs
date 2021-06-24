@@ -2,14 +2,14 @@ module DagBindings where
 
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
-import Ast (Exp, ExpF (Let, Let))
+import Ast (Exp, ExpF (Let, VarPat))
 import Data.Set (Set, toList)
 import Data.List (groupBy)
 import FreeVariables (freeVars)
 import qualified Data.Graph as G
 
 getName :: Exp -> String
-getName (In (Ann _ (Let s _ _))) = s
+getName (In (Ann _ (Let [In (Ann _ (VarPat s))] _ _))) = s
 getName _ = error "Expected a let binding"
 
 getDeps :: Set String -> Exp -> [String]
