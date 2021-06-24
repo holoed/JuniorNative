@@ -10,7 +10,7 @@ import Primitives ( Prim(..) )
 import Ast ( Exp, ExpF(..), ExpLoc(..) )
 import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), Pred, clean, deleteTautology )
-import BuiltIns ( boolCon, intCon, strCon, tupleCon )
+import BuiltIns ( boolCon, intCon, doubleCon, strCon, tupleCon )
 import Environment ( Env, addScheme )
 import Substitutions ( Substitutions, substitute, substituteQ )
 import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
@@ -20,6 +20,7 @@ import ContextReduction (resolvePreds)
 
 valueToType :: Prim -> Type
 valueToType (I _) = intCon
+valueToType (D _) = doubleCon
 valueToType (B _) = boolCon
 valueToType (S _) = strCon
 valueToType U     = TyCon "()"

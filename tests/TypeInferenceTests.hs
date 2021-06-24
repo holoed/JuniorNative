@@ -53,8 +53,10 @@ tests :: SpecWith ()
 tests =
   describe "Type Inference Tests" $ do
 
-    it "type of a literal 1" $ ["42"] --> "Num a => a"
-    it "type of a literal 2" $ ["\"Hello\""] --> "String"
+    it "type of a literal Int" $ ["42"] --> "Num a => a"
+    it "type of a literal Double" $ ["2.5"] --> "Fractional a => a"
+    it "type of a literal String" $ ["\"Hello\""] --> "String"
+    it "type of a literal Bool" $ ["True"] --> "Bool"
 
     it "type of a lambda" $
       ["\\x y -> x + y"] --> "Num a => a -> a -> a"

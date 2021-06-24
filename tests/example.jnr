@@ -83,4 +83,4 @@ let partition n xs =
     (re1 * re2 - im1 * im2, re1 * im2 + im1 * re2)
     
  let mPoint i c z = 
- 	if (i == 65 || norm z > 4) then i else mPoint (i + 1) c (cadd (cmul z z) c) 
+ 	if (i == 65 || norm z > 4.0) then i else mPoint (i + 1) c (cadd (cmul z z) c) 

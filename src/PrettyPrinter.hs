@@ -1,6 +1,6 @@
 module PrettyPrinter where
 
-import Primitives ( Prim(U, I, B, S) )
+import Primitives ( Prim(U, I, D, B, S) )
 import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, Lam, InfixApp, MkTuple, Let) )
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
@@ -29,6 +29,8 @@ bracket side outer (inner:_) doc =
 
 alg :: SynExpF (Writer [Operator] Doc) -> Writer [Operator] Doc
 alg (Lit (I v)) =
+   return $ text (show v)
+alg (Lit (D v)) =
    return $ text (show v)
 alg (Lit (B b)) =
    return $ text (show b)

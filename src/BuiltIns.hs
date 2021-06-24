@@ -8,6 +8,9 @@ boolCon = TyCon "Bool"
 intCon :: Type
 intCon = TyCon "Int" 
 
+doubleCon :: Type 
+doubleCon = TyCon "Double"
+
 strCon :: Type
 strCon = TyCon "String" 
 

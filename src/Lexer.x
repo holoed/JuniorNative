@@ -17,6 +17,22 @@ import Control.Monad.Except
 %wrapper "posn"
 
 $digit = 0-9
+$octit       = 0-7
+$hexit       = [$digit A-F a-f]
+
+@sign        = [\-\+]
+@decimal     = $digit+
+@octal       = $octit+
+@hexadecimal = $hexit+
+@exponent    = [eE] [\-\+]? @decimal
+
+@number      = @decimal
+             | @decimal \. @decimal @exponent?
+             | @decimal @exponent
+             | 0[oO] @octal
+             | 0[xX] @hexadecimal
+
+
 $alpha = [a-zA-Z]
 $eol   = [\n]
 $graphic = $printable # $white
@@ -39,7 +55,7 @@ tokens :-
   then                          {\p s -> TokenThen p }
   else                          {\p s -> TokenElse p }
   in                            {\p s -> TokenIn p }
-  $digit+                       {\p s -> TokenNum (p, (I $ read s)) }
+  @sign? @number                {\p s -> TokenNum (p, strToPrim s) }
   @string                       {\p s -> TokenString (p, (S s)) }
   "->"                          {\p s -> TokenArrow p }
   "=="                          {\p s -> TokenEql p }

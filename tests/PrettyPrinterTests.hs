@@ -24,6 +24,7 @@ tests =
 
     it "Print a lit" $ do
       ["42"] --> ["42"]
+      ["2.4"] --> ["2.4"]
       ["True"] --> ["True"]
       ["\"Hello\""] --> ["\"Hello\""]
 
