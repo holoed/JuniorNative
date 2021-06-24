@@ -20,6 +20,7 @@ toExp = cataRec alg
           alg (Ann (Just l) (PAst.Var s)) = Ast.var (mkLoc l) s
           alg (Ann (Just l) (PAst.VarPat s)) = Ast.varPat (mkLoc l) s
           alg (Ann (Just l) (PAst.MkTuple es)) = Ast.mkTuple (mkLoc l) es
+          alg (Ann (Just l) (PAst.TuplePat es)) = Ast.tuplePat (mkLoc l) es
           alg (Ann Nothing (PAst.App e1 e2)) = Ast.app e1 e2
           alg (Ann _ (PAst.InfixApp (" ",_,_) e1 e2)) = Ast.app e1 e2
           alg (Ann (Just l) (PAst.InfixApp (op, _, _) e1 e2)) =

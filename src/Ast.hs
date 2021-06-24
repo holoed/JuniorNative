@@ -20,6 +20,7 @@ data ExpF a = Lit Prim
             | Var String
             | VarPat String
             | MkTuple [a]
+            | TuplePat [a]
             | App a a
             | Lam [a] a
             | Let [a] a a
@@ -50,3 +51,6 @@ ifThenElse l p e1 e2 = In (Ann (Just l) (IfThenElse p e1 e2))
 
 mkTuple :: Loc -> [Exp] -> Exp
 mkTuple l xs = In (Ann (Just l) (MkTuple xs))
+
+tuplePat :: Loc -> [Exp] -> Exp
+tuplePat l xs = In (Ann (Just l) (TuplePat xs))

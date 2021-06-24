@@ -40,8 +40,8 @@ var l s = In (Ann (Just l) (Var s))
 varPat :: Loc -> String -> SynExp
 varPat l s = In (Ann (Just l) (VarPat s))
 
-tuplePat :: [SynExp] -> SynExp
-tuplePat xs = In (Ann Nothing (TuplePat xs))
+tuplePat :: Loc ->[SynExp] -> SynExp
+tuplePat l xs = In (Ann (Just l) (TuplePat xs))
 
 app :: SynExp -> SynExp -> SynExp
 app e1 e2 = In (Ann Nothing (App e1 e2))
