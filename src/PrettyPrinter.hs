@@ -1,7 +1,7 @@
 module PrettyPrinter where
 
 import Primitives ( Prim(U, I, D, B, S) )
-import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, Let) )
+import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, TuplePat, Let) )
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Data.List ( intersperse )
@@ -54,6 +54,9 @@ alg (InfixApp op@(opName, _, _) e1 e2) = do
     let opTxt = if opName == " " then opName else " " ++ opName ++ " "
     return (bracket Left op l e1' <> text opTxt <> bracket Right op r e2')
 alg (MkTuple es) = do
+  es' <- sequence es
+  return $ parens $ hcat $ intersperse (text ", ") es'
+alg (TuplePat es) = do
   es' <- sequence es
   return $ parens $ hcat $ intersperse (text ", ") es'
 alg (Let [n] v b) = do

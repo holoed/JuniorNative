@@ -101,7 +101,8 @@ Atom : '(' Expr ')'                { $2 }
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
-Pat  : VAR                         { varPat (mkLoc (fst $1)) (snd $1) }
+Pat  : '(' Pat ',' Pats ')'        { tuplePat ($2 : $4) }
+     | VAR                         { varPat (mkLoc (fst $1)) (snd $1) }
 
 Pats : Pat                         { [$1] }
      | Pat Pats                    { $1 : $2 }
