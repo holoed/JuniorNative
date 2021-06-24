@@ -50,4 +50,37 @@ let partition n xs =
         else partition' (n - 1) (cons (hd xs) acc) (tl xs) in
     partition' n empty xs 
        
- 
+ let split n xs = 
+ 	let split' acc xs = 
+    	if (null xs) then acc
+        else
+        	let pair = partition n xs in
+            split' (cons (fst pair) acc) (snd pair) in
+    reverse (split' empty xs)
+    
+ let posToCoord sz x =
+ 	let row = x / sz in
+    let col = x - sz * row in
+    (row, col)
+    
+ let norm pair = 
+ 	let re = fst pair in
+    let im = snd pair in
+    re * re + im * im
+    
+ let cadd p1 p2 = 
+ 	let re1 = fst p1 in
+    let im1 = snd p1 in
+    let re2 = fst p2 in
+    let im2 = snd p2 in
+    (re1 + re2, im1 + im2)
+    
+ let cmul p1 p2 =
+ 	let re1 = fst p1 in
+    let im1 = snd p1 in
+    let re2 = fst p2 in
+    let im2 = snd p2 in
+    (re1 * re2 - im1 * im2, re1 * im2 + im1 * re2)
+    
+ let mPoint i c z = 
+ 	if (i == 65 || norm z > 4) then i else mPoint (i + 1) c (cadd (cmul z z) c) 

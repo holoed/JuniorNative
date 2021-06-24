@@ -76,20 +76,25 @@ tests = do
                       |] --> [[("foldr",[])],[("concat",["foldr"]),("filter",["foldr"])],[("singleton",[])],[("quicksort",["concat","filter","singleton"])]]
                        
     it "Complex example" $ "tests/example.jnr" ---> [
-         [("foldr",[])],
-         [("concat",["foldr"])],
-         [("foldl",[])],
-         [("join",["concat","foldl"])],
-         [("map",["foldr"])],
-         [("bind",["join","map"])],
-         [("concat",["foldr"]),("filter",["foldr"])],
-         [("foldr",[])],
-         [("reverse",["foldl"])],
-         [("partition",["reverse","||"])],
-         [("product",["foldl"])],
-         [("singleton",[])],
-         [("quicksort",["concat","filter","singleton"])],
-         [("range",[])],
-         [("sum",["foldl"])]
+          [("foldr",[])],
+          [("concat",["foldr"])],
+          [("foldl",[])],
+          [("join",["concat","foldl"])],
+          [("map",["foldr"])],
+          [("bind",["join","map"])],
+          [("cadd",["fst","snd"]),("cmul",["fst","snd"])],
+          [("concat",["foldr"]),("filter",["foldr"])],
+          [("foldr",[])],
+          [("norm",["fst","snd"])],
+          [("mPoint",["cadd","cmul","norm","||"])],
+          [("reverse",["foldl"])],
+          [("partition",["reverse","||"])],
+          [("posToCoord",[])],
+          [("product",["foldl"])],
+          [("singleton",[])],
+          [("quicksort",["concat","filter","singleton"])],
+          [("range",[])],
+          [("split",["fst","partition","reverse","snd"])],
+          [("sum",["foldl"])]
         ]
 

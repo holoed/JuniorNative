@@ -89,15 +89,22 @@ tests =
         ("join","List List a -> List a"),
         ("map","(a -> b) -> List a -> List b"),
         ("bind","(a -> List b) -> List a -> List b"),
+        ("cadd","(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"),
+        ("cmul","Num a => (a, a) -> (a, a) -> (a, a)"),
         ("concat","List a -> List a -> List a"),
         ("filter","(a -> Bool) -> List a -> List a"),
         ("foldr","(a -> b -> b) -> b -> List a -> b"),
+        ("norm","Num a => (a, a) -> a"),
+        ("mPoint","(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"),
         ("reverse","List a -> List a"),
         ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
+        ("posToCoord","(Fractional a, Num a) => a -> a -> (a, a)"),
         ("product","Num a => List a -> a"),
         ("singleton","a -> List a"),
         ("quicksort","Ord a => (b -> a) -> List b -> List b"),
         ("range","(Num a, Ord a) => (a -> b) -> a -> a -> List b"),
+        ("split","(Eq a, Num a) => a -> List b -> List List b"),
         ("sum","Num a => List a -> a")
-       ]
+     ]
+
 
