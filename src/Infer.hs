@@ -8,7 +8,7 @@ import Annotations ( Ann(Ann) )
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Ast ( Exp, ExpF(..), Loc )
-import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat )
+import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat, ttuplePat )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), Pred, clean, deleteTautology )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, tupleCon )
 import Environment ( Env, addScheme )
@@ -18,8 +18,9 @@ import Unification ( mgu )
 import PrettyTypes ( prettyQ )
 import ContextReduction (resolvePreds)
 
-getName :: TypedExp -> String 
-getName (In (Ann _ (VarPat s))) = s
+getName :: TypedExp -> [String ]
+getName (In (Ann _ (VarPat s))) = [s]
+getName (In (Ann _ (TuplePat xs))) = xs >>= getName
 
 valueToType :: Prim -> Type
 valueToType (I _) = intCon
@@ -50,7 +51,7 @@ alg (Ann Nothing  (App e1 e2)) =
 
 alg (Ann (Just l) (Lam ns e)) =
   do ns' <- sequence ns
-     let n = head $ getName <$> ns'
+     let n = head $ ns' >>= getName 
      bt <- getBaseType
      t1 <- newTyVar 0
      t2 <- newTyVar 0
@@ -72,7 +73,7 @@ alg (Ann (Just l) (IfThenElse p e1 e2)) =
 
 alg (Ann (Just l) (Let ps e1 e2)) =
   do ps' <- sequence ps
-     let n = head $ getName <$> ps'
+     let n = head $ ps' >>= getName  
      t <- newTyVar 0
      let (TyVar tn _) = t
      (e1', ps1) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
@@ -92,6 +93,12 @@ alg (Ann (Just l) (MkTuple es)) =
 alg (Ann (Just l) (VarPat s)) = do
   t <- newTyVar 0
   return $ tvarPat l (fromList [] :=> t) s
+
+alg (Ann (Just l) (TuplePat ns)) = do
+  ns' <- sequence ns
+  ts <- mapM (const (newTyVar 0)) ns'
+  let t = tupleCon ts
+  return $ ttuplePat l (fromList [] :=> t) ns'
 
 alg _ = throwError "Undefined"
 
