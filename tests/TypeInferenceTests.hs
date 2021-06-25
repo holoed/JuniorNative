@@ -161,4 +161,5 @@ tests =
 
     it "Tuple pattern in lambda" $ do
       ["\\(x, y) -> (y, x)"] --> "(a, b) -> (b, a)"
-    --  ["\\(x, y, z) -> (y, x, z)"] --> "(a, b, c) -> (b, a, c)"
+      ["\\(x, y, z) -> (y, x, z)"] --> "(a, b, c) -> (b, a, c)"
+     -- ["\\(x1, x2, x3, x4) -> (x3, x1, x4, x2)"] --> "(a, b, c, d) -> (c, a, d, b)"
