@@ -56,12 +56,10 @@ alg (Ann (Just l) (Lam n e)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
      let nts = getNameAndTypes n'
      bt <- getBaseType
-     t1 <- newTyVar 0
      t2 <- newTyVar 0
-     mgu l t1 t0
-     let t = TyApp (TyApp (TyCon "->") t1) t2
+     let t = TyApp (TyApp (TyCon "->") t0) t2
      mgu l t bt
-     let (TyVar t1n _) = t1
+     let (TyVar t1n _) = t0
      (e', ps'') <- listen $ local (\(env, _, sv) ->
        (foldToScheme env nts, t2, insert t1n sv)) e
      return (tlam l (ps'' :=> t) n' e')
