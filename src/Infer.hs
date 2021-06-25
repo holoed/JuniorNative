@@ -100,8 +100,8 @@ alg (Ann (Just l) (VarPat s)) = do
 
 alg (Ann (Just l) (TuplePat ns)) = do
   ns' <- sequence ns
-  ts <- mapM (const (newTyVar 0)) ns'
-  let t = tupleCon ts
+  let nts = ns' >>= getNameAndTypes
+  let t = tupleCon ((\(_, _ :=> t) -> t) <$> nts)
   return $ ttuplePat l (fromList [] :=> t) ns'
 
 alg _ = throwError "Undefined"

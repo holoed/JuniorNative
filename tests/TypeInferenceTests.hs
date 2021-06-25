@@ -158,3 +158,7 @@ tests =
 
     it "Equality of tuples Error" $ do
       ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T12 with Tuple at line 1 column 25"  
+
+    it "Tuple pattern in lambda" $ do
+      ["\\(x, y) -> (y, x)"] --> "(a, b) -> (b, a)"
+    --  ["\\(x, y, z) -> (y, x, z)"] --> "(a, b, c) -> (b, a, c)"
