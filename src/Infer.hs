@@ -18,9 +18,9 @@ import Unification ( mgu )
 import PrettyTypes ( prettyQ )
 import ContextReduction (resolvePreds)
 
-getName :: TypedExp -> [String ]
-getName (In (Ann _ (VarPat s))) = [s]
-getName (In (Ann _ (TuplePat xs))) = xs >>= getName
+getNameAndTypes :: TypedExp -> [(String, Qual Type)]
+getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
+getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = xs >>= getNameAndTypes
 
 valueToType :: Prim -> Type
 valueToType (I _) = intCon
@@ -28,6 +28,9 @@ valueToType (D _) = doubleCon
 valueToType (B _) = boolCon
 valueToType (S _) = strCon
 valueToType U     = TyCon "()"
+
+foldToScheme :: Env ->  [(String, Qual Type)] -> Env
+foldToScheme = foldl (\env' (n, qt) -> addScheme n (Identity qt) env')
 
 alg :: Ann (Maybe Loc) ExpF (TypeM TypedExp) -> TypeM TypedExp
 alg (Ann (Just l) (Lit v)) =
@@ -49,17 +52,19 @@ alg (Ann Nothing  (App e1 e2)) =
      qt <- substituteQM ((ps1 `union` ps2) :=> bt)
      return (tapp qt e1' e2')
 
-alg (Ann (Just l) (Lam ns e)) =
-  do ns' <- sequence ns
-     let n = head $ ns' >>= getName 
+alg (Ann (Just l) (Lam n e)) =
+  do n'@(In (Ann (_, _ :=> t0) _)) <- n
+     let nts = getNameAndTypes n'
      bt <- getBaseType
      t1 <- newTyVar 0
      t2 <- newTyVar 0
+     mgu l t1 t0
      let t = TyApp (TyApp (TyCon "->") t1) t2
      mgu l t bt
      let (TyVar t1n _) = t1
-     (e', ps'') <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t1)) env, t2, insert t1n sv)) e
-     return (tlam l (ps'' :=> t) (head ns') e')
+     (e', ps'') <- listen $ local (\(env, _, sv) ->
+       (foldToScheme env nts, t2, insert t1n sv)) e
+     return (tlam l (ps'' :=> t) n' e')
 
 alg (Ann (Just l) (IfThenElse p e1 e2)) =
   do (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
@@ -71,16 +76,17 @@ alg (Ann (Just l) (IfThenElse p e1 e2)) =
      let qt = substituteQ subs' ((ps1 `union` ps2 `union` ps3) :=> bt)
      return (tifThenElse l qt p' e1' e2')
 
-alg (Ann (Just l) (Let ps e1 e2)) =
-  do ps' <- sequence ps
-     let n = head $ ps' >>= getName  
-     t <- newTyVar 0
-     let (TyVar tn _) = t
-     (e1', ps1) <- listen $ local (\(env, _, sv) -> (addScheme n (Identity (fromList [] :=> t)) env, t, insert tn sv)) e1
+alg (Ann (Just l) (Let n e1 e2)) =
+  do n'@(In (Ann (_, _ :=> t0) _)) <- n
+     let nts = getNameAndTypes n'
+     let (TyVar tn _) = t0
+     (e1', ps1) <- listen $ local (\(env, _, sv) -> 
+       (foldToScheme env nts, t0, insert tn sv)) e1
      (subs, _) <- get
-     (e2', ps2) <- listen $ local (\(env, bt, sv) -> (addScheme n (generalise sv (substituteQ subs (ps1 :=> t))) env, bt, sv)) e2
+     (e2', ps2) <- listen $ local (\(env, bt, sv) -> 
+       (foldl (\env' (n, ps2 :=> t3) -> addScheme n (generalise sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env nts, bt, sv)) e2
      bt <- getBaseType
-     return (tleT l ((ps1 `union` ps2) :=> bt) (head ps') e1' e2')
+     return (tleT l ((ps1 `union` ps2) :=> bt) n' e1' e2')
 
 alg (Ann (Just l) (MkTuple es)) =
   do bt <- getBaseType

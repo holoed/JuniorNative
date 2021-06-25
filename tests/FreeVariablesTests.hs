@@ -30,16 +30,16 @@ tests =
         In (Ann (Nothing , fromList ["f", "x"]) $ App (In (Ann (Just zeroLoc, fromList ["f"]) (Var "f"))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x"))))
 
     it "Free vars of a lambda" $ do
-      freeVars empty (lam zeroLoc [varPat zeroLoc "x"] (var zeroLoc "x")) `shouldBe` In (Ann (Just zeroLoc ,fromList []) (Lam [In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))] (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x")))))
-      freeVars empty (lam zeroLoc [varPat zeroLoc "x"] (lam zeroLoc [varPat zeroLoc "y"] (var zeroLoc "x"))) `shouldBe`
-        In (Ann (Just zeroLoc, fromList []) (Lam [In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))] (In (Ann (Just zeroLoc, fromList ["x"]) (Lam [In (Ann (Just zeroLoc, fromList ["y"]) (VarPat "y"))] (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x"))))))))
+      freeVars empty (lam zeroLoc (varPat zeroLoc "x") (var zeroLoc "x")) `shouldBe` In (Ann (Just zeroLoc ,fromList []) (Lam (In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x")))))
+      freeVars empty (lam zeroLoc (varPat zeroLoc "x") (lam zeroLoc (varPat zeroLoc "y") (var zeroLoc "x"))) `shouldBe`
+        In (Ann (Just zeroLoc, fromList []) (Lam (In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))) (In (Ann (Just zeroLoc, fromList ["x"]) (Lam (In (Ann (Just zeroLoc, fromList ["y"]) (VarPat "y"))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x"))))))))
 
     it "Free vars of a let" $ do
-      freeVars empty (leT zeroLoc [varPat zeroLoc "x"] (lit zeroLoc $ I 42) (var zeroLoc "x")) `shouldBe`
-        In (Ann (Just zeroLoc, fromList []) (Let [In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))] (In (Ann (Just zeroLoc, fromList []) (Lit $ I 42))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x")))))
-      freeVars empty (leT zeroLoc [varPat zeroLoc "x"] (lit zeroLoc $ I 42) (leT zeroLoc [varPat zeroLoc "y"] (lit zeroLoc $ I 24) (var zeroLoc "x"))) `shouldBe`
-        In (Ann (Just zeroLoc, fromList []) (Let [In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))] (In (Ann (Just zeroLoc, fromList []) (Lit $ I 42)))
-          (In (Ann (Just zeroLoc, fromList ["x"]) (Let [In (Ann (Just zeroLoc, fromList ["y"]) (VarPat "y"))] (In (Ann (Just zeroLoc, fromList []) (Lit $ I 24))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x"))))))))
+      freeVars empty (leT zeroLoc (varPat zeroLoc "x") (lit zeroLoc $ I 42) (var zeroLoc "x")) `shouldBe`
+        In (Ann (Just zeroLoc, fromList []) (Let (In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))) (In (Ann (Just zeroLoc, fromList []) (Lit $ I 42))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x")))))
+      freeVars empty (leT zeroLoc (varPat zeroLoc "x") (lit zeroLoc $ I 42) (leT zeroLoc (varPat zeroLoc "y") (lit zeroLoc $ I 24) (var zeroLoc "x"))) `shouldBe`
+        In (Ann (Just zeroLoc, fromList []) (Let (In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))) (In (Ann (Just zeroLoc, fromList []) (Lit $ I 42)))
+          (In (Ann (Just zeroLoc, fromList ["x"]) (Let (In (Ann (Just zeroLoc, fromList ["y"]) (VarPat "y"))) (In (Ann (Just zeroLoc, fromList []) (Lit $ I 24))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x"))))))))
 
     it "Free vars of if then else" $
       freeVars empty (ifThenElse zeroLoc (var zeroLoc "x") (var zeroLoc "y") (var zeroLoc "z")) `shouldBe`

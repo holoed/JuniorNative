@@ -25,22 +25,22 @@ newName s = do (index, names) <- get
                        return s'
 
 alg :: Ann (Maybe Loc) ExpF (AlphaM Exp) -> AlphaM Exp
-alg (Ann (Just l) (Lam [p] e)) = do p' <- p
-                                    let x = extractName p'
-                                    x' <- newName (snd x)                                   
-                                    e' <- local (insert (snd x) x') e
-                                    return $ lam l [var (fromJust $ fst x) x'] e'
+alg (Ann (Just l) (Lam p e)) = do p' <- p
+                                  let x = extractName p'
+                                  x' <- newName (snd x)                                   
+                                  e' <- local (insert (snd x) x') e
+                                  return $ lam l (var (fromJust $ fst x) x') e'
 alg (Ann (Just l) (Var x)) = 
                   do ctx <- ask
                      let x' = fromMaybe x (lookup x ctx)
                      return $ var l x'
-alg (Ann (Just l) (Let [p] v b)) = 
+alg (Ann (Just l) (Let p v b)) = 
                   do p' <- p
                      let x = extractName p'
                      x' <- newName (snd x) 
                      v' <- local (insert (snd x) x') v
                      b' <- local (insert (snd x) x') b
-                     return $ leT l [var (fromJust $ fst x) x'] v' b'
+                     return $ leT l (var (fromJust $ fst x) x') v' b'
 alg x = fmap In (sequenceA x)
 
 rename :: Exp -> Exp

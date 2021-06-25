@@ -9,7 +9,7 @@ import FreeVariables (freeVars)
 import qualified Data.Graph as G
 
 getName :: Exp -> String
-getName (In (Ann _ (Let [In (Ann _ (VarPat s))] _ _))) = s
+getName (In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) = s
 getName _ = error "Expected a let binding"
 
 getDeps :: Set String -> Exp -> [String]

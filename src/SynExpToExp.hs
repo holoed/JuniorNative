@@ -26,11 +26,11 @@ toExp = cataRec alg
           alg (Ann (Just l) (PAst.InfixApp (op, _, _) e1 e2)) =
               Ast.app (Ast.app (Ast.var (mkLoc l) op) e1) e2
           alg (Ann (Just l) (PAst.Lam ss e)) =
-              foldr (Ast.lam (mkLoc l)) e ((: []) <$> ss)
+              foldr (Ast.lam (mkLoc l)) e ss
           alg (Ann (Just l) (PAst.Let [s] e1 e2)) =
-              Ast.leT (mkLoc l) [s] e1 e2
+              Ast.leT (mkLoc l) s e1 e2
           alg (Ann (Just l) (PAst.Let (s:ss) e1 e2)) =
-              Ast.leT (mkLoc l) [s] (foldr (Ast.lam (mkLoc l)) e1 ((: []) <$> ss)) e2
+              Ast.leT (mkLoc l) s (foldr (Ast.lam (mkLoc l)) e1 ss) e2
           alg (Ann (Just l) (PAst.IfThenElse p e1 e2)) = Ast.ifThenElse (mkLoc l) p e1 e2
           alg x = error ("toExp error: " ++ show x)
 
@@ -51,7 +51,7 @@ fromExp = cataRec alg
           alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "<"))) e1))) e2)) = PAst.infixApp PAst.zeroLoc ltOp e1 e2
           alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "++"))) e1))) e2)) = PAst.infixApp PAst.zeroLoc plusplusOp e1 e2
           alg (Ann Nothing (Ast.App e1 e2)) = PAst.infixApp PAst.zeroLoc juxtaOp e1 e2
-          alg (Ann (Just l) (Ast.Lam s e)) = PAst.lam (toSynLoc l) s e
-          alg (Ann (Just l) (Ast.Let s e1 e2)) = PAst.leT (toSynLoc l) s e1 e2
+          alg (Ann (Just l) (Ast.Lam s e)) = PAst.lam (toSynLoc l) [s] e
+          alg (Ann (Just l) (Ast.Let s e1 e2)) = PAst.leT (toSynLoc l) [s] e1 e2
           alg (Ann (Just l) (Ast.IfThenElse p e1 e2)) = PAst.ifThenElse (toSynLoc l) p e1 e2
           alg x = error ("fromExp error: " ++ show x)

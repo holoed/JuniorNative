@@ -22,8 +22,8 @@ data ExpF a = Lit Prim
             | MkTuple [a]
             | TuplePat [a]
             | App a a
-            | Lam [a] a
-            | Let [a] a a
+            | Lam a a
+            | Let a a a
             | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type Exp = Fix (Ann (Maybe Loc) ExpF)
@@ -40,10 +40,10 @@ varPat l s = In (Ann (Just l) (VarPat s))
 app :: Exp -> Exp -> Exp
 app e1 e2 = In (Ann Nothing  (App e1 e2))
 
-lam :: Loc -> [Exp] -> Exp -> Exp
-lam l ps e = In (Ann (Just l) (Lam ps e))
+lam :: Loc -> Exp -> Exp -> Exp
+lam l p e = In (Ann (Just l) (Lam p e))
 
-leT :: Loc -> [Exp] -> Exp -> Exp -> Exp
+leT :: Loc -> Exp -> Exp -> Exp -> Exp
 leT l ps v b = In (Ann (Just l) (Let ps v b))
 
 ifThenElse :: Loc -> Exp -> Exp -> Exp -> Exp

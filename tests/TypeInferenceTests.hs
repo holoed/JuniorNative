@@ -151,10 +151,10 @@ tests =
        "                                      (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort"] --> "Ord a => List a -> List a"
 
     it "Apply function with wrong tuple arity" $ do
-      ["let f x = (fst x, snd x) in f (1, 2, 3)"] --> "Unable to unify Tuple T13 with Tuple at line 1 column 31"
+      ["let f x = (fst x, snd x) in f (1, 2, 3)"] --> "Unable to unify Tuple T12 with Tuple at line 1 column 31"
 
     it "Equality of tuples" $ do
       ["let f x y = (x, y) == (x, y) in f"] --> "(Eq a, Eq b) => a -> b -> Bool"
 
     it "Equality of tuples Error" $ do
-      ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T16 with Tuple at line 1 column 25"  
+      ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T15 with Tuple at line 1 column 25"  

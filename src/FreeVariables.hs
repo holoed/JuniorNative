@@ -37,22 +37,23 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
       (e1', fvs1) <- listen e1
       (e2', fvs2) <- listen e2
       return $ In (Ann (l, fvs1 `union` fvs2) $ App e1' e2')
-    alg (Ann l (Lam ps e')) = pass (do 
-      ps' <- sequence ps
-      let s' = head $ getName <$> ps'
+    alg (Ann l (Lam n e')) = pass (do 
+      n' <- n
+      let s' = getName n'
       (e'', fvs) <- listen e'
-      return (In (Ann (l, delete s' fvs) $ Lam ps' e''), delete s'))
-    alg (Ann l (Let ps v b)) = pass (do 
-       ps' <- sequence ps
-       let s' = head $ getName <$> ps'
+      return (In (Ann (l, delete s' fvs) $ Lam n' e''), delete s'))
+    alg (Ann l (Let n v b)) = pass (do 
+       n' <- n
+       let s' = getName n'
        (v', fvs1) <- listen v
        (b', fvs2) <- listen b
-       return (In (Ann (l, delete s' $ fvs1 `union` fvs2) $ Let ps' v' b'), delete s'))
+       return (In (Ann (l, delete s' $ fvs1 `union` fvs2) $ Let n' v' b'), delete s'))
     alg (Ann l (IfThenElse p e1 e2)) = do 
       (p', fvs1) <- listen p
       (e1',fvs2) <- listen e1
       (e2',fvs3) <- listen e2
       return $ In (Ann (l, fvs1 `union` fvs2 `union` fvs3) $ IfThenElse p' e1' e2')
+    alg _ = error "undefined"
 
 
 

@@ -21,10 +21,10 @@ tapp :: Qual Type -> TypedExp -> TypedExp -> TypedExp
 tapp t e1 e2 = In (Ann (Nothing , t) (App e1 e2))
 
 tlam :: Loc -> Qual Type -> TypedExp -> TypedExp -> TypedExp
-tlam l t p e = In (Ann (Just l, t) (Lam [p] e))
+tlam l t p e = In (Ann (Just l, t) (Lam p e))
 
 tleT :: Loc -> Qual Type -> TypedExp -> TypedExp -> TypedExp -> TypedExp
-tleT l t p v b = In (Ann (Just l, t) (Let [p] v b))
+tleT l t ps v b = In (Ann (Just l, t) (Let ps v b))
 
 tifThenElse :: Loc -> Qual Type -> TypedExp -> TypedExp -> TypedExp -> TypedExp
 tifThenElse l t p e1 e2 = In (Ann (Just l, t) (IfThenElse p e1 e2))
