@@ -20,6 +20,12 @@ toDoc (TyApp (TyApp (TyApp (TyCon "Tuple") t1) t2) t3) =
        x2 <- toDoc t2
        x3 <- toDoc t3
        return $ text "(" <> x1 <> text "," <+> x2 <> text "," <+> x3 <> text ")"
+toDoc (TyApp (TyApp (TyApp (TyApp (TyCon "Tuple") t1) t2) t3) t4) =
+    do x1 <- toDoc t1
+       x2 <- toDoc t2
+       x3 <- toDoc t3
+       x4 <- toDoc t4
+       return $ text "(" <> x1 <> text "," <+> x2 <> text "," <+> x3 <> text "," <+> x4 <> text ")"
 toDoc (TyApp (TyApp (TyCon "->") t1) t2) =
     do (x1, l) <- listen $ toDoc t1
        (x2, r) <- listen $ toDoc t2
