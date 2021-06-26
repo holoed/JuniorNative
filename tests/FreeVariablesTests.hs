@@ -27,12 +27,15 @@ tests =
       "x" --> In (Ann (fromList ["x"]) (Var "x"))
 
     it "Free vars of a tuple" $
-      freeVars empty (mkTuple zeroLoc [var zeroLoc "x", var zeroLoc "y"]) `shouldBe`
-        In (Ann (Just zeroLoc, fromList ["x", "y"]) $ MkTuple [In (Ann (Just zeroLoc, fromList ["x"]) (Var "x")), In (Ann (Just zeroLoc, fromList ["y"]) (Var "y"))])
+      "(x, y)" --> In (Ann (fromList ["x", "y"]) $ 
+        MkTuple [In (Ann (fromList ["x"]) (Var "x")), 
+                 In (Ann (fromList ["y"]) (Var "y"))])
 
     it "Free vars of an application" $
-      freeVars empty (app (var zeroLoc "f") (var zeroLoc "x")) `shouldBe`
-        In (Ann (Nothing , fromList ["f", "x"]) $ App (In (Ann (Just zeroLoc, fromList ["f"]) (Var "f"))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x"))))
+      "f x" -->
+        In (Ann (fromList ["f", "x"]) $ 
+          App (In (Ann (fromList ["f"]) (Var "f"))) 
+              (In (Ann (fromList ["x"]) (Var "x"))))
 
     it "Free vars of a lambda" $ do
       freeVars empty (lam zeroLoc (varPat zeroLoc "x") (var zeroLoc "x")) `shouldBe` In (Ann (Just zeroLoc ,fromList []) (Lam (In (Ann (Just zeroLoc, fromList ["x"]) (VarPat "x"))) (In (Ann (Just zeroLoc, fromList ["x"]) (Var "x")))))
