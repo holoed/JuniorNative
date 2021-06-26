@@ -144,3 +144,6 @@ tests =
     it "Tuple pattern in let function" $ do
       ["let f (x, y) = (y, x)"] --> "(a, b) -> (b, a)"
       ["let f (x, y, z) = (y, x, z)"] --> "(a, b, c) -> (b, a, c)"
+
+    it "Composition example" $
+      ["let f = toDouble . truncate"] --> "Double -> Double"

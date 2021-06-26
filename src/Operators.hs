@@ -16,6 +16,9 @@ maxOp    = ("<maximum-precedence-operator>", 99, Infix NonAssoc)
 juxtaOp :: ([Char], Integer, Fixity)
 juxtaOp  = (" ", 20, Infix Left)
 
+dotOp :: ([Char], Integer, Fixity)
+dotOp = (".", 16, Infix Right)
+
 mulOp :: ([Char], Integer, Fixity)
 mulOp    = ("*", 15, Infix Left)
 

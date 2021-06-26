@@ -73,6 +73,7 @@ tokens :-
   \(                            {\p s -> TokenLParen p }
   \)                            {\p s -> TokenRParen }
   ","                           {\p s -> TokenComma }
+  "."                           {\p s -> TokenDot p }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
 
 {
@@ -104,6 +105,7 @@ data Token
   | TokenLParen AlexPosn
   | TokenRParen
   | TokenComma
+  | TokenDot AlexPosn
   | TokenEOF
   deriving (Eq,Show)
 

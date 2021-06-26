@@ -53,15 +53,17 @@ import Control.Monad.Except
     ','   { TokenComma }
     '('   { TokenLParen $$ }
     ')'   { TokenRParen }
+    '.'   { TokenDot $$ }
 
 -- Operators
 %right '||'
 %right '&&'
 %nonassoc '>' '<'
 %left '=='
+%left '++'
 %left '+' '-'
 %left '*' '/'
-%left '++'
+%right '.'
 %%
 
 Decls : Expr                       { [$1] }
@@ -85,6 +87,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '>' Form               { infixApp (mkLoc $2) gtOp $1 $3 }
      | Form '<' Form               { infixApp (mkLoc $2) ltOp $1 $3 }
      | Form '++' Form              { infixApp (mkLoc $2) plusplusOp $1 $3}
+     | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
      | Fact                        { $1 }
 
 Fact : Fact Atom                   { infixApp (mkLoc alexStartPos) juxtaOp $1 $2 }
