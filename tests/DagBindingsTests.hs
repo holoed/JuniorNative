@@ -7,7 +7,7 @@ import SynExpToExp ( toExp )
 import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)
 import Test.Hspec ( it, describe, shouldBe, SpecWith )
-import System.IO
+import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 
 globals :: Set [Char]
 globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "hd", "tl", "null", "empty", "cons"]

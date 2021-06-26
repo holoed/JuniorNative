@@ -22,3 +22,6 @@ toScheme = ForAll Set.empty
 
 toEnv :: [(String, Qual Type)] -> Env
 toEnv = Map.map toScheme . Map.fromList
+
+concatEnvs :: Env -> Env -> Env
+concatEnvs x y = x `Map.union` y

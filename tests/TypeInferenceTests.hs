@@ -1,50 +1,26 @@
 {-# LANGUAGE QuasiQuotes #-}
-
 module TypeInferenceTests where
 
-import qualified Data.Set as Set
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
-import Types ( Type(..), Qual(..), Pred(..) )
-import Environment ( Env, toEnv )
+import Types ( Type(..), Qual(..) )
 import SynExpToExp ( toExp )
 import Infer (infer)
 import Parser (parseExpr)
 import Substitutions ( Substitutions )
 import LiftNumbers ( liftN )
+import qualified Data.Set as Set
+import Intrinsics ( tyLam, env, classEnv )
+import Environment (Env, toEnv, concatEnvs)
 
-tyLam :: Type -> Type -> Type
-tyLam t1 = TyApp (TyApp (TyCon "->") t1)
-
-env :: Env
-env = toEnv [("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
-            ("==", Set.fromList [IsIn "Eq" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
-            ("-",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
-            ("+",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
-            ("*",  Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
-            ("/",  Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
-            (">",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
-            ("<",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
-            ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
-            ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
-            ("filter", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyCon "Bool")) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-            ("hd", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
-            ("tl", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
-            ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
-            ("empty", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),
-            ("isEmpty", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
-            ("concat", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-            ("cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-            ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyCon "Int") (TyVar "a" 0)),
-            ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0))
-     ]
-
-classEnv :: [Qual Pred]
-classEnv = [
-  Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
-  ]
+env' :: Env
+env' = concatEnvs env $ toEnv [
+  ("concat", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+  ("filter", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyCon "Bool")) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+  ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0)))    
+ ]
 
 typeOf :: [String] -> Either String (Substitutions, Qual Type)
-typeOf s = parseExpr (unlines s) >>= (infer classEnv env . liftN . toExp . head)
+typeOf s = parseExpr (unlines s) >>= (infer classEnv env' . liftN . toExp . head)
 
 (-->) :: [String] -> String -> Expectation
 (-->) x y = either id (show . snd) (typeOf x) `shouldBe` y
@@ -132,7 +108,7 @@ tests =
       ["let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) "] --> "(Eq a, Num a, Num b) => a -> b"
 
     it "type of functions 6" $
-      ["let foldr f z xs = if isEmpty xs then z else f (hd xs) (foldr f z (tl xs))"] --> "(a -> b -> b) -> b -> List a -> b"
+      ["let foldr f z xs = if null xs then z else f (hd xs) (foldr f z (tl xs))"] --> "(a -> b -> b) -> b -> List a -> b"
 
     it "type of functions 6" $
       ["let f x = x in (f 5, f True)"] --> "Num a => (a, Bool)"
@@ -142,10 +118,10 @@ tests =
       ["let f x = let g y = (x, y) in (g 3, g True) in f"] --> "Num a => b -> ((b, a), (b, Bool))"
 
     it "type of functions 7" $
-      ["let map f xs = if isEmpty xs then empty else cons (f (hd xs)) (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
+      ["let map f xs = if null xs then empty else cons (f (hd xs)) (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
 
     it "type of functions 8" $
-      ["let qsort xs = if (isEmpty xs) then xs",
+      ["let qsort xs = if (null xs) then xs",
        "                  else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs)))",
        "                                      (singleton (hd xs)))",
        "                                      (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort"] --> "Ord a => List a -> List a"
@@ -157,7 +133,7 @@ tests =
       ["let f x y = (x, y) == (x, y) in f"] --> "(Eq a, Eq b) => a -> b -> Bool"
 
     it "Equality of tuples Error" $ do
-      ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T12 with Tuple at line 1 column 25"  
+      ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T12 with Tuple at line 1 column 25"
 
     it "Tuple pattern in lambda" $ do
       ["\\(x, y) -> (y, x)"] --> "(a, b) -> (b, a)"
