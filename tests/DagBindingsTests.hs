@@ -94,6 +94,6 @@ tests = do
           [("quicksort",["concat","filter","singleton"])],
           [("range",[])],
           [("split",["fst","partition","reverse","snd"])],
-          [("sum",["foldl"])]]
+          [("sum",["foldl"])]
         ]
 
