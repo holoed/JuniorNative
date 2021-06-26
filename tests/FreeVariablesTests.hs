@@ -1,25 +1,30 @@
 module FreeVariablesTests where
 
-import Test.Hspec ( describe, it, shouldBe, SpecWith )
+import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation)
 import Fixpoint ( Fix(In) )
-import Annotations ( Ann(Ann) )
+import Annotations ( Ann(Ann), mapAnn )
 import Primitives ( Prim(I) )
 import Ast ( lit, var, varPat, mkTuple, app, lam, leT, ifThenElse, ExpF(Lit, Var, VarPat, MkTuple, App, Lam, Let, IfThenElse), Loc(..) )
 import FreeVariables ( freeVars )
-import Data.Set ( empty, fromList )
+import Data.Set (Set(), empty, fromList )
+import Parser (parseExpr)
+import SynExpToExp (toExp)
+
+(-->) :: String -> Fix (Ann (Set String) ExpF) -> Expectation
+(-->) s v  = (mapAnn snd <$> either error (freeVars empty . toExp <$>) (parseExpr s)) `shouldBe` [v]
 
 zeroLoc :: Loc
 zeroLoc = Loc 0 0 0
 
 tests :: SpecWith ()
 tests =
-  describe "Free Variables Tests" $ do 
-    
+  describe "Free Variables Tests" $ do
+
     it "Free vars of a literal" $
-      freeVars empty (lit zeroLoc $ I 42) `shouldBe` In (Ann (Just zeroLoc, fromList []) (Lit $ I 42))
+      "42" --> In (Ann (fromList []) (Lit $ I 42))
 
     it "Free vars of a variable" $
-      freeVars empty (var zeroLoc "x") `shouldBe` In (Ann (Just zeroLoc, fromList ["x"]) (Var "x"))
+      "x" --> In (Ann (fromList ["x"]) (Var "x"))
 
     it "Free vars of a tuple" $
       freeVars empty (mkTuple zeroLoc [var zeroLoc "x", var zeroLoc "y"]) `shouldBe`
