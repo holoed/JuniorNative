@@ -75,17 +75,16 @@ tests = do
                         concat (concat (quicksort f lessThan) (singleton (hd xs))) (quicksort f greaterThan)
                       |] --> [[("foldr",[])],[("concat",["foldr"]),("filter",["foldr"])],[("singleton",[])],[("quicksort",["concat","filter","singleton"])]]
                        
-    it "Complex example" $ "tests/example.jnr" ---> [
+    it "Complex example" $ "tests/example.jnr" ---> [          
           [("foldr",[])],
           [("concat",["foldr"])],
           [("foldl",[])],
           [("join",["concat","foldl"])],
           [("map",["foldr"])],
           [("bind",["join","map"])],
-          [("cadd",["fst","snd"]),("cmul",["fst","snd"])],
+          [("cadd",[]),("cmul",[])],
           [("concat",["foldr"]),("filter",["foldr"])],
-          [("foldr",[])],
-          [("norm",["fst","snd"])],
+          [("foldr",[]),("norm",[])],
           [("mPoint",["cadd","cmul","norm","||"])],
           [("reverse",["foldl"])],
           [("partition",["reverse","||"])],
@@ -95,6 +94,6 @@ tests = do
           [("quicksort",["concat","filter","singleton"])],
           [("range",[])],
           [("split",["fst","partition","reverse","snd"])],
-          [("sum",["foldl"])]
+          [("sum",["foldl"])]]
         ]
 
