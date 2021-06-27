@@ -150,3 +150,6 @@ tests =
 
     it "Simplify predicate list according to class env inheritance" $
       ["let f x y = x == y && x > y"] --> "Ord a => a -> a -> Bool"
+
+    it "Type symbolic functions" $
+      ["let (++) x y = (x, y) in 2 ++ 3"] --> "(Num a, Num b) => (b, a)"

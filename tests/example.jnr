@@ -7,9 +7,9 @@ let foldr f v xs =
   if (null xs) then v
   else f (hd xs) (foldr f v (tl xs))
  
-let concat xs ys = foldr cons ys xs
+let (++) xs ys = foldr cons ys xs
  
-let join = foldl concat empty
+let join = foldl (\x y -> x ++ y) empty
  
 let map f = foldr (\x xs -> cons (f x) xs) empty
  
@@ -20,12 +20,6 @@ let sum xs = foldl (\x y -> x + y) 0 xs
 let product xs = foldl (\x y -> x * y) 1 xs
  
 let filter p = foldr (\x xs -> if (p x) then cons x xs else xs) empty
-
-let foldr f v xs =
-    if (null xs) then v
-    else f (hd xs) (foldr f v (tl xs))
-       
-let concat xs ys = foldr cons ys xs
        
 let singleton x = cons x empty
        
@@ -35,7 +29,7 @@ let quicksort f xs =
     let rest = tl xs in
     let lessThan = filter (\x -> f x < f pivot) rest in
     let greaterThan = filter (\x -> f x > f pivot) rest in
-    concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
+    (quicksort f lessThan) ++ (singleton pivot) ++ (quicksort f greaterThan)
    
 let reverse xs = foldl (\xs x -> cons x xs) empty xs
 

@@ -105,7 +105,9 @@ Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
 Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
+     | '(' '++' ')'                { varPat (mkLoc $2) "++" } -- Find better way to handle operators
      | VAR                         { varPat (mkLoc (fst $1)) (snd $1) }
+                       
 
 PatList : Pat                       { [$1] }
         | Pat ',' PatList           { $1 : $3 }

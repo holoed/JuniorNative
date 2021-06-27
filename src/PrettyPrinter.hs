@@ -39,9 +39,13 @@ alg (Lit (S s)) =
 alg (Lit U) =
    return $ text "()"
 alg (VarPat x) =
-   return $ text x
+   return $ if x == "++"
+   then text "(" <> text x <> text ")"
+   else text x
 alg (Var x) =
-   return $ text x
+   return $ if x == "++"
+   then text "(" <> text x <> text ")"
+   else text x
 alg (Lam ns e) = do
   ns' <- sequence ns
   e' <- e
@@ -72,8 +76,8 @@ alg (Let ns v b) = do
   v' <- v
   b' <- b
   _ <- tell [minOp]
-  if b' == n then return $ text "let" <+> n <+> foldr (\x acc -> acc <+> x) (head xs) (tail xs) <+> char '=' <+> v'
-  else return $ text "let" <+> n <+> foldr (\x acc -> acc <+> x) (head xs) (tail xs) <+> char '=' <+> v' <+> text "in" <+> b'
+  if b' == n then return $ text "let" <+> n <+> foldr (flip (<+>)) (head xs) (tail xs) <+> char '=' <+> v'
+  else return $ text "let" <+> n <+> foldr (flip (<+>)) (head xs) (tail xs) <+> char '=' <+> v' <+> text "in" <+> b'
 alg (IfThenElse q t f) = do
   q' <- q
   t' <- t
@@ -83,4 +87,4 @@ alg (IfThenElse q t f) = do
 alg _ = error "Undefined"
 
 pretty :: SynExp -> String
-pretty = render . (fst . runWriter . cataRec alg . unwrap)
+pretty = render . fst . runWriter . cataRec alg . unwrap

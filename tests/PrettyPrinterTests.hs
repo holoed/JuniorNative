@@ -86,5 +86,8 @@ tests =
       ["True || False && True || False"] --> ["True || False && True || False"]
       ["True || (False && True) || False"] --> ["True || False && True || False"]
 
+    it "Print symbol functions" $ do
+      ["let (++) x y = (x, y)"] --> ["let (++) = \\x -> \\y -> (x, y)"]
+
 
 
