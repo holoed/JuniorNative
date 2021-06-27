@@ -10,11 +10,10 @@ import Substitutions ( substitutePredicates, substituteQ )
 import Monads ( get, throwError, catchError )
 import Control.Monad ( msum )
 import Data.Set (toList, fromList)
-import Data.Maybe (fromJust)
+import Data.Maybe ( fromJust, maybeToList )
 import RecursionSchemes ( cataRec )
 import Ast (Loc)
 import Data.Map (Map, (!?))
-import Data.Maybe (maybeToList)
 
 -- Typing Haskell in Haskell Context Reduction
 -- https://web.cecs.pdx.edu/~mpj/thih/thih.pdf
@@ -60,11 +59,24 @@ toHnfs :: Loc -> ClassEnv -> [Pred] -> TypeM [Pred]
 toHnfs l classEnv ps = do pss <- mapM (toHnf l classEnv) ps
                           return (concat pss)
 
+bySuper :: ClassEnv -> Pred -> [Pred]
+bySuper ce p@(IsIn i t) =
+    p : concat [bySuper ce (IsIn i' t) | i' <- super ce i]
+
+entail :: ClassEnv -> [Pred] -> Pred -> Bool
+entail ce ps p = any ((p `elem`) . bySuper ce) ps
+
+simplify :: ClassEnv -> [Pred] -> [Pred]
+simplify ce = loop [ ]
+    where loop rs [ ] = rs
+          loop rs (p : ps) | entail ce (rs ++ ps) p = loop rs ps
+            | otherwise = loop (p : rs) ps
+
 resolvePreds :: ClassEnv -> TypedExp -> TypeM TypedExp
 resolvePreds classEnv = cataRec alg
     where alg (Ann (l, qt) x) = do
             (subs, _) <- get
             let (ps :=> t) = substituteQ subs qt
             ps' <- toHnfs (fromJust l) classEnv (toList ps)
-            y <- sequenceA (Ann (l, fromList ps' :=> t) x)
+            y <- sequenceA (Ann (l, fromList (simplify classEnv ps') :=> t) x)
             return $ In y

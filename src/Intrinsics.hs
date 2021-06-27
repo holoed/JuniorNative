@@ -41,7 +41,8 @@ env = toEnv [
 classEnv :: ClassEnv
 classEnv = ClassEnv { 
   classes = Map.fromList [
-     ("Eq", ([], [Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))]))
+     ("Eq", ([], [Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))])),
+     ("Ord", (["Eq"], []))
    ],
   defaults = [intCon, doubleCon]
 }

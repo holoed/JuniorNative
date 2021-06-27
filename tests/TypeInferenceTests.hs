@@ -147,3 +147,6 @@ tests =
 
     it "Composition example" $
       ["let f = toDouble . truncate"] --> "Double -> Double"
+
+    it "Simplify predicate list according to class env inheritance" $
+      ["let f x y = x == y && x > y"] --> "Ord a => a -> a -> Bool"
