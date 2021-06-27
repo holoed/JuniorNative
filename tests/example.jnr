@@ -1,11 +1,12 @@
+
 let foldl f v xs =
   if (null xs) then v
   else foldl f (f v (hd xs)) (tl xs)
 
-let foldr f v xs = 
+let foldr f v xs =
   if (null xs) then v
   else f (hd xs) (foldr f v (tl xs))
-  
+ 
 let concat xs ys = foldr cons ys xs
  
 let join = foldl concat empty
@@ -18,56 +19,64 @@ let sum xs = foldl (\x y -> x + y) 0 xs
  
 let product xs = foldl (\x y -> x * y) 1 xs
  
-let filter p = foldr (\x xs -> if (p x) then cons x xs else xs) empty 
+let filter p = foldr (\x xs -> if (p x) then cons x xs else xs) empty
 
-let foldr f v xs = 
-    if (null xs) then v 
-    else f (hd xs) (foldr f v (tl xs)) 
-        
+let foldr f v xs =
+    if (null xs) then v
+    else f (hd xs) (foldr f v (tl xs))
+       
 let concat xs ys = foldr cons ys xs
-        
+       
 let singleton x = cons x empty
-        
+       
 let quicksort f xs =
     if (null xs) then xs else  
     let pivot = hd xs in
     let rest = tl xs in
-    let lessThan = filter (\x -> f x < f pivot) rest in 
+    let lessThan = filter (\x -> f x < f pivot) rest in
     let greaterThan = filter (\x -> f x > f pivot) rest in
     concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
-    
+   
 let reverse xs = foldl (\xs x -> cons x xs) empty xs
 
-let range f startIndex endIndex = 
-	let range' acc endIndex = 
-    	if startIndex > endIndex then acc
+let range f startIndex endIndex =
+let range' acc endIndex =
+    if startIndex > endIndex then acc
         else range' (cons (f endIndex) acc) (endIndex - 1) in
     range' empty endIndex
-    
-let partition n xs = 
-	let partition' n acc xs = 
-    	if (n == 0 || null xs) then (reverse acc, xs)
+   
+let partition n xs =
+let partition' n acc xs =
+    if (n == 0 || null xs) then (reverse acc, xs)
         else partition' (n - 1) (cons (hd xs) acc) (tl xs) in
-    partition' n empty xs 
+    partition' n empty xs
        
- let split n xs = 
- 	let split' acc xs = 
-    	if (null xs) then acc
+ let split n xs =
+  let split' acc xs =
+    if (null xs) then acc
         else
-        	let pair = partition n xs in
+        let pair = partition n xs in
             split' (cons (fst pair) acc) (snd pair) in
     reverse (split' empty xs)
-    
+   
  let posToCoord sz x =
- 	let row = x / sz in
+  let row = x / sz in
     let col = x - sz * row in
     (row, col)
-    
+   
  let norm (re, im) = re * re + im * im
-    
+   
  let cadd (re1, im1) (re2, im2) = (re1 + re2, im1 + im2)
-    
+   
  let cmul (re1, im1) (re2, im2) = (re1 * re2 - im1 * im2, re1 * im2 + im1 * re2)
+   
+ let mPoint i c z =
+  if (i == 65 || norm z > 4.0) then i else mPoint (i + 1) c (cadd (cmul z z) c)
+   
+ let mandelbrot s (x, y) =
+  let x' = (4.0 * toDouble y / toDouble s) - 2.5 in
+  let y' = (4.0 * toDouble x / toDouble s) - 2.0 in
+  let i' = mPoint 0 (x', y') (0.0, 0.0) in
+  let f i = 128 + truncate (128.0 * (cos (toDouble i + 0.3))) in
+  ((f i'), (f (i' + 16)), (f (i' + 32)))
     
- let mPoint i c z = 
- 	if (i == 65 || norm z > 4.0) then i else mPoint (i + 1) c (cadd (cmul z z) c) 

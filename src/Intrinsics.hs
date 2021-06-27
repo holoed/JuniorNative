@@ -35,14 +35,25 @@ env = toEnv [
   ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyCon "Int") (TyVar "a" 0)),
   ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0)),
   ("toDouble", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "Double")),
-  ("truncate", Set.fromList [] :=> tyLam (TyCon "Double") (TyCon "Int"))
+  ("truncate", Set.fromList [] :=> tyLam (TyCon "Double") (TyCon "Int")),
+  ("cos", Set.fromList [IsIn "Floating" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
+  ("sin", Set.fromList [IsIn "Floating" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyVar "a" 0))
  ]
 
 classEnv :: ClassEnv
 classEnv = ClassEnv { 
   classes = Map.fromList [
-     ("Eq", ([], [Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))])),
-     ("Ord", (["Eq"], []))
+     ("Eq", ([], [
+       Set.fromList [] :=> IsIn "Eq" (TyCon "Double"),
+       Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
+      ])),
+     ("Ord", (["Eq"], [Set.fromList [] :=> IsIn "Ord" (TyCon "Double")])),
+     ("Num", (["Eq"], [
+       Set.fromList [] :=> IsIn "Num" (TyCon "Int"),
+       Set.fromList [] :=> IsIn "Num" (TyCon "Double")
+       ])),
+     ("Fractional", (["Num"], [Set.fromList [] :=> IsIn "Fractional" (TyCon "Double")])),
+     ("Floating", (["Fractional"], [Set.fromList [] :=> IsIn "Floating" (TyCon "Double")]))
    ],
   defaults = [intCon, doubleCon]
 }

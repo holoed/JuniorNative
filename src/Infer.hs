@@ -65,13 +65,13 @@ alg (Ann (Just l) (Lam n e)) =
      return (tlam l (ps'' :=> t) n' e')
 
 alg (Ann (Just l) (IfThenElse p e1 e2)) =
-  do (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
-     (e1', ps2) <- listen e1
-     (subs, _) <- get
-     (e2', ps3) <- listen $ local (\(env, t, sv) -> (env, substitute subs t, sv)) e2
-     (subs', _) <- get
+  do t2 <- newTyVar 0
      bt <- getBaseType
-     let qt = substituteQ subs' ((ps1 `union` ps2 `union` ps3) :=> bt)
+     (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
+     (e1', ps2) <- listen $ local (\(env, _, sv) -> (env, t2, sv)) e1
+     (e2', ps3) <- listen $ local (\(env, _, sv) -> (env, t2, sv)) e2
+     mgu l t2 bt
+     qt <- substituteQM ((ps1 `union` ps2 `union` ps3) :=> bt)
      return (tifThenElse l qt p' e1' e2')
 
 alg (Ann (Just l) (Let n e1 e2)) =

@@ -39,11 +39,11 @@ inHnf (IsIn _ t) = hnf t
           hnf (TyApp t' _) = hnf t'
 
 tryInst :: Loc -> Qual Pred -> Pred -> TypeM (Maybe [Pred])
-tryInst l (ps :=> p') p = catchError
-               (do mguPred l p' p
-                   (subs, _) <- get
-                   return $ Just (toList (substitutePredicates subs ps)))
-                (const $ return $ Just [])
+tryInst l (ps :=> p') p =
+               do mguPred l p' p
+                  (subs, _) <- get
+                  return $ Just (toList (substitutePredicates subs ps))
+
 
 byInst :: Loc -> ClassEnv -> Pred -> TypeM (Maybe [Pred])
 byInst l classEnv p@(IsIn i _) = msum [tryInst l it p | it <- insts classEnv i]
