@@ -55,13 +55,13 @@ import Control.Monad.Except
     ')'   { TokenRParen }
     '.'   { TokenDot $$ }
     '[]'  { TokenEmpty $$ }
+    ':'   { TokenCons $$ }
 
 -- Operators
 %right '||'
 %right '&&'
-%nonassoc '>' '<'
-%left '=='
-%left '++'
+%nonassoc '>' '<' '=='
+%right '++' ':'
 %left '+' '-'
 %left '*' '/'
 %right '.'
@@ -88,6 +88,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '>' Form               { infixApp (mkLoc $2) gtOp $1 $3 }
      | Form '<' Form               { infixApp (mkLoc $2) ltOp $1 $3 }
      | Form '++' Form              { infixApp (mkLoc $2) plusplusOp $1 $3}
+     | Form ':' Form               { infixApp (mkLoc $2) consOp $1 $3 }
      | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
      | Fact                        { $1 }
 

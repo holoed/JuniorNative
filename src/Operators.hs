@@ -32,10 +32,13 @@ subOp :: ([Char], Integer, Fixity)
 subOp    = ("-", 14, Infix Left)
 
 plusplusOp :: ([Char], Integer, Fixity)
-plusplusOp = ("++", 12, Infix Left) 
+plusplusOp = ("++", 12, Infix Right) 
+
+consOp :: ([Char], Integer, Fixity)
+consOp = (":", 12, Infix Right) 
 
 eqeqOp :: ([Char], Integer, Fixity)
-eqeqOp   = ("==", 11, Infix Left) 
+eqeqOp   = ("==", 11, Infix NonAssoc) 
 
 gtOp :: ([Char], Integer, Fixity)
 gtOp     = (">", 10, Infix NonAssoc)

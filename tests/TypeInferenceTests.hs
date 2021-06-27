@@ -118,7 +118,7 @@ tests =
       ["let f x = let g y = (x, y) in (g 3, g True) in f"] --> "Num a => b -> ((b, a), (b, Bool))"
 
     it "type of functions 9" $
-      ["let map f xs = if null xs then [] else cons (f (hd xs)) (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
+      ["let map f xs = if null xs then [] else (f (hd xs)) : (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
 
     it "type of functions 10" $
       ["let qsort xs = if (null xs) then xs",

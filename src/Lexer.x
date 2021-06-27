@@ -62,6 +62,7 @@ tokens :-
   \=                            {\p s -> TokenEq p }
   \\                            {\p s -> TokenLambda p }
   "[]"                          {\p s -> TokenEmpty p }
+  ":"                           {\p s -> TokenCons p }
   "++"                          {\p s -> TokenConcat p }
   "&&"                          {\p s -> TokenAnd p }
   "||"                          {\p s -> TokenOr p }
@@ -94,6 +95,7 @@ data Token
   | TokenArrow AlexPosn
   | TokenConcat AlexPosn
   | TokenEmpty AlexPosn
+  | TokenCons AlexPosn
   | TokenAnd AlexPosn
   | TokenOr AlexPosn
   | TokenEq AlexPosn

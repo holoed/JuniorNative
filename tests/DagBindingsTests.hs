@@ -10,7 +10,7 @@ import Test.Hspec ( it, describe, shouldBe, SpecWith )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 
 globals :: Set [Char]
-globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "hd", "tl", "null", "[]", "cons", "&&", "||"]
+globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "hd", "tl", "null", "[]", ":", "&&", "||"]
 
 tests :: SpecWith ()
 tests = do
@@ -62,11 +62,11 @@ tests = do
                          if (null xs) then v 
                          else f (hd xs) (foldr f v (tl xs)) 
 
-                      let concat xs ys = foldr cons ys
+                      let concat xs ys = foldr (\\x xs -> x : xs) ys
                      
-                      let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) []
+                      let filter p = foldr (\\x -> \\xs -> if (p x) then x : xs else xs) []
                     
-                      let singleton x = cons x []
+                      let singleton x = x : []
 
                       let quicksort f xs =
                         if (null xs) then xs else  
