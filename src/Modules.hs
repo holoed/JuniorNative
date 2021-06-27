@@ -13,11 +13,12 @@ import Parser ( parseExpr )
 import DagBindings ( chunks )
 import LiftNumbers ( liftN )
 import Annotations (Ann(..))
+import ContextReduction (ClassEnv)
 
 bindingsDict :: [Exp] -> Map String Exp 
 bindingsDict es = Map.fromList ((\e@(In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) -> (s, e)) <$> es)
 
-typeOfModule :: [Qual Pred] -> Env -> String -> [(String, String)] 
+typeOfModule :: ClassEnv -> Env -> String -> [(String, String)] 
 typeOfModule classEnv env x = sortedRet
     where es = either error (toExp <$>) (parseExpr x)
           ns = (fst <$>) $ concat $ chunks (Map.keysSet env) es

@@ -1,8 +1,11 @@
 module Intrinsics where
 
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 import Types ( Type(..), Qual((:=>)), Pred(IsIn) )
 import Environment ( Env, toEnv )
+import ContextReduction (ClassEnv(..))
+import BuiltIns
 
 tyLam :: Type -> Type -> Type
 tyLam t1 = TyApp (TyApp (TyCon "->") t1)
@@ -35,7 +38,10 @@ env = toEnv [
   ("truncate", Set.fromList [] :=> tyLam (TyCon "Double") (TyCon "Int"))
  ]
 
-classEnv :: [Qual Pred]
-classEnv = [
-  Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
-  ]
+classEnv :: ClassEnv
+classEnv = ClassEnv { 
+  classes = Map.fromList [
+     ("Eq", ([], [Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))]))
+   ],
+  defaults = [intCon, doubleCon]
+}

@@ -16,7 +16,7 @@ import Substitutions ( Substitutions, substitute, substituteQ )
 import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
 import Unification ( mgu )
 import PrettyTypes ( prettyQ )
-import ContextReduction (resolvePreds)
+import ContextReduction (resolvePreds, ClassEnv)
 
 getNameAndTypes :: TypedExp -> [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
@@ -106,7 +106,7 @@ alg (Ann (Just l) (TuplePat ns)) = do
 
 alg _ = throwError "Undefined"
 
-infer :: [Qual Pred] -> Env -> Exp -> Either String (Substitutions, Qual Type)
+infer :: ClassEnv -> Env -> Exp -> Either String (Substitutions, Qual Type)
 infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
   where
         f (In(Ann (_, qt) _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . substituteQ subs) qt)

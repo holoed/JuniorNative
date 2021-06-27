@@ -16,12 +16,12 @@ import PrettyPrinter ( pretty )
 import LiftNumbers ( liftN )
 import SynExpToExp (toExp)
 import Data.Functor ((<&>))
-import Intrinsics ( env ) 
+import Intrinsics ( env, classEnv ) 
 
 process :: String -> IO ()
 process input = do
   let ast = parseExpr input
-  let ty = ast >>= (infer [] env . liftN . toExp . head)
+  let ty = ast >>= (infer classEnv env . liftN . toExp . head)
   putStrLn (either id pretty (ast <&> head))
   putStrLn (either id (show . snd) ty)
 
