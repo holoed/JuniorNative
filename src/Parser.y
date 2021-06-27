@@ -54,6 +54,7 @@ import Control.Monad.Except
     '('   { TokenLParen $$ }
     ')'   { TokenRParen }
     '.'   { TokenDot $$ }
+    '[]'  { TokenEmpty $$ }
 
 -- Operators
 %right '||'
@@ -100,6 +101,7 @@ Atom : '(' Expr ')'                { $2 }
      | VAR                         { var (mkLoc (fst $1)) (snd $1) }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }
+     | '[]'                        { var (mkLoc $1) "[]" }
 
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }

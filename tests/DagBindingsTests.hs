@@ -10,7 +10,7 @@ import Test.Hspec ( it, describe, shouldBe, SpecWith )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 
 globals :: Set [Char]
-globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "hd", "tl", "null", "empty", "cons"]
+globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "hd", "tl", "null", "[]", "cons", "&&", "||"]
 
 tests :: SpecWith ()
 tests = do
@@ -64,9 +64,9 @@ tests = do
 
                       let concat xs ys = foldr cons ys
                      
-                      let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) empty
+                      let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) []
                     
-                      let singleton x = cons x empty
+                      let singleton x = cons x []
 
                       let quicksort f xs =
                         if (null xs) then xs else  
@@ -85,10 +85,10 @@ tests = do
           [("cadd",[]),("cmul",[])],
           [("filter",["foldr"])],
           [("norm",[])],
-          [("mPoint",["cadd","cmul","norm","||"])],
+          [("mPoint",["cadd","cmul","norm"])],
           [("mandelbrot",["cos","mPoint","toDouble","truncate"])],
           [("reverse",["foldl"])],
-          [("partition",["reverse","||"])],
+          [("partition",["reverse"])],
           [("posToCoord",[])],
           [("product",["foldl"])],
           [("singleton",[])],

@@ -9,9 +9,9 @@ let foldr f v xs =
  
 let (++) xs ys = foldr cons ys xs
  
-let join = foldl (\x y -> x ++ y) empty
+let join = foldl (\x y -> x ++ y) []
  
-let map f = foldr (\x xs -> cons (f x) xs) empty
+let map f = foldr (\x xs -> cons (f x) xs) []
  
 let bind f xs = join (map f xs)
 
@@ -19,9 +19,9 @@ let sum xs = foldl (\x y -> x + y) 0 xs
  
 let product xs = foldl (\x y -> x * y) 1 xs
  
-let filter p = foldr (\x xs -> if (p x) then cons x xs else xs) empty
+let filter p = foldr (\x xs -> if (p x) then cons x xs else xs) []
        
-let singleton x = cons x empty
+let singleton x = cons x []
        
 let quicksort f xs =
     if (null xs) then xs else  
@@ -31,19 +31,19 @@ let quicksort f xs =
     let greaterThan = filter (\x -> f x > f pivot) rest in
     (quicksort f lessThan) ++ (singleton pivot) ++ (quicksort f greaterThan)
    
-let reverse xs = foldl (\xs x -> cons x xs) empty xs
+let reverse xs = foldl (\xs x -> cons x xs) [] xs
 
 let range f startIndex endIndex =
 let range' acc endIndex =
     if startIndex > endIndex then acc
         else range' (cons (f endIndex) acc) (endIndex - 1) in
-    range' empty endIndex
+    range' [] endIndex
    
 let partition n xs =
 let partition' n acc xs =
     if (n == 0 || null xs) then (reverse acc, xs)
         else partition' (n - 1) (cons (hd xs) acc) (tl xs) in
-    partition' n empty xs
+    partition' n [] xs
        
  let split n xs =
   let split' acc xs =
@@ -51,7 +51,7 @@ let partition' n acc xs =
         else
         let pair = partition n xs in
             split' (cons (fst pair) acc) (snd pair) in
-    reverse (split' empty xs)
+    reverse (split' [] xs)
    
  let posToCoord sz x =
   let row = x / sz in

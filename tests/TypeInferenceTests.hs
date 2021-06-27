@@ -110,17 +110,17 @@ tests =
     it "type of functions 6" $
       ["let foldr f z xs = if null xs then z else f (hd xs) (foldr f z (tl xs))"] --> "(a -> b -> b) -> b -> List a -> b"
 
-    it "type of functions 6" $
+    it "type of functions 7" $
       ["let f x = x in (f 5, f True)"] --> "Num a => (a, Bool)"
 
-    it "type of functions 7" $
+    it "type of functions 8" $
       -- https://ghc.haskell.org/trac/ghc/blog/LetGeneralisationInGhc7
       ["let f x = let g y = (x, y) in (g 3, g True) in f"] --> "Num a => b -> ((b, a), (b, Bool))"
 
-    it "type of functions 7" $
-      ["let map f xs = if null xs then empty else cons (f (hd xs)) (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
+    it "type of functions 9" $
+      ["let map f xs = if null xs then [] else cons (f (hd xs)) (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
 
-    it "type of functions 8" $
+    it "type of functions 10" $
       ["let qsort xs = if (null xs) then xs",
        "                  else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs)))",
        "                                      (singleton (hd xs)))",

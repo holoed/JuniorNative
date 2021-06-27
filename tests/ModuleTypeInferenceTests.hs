@@ -37,9 +37,9 @@ tests =
 
                       let concat xs ys = foldr cons ys xs
                      
-                      let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) empty
+                      let filter p = foldr (\\x -> \\xs -> if (p x) then cons x xs else xs) []
                     
-                      let singleton x = cons x empty
+                      let singleton x = cons x []
 
                       let quicksort f xs =
                         if (null xs) then xs else  
