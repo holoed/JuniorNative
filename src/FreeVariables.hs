@@ -59,7 +59,7 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
       (e1',fvs2) <- listen e1
       (e2',fvs3) <- listen e2
       return $ In (Ann (l, fvs1 `union` fvs2 `union` fvs3) $ IfThenElse p' e1' e2')
-    alg _ = error "undefined"
+    
 
 
 
