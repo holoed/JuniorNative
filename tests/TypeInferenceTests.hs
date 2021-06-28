@@ -102,10 +102,10 @@ tests =
       ["let fix = \\f -> f (fix f) in fix"] --> "(a -> a) -> a"
 
     it "type of functions 4" $
-      ["let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac"] --> "Num a => a -> a"
+      ["let fac = \\n -> if (n == 0) then 1 else n * (fac (n - 1)) in fac"] --> "(Eq a, Num a) => a -> a"
 
     it "type of functions 5" $
-      ["let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) "] --> "(Num a, Num b) => a -> b"
+      ["let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) "] --> "(Eq a, Num a, Num b) => a -> b"
 
     it "type of functions 6" $
       ["let foldr f z xs = if null xs then z else f (head xs) (foldr f z (tail xs))"] --> "(a -> b -> b) -> b -> List a -> b"
