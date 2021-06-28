@@ -159,3 +159,6 @@ tests =
 
     it "HOG Test 2" $
       ["fmap cos (pure 5)"] --> "(Applicative a, Floating b) => a b"
+
+    it "HOG Test 3" $
+      ["bind (0:[]) pure"] --> "Num a => List a"
