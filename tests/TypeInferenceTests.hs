@@ -162,3 +162,6 @@ tests =
 
     it "HOG Test 3" $
       ["bind (0:[]) pure"] --> "Num a => List a"
+
+    it "Composition" $
+      ["let (.) f g x = f (g x)"] --> "(a -> b) -> (c -> a) -> c -> b"
