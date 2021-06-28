@@ -6,15 +6,21 @@ let foldl f v xs =
 let foldr f v xs =
   if (null xs) then v
   else f (head xs) (foldr f v (tail xs))
- 
+
+let mapM f as = 
+  let k a r = bind (f a) (\x ->
+              bind r     (\xs -> 
+              pure (x:xs))) in   
+  foldr k (pure []) as
+  
+let sequence = mapM (\x -> x)
+
 let (++) xs ys = foldr (:) ys xs
  
 let join = foldl (++) []
  
 let map f = foldr (\x xs -> (f x) : xs) []
  
-let bind f xs = join (map f xs)
-
 let sum xs = foldl (+) 0 xs
  
 let product xs = foldl (*) 1 xs
