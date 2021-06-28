@@ -103,12 +103,18 @@ Atom : '(' Expr ')'                { $2 }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }
      | '[]'                        { var (mkLoc $1) "[]" }
+     | '(' '+' ')'                 { var (mkLoc $2) "+" }
+     | '(' '-' ')'                 { var (mkLoc $2) "-" }
+     | '(' '*' ')'                 { var (mkLoc $2) "*" }
+     | '(' '/' ')'                 { var (mkLoc $2) "/" }
+     | '(' '++' ')'                { var (mkLoc $2) "++" }
+     | '(' ':' ')'                 { var (mkLoc $2) ":" }
 
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
 Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
-     | '(' '++' ')'                { varPat (mkLoc $2) "++" } -- Find better way to handle operators
+     | '(' '++' ')'                { varPat (mkLoc $2) "++" }
      | VAR                         { varPat (mkLoc (fst $1)) (snd $1) }
                        
 

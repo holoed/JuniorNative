@@ -7,17 +7,17 @@ let foldr f v xs =
   if (null xs) then v
   else f (hd xs) (foldr f v (tl xs))
  
-let (++) xs ys = foldr (\x xs -> x : xs) ys xs
+let (++) xs ys = foldr (:) ys xs
  
-let join = foldl (\x y -> x ++ y) []
+let join = foldl (++) []
  
 let map f = foldr (\x xs -> (f x) : xs) []
  
 let bind f xs = join (map f xs)
 
-let sum xs = foldl (\x y -> x + y) 0 xs
+let sum xs = foldl (+) 0 xs
  
-let product xs = foldl (\x y -> x * y) 1 xs
+let product xs = foldl (*) 1 xs
  
 let filter p = foldr (\x xs -> if (p x) then x : xs else xs) []
        
