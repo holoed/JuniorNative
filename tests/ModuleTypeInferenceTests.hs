@@ -33,7 +33,7 @@ tests =
     it "Many nodes" $ [i|       
                       let foldr f v xs = 
                          if (null xs) then v 
-                         else f (hd xs) (foldr f v (tl xs)) 
+                         else f (head xs) (foldr f v (tail xs)) 
 
                       let concat xs ys = foldr (\\x xs -> x : xs) ys xs
                      
@@ -43,8 +43,8 @@ tests =
 
                       let quicksort f xs =
                         if (null xs) then xs else  
-                        let pivot = hd xs in
-                        let rest = tl xs in
+                        let pivot = head xs in
+                        let rest = tail xs in
                         let lessThan = filter (\\x -> f x < f pivot) rest in 
                         let greaterThan = filter (\\x -> f x > f pivot) rest in
                         concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)

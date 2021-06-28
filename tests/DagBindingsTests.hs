@@ -10,7 +10,7 @@ import Test.Hspec ( it, describe, shouldBe, SpecWith )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 
 globals :: Set [Char]
-globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "hd", "tl", "null", "[]", ":", "&&", "||"]
+globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
 
 tests :: SpecWith ()
 tests = do
@@ -25,9 +25,9 @@ tests = do
 
    it "Many deps" $ [i|let quicksort f xs =
                         if (null xs) then xs else  
-                        let lessThan = filter (\\x -> f x < f (hd xs)) (tl xs) in 
-                        let greaterThan = filter (\\x -> f x > f (hd xs)) (tl xs) in
-                        (quickSort f lessThan) ++ singleton (hd xs) ++ (quickSort f greaterThan)
+                        let lessThan = filter (\\x -> f x < f (head xs)) (tail xs) in 
+                        let greaterThan = filter (\\x -> f x > f (head xs)) (tail xs) in
+                        (quickSort f lessThan) ++ singleton (head xs) ++ (quickSort f greaterThan)
                     |] --> [("quicksort",["filter","quickSort", "singleton"])]
 
    it "Multi bindings deps" $ [i| let x = 12
@@ -60,7 +60,7 @@ tests = do
     it "Many nodes" $ [i|       
                       let foldr f v xs = 
                          if (null xs) then v 
-                         else f (hd xs) (foldr f v (tl xs)) 
+                         else f (head xs) (foldr f v (tail xs)) 
 
                       let concat xs ys = foldr (\\x xs -> x : xs) ys
                      
@@ -70,9 +70,9 @@ tests = do
 
                       let quicksort f xs =
                         if (null xs) then xs else  
-                        let lessThan = filter (\\x -> f x < f (hd xs)) (tl xs) in 
-                        let greaterThan = filter (\\x -> f x > f (hd xs)) (tl xs) in
-                        concat (concat (quicksort f lessThan) (singleton (hd xs))) (quicksort f greaterThan)
+                        let lessThan = filter (\\x -> f x < f (head xs)) (tail xs) in 
+                        let greaterThan = filter (\\x -> f x > f (head xs)) (tail xs) in
+                        concat (concat (quicksort f lessThan) (singleton (head xs))) (quicksort f greaterThan)
                       |] --> [[("foldr",[])],[("concat",["foldr"]),("filter",["foldr"])],[("singleton",[])],[("quicksort",["concat","filter","singleton"])]]
                        
     it "Complex example" $ "tests/example.jnr" ---> [          

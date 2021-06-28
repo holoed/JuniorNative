@@ -1,11 +1,11 @@
 
 let foldl f v xs =
   if (null xs) then v
-  else foldl f (f v (hd xs)) (tl xs)
+  else foldl f (f v (head xs)) (tail xs)
 
 let foldr f v xs =
   if (null xs) then v
-  else f (hd xs) (foldr f v (tl xs))
+  else f (head xs) (foldr f v (tail xs))
  
 let (++) xs ys = foldr (:) ys xs
  
@@ -25,8 +25,8 @@ let singleton x = x : []
        
 let quicksort f xs =
     if (null xs) then xs else  
-    let pivot = hd xs in
-    let rest = tl xs in
+    let pivot = head xs in
+    let rest = tail xs in
     let lessThan = filter (\x -> f x < f pivot) rest in
     let greaterThan = filter (\x -> f x > f pivot) rest in
     (quicksort f lessThan) ++ (singleton pivot) ++ (quicksort f greaterThan)
@@ -42,7 +42,7 @@ let range' acc endIndex =
 let partition n xs =
 let partition' n acc xs =
     if (n == 0 || null xs) then (reverse acc, xs)
-        else partition' (n - 1) ((hd xs) : acc) (tl xs) in
+        else partition' (n - 1) ((head xs) : acc) (tail xs) in
     partition' n [] xs
        
  let split n xs =

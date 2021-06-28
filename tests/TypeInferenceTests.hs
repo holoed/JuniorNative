@@ -108,7 +108,7 @@ tests =
       ["let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) "] --> "(Num a, Num b) => a -> b"
 
     it "type of functions 6" $
-      ["let foldr f z xs = if null xs then z else f (hd xs) (foldr f z (tl xs))"] --> "(a -> b -> b) -> b -> List a -> b"
+      ["let foldr f z xs = if null xs then z else f (head xs) (foldr f z (tail xs))"] --> "(a -> b -> b) -> b -> List a -> b"
 
     it "type of functions 7" $
       ["let f x = x in (f 5, f True)"] --> "Num a => (a, Bool)"
@@ -118,13 +118,13 @@ tests =
       ["let f x = let g y = (x, y) in (g 3, g True) in f"] --> "Num a => b -> ((b, a), (b, Bool))"
 
     it "type of functions 9" $
-      ["let map f xs = if null xs then [] else (f (hd xs)) : (map f (tl xs))"] --> "(a -> b) -> List a -> List b"
+      ["let map f xs = if null xs then [] else (f (head xs)) : (map f (tail xs))"] --> "(a -> b) -> List a -> List b"
 
     it "type of functions 10" $
       ["let qsort xs = if (null xs) then xs",
-       "                  else concat (concat (qsort (filter (\\y -> y < hd xs) (tl xs)))",
-       "                                      (singleton (hd xs)))",
-       "                                      (qsort (filter (\\y -> y > hd xs) (tl xs))) in qsort"] --> "Ord a => List a -> List a"
+       "                  else concat (concat (qsort (filter (\\y -> y < head xs) (tail xs)))",
+       "                                      (singleton (head xs)))",
+       "                                      (qsort (filter (\\y -> y > head xs) (tail xs))) in qsort"] --> "Ord a => List a -> List a"
 
     it "Apply function with wrong tuple arity" $ do
       ["let f x = (fst x, snd x) in f (1, 2, 3)"] --> "Unable to unify Tuple T11 with Tuple at line 1 column 31"
