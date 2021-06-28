@@ -4,7 +4,7 @@ import Data.Map (empty)
 import Data.Set (fromList, insert, union)
 import Monads ( local, get, listen, run, throwError )
 import Fixpoint ( Fix(In) )
-import Annotations ( Ann(Ann) )
+import Annotations ( Ann(Ann), unwrap )
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Ast ( Exp, ExpF(..), Loc )
@@ -21,6 +21,7 @@ import ContextReduction (resolvePreds, ClassEnv)
 getNameAndTypes :: TypedExp -> [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
 getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = xs >>= getNameAndTypes
+getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 valueToType :: Prim -> Type
 valueToType (I _) = intCon

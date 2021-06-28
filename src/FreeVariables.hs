@@ -2,7 +2,7 @@ module FreeVariables where
 
 import Ast ( Exp, ExpF(..), Loc )
 import Fixpoint ( Fix(In) )
-import Annotations ( Ann(..) )
+import Annotations ( Ann(..), unwrap )
 import RecursionSchemes ( cataRec )
 import Data.Set ( delete, empty, singleton, union, member, Set )
 import Control.Monad.Writer ( runWriter, MonadWriter(listen, tell, pass), Writer )
@@ -13,6 +13,7 @@ type FreeVarsExp = Fix (Ann (Maybe Loc, Set String) ExpF)
 getNames :: FreeVarsExp -> [String]
 getNames (In (Ann (_, _) (VarPat s))) = [s]
 getNames (In (Ann (_, _) (TuplePat ss))) = ss >>= getNames
+getNames x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 freeVars :: Set String -> Exp -> Fix (Ann (Maybe Loc, Set String) ExpF)
 freeVars globals e = fst $ runWriter (cataRec alg e)
