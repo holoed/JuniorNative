@@ -5,7 +5,7 @@ import qualified Data.Map as Map
 import Types ( Type(..), Qual((:=>)), Pred(IsIn) )
 import Environment ( Env, toEnv )
 import ContextReduction (ClassEnv(..))
-import BuiltIns
+import BuiltIns ( doubleCon, intCon )
 
 tyLam :: Type -> Type -> Type
 tyLam t1 = TyApp (TyApp (TyCon "->") t1)
@@ -37,7 +37,9 @@ env = toEnv [
   ("toDouble", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "Double")),
   ("truncate", Set.fromList [] :=> tyLam (TyCon "Double") (TyCon "Int")),
   ("cos", Set.fromList [IsIn "Floating" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
-  ("sin", Set.fromList [IsIn "Floating" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyVar "a" 0))
+  ("sin", Set.fromList [IsIn "Floating" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
+  ("fmap", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1) (TyVar "b" 0))) ),
+  ("pure", Set.fromList [IsIn "Applicative" (TyVar "f" 1)] :=> tyLam (TyVar "a" 0) (TyApp (TyVar "f" 1) (TyVar "a" 0)))
  ]
 
 classEnv :: ClassEnv
@@ -54,7 +56,10 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Num" (TyCon "Double")
        ])),
      ("Fractional", (["Num"], [Set.fromList [] :=> IsIn "Fractional" (TyCon "Double")])),
-     ("Floating", (["Fractional"], [Set.fromList [] :=> IsIn "Floating" (TyCon "Double")]))
+     ("Floating", (["Fractional"], [Set.fromList [] :=> IsIn "Floating" (TyCon "Double")])),
+
+     ("Functor", ([], [Set.fromList [] :=> IsIn "Functor" (TyCon "List")])),
+     ("Applicative", (["Functor"], [Set.fromList [] :=> IsIn "Applicative" (TyCon "List")]))
    ],
   defaults = [intCon, doubleCon]
 }

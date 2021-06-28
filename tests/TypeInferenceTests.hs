@@ -153,3 +153,9 @@ tests =
 
     it "Type symbolic functions" $
       ["let (++) x y = (x, y) in 2 ++ 3"] --> "(Num a, Num b) => (b, a)"
+
+    it "HOG Test 1" $
+      ["fmap (\\x -> x + 1) (0:[])"] --> "Num a => List a"
+
+    it "HOG Test 2" $
+      ["fmap cos (pure 5)"] --> "(Applicative a, Floating b) => a b"
