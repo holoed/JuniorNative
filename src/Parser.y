@@ -124,7 +124,7 @@ mkLoc :: AlexPosn -> Loc
 mkLoc (AlexPn x y z) = Loc x y z
 
 parseError :: [Token] -> Except String a
-parseError (l:ls) = throwError (show l)
+parseError (l:ls) = throwError ("Unexpected token " ++ show l)
 parseError [] = throwError "Unexpected end of Input"
 
 parseExpr :: String -> Either String [SynExp]
