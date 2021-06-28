@@ -9,10 +9,10 @@ import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Ast ( Exp, ExpF(..), Loc )
 import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat, ttuplePat )
-import Types ( TypeScheme(Identity), Type(..), Qual(..), Pred, clean, deleteTautology )
+import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, tupleCon )
 import Environment ( Env, addScheme )
-import Substitutions ( Substitutions, substitute, substituteQ )
+import Substitutions ( Substitutions, substituteQ )
 import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
 import Unification ( mgu )
 import PrettyTypes ( prettyQ )
@@ -83,7 +83,7 @@ alg (Ann (Just l) (Let n e1 e2)) =
        (foldToScheme env nts, t0, insert tn sv)) e1
      (subs, _) <- get
      (e2', ps2) <- listen $ local (\(env, bt, sv) -> 
-       (foldl (\env' (n, ps2 :=> t3) -> addScheme n (generalise sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env nts, bt, sv)) e2
+       (foldl (\env' (n'', ps2 :=> t3) -> addScheme n'' (generalise sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env nts, bt, sv)) e2
      bt <- getBaseType
      return (tleT l ((ps1 `union` ps2) :=> bt) n' e1' e2')
 
@@ -102,7 +102,7 @@ alg (Ann (Just l) (VarPat s)) = do
 alg (Ann (Just l) (TuplePat ns)) = do
   ns' <- sequence ns
   let nts = ns' >>= getNameAndTypes
-  let t = tupleCon ((\(_, _ :=> t) -> t) <$> nts)
+  let t = tupleCon ((\(_, _ :=> t') -> t') <$> nts)
   return $ ttuplePat l (fromList [] :=> t) ns'
 
 alg _ = throwError "Undefined"
