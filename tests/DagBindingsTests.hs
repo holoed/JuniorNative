@@ -73,27 +73,24 @@ tests = do
                         let lessThan = filter (\\x -> f x < f (head xs)) (tail xs) in 
                         let greaterThan = filter (\\x -> f x > f (head xs)) (tail xs) in
                         concat (concat (quicksort f lessThan) (singleton (head xs))) (quicksort f greaterThan)
-                      |] --> [[("foldr",[])],[("concat",["foldr"]),("filter",["foldr"])],[("singleton",[])],[("quicksort",["concat","filter","singleton"])]]
+                      |] --> [
+                        [("foldr",[]),("singleton",[])],
+                        [("concat",["foldr"]),("filter",["foldr"])],
+                        [("quicksort",["concat","filter","singleton"])]
+                        ]
                        
     it "Complex example" $ "tests/example.jnr" ---> [          
-           [("foldr",[])],
-           [("++",["foldr"])],
-           [("cadd",[]),("cmul",[])],
-           [("filter",["foldr"])],
-           [("foldl",[])],
+           [("foldr",[]),("cadd",[]),("cmul",[]),("foldl",[]),("norm",[]),("posToCoord",[]),("singleton",[]),("range",[])],
+           [("++",["foldr"]),("filter",["foldr"])],
            [("join",["foldl"])],
-           [("norm",[])],
            [("mPoint",["cadd","cmul","norm"])],
            [("mandelbrot",["cos","mPoint","toDouble","truncate"])],
            [("map",["foldr"])],
            [("mapM",["bind","foldr","pure"])],
            [("reverse",["foldl"])],
            [("partition",["reverse"])],
-           [("posToCoord",[])],
            [("product",["foldl"])],
-           [("singleton",[])],
            [("quicksort",["filter","singleton"])],
-           [("range",[])],
            [("sequence",["mapM"])],
            [("split",["fst","partition","reverse","snd"])],
            [("sum",["foldl"])]

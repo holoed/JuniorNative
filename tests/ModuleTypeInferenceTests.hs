@@ -48,32 +48,33 @@ tests =
                         let lessThan = filter (\\x -> f x < f pivot) rest in 
                         let greaterThan = filter (\\x -> f x > f pivot) rest in
                         concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
-                      |] --> [("foldr","(a -> b -> b) -> b -> List a -> b"),
-                              ("concat","List a -> List a -> List a"),
-                              ("filter","(a -> Bool) -> List a -> List a"),
-                              ("singleton","a -> List a"),
-                              ("quicksort","Ord a => (b -> a) -> List b -> List b")]
+                      |] --> [
+                        ("foldr","(a -> b -> b) -> b -> List a -> b"),
+                        ("singleton","a -> List a"),
+                        ("concat","List a -> List a -> List a"),
+                        ("filter","(a -> Bool) -> List a -> List a"),
+                        ("quicksort","Ord a => (b -> a) -> List b -> List b")]
 
     it "Complex example" $ "tests/example.jnr" ---> [
        ("foldr","(a -> b -> b) -> b -> List a -> b"),
-       ("++","List a -> List a -> List a"),
        ("cadd","(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"),
        ("cmul","Num a => (a, a) -> (a, a) -> (a, a)"),
-       ("filter","(a -> Bool) -> List a -> List a"),
        ("foldl","(a -> b -> a) -> a -> List b -> a"),
-       ("join","List List a -> List a"),
        ("norm","Num a => (a, a) -> a"),
+       ("posToCoord","Fractional a => a -> a -> (a, a)"),
+       ("singleton","a -> List a"),
+       ("range","(Num a, Ord a) => (a -> b) -> a -> a -> List b"),
+       ("++","List a -> List a -> List a"),
+       ("filter","(a -> Bool) -> List a -> List a"),
+       ("join","List List a -> List a"),
        ("mPoint","(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"),
        ("mandelbrot","Int -> (Int, Int) -> (Int, Int, Int)"),
        ("map","(a -> b) -> List a -> List b"),
        ("mapM","Monad a => (b -> a c) -> List b -> a List c"),
        ("reverse","List a -> List a"),
        ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
-       ("posToCoord","Fractional a => a -> a -> (a, a)"),
        ("product","Num a => List a -> a"),
-       ("singleton","a -> List a"),
        ("quicksort","Ord a => (b -> a) -> List b -> List b"),
-       ("range","(Num a, Ord a) => (a -> b) -> a -> a -> List b"),
        ("sequence","Monad a => List a b -> a List b"),
        ("split","(Eq a, Num a) => a -> List b -> List List b"),
        ("sum","Num a => List a -> a")
