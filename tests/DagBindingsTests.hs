@@ -82,16 +82,13 @@ tests = do
     it "Complex example" $ "tests/example.jnr" ---> [          
           [("foldr",[]),("cadd",[]),("cmul",[]),("foldl",[]),("norm",[]),("posToCoord",[]),("singleton",[]),("range",[])],
           [("++",["foldr"]),("filter",["foldr"]),("map",["foldr"])],
-          [("join",["foldl"])],
+          [("join",["foldl"]),("reverse",["foldl"]),("product",["foldl"]),("sum",["foldl"])],
           [("mPoint",["cadd","cmul","norm"])],
           [("mandelbrot",["cos","mPoint","toDouble","truncate"])],
           [("mapM",["bind","foldr","pure"])],
-          [("reverse",["foldl"])],
           [("partition",["reverse"])],
-          [("product",["foldl"])],
           [("quicksort",["filter","singleton"])],
           [("sequence",["mapM"])],
-          [("split",["fst","partition","reverse","snd"])],
-          [("sum",["foldl"])]
+          [("split",["fst","partition","reverse","snd"])]
         ]
 

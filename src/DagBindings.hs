@@ -19,12 +19,17 @@ getDeps globals e = toList (snd xs)
 deps :: Set String -> [Exp] -> [(String, [String])]
 deps globals = foldl (\acc x -> (getName x, getDeps globals x) : acc) []
 
+foo :: [(String, [String])] -> [(String, [String])]
+foo xs = final
+    where
+     pivot = take 1 xs
+     pivotDeps = pivot >>= snd
+     (sg3, sg4) = partition (\(_, xs') -> xs' == pivotDeps) (drop 1 xs)
+     final = if null sg4 || null sg3 then xs else pivot ++ sg3 ++ foo sg4
+
 chunks :: Set String -> [Exp] -> [[(String, [String])]]
 chunks globals es = groupBy (\x y -> snd x == snd y) final
     where (g, f, _) = (G.graphFromEdges . ((\(x, y) -> (x, x, y)) <$>) . deps globals) es
           sg = reverse $ (\(_, y, z) -> (y, z)) . f <$> G.topSort g
           (sg1, sg2) = partition (\(_, xs) -> null xs) sg
-          pivot = take 1 sg2
-          pivotDeps = pivot >>= snd 
-          (sg3, sg4) = partition (\(_, xs) -> xs == pivotDeps) (drop 1 sg2)
-          final = sg1 ++ pivot ++ sg3 ++ sg4
+          final = sg1 ++ foo sg2
