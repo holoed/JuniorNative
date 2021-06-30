@@ -54,13 +54,14 @@ executable JuniorNative
                        transformers,
                        haskeline,
                        pretty,
-                       parallel
+                       parallel,
+                       deepseq
   hs-source-dirs:      src
   build-tool-depends:  happy:happy, alex:alex
   default-language:    Haskell2010
 
 executable JuniorService
-  ghc-options:         -threaded -rtsopts
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -fno-warn-orphans
   main-is:             Service.hs
   other-extensions:    DeriveFunctor, UndecidableInstances
   other-modules:       Ast,
@@ -109,7 +110,8 @@ executable JuniorService
                        aeson,
                        unordered-containers,
                        bytestring,
-                       parallel
+                       parallel,
+                       deepseq
   hs-source-dirs:      src
   build-tool-depends:  happy:happy, alex:alex
   default-language:    Haskell2010
@@ -169,5 +171,6 @@ test-suite tests
                        hspec-core,
                        hspec,
                        haskeline,
-                       parallel
+                       parallel,
+                       deepseq
   default-language:    Haskell2010

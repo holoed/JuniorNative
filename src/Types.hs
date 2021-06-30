@@ -1,24 +1,28 @@
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 module Types where
 
+import GHC.Generics (Generic)
+import Control.DeepSeq (NFData)
 import Data.Set (Set, empty, union, singleton, unions, toList, filter, empty, (\\))
 import Prelude hiding (null, map, filter)
 
 -- Qualified 
 
-data Pred = IsIn String Type deriving (Eq, Ord)
+data Pred = IsIn String Type deriving (Eq, Ord, Generic, NFData)
 
-data Qual t = Set Pred :=> t deriving Eq
+data Qual t = Set Pred :=> t deriving (Eq, Generic, NFData)
 
 -- Type
 
 data Type = TyCon String 
           | TyVar String Int 
-          | TyApp Type Type deriving (Eq, Ord)
+          | TyApp Type Type deriving (Eq, Ord, Generic, NFData)
 
 -- Type Schemes
 
 data TypeScheme = ForAll (Set String) (Qual Type)
                 | Identity (Qual Type)
+                deriving (Generic, NFData) 
 
 getTVarsOfType :: Type -> Set (String, Int)
 getTVarsOfType (TyVar n k) = singleton (n, k)
