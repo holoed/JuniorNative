@@ -171,3 +171,6 @@ tests =
 
     it "Composition" $
       ["let (.) f g x = f (g x)"] --> "(a -> b) -> (c -> a) -> c -> b"
+
+    it "scoped tvars" $
+      ["let f x = let y = (x, x, x) in (y, x)"] --> "a -> ((a, a, a), a)"
