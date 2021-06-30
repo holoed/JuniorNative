@@ -53,3 +53,6 @@ EOF
  1319  kubectl get svc  -n kourier-system
  1320  kn service create hello --image gcr.io/knative-samples/helloworld-go --port 8080 --env TARGET=Knative
  1321  curl http://hello.default.127.0.0.1.nip.io
+ 
+   53  kn service create junior-type --image ghcr.io/holoed/juniornative:master
+   54  kn service create junior-web --image ghcr.io/holoed/juniornativeide:main
