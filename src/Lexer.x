@@ -8,7 +8,7 @@ module Lexer (
   mkLoc
 ) where
 
-import Location (Loc(..), PString)
+import Location (Loc(..), PString(..))
 import PAst ()
 import Primitives
 
@@ -123,7 +123,7 @@ scanTokens str = go (alexStartPos, '\n',[],str) where
   go inp@(pos, _,_bs,str) =
     case alexScan inp 0 of
      AlexEOF -> return []
-     AlexError (p,_,_,_) -> throwError $ ("lexical error", Just $ mkLoc p)
+     AlexError (p,_,_,_) -> throwError $ PStr ("lexical error", Just $ mkLoc p)
      AlexSkip  inp' len     -> go inp'
      AlexToken inp' len act -> do
       res <- go inp'

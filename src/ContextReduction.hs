@@ -12,7 +12,7 @@ import Control.Monad ( msum )
 import Data.Set (toList, fromList)
 import Data.Maybe ( fromJust, maybeToList )
 import RecursionSchemes ( cataRec )
-import Location ( Loc )
+import Location ( Loc, PString(..) )
 import Ast ()
 import Data.Map (Map, (!?))
 
@@ -53,7 +53,7 @@ toHnf :: Loc -> ClassEnv -> Pred -> TypeM [Pred]
 toHnf l classEnv p = if inHnf p then return [p]
                      else do x <- catchError (byInst l classEnv p) (const $ return Nothing)
                              case x of
-                               Nothing -> throwError ("Cannot find class instance for " ++ show p, Just l)
+                               Nothing -> throwError $ PStr ("Cannot find class instance for " ++ show p, Just l)
                                Just ps -> toHnfs l classEnv ps
 
 toHnfs :: Loc -> ClassEnv -> [Pred] -> TypeM [Pred]

@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 module TypeInferenceTests where
 
-import Location ( PString )
+import Location ( PString(..) )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
 import Types ( Type(..), Qual(..) )
 import SynExpToExp ( toExp )
@@ -24,7 +24,7 @@ typeOf :: [String] -> Either PString (Substitutions, Qual Type)
 typeOf s = parseExpr (unlines s) >>= (infer classEnv env' . liftN . toExp . head)
 
 (-->) :: [String] -> String -> Expectation
-(-->) x y = either fst (show . snd) (typeOf x) `shouldBe` y
+(-->) x y = either (\(PStr (s, _)) -> s) (show . snd) (typeOf x) `shouldBe` y
 
 tests :: SpecWith ()
 tests =

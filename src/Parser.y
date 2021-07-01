@@ -6,7 +6,7 @@ module Parser (
   parseTokens,
 ) where
 
-import Location (Loc, PString)
+import Location (Loc, PString(..))
 import Lexer
 import Operators
 import Primitives
@@ -129,24 +129,24 @@ Pats : Pat                         { [$1] }
 {
 
 makePString :: Token -> PString
-makePString (TokenLet p) = ("'let'", Just $ mkLoc p)
-makePString (TokenIf p) = ("'if'", Just $ mkLoc p)
-makePString (TokenThen p) = ("'then'", Just $ mkLoc p)
-makePString (TokenElse p) = ("'else'", Just $ mkLoc p)
-makePString (TokenIn p) = ("'in'", Just $ mkLoc p)
-makePString (TokenLambda p) = ("lambda '\\'", Just $ mkLoc p)
-makePString (TokenNum (p, n)) = ("'" ++ show n ++ "'", Just $ mkLoc p)
-makePString (TokenLParen p) = ("'('", Just $ mkLoc p) 
-makePString (TokenRParen p) = ("')'", Just $ mkLoc p)
-makePString (TokenDiv p) = ("'/'", Just $ mkLoc p)
-makePString (TokenDot p) = ("'.'", Just $ mkLoc p)
-makePString t = (show t, Nothing) 
+makePString (TokenLet p) = PStr ("'let'", Just $ mkLoc p)
+makePString (TokenIf p) = PStr ("'if'", Just $ mkLoc p)
+makePString (TokenThen p) = PStr ("'then'", Just $ mkLoc p)
+makePString (TokenElse p) = PStr ("'else'", Just $ mkLoc p)
+makePString (TokenIn p) = PStr ("'in'", Just $ mkLoc p)
+makePString (TokenLambda p) = PStr ("lambda '\\'", Just $ mkLoc p)
+makePString (TokenNum (p, n)) = PStr ("'" ++ show n ++ "'", Just $ mkLoc p)
+makePString (TokenLParen p) = PStr ("'('", Just $ mkLoc p) 
+makePString (TokenRParen p) = PStr ("')'", Just $ mkLoc p)
+makePString (TokenDiv p) = PStr ("'/'", Just $ mkLoc p)
+makePString (TokenDot p) = PStr ("'.'", Just $ mkLoc p)
+makePString t = PStr (show t, Nothing) 
   
 parseError :: [Token] -> Except PString a
 parseError (l:ls) = 
-  let (s, p) = makePString l in
-  throwError ("Syntax error " ++ s, p)
-parseError [] = throwError ("Unexpected end of Input", Nothing)
+  let (PStr (s, p)) = makePString l in
+  throwError $ PStr ("Syntax error " ++ s, p)
+parseError [] = throwError $ PStr ("Unexpected end of Input", Nothing)
 
 parseExpr :: String -> Either PString [SynExp]
 parseExpr input = runExcept $ do

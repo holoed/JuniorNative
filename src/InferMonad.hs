@@ -1,5 +1,6 @@
 module InferMonad where
 
+import Location (PString(..))
 import Control.Monad ( unless )
 import Control.Monad.Writer( MonadWriter(tell) )
 import Monads ( ReaderWriterState, ask, get, put, throwError )
@@ -43,7 +44,7 @@ mkForAll sv qt = do
 getTypeForName :: String -> TypeM Type
 getTypeForName n =
   do env <- getEnv
-     unless (containsScheme n env) $ throwError ("Name " ++ n ++ " not found.", Nothing)
+     unless (containsScheme n env) $ throwError $ PStr ("Name " ++ n ++ " not found.", Nothing)
      case findScheme n env of
        ForAll sv qt -> do (ps :=> t) <- mkForAll sv qt
                           tell ps
