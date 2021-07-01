@@ -19,8 +19,8 @@ import Control.Parallel.Strategies (parMap, rdeepseq)
 bindingsDict :: [Exp] -> Map String Exp
 bindingsDict es = Map.fromList ((\e@(In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) -> (s, e)) <$> es)
 
-foo :: [[(String, Exp)]] -> ClassEnv -> Env -> Env
-foo bss classEnv env =
+inferTypesFromDaggedBindings :: [[(String, Exp)]] -> ClassEnv -> Env -> Env
+inferTypesFromDaggedBindings bss classEnv env =
       foldl (\acc bs -> foldl concatEnvs acc $ parMap rdeepseq (f acc) bs) env bss
    where
      f env' (n, e) =
@@ -28,19 +28,19 @@ foo bss classEnv env =
        toEnv [(n, t)]
 
 
-bar :: [Exp] -> ClassEnv -> Env -> [(String, String)]
-bar es classEnv env  = sortOn ((orderDict!) . fst) unsortedRet
+inferTypes :: [Exp] -> ClassEnv -> Env -> [(String, String)]
+inferTypes es classEnv env  = sortOn ((orderDict!) . fst) unsortedRet
   where
           ns = (fst <$>) <$> chunks (Map.keysSet env) es
           dict = bindingsDict es
           bs = ((\n -> (n, dict!n)) <$>) <$> ns
           flattenedNs = concat ns
-          finalEnv = restrictKeys (foo bs classEnv env) (Set.fromList flattenedNs)
+          finalEnv = restrictKeys (inferTypesFromDaggedBindings bs classEnv env) (Set.fromList flattenedNs)
           unsortedRet = (\(n, ForAll _ qt) -> (n, show qt)) <$> Map.toList finalEnv
           orderDict = Map.fromList (zip flattenedNs ([1..] :: [Int]))
 
 
 typeOfModule :: ClassEnv -> Env -> String -> Either String [(String, String)]
 typeOfModule classEnv env x =
-    (\es' -> bar es' classEnv env) <$> ((toExp <$>) <$> parseExpr x)
+    (\es' -> inferTypes es' classEnv env) <$> ((toExp <$>) <$> parseExpr x)
   
