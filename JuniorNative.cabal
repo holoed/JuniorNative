@@ -15,7 +15,8 @@ extra-source-files:  README.md
 executable JuniorNative
   main-is:             Main.hs
   other-extensions:    DeriveFunctor, UndecidableInstances
-  other-modules:       Ast,
+  other-modules:       Location,
+                       Ast,
                        BuiltIns,
                        Intrinsics,
                        Environment,
@@ -64,7 +65,8 @@ executable JuniorService
   ghc-options:         -O2 -threaded -rtsopts -with-rtsopts=-N -Wall -fno-warn-orphans
   main-is:             Service.hs
   other-extensions:    DeriveFunctor, UndecidableInstances
-  other-modules:       Ast,
+  other-modules:       Location,
+                       Ast,
                        BuiltIns,
                        Intrinsics,
                        Environment,
@@ -120,7 +122,8 @@ test-suite tests
   ghc-options:         -Wall -fno-warn-orphans
   type:                exitcode-stdio-1.0
   main-is:             Tests.hs
-  other-modules:       Ast,
+  other-modules:       Location,
+                       Ast,
                        BuiltIns,
                        Intrinsics,
                        Environment,

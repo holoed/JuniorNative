@@ -43,7 +43,7 @@ mkForAll sv qt = do
 getTypeForName :: String -> TypeM Type
 getTypeForName n =
   do env <- getEnv
-     unless (containsScheme n env) $ throwError ("Name " ++ n ++ " not found.")
+     unless (containsScheme n env) $ throwError ("Name " ++ n ++ " not found.", Nothing)
      case findScheme n env of
        ForAll sv qt -> do (ps :=> t) <- mkForAll sv qt
                           tell ps

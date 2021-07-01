@@ -4,9 +4,11 @@ module Lexer (
   Token(..),
   AlexPosn(..),
   alexStartPos,
-  scanTokens
+  scanTokens,
+  mkLoc
 ) where
 
+import Location (Loc(..), PString)
 import PAst ()
 import Primitives
 
@@ -113,15 +115,15 @@ data Token
   | TokenEOF
   deriving (Eq,Show)
 
-showLoc :: AlexPosn -> String
-showLoc (AlexPn _ row col) = " at Ln " ++ (show row) ++ ", Col " ++ (show col) 
+mkLoc :: AlexPosn -> Loc
+mkLoc (AlexPn x y z) = Loc x y z
 
-scanTokens :: String -> Except String [Token]
+scanTokens :: String -> Except PString [Token]
 scanTokens str = go (alexStartPos, '\n',[],str) where
   go inp@(pos, _,_bs,str) =
     case alexScan inp 0 of
      AlexEOF -> return []
-     AlexError (p,_,_,_) -> throwError $ "lexical error" ++ showLoc p
+     AlexError (p,_,_,_) -> throwError $ ("lexical error", Just $ mkLoc p)
      AlexSkip  inp' len     -> go inp'
      AlexToken inp' len act -> do
       res <- go inp'

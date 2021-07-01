@@ -7,7 +7,8 @@ import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann), unwrap )
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
-import Ast ( Exp, ExpF(..), Loc )
+import Location ( Loc, PString )
+import Ast ( Exp, ExpF(..) )
 import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat, ttuplePat )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, tupleCon )
@@ -105,9 +106,9 @@ alg (Ann (Just l) (TuplePat ns)) = do
   let t = tupleCon ((\(_, _ :=> t') -> t') <$> nts)
   return $ ttuplePat l (fromList [] :=> t) ns'
 
-alg _ = throwError "Undefined"
+alg _ = throwError ("Undefined", Nothing)
 
-infer :: ClassEnv -> Env -> Exp -> Either String (Substitutions, Qual Type)
+infer :: ClassEnv -> Env -> Exp -> Either PString (Substitutions, Qual Type)
 infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
   where
         f (In(Ann (_, qt) _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . substituteQ subs) qt)

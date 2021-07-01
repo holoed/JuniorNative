@@ -9,11 +9,7 @@ import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
 import Operators ( Operator )
 import Annotations ( Ann(..) )
-
-data Loc = Loc !Int  -- absolute character offset
-               !Int  -- line number
-               !Int  -- column number 
-               deriving Show
+import Location (Loc)
 
 data SynExpF a = Lit Prim
                | Var String

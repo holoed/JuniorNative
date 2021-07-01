@@ -13,7 +13,7 @@ trim = f . f
   where f = reverse . dropWhile isSpace
 
 (-->) :: [String] -> [String] -> Expectation
-(-->) x y = either id (intercalate "\n" . map (trim . pretty . fromExp . toExp))
+(-->) x y = either show (intercalate "\n" . map (trim . pretty . fromExp . toExp))
                       (parseExpr (intercalate "\n" x))
             `shouldBe`
                       intercalate "\n" (map trim y)

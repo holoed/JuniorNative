@@ -22,8 +22,8 @@ process :: String -> IO ()
 process input = do
   let ast = parseExpr input
   let ty = ast >>= (infer classEnv env . liftN . toExp . head)
-  putStrLn (either id pretty (ast <&> head))
-  putStrLn (either id (show . snd) ty)
+  putStrLn (either show pretty (ast <&> head))
+  putStrLn (either show (show . snd) ty)
 
 main :: IO ()
 main = runInputT defaultSettings loop

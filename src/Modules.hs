@@ -1,5 +1,6 @@
 module Modules where
 
+import Location ( PString )
 import Ast ( Exp, ExpF(Let, VarPat) )
 import Fixpoint ( Fix(In) )
 import Infer ( infer )
@@ -19,14 +20,14 @@ import Control.Parallel.Strategies (parMap, rdeepseq)
 bindingsDict :: [Exp] -> Map String Exp
 bindingsDict es = Map.fromList ((\e@(In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) -> (s, e)) <$> es)
 
-inferTypesFromDaggedBindings :: [[(String, Exp)]] -> ClassEnv -> Either String Env -> Either String Env
+inferTypesFromDaggedBindings :: [[(String, Exp)]] -> ClassEnv -> Either PString Env -> Either PString Env
 inferTypesFromDaggedBindings bss classEnv env =
       foldl (\acc bs -> foldl (\ev1 ev2 -> concatEnvs <$> ev1 <*> ev2) acc $ parMap rdeepseq (f acc) bs) env bss
    where
      g env' (n, e) = (\t -> toEnv [(n, t)]) . snd <$> (infer classEnv env' . liftN) e
      f env' (n, e) = env' >>= flip g (n, e)
 
-inferTypes :: [Exp] -> ClassEnv -> Env -> Either String [(String, String)]
+inferTypes :: [Exp] -> ClassEnv -> Env -> Either PString [(String, String)]
 inferTypes es classEnv env  = sortOn ((orderDict!) . fst) <$> unsortedRet
   where
           ns = (fst <$>) <$> chunks (Map.keysSet env) es
@@ -39,7 +40,7 @@ inferTypes es classEnv env  = sortOn ((orderDict!) . fst) <$> unsortedRet
           orderDict = Map.fromList (zip flattenedNs ([1..] :: [Int]))
 
 
-typeOfModule :: ClassEnv -> Env -> String -> Either String [(String, String)]
+typeOfModule :: ClassEnv -> Env -> String -> Either PString [(String, String)]
 typeOfModule classEnv env x =
     parseExpr x >>= (\es' -> inferTypes es' classEnv env) . (toExp <$>)
   

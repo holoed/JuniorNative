@@ -4,14 +4,14 @@ import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation)
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann), mapAnn )
 import Primitives ( Prim(I) )
-import Ast ( ExpF(Lit, Var, VarPat, MkTuple, App, Lam, Let, IfThenElse), Loc(..) )
+import Ast ( ExpF(Lit, Var, VarPat, MkTuple, App, Lam, Let, IfThenElse) )
 import FreeVariables ( freeVars )
 import Data.Set (Set(), empty, fromList )
 import Parser (parseExpr)
 import SynExpToExp (toExp)
 
 (-->) :: String -> Fix (Ann (Set String) ExpF) -> Expectation
-(-->) s v  = (mapAnn snd <$> either error (freeVars empty . toExp <$>) (parseExpr s)) `shouldBe` [v]
+(-->) s v  = (mapAnn snd <$> either (error . show) (freeVars empty . toExp <$>) (parseExpr s)) `shouldBe` [v]
 
 tests :: SpecWith ()
 tests =

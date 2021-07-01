@@ -12,7 +12,8 @@ import Control.Monad ( msum )
 import Data.Set (toList, fromList)
 import Data.Maybe ( fromJust, maybeToList )
 import RecursionSchemes ( cataRec )
-import Ast (Loc)
+import Location ( Loc )
+import Ast ()
 import Data.Map (Map, (!?))
 
 -- Typing Haskell in Haskell Context Reduction
@@ -50,9 +51,9 @@ byInst l classEnv p@(IsIn i _) = msum [tryInst l it p | it <- insts classEnv i]
 
 toHnf :: Loc -> ClassEnv -> Pred -> TypeM [Pred]
 toHnf l classEnv p = if inHnf p then return [p]
-                     else do x <- catchError (byInst l classEnv p) (const $ return $ Nothing)
+                     else do x <- catchError (byInst l classEnv p) (const $ return Nothing)
                              case x of
-                               Nothing -> throwError $ "Cannot find class instance for " ++ show p
+                               Nothing -> throwError ("Cannot find class instance for " ++ show p, Just l)
                                Just ps -> toHnfs l classEnv ps
 
 toHnfs :: Loc -> ClassEnv -> [Pred] -> TypeM [Pred]

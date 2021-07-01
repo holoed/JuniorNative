@@ -27,5 +27,5 @@ route = do
     middleware logStdoutDev
     post "/" $ do
          code <- body
-         text $ Lazy.pack $ either id format (typeOfModule classEnv env (Char8.unpack code)) ++ "\r\n"
+         text $ Lazy.pack $ either show format (typeOfModule classEnv env (Char8.unpack code)) ++ "\r\n"
   where format = Data.List.intercalate "\n" . ((\(n, t) -> n ++ ": " ++ t) <$>)

@@ -9,7 +9,7 @@ import Intrinsics ( env, classEnv )
 
 
 (-->) :: String -> [(String, String)] -> Expectation
-(-->) x y = either error id (typeOfModule classEnv env x) `shouldBe` y
+(-->) x y = either (error . show) id (typeOfModule classEnv env x) `shouldBe` y
 
 (--->) :: FilePath -> [(String, String)] -> Expectation 
 (--->) x y = do handle <- openFile x ReadMode

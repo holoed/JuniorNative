@@ -1,6 +1,7 @@
 module AlphaRename where
 
-import Ast ( Exp, ExpF(Let, Lam, Var, VarPat), var, lam, leT, Loc )
+import Location ( Loc )
+import Ast ( Exp, ExpF(Let, Lam, Var, VarPat), var, lam, leT )
 import Data.Map ( (!), empty, insert, lookup, member, Map )
 import Data.Maybe ( fromMaybe, fromJust )
 import Control.Monad.Trans.Reader ( ask, local, ReaderT(runReaderT) )

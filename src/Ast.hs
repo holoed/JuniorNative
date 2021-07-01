@@ -7,14 +7,7 @@ module Ast where
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
 import Annotations ( Ann(..) )
-
-data Loc = Loc !Int  -- absolute character offset
-               !Int  -- line number
-               !Int  -- column number 
-               deriving Eq
-
-instance Show Loc where 
-    show (Loc _ l c) = "line " ++ show l ++ " column " ++ show c
+import Location (Loc)
 
 data ExpF a = Lit Prim
             | Var String

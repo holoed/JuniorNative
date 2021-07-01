@@ -1,6 +1,7 @@
 module FreeVariables where
 
-import Ast ( Exp, ExpF(..), Loc )
+import Location ( Loc )
+import Ast ( Exp, ExpF(..) )
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(..), unwrap )
 import RecursionSchemes ( cataRec )

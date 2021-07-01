@@ -1,6 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 module TypeInferenceTests where
 
+import Location ( PString )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
 import Types ( Type(..), Qual(..) )
 import SynExpToExp ( toExp )
@@ -19,11 +20,11 @@ env' = concatEnvs env $ toEnv [
   ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0)))    
  ]
 
-typeOf :: [String] -> Either String (Substitutions, Qual Type)
+typeOf :: [String] -> Either PString (Substitutions, Qual Type)
 typeOf s = parseExpr (unlines s) >>= (infer classEnv env' . liftN . toExp . head)
 
 (-->) :: [String] -> String -> Expectation
-(-->) x y = either id (show . snd) (typeOf x) `shouldBe` y
+(-->) x y = either fst (show . snd) (typeOf x) `shouldBe` y
 
 tests :: SpecWith ()
 tests =
@@ -77,7 +78,7 @@ tests =
       ["if True then 5 else False"] --> "Cannot find class instance for Num Bool"
       ["if True then True else 5"] -->  "Cannot find class instance for Num Bool"
       ["if 5 then True else False"] --> "Cannot find class instance for Num Bool"
-      ["if \"5\" then True else False"] --> "Unable to unify String with Bool at line 1 column 4"
+      ["if \"5\" then True else False"] --> "Unable to unify String with Bool"
 
     it "type of tuple" $ do
       ["(2, True)"] --> "Num a => (a, Bool)"
@@ -127,13 +128,13 @@ tests =
        "                                      (qsort (filter (\\y -> y > head xs) (tail xs))) in qsort"] --> "Ord a => List a -> List a"
 
     it "Apply function with wrong tuple arity" $ do
-      ["let f x = (fst x, snd x) in f (1, 2, 3)"] --> "Unable to unify Tuple T11 with Tuple at line 1 column 31"
+      ["let f x = (fst x, snd x) in f (1, 2, 3)"] --> "Unable to unify Tuple T11 with Tuple"
 
     it "Equality of tuples" $ do
       ["let f x y = (x, y) == (x, y) in f"] --> "(Eq a, Eq b) => a -> b -> Bool"
 
     it "Equality of tuples Error" $ do
-      ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T12 with Tuple at line 1 column 25"
+      ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T12 with Tuple"
 
     it "Tuple pattern in lambda" $ do
       ["\\(x, y) -> (y, x)"] --> "(a, b) -> (b, a)"

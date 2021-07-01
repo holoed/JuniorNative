@@ -6,6 +6,7 @@ module Parser (
   parseTokens,
 ) where
 
+import Location (Loc, PString)
 import Lexer
 import Operators
 import Primitives
@@ -22,7 +23,7 @@ import Control.Monad.Except
 %tokentype { Token }
 
 -- Parser monad
-%monad { Except String } { (>>=) } { return }
+%monad { Except PString } { (>>=) } { return }
 %error { parseError }
 
 -- Token Names
@@ -127,36 +128,32 @@ Pats : Pat                         { [$1] }
 
 {
 
-mkLoc :: AlexPosn -> Loc
-mkLoc (AlexPn x y z) = Loc x y z
-
-showLoc :: AlexPosn -> String
-showLoc (AlexPn _ row col) = " at Ln " ++ (show row) ++ ", Col " ++ (show col) 
-
-showToken :: Token -> String
-showToken (TokenLet p) = "'let'" ++ showLoc p
-showToken (TokenIf p) = "'if'" ++ showLoc p
-showToken (TokenThen p) = "'then'" ++ showLoc p
-showToken (TokenElse p) = "'else'" ++ showLoc p
-showToken (TokenIn p) = "'in'" ++ showLoc p
-showToken (TokenLambda p) = "lambda '\\'" ++ showLoc p
-showToken (TokenNum (p, n)) = "'" ++ show n ++ "'" ++ showLoc p
-showToken (TokenLParen p) = "'('" ++ showLoc p 
-showToken (TokenRParen p) = "')'" ++ showLoc p
-showToken (TokenDiv p) = "'/'" ++ showLoc p
-showToken (TokenDot p) = "'.'" ++ showLoc p
-showToken t = show t 
+makePString :: Token -> PString
+makePString (TokenLet p) = ("'let'", Just $ mkLoc p)
+makePString (TokenIf p) = ("'if'", Just $ mkLoc p)
+makePString (TokenThen p) = ("'then'", Just $ mkLoc p)
+makePString (TokenElse p) = ("'else'", Just $ mkLoc p)
+makePString (TokenIn p) = ("'in'", Just $ mkLoc p)
+makePString (TokenLambda p) = ("lambda '\\'", Just $ mkLoc p)
+makePString (TokenNum (p, n)) = ("'" ++ show n ++ "'", Just $ mkLoc p)
+makePString (TokenLParen p) = ("'('", Just $ mkLoc p) 
+makePString (TokenRParen p) = ("')'", Just $ mkLoc p)
+makePString (TokenDiv p) = ("'/'", Just $ mkLoc p)
+makePString (TokenDot p) = ("'.'", Just $ mkLoc p)
+makePString t = (show t, Nothing) 
   
-parseError :: [Token] -> Except String a
-parseError (l:ls) = throwError ("Syntax error " ++ showToken l)
-parseError [] = throwError "Unexpected end of Input"
+parseError :: [Token] -> Except PString a
+parseError (l:ls) = 
+  let (s, p) = makePString l in
+  throwError ("Syntax error " ++ s, p)
+parseError [] = throwError ("Unexpected end of Input", Nothing)
 
-parseExpr :: String -> Either String [SynExp]
+parseExpr :: String -> Either PString [SynExp]
 parseExpr input = runExcept $ do
   tokenStream <- scanTokens input
   expr tokenStream
 
-parseTokens :: String -> Either String [Token]
+parseTokens :: String -> Either PString [Token]
 parseTokens = runExcept . scanTokens
 
 }

@@ -16,7 +16,7 @@ tests :: SpecWith ()
 tests = do
   describe "Build dependencies" $ do
 
-   let build code = deps globals $ toExp <$> either error id (parseExpr code)
+   let build code = deps globals $ toExp <$> either (error . show) id (parseExpr code)
    let (-->) x y = build x `shouldBe` y
 
    it "No deps" $ "let x = 42" --> [("x", [])]
@@ -36,7 +36,7 @@ tests = do
 
   describe "Build chunks" $ do
 
-    let build code = chunks globals $ toExp <$> either error id (parseExpr code)
+    let build code = chunks globals $ toExp <$> either (error . show) id (parseExpr code)
     let (-->) x y = build x `shouldBe` y
     let (--->) x y = do handle <- openFile x ReadMode
                         contents <- hGetContents handle
