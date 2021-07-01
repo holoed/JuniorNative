@@ -7,29 +7,30 @@ import Environment ( Env, toEnv, concatEnvs )
 import Data.Map as Map ( keysSet, fromList, toList, (!), restrictKeys, Map )
 import Data.Set as Set (fromList)
 import Data.List (sortOn)
-import Types ( Qual((:=>)), Type(TyCon), TypeScheme(ForAll) ) 
+import Types ( Qual((:=>)), Type(TyCon), TypeScheme(ForAll) )
 import SynExpToExp ( toExp )
 import Parser ( parseExpr )
 import DagBindings ( chunks )
 import LiftNumbers ( liftN )
 import Annotations (Ann(..))
 import ContextReduction (ClassEnv)
-import Control.Parallel.Strategies (parMap, rdeepseq, NFData)
+import Control.Parallel.Strategies (parMap, rdeepseq)
 
-bindingsDict :: [Exp] -> Map String Exp 
+bindingsDict :: [Exp] -> Map String Exp
 bindingsDict es = Map.fromList ((\e@(In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) -> (s, e)) <$> es)
 
 foo :: [[(String, Exp)]] -> ClassEnv -> Env -> Env
-foo bss classEnv env = 
+foo bss classEnv env =
       foldl (\acc bs -> foldl concatEnvs acc $ parMap rdeepseq (f acc) bs) env bss
    where
-     f env' (n, e) = 
+     f env' (n, e) =
        let t = (either (\err -> Set.fromList [] :=> TyCon err) snd . infer classEnv env' . liftN) e in
-       toEnv [(n, t)] 
+       toEnv [(n, t)]
 
-typeOfModule :: ClassEnv -> Env -> String -> [(String, String)] 
-typeOfModule classEnv env x = sortedRet
-    where es = either error (toExp <$>) (parseExpr x)
+
+bar :: [Exp] -> ClassEnv -> Env -> [(String, String)]
+bar es classEnv env  = sortOn ((orderDict!) . fst) unsortedRet
+  where
           ns = (fst <$>) <$> chunks (Map.keysSet env) es
           dict = bindingsDict es
           bs = ((\n -> (n, dict!n)) <$>) <$> ns
@@ -37,4 +38,9 @@ typeOfModule classEnv env x = sortedRet
           finalEnv = restrictKeys (foo bs classEnv env) (Set.fromList flattenedNs)
           unsortedRet = (\(n, ForAll _ qt) -> (n, show qt)) <$> Map.toList finalEnv
           orderDict = Map.fromList (zip flattenedNs ([1..] :: [Int]))
-          sortedRet = sortOn ((orderDict!) . fst) unsortedRet
+
+
+typeOfModule :: ClassEnv -> Env -> String -> Either String [(String, String)]
+typeOfModule classEnv env x =
+    (\es' -> bar es' classEnv env) <$> ((toExp <$>) <$> parseExpr x)
+  
