@@ -50,80 +50,80 @@ tokens :-
   "#".*                         ;
 
   -- Syntax
-  let                           {\p s -> TokenLet p }
-  True                          {\p s -> TokenTrue p }
-  False                         {\p s -> TokenFalse p }
-  if                            {\p s -> TokenIf p }
-  then                          {\p s -> TokenThen p }
-  else                          {\p s -> TokenElse p }
-  in                            {\p s -> TokenIn p }
+  let                           {\p s -> TokenLet (p, s) }
+  True                          {\p s -> TokenTrue (p, s) }
+  False                         {\p s -> TokenFalse (p, s) }
+  if                            {\p s -> TokenIf (p, s) }
+  then                          {\p s -> TokenThen (p, s) }
+  else                          {\p s -> TokenElse (p, s) }
+  in                            {\p s -> TokenIn (p, s) }
   @sign? @number                {\p s -> TokenNum (p, strToPrim s) }
   @string                       {\p s -> TokenString (p, (S s)) }
-  "->"                          {\p s -> TokenArrow p }
-  "=="                          {\p s -> TokenEql p }
-  \=                            {\p s -> TokenEq p }
-  \\                            {\p s -> TokenLambda p }
-  "[]"                          {\p s -> TokenEmpty p }
-  ":"                           {\p s -> TokenCons p }
-  "++"                          {\p s -> TokenConcat p }
-  "&&"                          {\p s -> TokenAnd p }
-  "||"                          {\p s -> TokenOr p }
-  [\+]                          {\p s -> TokenAdd p }
-  [\-]                          {\p s -> TokenSub p }
-  [\*]                          {\p s -> TokenMul p }
-  [\/]                          {\p s -> TokenDiv p }
-  [\>]                          {\p s -> TokenGt p  }
-  [\<]                          {\p s -> TokenLt p  }
-  \(                            {\p s -> TokenLParen p }
-  \)                            {\p s -> TokenRParen p }
+  "->"                          {\p s -> TokenArrow (p, s) }
+  "=="                          {\p s -> TokenEql (p, s) }
+  \=                            {\p s -> TokenEq (p, s) }
+  \\                            {\p s -> TokenLambda (p, s) }
+  "[]"                          {\p s -> TokenEmpty (p, s) }
+  ":"                           {\p s -> TokenCons (p, s) }
+  "++"                          {\p s -> TokenConcat (p, s) }
+  "&&"                          {\p s -> TokenAnd (p, s) }
+  "||"                          {\p s -> TokenOr (p, s) }
+  [\+]                          {\p s -> TokenAdd (p, s) }
+  [\-]                          {\p s -> TokenSub (p, s) }
+  [\*]                          {\p s -> TokenMul (p, s) }
+  [\/]                          {\p s -> TokenDiv (p, s) }
+  [\>]                          {\p s -> TokenGt (p, s)  }
+  [\<]                          {\p s -> TokenLt (p, s)  }
+  \(                            {\p s -> TokenLParen (p, s) }
+  \)                            {\p s -> TokenRParen (p, s) }
   ","                           {\p s -> TokenComma }
-  "."                           {\p s -> TokenDot p }
+  "."                           {\p s -> TokenDot (p, s) }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
 
 {
 
 data Token
-  = TokenLet AlexPosn
-  | TokenIf AlexPosn
-  | TokenThen AlexPosn
-  | TokenElse AlexPosn
-  | TokenIn AlexPosn
-  | TokenLambda AlexPosn
-  | TokenTrue AlexPosn
-  | TokenFalse AlexPosn
+  = TokenLet (AlexPosn, String)
+  | TokenIf (AlexPosn, String)
+  | TokenThen (AlexPosn, String)
+  | TokenElse (AlexPosn, String)
+  | TokenIn (AlexPosn, String)
+  | TokenLambda (AlexPosn, String)
+  | TokenTrue (AlexPosn, String)
+  | TokenFalse (AlexPosn, String)
   | TokenNum (AlexPosn, Prim)
   | TokenString (AlexPosn, Prim)
   | TokenSym (AlexPosn, String)
-  | TokenArrow AlexPosn
-  | TokenConcat AlexPosn
-  | TokenEmpty AlexPosn
-  | TokenCons AlexPosn
-  | TokenAnd AlexPosn
-  | TokenOr AlexPosn
-  | TokenEq AlexPosn
-  | TokenEql AlexPosn
-  | TokenAdd AlexPosn
-  | TokenSub AlexPosn
-  | TokenMul AlexPosn
-  | TokenDiv AlexPosn
-  | TokenGt AlexPosn
-  | TokenLt AlexPosn
-  | TokenLParen AlexPosn
-  | TokenRParen AlexPosn
+  | TokenArrow (AlexPosn, String)
+  | TokenConcat (AlexPosn, String)
+  | TokenEmpty (AlexPosn, String)
+  | TokenCons (AlexPosn, String)
+  | TokenAnd (AlexPosn, String)
+  | TokenOr (AlexPosn, String)
+  | TokenEq (AlexPosn, String)
+  | TokenEql (AlexPosn, String)
+  | TokenAdd (AlexPosn, String)
+  | TokenSub (AlexPosn, String)
+  | TokenMul (AlexPosn, String)
+  | TokenDiv (AlexPosn, String)
+  | TokenGt (AlexPosn, String)
+  | TokenLt (AlexPosn, String)
+  | TokenLParen (AlexPosn, String)
+  | TokenRParen (AlexPosn, String)
   | TokenComma
-  | TokenDot AlexPosn
+  | TokenDot (AlexPosn, String)
   | TokenEOF
   deriving (Eq,Show)
 
-mkLoc :: AlexPosn -> Loc
-mkLoc (AlexPn x y z) = Loc x y z
+mkLoc :: (AlexPosn, String) -> Loc
+mkLoc (AlexPn x y z, _) = Loc x y z
 
 scanTokens :: String -> Except PString [Token]
 scanTokens str = go (alexStartPos, '\n',[],str) where
   go inp@(pos, _,_bs,str) =
     case alexScan inp 0 of
      AlexEOF -> return []
-     AlexError (p,_,_,_) -> throwError $ PStr ("lexical error", Just $ mkLoc p)
+     AlexError (p,_,_,s) -> throwError $ PStr ("lexical error", Just $ mkLoc (p, s))
      AlexSkip  inp' len     -> go inp'
      AlexToken inp' len act -> do
       res <- go inp'

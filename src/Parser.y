@@ -93,14 +93,14 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
      | Fact                        { $1 }
 
-Fact : Fact Atom                   { infixApp (mkLoc alexStartPos) juxtaOp $1 $2 }
+Fact : Fact Atom                   { infixApp (mkLoc (alexStartPos, " ")) juxtaOp $1 $2 }
      | Atom                        { $1 }
 
 Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple (mkLoc $1) $2 }
-     | NUM                         { lit (mkLoc (fst $1)) (snd $1) }
-     | STRING                      { lit (mkLoc (fst $1)) (snd $1) }
-     | VAR                         { var (mkLoc (fst $1)) (snd $1) }
+     | NUM                         { lit (mkLoc (fst $1, show $ snd $1)) (snd $1) }
+     | STRING                      { lit (mkLoc (fst $1, show $ snd $1)) (snd $1) }
+     | VAR                         { var (mkLoc ($1)) (snd $1) }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }
      | '[]'                        { var (mkLoc $1) "[]" }
@@ -117,7 +117,7 @@ Exprs : Expr                       { [$1] }
 Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
      | '(' '++' ')'                { varPat (mkLoc $2) "++" }
      | '(' '.' ')'                 { varPat (mkLoc $2) "." }
-     | VAR                         { varPat (mkLoc (fst $1)) (snd $1) }
+     | VAR                         { varPat (mkLoc $1) (snd $1) }
                        
 
 PatList : Pat                       { [$1] }
@@ -129,17 +129,17 @@ Pats : Pat                         { [$1] }
 {
 
 makePString :: Token -> PString
-makePString (TokenLet p) = PStr ("'let'", Just $ mkLoc p)
-makePString (TokenIf p) = PStr ("'if'", Just $ mkLoc p)
-makePString (TokenThen p) = PStr ("'then'", Just $ mkLoc p)
-makePString (TokenElse p) = PStr ("'else'", Just $ mkLoc p)
-makePString (TokenIn p) = PStr ("'in'", Just $ mkLoc p)
-makePString (TokenLambda p) = PStr ("lambda '\\'", Just $ mkLoc p)
-makePString (TokenNum (p, n)) = PStr ("'" ++ show n ++ "'", Just $ mkLoc p)
-makePString (TokenLParen p) = PStr ("'('", Just $ mkLoc p) 
-makePString (TokenRParen p) = PStr ("')'", Just $ mkLoc p)
-makePString (TokenDiv p) = PStr ("'/'", Just $ mkLoc p)
-makePString (TokenDot p) = PStr ("'.'", Just $ mkLoc p)
+makePString (TokenLet (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenIf (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenThen (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenElse (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenIn (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenLambda (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenNum (p, n)) = PStr (show n, Just $ mkLoc (p, show n))
+makePString (TokenLParen (p, n)) = PStr (n, Just $ mkLoc (p, n)) 
+makePString (TokenRParen (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenDiv (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenDot (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString t = PStr (show t, Nothing) 
   
 parseError :: [Token] -> Except PString a
