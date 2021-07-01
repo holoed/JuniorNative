@@ -15,9 +15,6 @@ data Loc = Loc !Int  -- absolute character offset
                !Int  -- column number 
                deriving Show
 
-zeroLoc :: Loc
-zeroLoc = Loc 0 0 0
-
 data SynExpF a = Lit Prim
                | Var String
                | VarPat String

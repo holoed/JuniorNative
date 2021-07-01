@@ -13,9 +13,6 @@ import SynExpToExp (toExp)
 (-->) :: String -> Fix (Ann (Set String) ExpF) -> Expectation
 (-->) s v  = (mapAnn snd <$> either error (freeVars empty . toExp <$>) (parseExpr s)) `shouldBe` [v]
 
-zeroLoc :: Loc
-zeroLoc = Loc 0 0 0
-
 tests :: SpecWith ()
 tests =
   describe "Free Variables Tests" $ do
