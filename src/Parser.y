@@ -52,7 +52,7 @@ import Control.Monad.Except
     '<'   { TokenLt  $$ }
     ','   { TokenComma }
     '('   { TokenLParen $$ }
-    ')'   { TokenRParen }
+    ')'   { TokenRParen $$ }
     '.'   { TokenDot $$ }
     '[]'  { TokenEmpty $$ }
     ':'   { TokenCons $$ }
@@ -130,8 +130,24 @@ Pats : Pat                         { [$1] }
 mkLoc :: AlexPosn -> Loc
 mkLoc (AlexPn x y z) = Loc x y z
 
+showLoc :: AlexPosn -> String
+showLoc (AlexPn _ row col) = " at " ++ (show row) ++ " line, " ++ (show col) ++ " column"
+
+showToken :: Token -> String
+showToken (TokenLet p) = "'let'" ++ showLoc p
+showToken (TokenIf p) = "'if'" ++ showLoc p
+showToken (TokenThen p) = "'then'" ++ showLoc p
+showToken (TokenElse p) = "'else'" ++ showLoc p
+showToken (TokenIn p) = "'in'" ++ showLoc p
+showToken (TokenLambda p) = "lambda '\\'" ++ showLoc p
+showToken (TokenNum (p, n)) = "'" ++ show n ++ "'" ++ showLoc p
+showToken (TokenLParen p) = "'('" ++ showLoc p 
+showToken (TokenRParen p) = "')'" ++ showLoc p
+showToken (TokenDiv p) = "'/'" ++ showLoc p
+showToken t = show t 
+  
 parseError :: [Token] -> Except String a
-parseError (l:ls) = throwError ("Unexpected token " ++ show l)
+parseError (l:ls) = throwError ("Syntax error " ++ showToken l)
 parseError [] = throwError "Unexpected end of Input"
 
 parseExpr :: String -> Either String [SynExp]

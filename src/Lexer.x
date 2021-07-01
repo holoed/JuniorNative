@@ -73,7 +73,7 @@ tokens :-
   [\>]                          {\p s -> TokenGt p  }
   [\<]                          {\p s -> TokenLt p  }
   \(                            {\p s -> TokenLParen p }
-  \)                            {\p s -> TokenRParen }
+  \)                            {\p s -> TokenRParen p }
   ","                           {\p s -> TokenComma }
   "."                           {\p s -> TokenDot p }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
@@ -107,7 +107,7 @@ data Token
   | TokenGt AlexPosn
   | TokenLt AlexPosn
   | TokenLParen AlexPosn
-  | TokenRParen
+  | TokenRParen AlexPosn
   | TokenComma
   | TokenDot AlexPosn
   | TokenEOF
