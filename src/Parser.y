@@ -131,7 +131,7 @@ mkLoc :: AlexPosn -> Loc
 mkLoc (AlexPn x y z) = Loc x y z
 
 showLoc :: AlexPosn -> String
-showLoc (AlexPn _ row col) = " at " ++ (show row) ++ " line, " ++ (show col) ++ " column"
+showLoc (AlexPn _ row col) = " at Ln " ++ (show row) ++ ", Col " ++ (show col) 
 
 showToken :: Token -> String
 showToken (TokenLet p) = "'let'" ++ showLoc p
@@ -144,6 +144,7 @@ showToken (TokenNum (p, n)) = "'" ++ show n ++ "'" ++ showLoc p
 showToken (TokenLParen p) = "'('" ++ showLoc p 
 showToken (TokenRParen p) = "')'" ++ showLoc p
 showToken (TokenDiv p) = "'/'" ++ showLoc p
+showToken (TokenDot p) = "'.'" ++ showLoc p
 showToken t = show t 
   
 parseError :: [Token] -> Except String a

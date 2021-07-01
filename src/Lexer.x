@@ -113,12 +113,15 @@ data Token
   | TokenEOF
   deriving (Eq,Show)
 
+showLoc :: AlexPosn -> String
+showLoc (AlexPn _ row col) = " at Ln " ++ (show row) ++ ", Col " ++ (show col) 
+
 scanTokens :: String -> Except String [Token]
 scanTokens str = go (alexStartPos, '\n',[],str) where
   go inp@(pos, _,_bs,str) =
     case alexScan inp 0 of
      AlexEOF -> return []
-     AlexError ((AlexPn _ line column),_,_,_) -> throwError $ "lexical error at " ++ (show line) ++ " line, " ++ (show column) ++ " column"
+     AlexError (p,_,_,_) -> throwError $ "lexical error" ++ showLoc p
      AlexSkip  inp' len     -> go inp'
      AlexToken inp' len act -> do
       res <- go inp'
