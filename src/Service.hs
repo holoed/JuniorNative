@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Main where
 
-import Location (Loc, PString)
+import Location (Loc(..), PString(..))
 import Control.Monad.Trans ()
 import Data.List (intercalate)
 import Monads ()
@@ -16,10 +16,17 @@ import Web.Scotty.Trans ( body, text, post, middleware )
 import Network.Wai.Middleware.RequestLogger ( logStdoutDev )
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Intrinsics ( env, classEnv ) 
-import Data.Aeson ( ToJSON, encode )
+import Data.Aeson
+    ( ToJSON(toJSON), object, encode, KeyValue((.=)) ) 
 
-instance ToJSON Loc
-instance ToJSON PString
+instance ToJSON Loc where
+  toJSON (Loc offset line column) = object ["offset" .= offset, 
+                                            "line"   .= line,
+                                            "column" .= column]
+
+instance ToJSON PString where
+  toJSON (PStr (s, p)) = object ["msg" .= s,
+                                 "loc" .= p]
 
 main :: IO ()
 main = do

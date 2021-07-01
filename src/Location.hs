@@ -24,5 +24,4 @@ instance Monoid PString where
 instance Show PString where
   show (PStr (x, p)) = x ++ " " ++ show p
     
-
 newtype PString = PStr (String, Maybe Loc) deriving (Generic, NFData)
