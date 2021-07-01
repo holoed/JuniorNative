@@ -20,7 +20,7 @@ import Data.Aeson
     ( ToJSON(toJSON), object, encode, KeyValue((.=)) ) 
 
 instance ToJSON Loc where
-  toJSON (Loc offset line column) = object ["offset" .= offset, 
+  toJSON (Loc offset line column) = object ["len" .= offset, 
                                             "line"   .= line,
                                             "column" .= column]
 

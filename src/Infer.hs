@@ -42,7 +42,7 @@ alg (Ann (Just l) (Lit v)) =
 
 alg (Ann (Just l) (Var n)) =
   do bt <- getBaseType
-     (t, ps) <- listen (getTypeForName n)
+     (t, ps) <- listen (getTypeForName l n)
      mgu l t bt
      return (tvar l (ps :=> bt) n)
 

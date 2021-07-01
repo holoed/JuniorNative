@@ -4,7 +4,7 @@ module Location where
 import GHC.Generics (Generic)
 import Control.DeepSeq (NFData)
 
-data Loc = Loc !Int  -- absolute character offset
+data Loc = Loc !Int  -- token len
                !Int  -- line number
                !Int  -- column number 
                deriving (Eq, Generic, NFData)

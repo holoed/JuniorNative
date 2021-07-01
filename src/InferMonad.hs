@@ -1,6 +1,6 @@
 module InferMonad where
 
-import Location (PString(..))
+import Location (Loc, PString(..))
 import Control.Monad ( unless )
 import Control.Monad.Writer( MonadWriter(tell) )
 import Monads ( ReaderWriterState, ask, get, put, throwError )
@@ -41,10 +41,10 @@ mkForAll sv qt = do
   let tyToRefresh = getTVarsOfQType qt \\ unions (toList (map getTVarsOfType subSv))
   fmap (`substituteQ` qt) (refreshNames tyToRefresh)
 
-getTypeForName :: String -> TypeM Type
-getTypeForName n =
+getTypeForName :: Loc -> String -> TypeM Type
+getTypeForName l n =
   do env <- getEnv
-     unless (containsScheme n env) $ throwError $ PStr ("Name " ++ n ++ " not found.", Nothing)
+     unless (containsScheme n env) $ throwError $ PStr ("Name " ++ n ++ " not found.", Just l)
      case findScheme n env of
        ForAll sv qt -> do (ps :=> t) <- mkForAll sv qt
                           tell ps

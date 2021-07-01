@@ -116,7 +116,7 @@ data Token
   deriving (Eq,Show)
 
 mkLoc :: (AlexPosn, String) -> Loc
-mkLoc (AlexPn x y z, _) = Loc x y z
+mkLoc (AlexPn x y z, s) = Loc (length s) y z
 
 scanTokens :: String -> Except PString [Token]
 scanTokens str = go (alexStartPos, '\n',[],str) where
