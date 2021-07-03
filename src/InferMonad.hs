@@ -3,7 +3,7 @@ module InferMonad where
 import Location (Loc, PString(..))
 import Control.Monad ( unless )
 import Control.Monad.Writer( MonadWriter(tell) )
-import Monads ( ReaderWriterState, ask, get, put, throwError )
+import Monads ( ErrorReaderWriterState, ask, get, put, throwError )
 import Types ( TypeScheme(..), Type(..), Qual(..), Pred, getTVarsOfType, getTVarsOfQType )
 import Substitutions ( Substitutions, substitute, substituteQ )
 import Environment ( Env, findScheme, containsScheme )
@@ -11,7 +11,7 @@ import Data.Map (fromList)
 import Data.Set (Set, toList, (\\), map, unions)
 import Prelude hiding (map)
 
-type TypeM = ReaderWriterState (Env, Type, Set String) (Set Pred) (Substitutions, Int)
+type TypeM = ErrorReaderWriterState PString (Env, Type, Set String) (Set Pred) (Substitutions, Int)
 
 newTyVar :: Int -> TypeM Type
 newTyVar k = do (subs, i) <- get
