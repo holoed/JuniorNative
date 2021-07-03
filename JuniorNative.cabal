@@ -47,7 +47,10 @@ executable JuniorNative
                        SynExpToExp,
                        TypesPrinter,
                        DependencyAnalysis,
-                       Modules
+                       Modules,
+                       CompilerMonad,
+                       CompilerSteps,
+                       Compiler
   build-depends:       base,
                        array,
                        containers,
@@ -96,7 +99,10 @@ executable JuniorService
                        SynExpToExp,
                        TypesPrinter,
                        DependencyAnalysis,
-                       Modules
+                       Modules,
+                       CompilerMonad,
+                       CompilerSteps,
+                       Compiler
   build-depends:       base,
                        array,
                        containers,
@@ -154,6 +160,9 @@ test-suite tests
                        TypesPrinter,
                        DependencyAnalysis,
                        Modules,
+                       CompilerMonad,
+                       CompilerSteps,
+                       Compiler,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
