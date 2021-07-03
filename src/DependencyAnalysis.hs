@@ -1,4 +1,4 @@
-module DagBindings where
+module DependencyAnalysis where
 
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )

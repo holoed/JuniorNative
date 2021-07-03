@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module DagBindingsTests where
+module DependencyAnalysisTests where
 
 import Parser (parseExpr)
-import DagBindings ( deps, chunks )
+import DependencyAnalysis ( deps, chunks )
 import SynExpToExp ( toExp )
 import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)

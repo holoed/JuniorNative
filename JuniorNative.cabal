@@ -46,7 +46,7 @@ executable JuniorNative
                        Primitives, 
                        SynExpToExp,
                        TypesPrinter,
-                       DagBindings,
+                       DependencyAnalysis,
                        Modules
   build-depends:       base,
                        array,
@@ -95,7 +95,7 @@ executable JuniorService
                        Primitives, 
                        SynExpToExp,
                        TypesPrinter,
-                       DagBindings,
+                       DependencyAnalysis,
                        Modules
   build-depends:       base,
                        array,
@@ -152,14 +152,14 @@ test-suite tests
                        Primitives, 
                        SynExpToExp,
                        TypesPrinter,
-                       DagBindings,
+                       DependencyAnalysis,
                        Modules,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
                        TypeInferenceTests,
                        PrettyPrinterTests,
-                       DagBindingsTests,
+                       DependencyAnalysisTests,
                        ModuleTypeInferenceTests
 
   hs-source-dirs:      tests, src

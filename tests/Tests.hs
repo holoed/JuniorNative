@@ -6,7 +6,7 @@ import qualified PrettyPrinterTests
 import qualified TypeInferenceTests
 import qualified AnnotationsTests
 import qualified FreeVariablesTests
-import qualified DagBindingsTests
+import qualified DependencyAnalysisTests
 import qualified ModuleTypeInferenceTests
 
 
@@ -17,6 +17,6 @@ main = hspec $ do
     TypeInferenceTests.tests
     AnnotationsTests.tests
     FreeVariablesTests.tests
-    DagBindingsTests.tests 
+    DependencyAnalysisTests.tests 
     ModuleTypeInferenceTests.tests 
     
