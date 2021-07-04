@@ -3,15 +3,18 @@ module Compiler where
 import StringUtils (padR)
 import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
+import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
 import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, fromEnvToTypeDict )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 
 step :: String -> (a -> CompileM b) -> (a -> CompileM b)
-step desc f x =  do (elapsedTime, ret) <- timeItT $ f x
-                    tell [printf (padR 40 desc ++ "%6.2fs") elapsedTime]
-                    return ret
+step desc f x = catchError 
+                 (do (elapsedTime, ret) <- timeItT $ f x
+                     tell [printf (padR 40 desc ++ "%6.2fs") elapsedTime]
+                     return ret) (\e -> do tell [padR 40 desc ++ "failed"]
+                                           throwError e )
 
 
 pipeline :: String -> CompileM [(String, String)]
