@@ -1,7 +1,5 @@
 module Compiler where
 
-import Ast (Exp)
-import Environment (Env)
 import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Writer( MonadWriter(tell) )
