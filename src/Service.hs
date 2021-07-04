@@ -38,8 +38,9 @@ main = do
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do 
+   putStrLn "Start compilation"
    (x, _, z) <- run (pipeline code) (classEnv, env) []
-   mapM_ print z
+   mapM_ putStrLn z
    return x
 
 route :: ScottyM()
