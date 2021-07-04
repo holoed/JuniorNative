@@ -5,7 +5,7 @@ module Main where
 import Location (Loc(..), PString(..))
 import Control.Monad.Trans ()
 import Control.Monad.IO.Class ( MonadIO(liftIO) )
-import Data.List (intercalate)
+import Data.List (intercalate, intersperse)
 import System.Console.Haskeline ()
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy as Lazy ( pack )
@@ -14,14 +14,14 @@ import Web.Scotty         (ScottyM, scotty)
 import Web.Scotty.Trans ( body, text, post, middleware )
 import Network.Wai.Middleware.RequestLogger ( logStdoutDev )
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
-import Intrinsics ( env, classEnv ) 
+import Intrinsics ( env, classEnv )
 import Data.Aeson
-    ( ToJSON(toJSON), object, encode, KeyValue((.=)) ) 
+    ( ToJSON(toJSON), object, encode, KeyValue((.=)) )
 import Compiler (pipeline)
 import CompilerMonad (run)
 
 instance ToJSON Loc where
-  toJSON (Loc offset line column) = object ["len" .= offset, 
+  toJSON (Loc offset line column) = object ["len" .= offset,
                                             "line"   .= line,
                                             "column" .= column]
 
@@ -36,11 +36,21 @@ main = do
   let p = read pStr :: Int
   scotty p route
 
+padR :: Int -> String -> String
+padR n s
+    | length s < n  = s ++ replicate (n - length s) ' '
+    | otherwise     = s
+
 typeOfModule :: String -> IO (Either PString [(String, String)])
-typeOfModule code = do 
-   putStrLn "Start compilation"
+typeOfModule code = do
+   let tableWidth = 49
+   let line = replicate tableWidth '-'
+   putStrLn ("+" ++ line ++ "+")
+   putStrLn $ padR tableWidth "| Junior Compilation " ++ " |"
+   putStrLn ("|" ++ line ++ "|")
    (x, _, z) <- run (pipeline code) (classEnv, env) []
-   mapM_ putStrLn z
+   mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
+   putStrLn ("+" ++ line ++ "+")
    return x
 
 route :: ScottyM()
