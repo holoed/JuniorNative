@@ -1,15 +1,21 @@
 {-# LANGUAGE QuasiQuotes #-}
 module ModuleTypeInferenceTests where
 
-import Modules (typeOfModule)
 import Data.String.Interpolate ( i )
 import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Intrinsics ( env, classEnv )
+import Location ( PString )
+import Compiler (pipeline)
+import Monads (run)
 
+typeOfModule :: String -> Either PString [(String, String)]
+typeOfModule code = do
+   (x, _, _) <- run (pipeline code) (classEnv, env) []
+   return x
 
 (-->) :: String -> [(String, String)] -> Expectation
-(-->) x y = either (error . show) id (typeOfModule classEnv env x) `shouldBe` y
+(-->) x y = either (error . show) id (typeOfModule x) `shouldBe` y
 
 (--->) :: FilePath -> [(String, String)] -> Expectation 
 (--->) x y = do handle <- openFile x ReadMode

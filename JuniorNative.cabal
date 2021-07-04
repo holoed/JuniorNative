@@ -47,7 +47,6 @@ executable JuniorNative
                        SynExpToExp,
                        TypesPrinter,
                        DependencyAnalysis,
-                       Modules,
                        CompilerMonad,
                        CompilerSteps,
                        Compiler
@@ -99,7 +98,6 @@ executable JuniorService
                        SynExpToExp,
                        TypesPrinter,
                        DependencyAnalysis,
-                       Modules,
                        CompilerMonad,
                        CompilerSteps,
                        Compiler
@@ -159,7 +157,6 @@ test-suite tests
                        SynExpToExp,
                        TypesPrinter,
                        DependencyAnalysis,
-                       Modules,
                        CompilerMonad,
                        CompilerSteps,
                        Compiler,
