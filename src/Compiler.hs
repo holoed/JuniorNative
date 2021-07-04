@@ -1,16 +1,12 @@
 module Compiler where
 
+import StringUtils (padR)
 import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Writer( MonadWriter(tell) )
 import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, fromEnvToTypeDict )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
-
-padR :: Int -> String -> String
-padR n s
-    | length s < n  = s ++ replicate (n - length s) ' '
-    | otherwise     = s
 
 step :: String -> (a -> CompileM b) -> (a -> CompileM b)
 step desc f x =  do (elapsedTime, ret) <- timeItT $ f x

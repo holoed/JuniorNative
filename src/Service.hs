@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Main where
 
+import StringUtils (padR)
 import Location (Loc(..), PString(..))
 import Control.Monad.Trans ()
 import Control.Monad.IO.Class ( MonadIO(liftIO) )
@@ -35,11 +36,6 @@ main = do
   pStr <- fromMaybe "8080" <$> lookupEnv "PORT"
   let p = read pStr :: Int
   scotty p route
-
-padR :: Int -> String -> String
-padR n s
-    | length s < n  = s ++ replicate (n - length s) ' '
-    | otherwise     = s
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
