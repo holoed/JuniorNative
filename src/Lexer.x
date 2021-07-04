@@ -116,18 +116,18 @@ data Token
   deriving (Eq,Show)
 
 mkLoc :: (AlexPosn, String) -> Loc
-mkLoc (AlexPn x y z, s) = Loc (length s) y z
+mkLoc (AlexPn _ y z, s) = Loc (length s) y z
 
 scanTokens :: String -> Except PString [Token]
 scanTokens str = go (alexStartPos, '\n',[],str) where
-  go inp@(pos, _,_bs,str) =
+  go inp@(pos, _, _bs, str') =
     case alexScan inp 0 of
      AlexEOF -> return []
      AlexError (p,_,_,s) -> throwError $ PStr ("lexical error", Just $ mkLoc (p, s))
-     AlexSkip  inp' len     -> go inp'
+     AlexSkip  inp' _     -> go inp'
      AlexToken inp' len act -> do
       res <- go inp'
-      let rest = act pos (take len str)
+      let rest = act pos (take len str')
       return (rest : res)
 
 }

@@ -27,8 +27,8 @@ tests = do
                         if (null xs) then xs else  
                         let lessThan = filter (\\x -> f x < f (head xs)) (tail xs) in 
                         let greaterThan = filter (\\x -> f x > f (head xs)) (tail xs) in
-                        (quickSort f lessThan) ++ singleton (head xs) ++ (quickSort f greaterThan)
-                    |] --> [("quicksort",["filter","quickSort", "singleton"])]
+                        (quicksort f lessThan) ++ singleton (head xs) ++ (quicksort f greaterThan)
+                    |] --> [("quicksort",["filter", "singleton"])]
 
    it "Multi bindings deps" $ [i| let x = 12
                                   let y = 32
