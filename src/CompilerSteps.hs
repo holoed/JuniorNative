@@ -11,12 +11,13 @@ import Data.Map as Map ( keysSet, fromList, toList, (!), restrictKeys )
 import Data.Set as Set (fromList)
 import Data.List (sortOn)
 import DependencyAnalysis ( chunks )
-import Monads (ask, throwError)
 import Environment (Env, toEnv, concatEnvs)
 import Infer ( infer )
 import LiftNumbers ( liftN )
 import Control.Parallel.Strategies (parMap, rdeepseq)
 import Types (TypeScheme(..))
+import Control.Monad.Except ( MonadError(throwError) )
+import Control.Monad.Reader ( MonadReader(ask) )
 
 parse :: String -> CompileM [SynExp]
 parse code =

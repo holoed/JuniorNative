@@ -7,15 +7,16 @@ import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Intrinsics ( env, classEnv )
 import Location ( PString )
 import Compiler (pipeline)
-import Monads (run)
+import CompilerMonad (run)
 
-typeOfModule :: String -> Either PString [(String, String)]
+typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
    (x, _, _) <- run (pipeline code) (classEnv, env) []
    return x
 
 (-->) :: String -> [(String, String)] -> Expectation
-(-->) x y = either (error . show) id (typeOfModule x) `shouldBe` y
+(-->) x y = do v <- typeOfModule x
+               either (error . show) id v `shouldBe` y
 
 (--->) :: FilePath -> [(String, String)] -> Expectation 
 (--->) x y = do handle <- openFile x ReadMode

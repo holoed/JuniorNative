@@ -6,7 +6,6 @@ import Location (Loc(..), PString(..))
 import Control.Monad.Trans ()
 import Control.Monad.IO.Class ( MonadIO(liftIO) )
 import Data.List (intercalate)
-import Monads (run)
 import System.Console.Haskeline ()
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy as Lazy ( pack )
@@ -19,6 +18,7 @@ import Intrinsics ( env, classEnv )
 import Data.Aeson
     ( ToJSON(toJSON), object, encode, KeyValue((.=)) ) 
 import Compiler (pipeline)
+import CompilerMonad (run)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset, 
@@ -36,20 +36,17 @@ main = do
   let p = read pStr :: Int
   scotty p route
 
-typeOfModule :: String -> Either PString ([(String, String)], [String])
+typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do 
    (x, _, z) <- run (pipeline code) (classEnv, env) []
-   return (x, z)
+   mapM_ print z
+   return x
 
 route :: ScottyM()
 route = do
     middleware logStdoutDev
     post "/" $ do
          code <- body
-         let ret = typeOfModule (Char8.unpack code)
-         x <- case ret of 
-               Left err -> return $ (Char8.unpack . encode) err
-               Right (v, w) -> do liftIO $ mapM_ print w
-                                  return $ format v
-         text $ Lazy.pack (x ++ "\r\n")
+         ret <- liftIO $ typeOfModule (Char8.unpack code)
+         text $ Lazy.pack (either (Char8.unpack . encode) format ret ++ "\r\n")
   where format = Data.List.intercalate "\n" . ((\(n, t) -> n ++ ": " ++ t) <$>)
