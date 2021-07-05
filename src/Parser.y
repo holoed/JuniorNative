@@ -140,6 +140,9 @@ makePString (TokenLParen (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString (TokenRParen (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString (TokenDiv (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString (TokenDot (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenArrow (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenEq (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenEql (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString t = PStr (show t, Nothing) 
   
 parseError :: [Token] -> Except PString a
