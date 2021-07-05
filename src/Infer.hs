@@ -4,7 +4,7 @@ import Data.Map (empty)
 import Data.Set (fromList, insert, union)
 import Monads ( local, get, listen, run, throwError )
 import Fixpoint ( Fix(In) )
-import Annotations ( Ann(Ann), unwrap )
+import Annotations ( Ann(Ann), unwrap, mapAnn )
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Location ( Loc, PString(..) )
@@ -18,6 +18,7 @@ import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, su
 import Unification ( mgu )
 import PrettyTypes ( prettyQ )
 import ContextReduction (resolvePreds, ClassEnv)
+import Data.Bifunctor (second)
 
 getNameAndTypes :: TypedExp -> [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
@@ -80,10 +81,10 @@ alg (Ann (Just l) (Let n e1 e2)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
      let nts = getNameAndTypes n'
      let (TyVar tn _) = t0
-     (e1', ps1) <- listen $ local (\(env, _, sv) -> 
+     (e1', ps1) <- listen $ local (\(env, _, sv) ->
        (foldToScheme env nts, t0, insert tn sv)) e1
      (subs, _) <- get
-     (e2', ps2) <- listen $ local (\(env, bt, sv) -> 
+     (e2', ps2) <- listen $ local (\(env, bt, sv) ->
        (foldl (\env' (n'', ps2 :=> t3) -> addScheme n'' (generalise sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env nts, bt, sv)) e2
      bt <- getBaseType
      return (tleT l ((ps1 `union` ps2) :=> bt) n' e1' e2')
@@ -108,10 +109,11 @@ alg (Ann (Just l) (TuplePat ns)) = do
 
 alg _ = throwError $ PStr ("Undefined", Nothing)
 
-infer :: ClassEnv -> Env -> Exp -> Either PString (Substitutions, Qual Type)
+infer :: ClassEnv -> Env -> Exp -> Either PString (Substitutions, TypedExp)
 infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
   where
-        f (In(Ann (_, qt) _), (subs, _), _) =  (subs, (prettyQ . deleteTautology . clean . substituteQ subs) qt)
+        f (e2, (subs, _), _) = (subs, g subs e2)
+        g subs = mapAnn (second (prettyQ . deleteTautology . clean . substituteQ subs)) 
         m = cataRec alg e
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])

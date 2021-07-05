@@ -1,6 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
 module TypeInferenceTests where
 
+import Fixpoint (Fix(..))
+import Annotations (Ann(..))
 import Location ( PString(..) )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
 import Types ( Type(..), Qual(..) )
@@ -21,7 +23,9 @@ env' = concatEnvs env $ toEnv [
  ]
 
 typeOf :: [String] -> Either PString (Substitutions, Qual Type)
-typeOf s = parseExpr (unlines s) >>= (infer classEnv env' . liftN . toExp . head)
+typeOf s = parseExpr (unlines s) >>=  
+           (infer classEnv env' . liftN . toExp . head) >>=
+           (\(subs, In(Ann (_, qt)  _)) -> pure (subs, qt) )
 
 (-->) :: [String] -> String -> Expectation
 (-->) x y = either (\(PStr (s, _)) -> s) (show . snd) (typeOf x) `shouldBe` y

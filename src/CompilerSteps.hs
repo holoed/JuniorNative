@@ -1,6 +1,6 @@
 module CompilerSteps where
 
-import Fixpoint ( Fix(In) )
+import Fixpoint ( Fix(..) )
 import Annotations ( Ann(Ann) )
 import Ast (Exp, ExpF(..))
 import PAst (SynExp)
@@ -38,7 +38,7 @@ dependencyAnalysis es = do
 typeInference :: [[(String, Exp)]] -> CompileM ([String], Env)
 typeInference bss = do
     (classEnv, env) <- ask
-    let g env' (n, e) = (\t -> toEnv [(n, t)]) . snd <$> (infer classEnv env' . liftN) e
+    let g env' (n, e) = (\(In (Ann (_, t) _)) -> toEnv [(n, t)]) . snd <$> (infer classEnv env' . liftN) e
     let f env' (n, e) = env' >>= flip g (n, e)
     let ret = foldl (\acc bs -> foldl (\ev1 ev2 -> concatEnvs <$> ev1 <*> ev2) acc $ parMap rdeepseq (f acc) bs) (Right env) bss
     case ret of
