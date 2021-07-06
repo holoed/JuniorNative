@@ -1,13 +1,9 @@
-{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 module Location where
-
-import GHC.Generics (Generic)
-import Control.DeepSeq (NFData)
 
 data Loc = Loc !Int  -- token len
                !Int  -- line number
                !Int  -- column number 
-               deriving (Eq, Generic, NFData)
+               deriving Eq
 
 zeroLoc :: Loc
 zeroLoc = Loc 0 0 0
@@ -24,4 +20,7 @@ instance Monoid PString where
 instance Show PString where
   show (PStr (x, p)) = x ++ " " ++ show p
     
-newtype PString = PStr (String, Maybe Loc) deriving (Generic, NFData)
+newtype PString = PStr (String, Maybe Loc) deriving Eq
+
+getName :: PString -> String
+getName (PStr (n, _)) = n

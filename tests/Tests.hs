@@ -8,6 +8,7 @@ import qualified AnnotationsTests
 import qualified FreeVariablesTests
 import qualified DependencyAnalysisTests
 import qualified ModuleTypeInferenceTests
+import qualified SymbolTableTests
 
 
 main :: IO ()
@@ -19,4 +20,5 @@ main = hspec $ do
     FreeVariablesTests.tests
     DependencyAnalysisTests.tests 
     ModuleTypeInferenceTests.tests 
+    SymbolTableTests.tests
     

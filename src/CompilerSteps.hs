@@ -2,22 +2,21 @@ module CompilerSteps where
 
 import Fixpoint ( Fix(..) )
 import Annotations ( Ann(Ann) )
+import TypedAst (TypedExp)
 import Ast (Exp, ExpF(..))
 import PAst (SynExp)
 import CompilerMonad (CompileM)
 import Parser ( parseExpr )
 import SynExpToExp ( toExp )
-import Data.Map as Map ( keysSet, fromList, toList, (!), restrictKeys )
-import Data.Set as Set (fromList)
-import Data.List (sortOn)
+import Data.Map as Map ( keysSet, fromList, (!) )
 import DependencyAnalysis ( chunks )
-import Environment (Env, toEnv, concatEnvs)
+import Environment (toEnv, concatEnvs)
 import Infer ( infer )
 import LiftNumbers ( liftN )
-import Control.Parallel.Strategies (parMap, rdeepseq)
-import Types (TypeScheme(..))
 import Control.Monad.Except ( MonadError(throwError) )
 import Control.Monad.Reader ( MonadReader(ask) )
+import Control.Monad.State (MonadState(put, get))
+import SymbolTable ( Symbol, build )
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -30,27 +29,26 @@ fromSynExpToExp es = return $ toExp <$> es
 
 dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
 dependencyAnalysis es = do
-    (_, env) <- ask
+    env <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
     let dict = Map.fromList ((\e@(In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) -> (s, e)) <$> es)
     return $ ((\n -> (n, dict!n)) <$>) <$> ns
 
-typeInference :: [[(String, Exp)]] -> CompileM ([String], Env)
+typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
 typeInference bss = do
-    (classEnv, env) <- ask
-    let g env' (n, e) = (\(In (Ann (_, t) _)) -> toEnv [(n, t)]) . snd <$> (infer classEnv env' . liftN) e
+    classEnv <- ask
+    env <- get
+    let g (_, env') (n, e) = (\e2@(In (Ann (_, t) _)) -> ([e2], toEnv [(n, t)])) . snd <$> (infer classEnv env' . liftN) e
     let f env' (n, e) = env' >>= flip g (n, e)
-    let ret = foldl (\acc bs -> foldl (\ev1 ev2 -> concatEnvs <$> ev1 <*> ev2) acc $ parMap rdeepseq (f acc) bs) (Right env) bss
+    let k ev1 ev2 = (\(e1, x) (e2, y) -> (e1 ++ e2, concatEnvs x y)) <$> ev1 <*> ev2
+    let h acc bs = foldl k acc (f acc <$> bs)
+    let ret = foldl h (Right ([], env)) bss
     case ret of
         Left err -> throwError err
-        Right v -> return (((fst <$>) . concat) bss,  v)
+        Right v -> do
+             put (snd v)
+             return $ fst v
 
-fromEnvToTypeDict :: ([String], Env) -> CompileM [(String, String)]
-fromEnvToTypeDict (ns, env) = do
-     let finalEnv = restrictKeys env (Set.fromList ns)
-     let unsortedRet = fmap (\ (n, ForAll _ qt) -> (n, show qt)) . toList $ finalEnv
-     let orderDict = Map.fromList (zip ns ([1..] :: [Int]))
-     return $ sortOn ((orderDict!) . fst) unsortedRet
-
-
+buildSymbolTable :: [TypedExp] -> CompileM ([TypedExp], [Symbol])
+buildSymbolTable es = pure (es, build es)
 

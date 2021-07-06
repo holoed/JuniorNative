@@ -1,11 +1,13 @@
 module Compiler where
 
+import TypedAst (TypedExp)
+import SymbolTable (Symbol)
 import StringUtils (padR)
 import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, fromEnvToTypeDict )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 
@@ -17,10 +19,10 @@ step desc f x = catchError
                                            throwError e )
 
 
-pipeline :: String -> CompileM [(String, String)]
+pipeline :: String -> CompileM ([TypedExp], [Symbol])
 pipeline = step "code to parse tree" parse >=>
            step "parse tree to syntax tree" fromSynExpToExp >=>
            step "dependency analysis" dependencyAnalysis >=>
            step "type inference" typeInference >=>
-           step "to final view" fromEnvToTypeDict
+           step "build symbol table" buildSymbolTable
 

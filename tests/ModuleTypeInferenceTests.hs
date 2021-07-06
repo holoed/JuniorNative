@@ -5,20 +5,24 @@ import Data.String.Interpolate ( i )
 import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Intrinsics ( env, classEnv )
-import Location ( PString )
+import Location ( PString, getName )
 import Compiler (pipeline)
 import CompilerMonad (run)
+import qualified SymbolTable as S
+
+extractNames :: [S.Symbol] -> [(String, String)]
+extractNames ss = (\s -> (getName $ S.name s, show $ S.ty s)) <$> filter S.top ss
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
-   (x, _, _) <- run (pipeline code) (classEnv, env) []
-   return x
+   (x, _, _) <- run (pipeline code) classEnv env
+   return (extractNames . snd <$> x)
 
 (-->) :: String -> [(String, String)] -> Expectation
 (-->) x y = do v <- typeOfModule x
                either (error . show) id v `shouldBe` y
 
-(--->) :: FilePath -> [(String, String)] -> Expectation 
+(--->) :: FilePath -> [(String, String)] -> Expectation
 (--->) x y = do handle <- openFile x ReadMode
                 contents <- hGetContents handle
                 contents --> y

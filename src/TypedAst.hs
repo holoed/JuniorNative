@@ -7,7 +7,8 @@ import Annotations ( Ann(..) )
 import Primitives ( Prim )
 import Ast (ExpF(Lit, Var, VarPat, App, Lam, Let, IfThenElse, MkTuple, TuplePat), ExpF)
 
-type TypedExp = Fix (Ann (Maybe Loc, Qual Type) ExpF)
+type TypedExpF = Ann (Maybe Loc, Qual Type) ExpF
+type TypedExp = Fix TypedExpF
 
 tlit :: Loc -> Qual Type -> Prim -> TypedExp
 tlit l t v = In (Ann (Just l, t) (Lit v))
