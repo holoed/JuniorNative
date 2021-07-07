@@ -1,20 +1,20 @@
 module ContextReduction where
 
-import TypedAst ( TypedExp )
+import Ast ( ExpF(Let), varPat )
+import TypedAst ( TypedExp, TypedExpF )
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
-import Types ( Type(TyApp, TyVar, TyCon), Qual(..), Pred(..) )
+import Types ( Type(TyApp, TyVar, TyCon), Qual(..), Pred(..), getTVarsOfQType, getTVarsOfPred )
 import InferMonad ( TypeM )
 import Unification ( mguPred )
 import Substitutions ( substitutePredicates, substituteQ )
 import Monads ( get, throwError, catchError )
-import Control.Monad ( msum )
-import Data.Set (toList, fromList)
+import Control.Monad.Reader ( msum, runReader, local, ask, Reader )
+import Data.Set (Set, toList, fromList, union, isSubsetOf, filter)
 import Data.Maybe ( fromJust, maybeToList )
 import RecursionSchemes ( cataRec )
 import Location ( Loc, PString(..) )
-import Ast ()
-import Data.Map (Map, (!?))
+import Data.Map (Map, (!?), empty)
 
 -- Typing Haskell in Haskell Context Reduction
 -- https://web.cecs.pdx.edu/~mpj/thih/thih.pdf
@@ -73,11 +73,25 @@ simplify ce = loop [ ]
           loop rs (p : ps) | entail ce (rs ++ ps) p = loop rs ps
             | otherwise = loop (p : rs) ps
 
+propagatePreds :: TypedExp -> TypedExp
+propagatePreds e = runReader (cataRec alg e) (fromList [])
+    where
+        alg :: TypedExpF (Reader (Set Pred) TypedExp) -> Reader (Set Pred) TypedExp
+        alg (Ann (l, qt@(ps :=> _)) (Let n v b)) = do
+            n' <- local (`union` ps) n
+            v' <- local (`union` ps) v
+            b' <- local (`union` ps) b
+            return $ In . Ann (l, qt) $ Let n' v' b'
+        alg (Ann (l, ps :=> t) x) = do
+            ps' <- ask
+            In . Ann (l, (ps `union` ps') :=> t) <$> sequenceA x
+
 resolvePreds :: ClassEnv -> TypedExp -> TypeM TypedExp
-resolvePreds classEnv = cataRec alg
+resolvePreds classEnv = cataRec alg . propagatePreds
     where alg (Ann (l, qt) x) = do
             (subs, _) <- get
             let (ps :=> t) = substituteQ subs qt
             ps' <- toHnfs (fromJust l) classEnv (toList ps)
             y <- sequenceA (Ann (l, fromList (simplify classEnv ps') :=> t) x)
             return $ In y
+

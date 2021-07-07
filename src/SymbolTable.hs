@@ -71,7 +71,7 @@ fromBinding :: Map String Symbol -> TypedExp -> [Symbol]
 fromBinding env e = snd $ runWriter $ runReaderT (cataRec alg e) env
 
 build :: [TypedExp] -> [Symbol]
-build es = topLevel ++  (es >>= fromBinding (fromList dict))
+build es = topLevel ++ (es >>= fromBinding (fromList dict))
     where dict = es >>= extractSymbols True
           topLevel = snd <$> dict
 
