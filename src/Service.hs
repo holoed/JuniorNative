@@ -5,7 +5,7 @@ import StringUtils (padR)
 import Location (Loc(..), PString(..), getName)
 import Control.Monad.Trans ()
 import Control.Monad.IO.Class ( MonadIO(liftIO) )
-import Data.List (intercalate, intersperse)
+import Data.List (nub, intercalate, intersperse)
 import System.Console.Haskeline ()
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy as Lazy ( pack )
@@ -50,7 +50,7 @@ typeOfModule code = do
    (x, _, z) <- run (pipeline code) classEnv env
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
-   return $ extractNames . snd  <$> x
+   return $ nub . extractNames . snd  <$> x
 
 route :: ScottyM()
 route = do
