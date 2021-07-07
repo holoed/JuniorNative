@@ -9,6 +9,7 @@ import Location ( PString, getName )
 import Compiler (pipeline)
 import CompilerMonad (run)
 import qualified SymbolTable as S
+import Data.List (nub)
 
 extractNames :: [S.Symbol] -> [(String, String)]
 extractNames ss = (\s -> (getName $ S.name s, show $ S.ty s)) <$> filter S.top ss
@@ -16,7 +17,7 @@ extractNames ss = (\s -> (getName $ S.name s, show $ S.ty s)) <$> filter S.top s
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
    (x, _, _) <- run (pipeline code) classEnv env
-   return (extractNames . snd <$> x)
+   return (nub . extractNames . snd <$> x)
 
 (-->) :: String -> [(String, String)] -> Expectation
 (-->) x y = do v <- typeOfModule x
@@ -59,36 +60,38 @@ tests =
                         let lessThan = filter (\\x -> f x < f pivot) rest in 
                         let greaterThan = filter (\\x -> f x > f pivot) rest in
                         concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
-                      |] --> [
-                        ("foldr","(a -> b -> b) -> b -> List a -> b"),
-                        ("singleton","a -> List a"),
-                        ("concat","List a -> List a -> List a"),
-                        ("filter","(a -> Bool) -> List a -> List a"),
-                        ("quicksort","Ord a => (b -> a) -> List b -> List b")]
+                      |] --> 
+                       [
+                          ("foldr","(a -> b -> b) -> b -> List a -> b"),
+                          ("singleton","a -> List a"),
+                          ("concat","List a -> List a -> List a"),
+                          ("filter","(a -> Bool) -> List a -> List a"),
+                          ("quicksort","Ord a => (b -> a) -> List b -> List b")
+                       ]
 
     it "Complex example" $ "tests/example.jnr" ---> [
-       ("foldr","(a -> b -> b) -> b -> List a -> b"),
-       ("cadd","(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"),
-       ("cmul","Num a => (a, a) -> (a, a) -> (a, a)"),
-       ("foldl","(a -> b -> a) -> a -> List b -> a"),
-       ("norm","Num a => (a, a) -> a"),
-       ("posToCoord","Fractional a => a -> a -> (a, a)"),
-       ("singleton","a -> List a"),
-       ("range","(Num a, Ord a) => (a -> b) -> a -> a -> List b"),
-       ("++","List a -> List a -> List a"),
-       ("filter","(a -> Bool) -> List a -> List a"),
-       ("map","(a -> b) -> List a -> List b"),
-       ("mapM","Monad a => (b -> a c) -> List b -> a List c"),
-       ("join","List List a -> List a"),
-       ("mPoint","(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"),
-       ("mandelbrot","Int -> (Int, Int) -> (Int, Int, Int)"),
-       ("reverse","List a -> List a"),
-       ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
-       ("product","Num a => List a -> a"),
-       ("quicksort","Ord a => (b -> a) -> List b -> List b"),
-       ("sequence","Monad a => List a b -> a List b"),
-       ("split","(Eq a, Num a) => a -> List b -> List List b"),
-       ("sum","Num a => List a -> a")
+      ("foldr","(a -> b -> b) -> b -> List a -> b"),
+      ("cadd","(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"),
+      ("cmul","Num a => (a, a) -> (a, a) -> (a, a)"),
+      ("foldl","(a -> b -> a) -> a -> List b -> a"),
+      ("norm","Num a => (a, a) -> a"),
+      ("posToCoord","Fractional a => a -> a -> (a, a)"),
+      ("singleton","a -> List a"),
+      ("range","(Num a, Ord a) => (a -> b) -> a -> a -> List b"),
+      ("++","List a -> List a -> List a"),
+      ("filter","(a -> Bool) -> List a -> List a"),
+      ("map","(a -> b) -> List a -> List b"),
+      ("mapM","Monad a => (b -> a c) -> List b -> a List c"),
+      ("join","List List a -> List a"),
+      ("mPoint","(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"),
+      ("mandelbrot","Int -> (Int, Int) -> (Int, Int, Int)"),
+      ("reverse","List a -> List a"),
+      ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
+      ("product","Num a => List a -> a"),
+      ("quicksort","Ord a => (b -> a) -> List b -> List b"),
+      ("sequence","Monad a => List a b -> a List b"),
+      ("split","(Eq a, Num a) => a -> List b -> List List b"),
+      ("sum","Num a => List a -> a")
      ]
 
 

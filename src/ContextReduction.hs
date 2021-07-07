@@ -1,20 +1,20 @@
 module ContextReduction where
 
-import Ast ( ExpF(Let), varPat )
+import Ast ( ExpF(Let) )
 import TypedAst ( TypedExp, TypedExpF )
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
-import Types ( Type(TyApp, TyVar, TyCon), Qual(..), Pred(..), getTVarsOfQType, getTVarsOfPred )
+import Types ( Type(TyApp, TyVar, TyCon), Qual(..), Pred(..) )
 import InferMonad ( TypeM )
 import Unification ( mguPred )
 import Substitutions ( substitutePredicates, substituteQ )
 import Monads ( get, throwError, catchError )
 import Control.Monad.Reader ( msum, runReader, local, ask, Reader )
-import Data.Set (Set, toList, fromList, union, isSubsetOf, filter)
+import Data.Set (Set, toList, fromList, union)
 import Data.Maybe ( fromJust, maybeToList )
 import RecursionSchemes ( cataRec )
 import Location ( Loc, PString(..) )
-import Data.Map (Map, (!?), empty)
+import Data.Map (Map, (!?))
 
 -- Typing Haskell in Haskell Context Reduction
 -- https://web.cecs.pdx.edu/~mpj/thih/thih.pdf

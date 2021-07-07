@@ -3,7 +3,7 @@ module Location where
 data Loc = Loc !Int  -- token len
                !Int  -- line number
                !Int  -- column number 
-               deriving Eq
+               deriving (Eq, Ord)
 
 zeroLoc :: Loc
 zeroLoc = Loc 0 0 0
@@ -20,7 +20,7 @@ instance Monoid PString where
 instance Show PString where
   show (PStr (x, p)) = x ++ " " ++ show p
     
-newtype PString = PStr (String, Maybe Loc) deriving Eq
+newtype PString = PStr (String, Maybe Loc) deriving (Eq, Ord)
 
 getName :: PString -> String
 getName (PStr (n, _)) = n
