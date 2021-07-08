@@ -1,6 +1,7 @@
 module RecursionSchemes where
 
 import Fixpoint ( Fix(..), fix )
+import Control.Monad (mapM, (<=<))
 
 -- Recursion Schemes
 
@@ -23,3 +24,9 @@ cataM psi f e = traverse f (out e) >>= psi
 
 cataMRec :: (Monad m, Traversable f) => (f a -> m a) -> Fix f -> m a
 cataMRec psi = fix (cataM psi)
+
+anaM :: (Monad m, Traversable f) => (t -> m (f a)) -> (a -> m (Fix f)) -> t -> m (Fix f)
+anaM psi f = fmap In . (mapM f <=< psi)
+
+anaMRec :: (Monad m, Traversable f) => (t -> m (f t)) -> t -> m (Fix f)
+anaMRec psi = fix (anaM psi)
