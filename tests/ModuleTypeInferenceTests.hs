@@ -94,4 +94,17 @@ tests =
       ("sum","Num a => List a -> a")
      ]
 
+    it "Recursion schemes" $ "tests/jnrs_lib/RecursionSchemes.jnr" ---> [
+      (".","(a -> b) -> (c -> a) -> c -> b"),
+      ("ana","Functor a => (b -> a c) -> (c -> Fix a) -> b -> Fix a"),
+      ("fix","((a -> b) -> a -> b) -> a -> b"),
+      ("cata","Functor a => (a b -> c) -> (Fix a -> b) -> Fix a -> c"),
+      ("hylo","Functor a => (b -> a c) -> (a d -> e) -> (c -> d) -> b -> e"),
+      ("para","Functor a => (a (Fix a, b) -> c) -> (Fix a -> b) -> Fix a -> c"),
+      ("anaRec","Functor a => (b -> a b) -> b -> Fix a"),
+      ("cataRec","Functor a => (a b -> b) -> Fix a -> b"),
+      ("hyloRec","Functor a => (b -> a b) -> (a c -> c) -> b -> c"),
+      ("paraRec","Functor a => (a (Fix a, b) -> b) -> Fix a -> b")
+     ]
+
 

@@ -1,0 +1,21 @@
+
+let (.) f g x = f (g x)
+
+let fix f x = f (fix f) x
+
+let cata psi f = psi . fmap f . fixOut
+
+let ana psi f = fixIn . fmap f . psi
+
+let hylo rho psi f = psi . fmap f . rho
+
+let para psi f = \e -> psi (fmap (\e1 -> (e1, f e1)) (fixOut e)) 
+
+let cataRec psi = fix (cata psi)
+
+let anaRec psi = fix (ana psi)
+
+let hyloRec rho psi = fix (hylo rho psi)
+
+let paraRec psi = fix (para psi)
+
