@@ -76,7 +76,7 @@ tokens :-
   [\<]                          {\p s -> TokenLt (p, s)  }
   \(                            {\p s -> TokenLParen (p, s) }
   \)                            {\p s -> TokenRParen (p, s) }
-  ","                           {\p s -> TokenComma }
+  ","                           {\_ _ -> TokenComma }
   "."                           {\p s -> TokenDot (p, s) }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
 

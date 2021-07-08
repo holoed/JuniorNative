@@ -1,7 +1,7 @@
 module RecursionSchemes where
 
 import Fixpoint ( Fix(..), fix )
-import Control.Monad (mapM, (<=<))
+import Control.Monad ((<=<))
 
 -- Recursion Schemes
 

@@ -16,7 +16,6 @@ import Environment ( Env, addScheme )
 import Substitutions ( Substitutions, substituteQ )
 import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
 import Unification ( mgu )
-import PrettyTypes ( prettyQ )
 import ContextReduction (resolvePreds, ClassEnv)
 import Data.Bifunctor (second)
 

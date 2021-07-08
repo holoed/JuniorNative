@@ -15,6 +15,7 @@ type AlphaM = ReaderT (Map String String) (State (Int, Map String String))
 
 extractName :: Exp -> (Maybe Loc, String) 
 extractName (In (Ann l (VarPat s))) = (l, s)
+extractName _ = error "Unsupported"
 
 newName :: String -> AlphaM String
 newName s = do (index, names) <- get
