@@ -113,7 +113,7 @@ infer :: ClassEnv -> Env -> Exp -> Either PString (Substitutions, TypedExp)
 infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
   where
         f (e2, (subs, _), _) = (subs, g subs e2)
-        g subs = mapAnn (second (prettyQ . deleteTautology . clean . substituteQ subs)) 
+        g subs = mapAnn (second (deleteTautology . clean . substituteQ subs)) 
         m = cataRec alg e
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [])

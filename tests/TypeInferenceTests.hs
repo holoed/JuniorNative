@@ -14,6 +14,7 @@ import LiftNumbers ( liftN )
 import qualified Data.Set as Set
 import Intrinsics ( tyLam, env, classEnv )
 import Environment (Env, toEnv, concatEnvs)
+import PrettyTypes (prettyQ)
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
@@ -25,7 +26,7 @@ env' = concatEnvs env $ toEnv [
 typeOf :: [String] -> Either PString (Substitutions, Qual Type)
 typeOf s = parseExpr (unlines s) >>=  
            (infer classEnv env' . liftN . toExp . head) >>=
-           (\(subs, In(Ann (_, qt)  _)) -> pure (subs, qt) )
+           (\(subs, In(Ann (_, qt)  _)) -> pure (subs, prettyQ qt) )
 
 (-->) :: [String] -> String -> Expectation
 (-->) x y = either (\(PStr (s, _)) -> s) (show . snd) (typeOf x) `shouldBe` y
