@@ -98,8 +98,8 @@ Fact : Fact Atom                   { infixApp (mkLoc (alexStartPos, " ")) juxtaO
 
 Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple (mkLoc $1) $2 }
-     | NUM                         { lit (mkLoc (fst $1, show $ snd $1)) (snd $1) }
-     | STRING                      { lit (mkLoc (fst $1, show $ snd $1)) (snd $1) }
+     | NUM                         { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
+     | STRING                      { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
      | VAR                         { var (mkLoc ($1)) (snd $1) }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }

@@ -11,3 +11,10 @@ strToPrim s =
     then I (round d)
     else D d
     where d = read s :: Double
+
+primToStr :: Prim -> String
+primToStr (I n) = show n
+primToStr (D x) = show x
+primToStr (B b) = show b
+primToStr (S s) = s
+primToStr U = "()"
