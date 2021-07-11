@@ -1,5 +1,6 @@
 module SymbolTable where
 
+import Primitives ( Prim(D, I, B, S, U) )
 import TypesPrinter ()
 import Ast (ExpF(..))
 import Fixpoint (Fix(..))
@@ -36,9 +37,16 @@ extractSymbols (In (Ann (loc, qt) (VarPat s))) =
 extractSymbols (In (Ann _ (TuplePat xs))) = xs >>= extractSymbols
 extractSymbols (In (Ann _ _) ) = []
 
+showLit :: Prim -> String
+showLit (I n) = show n
+showLit (D x) = show x
+showLit (B b) = show b
+showLit (S s) = s
+showLit U = "()"
+
 alg :: TypedExpF (SymbolM TypedExp) -> SymbolM TypedExp
 alg (Ann (loc, qt) (Lit v)) = do
-    tell [Symbol { name = PStr(show v, loc), ty = prettyQ qt, parent = Nothing, top = False }]
+    tell [Symbol { name = PStr(showLit v, loc), ty = prettyQ qt, parent = Nothing, top = False }]
     return $ In (Ann (loc, qt) (Lit v))
 alg (Ann (loc, qt) (Var n)) = do
     env <- ask
