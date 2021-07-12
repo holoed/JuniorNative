@@ -57,6 +57,7 @@ prettyQ qt = evalState (prettyQM qt) (Map.empty, 'a')
 prettifyTypesM :: TypedExp -> PrettyM TypedExp
 prettifyTypesM (In (Ann (loc, qt) (Let n v b))) = do
      qt' <- prettyQM qt 
+     put (Map.empty, 'a')
      n' <- prettifyTypesM n
      v' <- prettifyTypesM v
      b' <- prettifyTypesM b
