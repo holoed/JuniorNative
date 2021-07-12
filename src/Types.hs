@@ -15,6 +15,9 @@ data Type = TyCon String
           | TyVar String Int 
           | TyApp Type Type deriving (Eq, Ord)
 
+tyLam :: Type -> Type -> Type
+tyLam t1 = TyApp (TyApp (TyCon "->") t1)
+
 -- Type Schemes
 
 data TypeScheme = ForAll (Set String) (Qual Type)

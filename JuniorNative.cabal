@@ -175,7 +175,8 @@ test-suite tests
                        PrettyPrinterTests,
                        DependencyAnalysisTests,
                        ModuleTypeInferenceTests,
-                       SymbolTableTests
+                       SymbolTableTests,
+                       PrettyTypesTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex

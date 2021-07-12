@@ -2,13 +2,10 @@ module Intrinsics where
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import Types ( Type(..), Qual((:=>)), Pred(IsIn) )
+import Types ( Type(..), Qual((:=>)), Pred(IsIn), tyLam )
 import Environment ( Env, toEnv )
 import ContextReduction (ClassEnv(..))
 import BuiltIns ( doubleCon, intCon )
-
-tyLam :: Type -> Type -> Type
-tyLam t1 = TyApp (TyApp (TyCon "->") t1)
 
 env :: Env
 env = toEnv [
