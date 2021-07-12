@@ -13,6 +13,7 @@ import Infer (infer)
 import System.Console.Haskeline ( defaultSettings, getInputLine, outputStrLn, runInputT )
 import Parser (parseExpr)
 import PrettyPrinter ( pretty )
+import PrettyTypes (prettyQ)
 import LiftNumbers ( liftN )
 import SynExpToExp (toExp)
 import Data.Functor ((<&>))
@@ -25,7 +26,7 @@ process input = do
   let ast = parseExpr input
   let ty = ast >>= (infer classEnv env . liftN . toExp . head)
   putStrLn (either show pretty (ast <&> head))
-  putStrLn (either show (show . (\(In (Ann (_, qt) _)) -> qt) . snd) ty)
+  putStrLn (either show (show . (\(In (Ann (_, qt) _)) -> prettyQ qt) . snd) ty)
 
 main :: IO ()
 main = runInputT defaultSettings loop

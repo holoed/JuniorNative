@@ -17,6 +17,7 @@ import Control.Monad.Except ( MonadError(throwError) )
 import Control.Monad.Reader ( MonadReader(ask) )
 import Control.Monad.State (MonadState(put, get))
 import SymbolTable ( Symbol, build )
+import PrettyTypes ( prettifyTypes ) 
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -50,5 +51,5 @@ typeInference bss = do
              return $ fst v
 
 buildSymbolTable :: [TypedExp] -> CompileM ([TypedExp], [Symbol])
-buildSymbolTable es = pure (es, build es)
+buildSymbolTable es = pure (es, build (prettifyTypes <$> es))
 
