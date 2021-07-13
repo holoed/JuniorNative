@@ -2,12 +2,12 @@ module AlphaRenameTests where
 
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
 import AlphaRename ( rename )
-import PrettyPrinter ( pretty )
+import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
 import SynExpToExp (fromExp, toExp)
 
 rn :: String -> String
-rn s = either show (pretty . (fromExp . rename . toExp . head)) (parseExpr s)
+rn s = either show (prettyPrint . (fromExp . rename . toExp . head)) (parseExpr s)
 
 (-->) :: String -> String -> Expectation
 (-->) x y = rn x `shouldBe` y

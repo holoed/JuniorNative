@@ -12,7 +12,7 @@ import Environment ( Env, toEnv )
 import Infer (infer)
 import System.Console.Haskeline ( defaultSettings, getInputLine, outputStrLn, runInputT )
 import Parser (parseExpr)
-import PrettyPrinter ( pretty )
+import PrettyPrinter ( prettyPrint )
 import PrettyTypes (prettyQ)
 import LiftNumbers ( liftN )
 import SynExpToExp (toExp)
@@ -25,7 +25,7 @@ process :: String -> IO ()
 process input = do
   let ast = parseExpr input
   let ty = ast >>= (infer classEnv env . liftN . toExp . head)
-  putStrLn (either show pretty (ast <&> head))
+  putStrLn (either show prettyPrint (ast <&> head))
   putStrLn (either show (show . (\(In (Ann (_, qt) _)) -> prettyQ qt) . snd) ty)
 
 main :: IO ()

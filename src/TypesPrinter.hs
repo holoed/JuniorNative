@@ -1,7 +1,8 @@
 module TypesPrinter where
 
 import Types ( Type(..), Qual(..), Pred(..) )
-import Text.PrettyPrint ( (<+>), (<>), render, text, Doc )
+import Text.PrettyPrint.Mainland ( (<+>), text, Doc, pretty )
+import Data.Semigroup ( Semigroup((<>)) )
 import qualified Data.Set as Set
 import Prelude hiding (Left, Right, (<>))
 import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
@@ -12,7 +13,7 @@ import Control.Monad ( foldM )
 foldDoc :: [Type] -> Writer [Operator] Doc
 foldDoc xs = do
            x <- foldM (\acc x -> do x' <- toDoc x
-                                    return (acc x' <> text "," <+>)) (text "(" <>) (init xs)
+                                    return ((acc x' <> text ",") <+>)) (text "(" <>) (init xs)
            last' <- toDoc $ last xs
            return $ x $ last' <> text ")"
 
@@ -34,7 +35,7 @@ toDoc (TyApp t1 t2) =
        return $ x1 <+> x2
 
 instance Show Type where
-  show = render . fst . runWriter . toDoc
+  show = pretty 80 . fst . runWriter . toDoc
 
 instance Show Pred where
   show (IsIn n t) = n ++ " " ++ show t
