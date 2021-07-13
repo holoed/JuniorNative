@@ -1,6 +1,5 @@
 module Compiler where
 
-import TypedAst (TypedExp)
 import SymbolTable (Symbol)
 import StringUtils (padR)
 import CompilerMonad ( CompileM )
