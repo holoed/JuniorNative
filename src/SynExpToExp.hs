@@ -5,7 +5,7 @@ import qualified Ast
 import qualified PAst
 import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )
-import Operators ( juxtaOp, mulOp, divOp, plusOp, plusplusOp, subOp, eqeqOp, andOp, orOp, gtOp, ltOp )
+import Operators ( juxtaOp, mulOp, divOp, plusOp, plusplusOp, subOp, eqeqOp, andOp, orOp, gtOp, ltOp, consOp )
 import RecursionSchemes ( cataRec )
 import Location (zeroLoc)
 
@@ -31,7 +31,7 @@ toExp = cataRec alg
 
 
 fromExp :: Ast.Exp -> PAst.SynExp
-fromExp = cataRec alg
+fromExp = compressLets . compressLambdas . cataRec alg
     where alg (Ann (Just l) (Ast.Lit x)) = PAst.lit l x
           alg (Ann (Just l) (Ast.Var s)) = PAst.var l s
           alg (Ann (Just l) (Ast.VarPat s)) = PAst.varPat l s
@@ -47,8 +47,21 @@ fromExp = cataRec alg
           alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var ">"))) e1))) e2)) = PAst.infixApp zeroLoc gtOp e1 e2
           alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "<"))) e1))) e2)) = PAst.infixApp zeroLoc ltOp e1 e2
           alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "++"))) e1))) e2)) = PAst.infixApp zeroLoc plusplusOp e1 e2
+          alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var ":"))) e1))) e2)) = PAst.infixApp zeroLoc consOp e1 e2
           alg (Ann Nothing (Ast.App e1 e2)) = PAst.infixApp zeroLoc juxtaOp e1 e2
           alg (Ann (Just l) (Ast.Lam s e)) = PAst.lam l [s] e
           alg (Ann (Just l) (Ast.Let s e1 e2)) = PAst.leT l [s] e1 e2
           alg (Ann (Just l) (Ast.IfThenElse p e1 e2)) = PAst.ifThenElse l p e1 e2
           alg x = error ("fromExp error: " ++ show x)
+
+compressLambdas :: PAst.SynExp -> PAst.SynExp
+compressLambdas = cataRec alg
+ where alg (Ann (Just l) (PAst.Lam n1 (In (Ann _ (PAst.Lam n2 v))))) = 
+             PAst.lam l (n1 ++ n2) v
+       alg e = In e
+
+compressLets :: PAst.SynExp -> PAst.SynExp
+compressLets = cataRec alg
+ where alg (Ann (Just l) (PAst.Let n1 (In (Ann _ (PAst.Lam n2 v))) b)) = 
+             PAst.leT l (n1 ++ n2) v b
+       alg e = In e

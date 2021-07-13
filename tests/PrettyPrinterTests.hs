@@ -34,8 +34,8 @@ tests =
 
     it "Print a lam" $ do
       ["\\x -> x"] --> ["\\x -> x"]
-      ["\\x -> \\y -> y"] --> ["\\x -> \\y -> y"]
-      ["\\x y -> y"] --> ["\\x -> \\y -> y"]
+      ["\\x -> \\y -> y"] --> ["\\x y -> y"]
+      ["\\x y -> y"] --> ["\\x y -> y"]
 
     it "Print an app" $ do
       ["x y"] --> ["x y"]
@@ -50,8 +50,8 @@ tests =
 
     it "Print a let" $ do
       ["let n = 4"] --> ["let n = 4"]
-      ["let f x = x + 1"] --> ["let f = \\x -> x + 1"]
-      ["let f x y = (x, y)"] --> ["let f = \\x -> \\y -> (x, y)"]
+      ["let f x = x + 1"] --> ["let f x = x + 1"]
+      ["let f x y = (x, y)"] --> ["let f x y = (x, y)"]
       ["let x = 4",
        "let y = 5"] --> ["let x = 4",
                          "let y = 5"]
@@ -87,7 +87,7 @@ tests =
       ["True || (False && True) || False"] --> ["True || False && True || False"]
 
     it "Print symbol functions" $ do
-      ["let (++) x y = (x, y)"] --> ["let (++) = \\x -> \\y -> (x, y)"]
+      ["let (++) x y = (x, y)"] --> ["let (++) x y = (x, y)"]
 
 
 
