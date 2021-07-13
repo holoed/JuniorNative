@@ -18,6 +18,7 @@ import Control.Monad.Reader ( MonadReader(ask) )
 import Control.Monad.State (MonadState(put, get))
 import SymbolTable ( Symbol, build )
 import PrettyTypes ( prettifyTypes ) 
+import ModulePrinter (typedModuleToString)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -51,5 +52,9 @@ typeInference bss = do
              return $ fst v
 
 buildSymbolTable :: [TypedExp] -> CompileM ([TypedExp], [Symbol])
-buildSymbolTable es = pure (es, build (prettifyTypes <$> es))
+buildSymbolTable es = 
+    pure (es, build (prettifyTypes <$> es))
 
+prettyPrintModule :: ([TypedExp], [Symbol]) -> CompileM (String, [Symbol])
+prettyPrintModule (es, ss) = 
+    pure (typedModuleToString es, ss)

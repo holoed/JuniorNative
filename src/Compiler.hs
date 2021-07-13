@@ -7,7 +7,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 
@@ -19,10 +19,11 @@ step desc f x = catchError
                                            throwError e )
 
 
-pipeline :: String -> CompileM ([TypedExp], [Symbol])
+pipeline :: String -> CompileM (String, [Symbol])
 pipeline = step "code to parse tree" parse >=>
            step "parse tree to syntax tree" fromSynExpToExp >=>
            step "dependency analysis" dependencyAnalysis >=>
            step "type inference" typeInference >=>
-           step "build symbol table" buildSymbolTable
+           step "build symbol table" buildSymbolTable >=>
+           step "pretty print module" prettyPrintModule
 

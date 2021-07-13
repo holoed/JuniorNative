@@ -10,6 +10,7 @@ import qualified DependencyAnalysisTests
 import qualified ModuleTypeInferenceTests
 import qualified SymbolTableTests
 import qualified PrettyTypesTests
+import qualified ModulePrinterTests
 
 main :: IO ()
 main = hspec $ do
@@ -22,4 +23,5 @@ main = hspec $ do
     ModuleTypeInferenceTests.tests 
     SymbolTableTests.tests
     PrettyTypesTests.tests
+    ModulePrinterTests.tests
     

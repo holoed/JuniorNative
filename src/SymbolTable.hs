@@ -10,6 +10,7 @@ import Location (PString(..))
 import Types ( Qual, Type )
 import RecursionSchemes ( cataRec )
 import Data.Map (Map, (!?), fromList, union)
+import Data.List (nubBy)
 import Control.Monad.Writer( Writer, MonadWriter(tell), runWriter )
 import Control.Monad.Trans.Reader (ReaderT, ask, local, runReaderT)
 import qualified Data.Set as Set
@@ -76,7 +77,7 @@ fromBinding :: Map String Symbol -> TypedExp -> [Symbol]
 fromBinding env e = snd $ runWriter $ runReaderT (cataRec alg e) env
 
 build :: [TypedExp] -> [Symbol]
-build es = list
+build es = nubBy (\x1 x2 -> name x1 == name x2) list
     where dict = es >>= extractSymbolsFromLet
           topLevel = Set.fromList (name . snd <$> dict)
           list = do s <- es >>= fromBinding (fromList dict)

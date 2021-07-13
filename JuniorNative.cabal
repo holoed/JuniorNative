@@ -51,7 +51,8 @@ executable JuniorNative
                        CompilerMonad,
                        CompilerSteps,
                        Compiler,
-                       SymbolTable
+                       SymbolTable,
+                       ModulePrinter
   build-depends:       base,
                        array,
                        containers,
@@ -105,7 +106,8 @@ executable JuniorService
                        CompilerMonad,
                        CompilerSteps,
                        Compiler,
-                       SymbolTable
+                       SymbolTable,
+                       ModulePrinter
   build-depends:       base,
                        array,
                        containers,
@@ -168,6 +170,7 @@ test-suite tests
                        CompilerSteps,
                        Compiler,
                        SymbolTable,
+                       ModulePrinter,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
@@ -176,7 +179,8 @@ test-suite tests
                        DependencyAnalysisTests,
                        ModuleTypeInferenceTests,
                        SymbolTableTests,
-                       PrettyTypesTests
+                       PrettyTypesTests,
+                       ModulePrinterTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex

@@ -5,7 +5,7 @@ import StringUtils (padR)
 import Location (Loc(..), PString(..))
 import Control.Monad.Trans ()
 import Control.Monad.IO.Class ( MonadIO(liftIO) )
-import Data.List (nubBy, intersperse)
+import Data.List (intersperse)
 import System.Console.Haskeline ()
 import Data.Maybe ( fromMaybe )
 import Data.Text.Lazy as Lazy ( pack )
@@ -43,7 +43,7 @@ main = do
   let p = read pStr :: Int
   scotty p route
 
-typeOfModule :: String -> IO (Either PString [S.Symbol ])
+typeOfModule :: String -> IO (Either PString (String, [S.Symbol ]))
 typeOfModule code = do
    let tableWidth = 49
    let line = replicate tableWidth '-'
@@ -53,7 +53,7 @@ typeOfModule code = do
    (x, _, z) <- run (pipeline code) classEnv env
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
-   return $ nubBy (\x1 x2 -> S.name x1 == S.name x2) . snd  <$> x
+   return x
 
 route :: ScottyM()
 route = do

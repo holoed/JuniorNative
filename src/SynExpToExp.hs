@@ -35,6 +35,7 @@ fromExp = cataRec alg
     where alg (Ann (Just l) (Ast.Lit x)) = PAst.lit l x
           alg (Ann (Just l) (Ast.Var s)) = PAst.var l s
           alg (Ann (Just l) (Ast.VarPat s)) = PAst.varPat l s
+          alg (Ann (Just l) (Ast.TuplePat es)) = PAst.tuplePat l es
           alg (Ann (Just l) (Ast.MkTuple es)) = PAst.mkTuple l es
           alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "*"))) e1))) e2)) = PAst.infixApp zeroLoc mulOp e1 e2
           alg (Ann Nothing (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "/"))) e1))) e2)) = PAst.infixApp zeroLoc divOp e1 e2
