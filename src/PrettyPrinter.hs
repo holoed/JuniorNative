@@ -33,6 +33,9 @@ bracket side outer (inner:_) doc =
 
 type PrettyM = RWS Int [Operator] ()
 
+isop :: String -> Bool
+isop x = x == "++" || x == "+" || x == "*" || x == ":"
+
 alg :: SynExpF (PrettyM Doc) -> PrettyM Doc
 alg (Lit (I v)) =
    return $ text (show v)
@@ -45,11 +48,11 @@ alg (Lit (S s)) =
 alg (Lit U) =
    return $ text "()"
 alg (VarPat x) =
-   return $ if x == "++"
+   return $ if isop x
    then parens (text x)
    else text x
 alg (Var x) =
-   return $ if x == "++"
+   return $ if isop x
    then parens (text x)
    else text x
 alg (Lam ns e) = do

@@ -6,13 +6,14 @@ import Annotations ( Ann(Ann), mapAnn )
 import TypedAst (TypedExp)
 import PrettyTypes (prettifyTypes)
 import TypesPrinter ()
-import PrettyPrinter (prettyDoc)
+import PrettyPrinter (prettyDoc, isop)
 import SynExpToExp (fromExp)
-import Text.PrettyPrint.Mainland ( (<+>), text, Doc, pretty, (</>), stack )
+import Text.PrettyPrint.Mainland ( (<+>), text, Doc, pretty, (</>), stack, parens )
 
 typedBindingToString :: TypedExp -> Doc
 typedBindingToString e@(In (Ann (_, qt) (Let (In (Ann _ (VarPat n))) _ _))) =
-    stack [text "val" <+> text n <+> text "::" <+> text (show qt),
+    let fnName x = if isop x then parens (text x) else text x in
+    stack [text "val" <+> fnName n <+> text "::" <+> text (show qt),
           (prettyDoc . fromExp . mapAnn fst) e]
 typedBindingToString e = (prettyDoc . fromExp . mapAnn fst) e
 
