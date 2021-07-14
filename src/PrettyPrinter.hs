@@ -5,8 +5,8 @@ import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTup
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
-import Text.PrettyPrint.Mainland ( (<+>),(<+/>), char, parens, pretty, text, Doc, parens, sep, tuple, nest, align, indent )
-import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
+import Text.PrettyPrint.Mainland ( (<+>),(<+/>), char, parens, pretty, group, text, Doc, parens, sep, tuple, nest, align, indent, prettyCompact )
+import Control.Monad.RWS.Lazy
 import Prelude hiding (Left, Right, (<>), pi)
 import Annotations ( unwrap )
 import Data.Semigroup ( Semigroup((<>)) )
@@ -26,7 +26,9 @@ bracket _ _ [] doc = doc
 bracket side outer (inner:_) doc =
   if noparens inner outer side then doc else parens doc
 
-alg :: SynExpF (Writer [Operator] Doc) -> Writer [Operator] Doc
+type PrettyM = RWS Int [Operator] ()
+
+alg :: SynExpF (PrettyM Doc) -> PrettyM Doc
 alg (Lit (I v)) =
    return $ text (show v)
 alg (Lit (D v)) =
@@ -64,19 +66,21 @@ alg (TuplePat es) = do
   return $ tuple es'
 alg (Let [n] v b) = do
   n' <- n
-  v' <- v
+  v' <- local (const 4) v
   b' <- b
   _ <- tell [minOp]
-  if pretty 100 b' == pretty 100 n' then return $ align $ text "let" <+> n' <+> char '=' <+/> v'
-  else return $ align $ sep [indent 4 $ text "let" <+> n' <+> char '=' <+> v' <+> text "in", b']
+  level <- ask
+  if prettyCompact b' == prettyCompact n' then return $ align $ text "let" <+> n' <+> char '=' <+> group (nest level v')
+  else return $ align $ sep [indent level $ text "let" <+> n' <+> char '=' <+> group (nest level v') <+> text "in", group b']
 alg (Let ns v b) = do
   ns' <- sequence ns
   let n:xs = ns'
-  v' <- v
+  v' <- local (const 4) v
   b' <- b
   _ <- tell [minOp]
-  if pretty 100 b' == pretty 100 n then return $ align $ text "let" <+> n <+> sep xs <+> char '=' <+/> v'
-  else return $ align $ sep [indent 4 $ text "let" <+> n <+> sep xs <+> char '=' <+> v' <+> text "in", b']
+  level <- ask
+  if prettyCompact b' == prettyCompact n then return $ align $ text "let" <+> n <+> sep xs <+> char '=' <+> group (nest level v')
+  else return $ align $ sep [indent level $ text "let" <+> n <+> sep xs <+> char '=' <+> group (nest level v') <+> text "in", group b']
 alg (IfThenElse q t f) = do
   q' <- q
   t' <- t
@@ -86,7 +90,7 @@ alg (IfThenElse q t f) = do
 alg _ = error "Undefined"
 
 prettyDoc :: SynExp -> Doc
-prettyDoc = fst . runWriter . cataRec alg . unwrap
+prettyDoc = fst . (\e -> evalRWS e 0 ()) . cataRec alg . unwrap
 
 prettyPrint :: SynExp -> String
 prettyPrint = pretty 50 . prettyDoc
