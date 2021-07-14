@@ -5,11 +5,11 @@ import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTup
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
-import Text.PrettyPrint.Mainland ( (<+>),(<+/>), char, parens, pretty, group, text, Doc, parens, sep, tuple, nest, align, indent, prettyCompact )
+import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc(..), parens, sep, spread, tuple, nest, align, indent, prettyCompact )
 import Control.Monad.RWS.Lazy
 import Prelude hiding (Left, Right, (<>), pi)
 import Annotations ( unwrap )
-import Data.Semigroup ( Semigroup((<>)) )
+import Data.List (intersperse)
 
 
 noparens ::Operator -> Operator -> Associativity -> Bool
@@ -60,18 +60,18 @@ alg (InfixApp op@(opName, _, _) e1 e2) = do
     return (bracket Left op l e1' <> text opTxt <> bracket Right op r e2')
 alg (MkTuple es) = do
   es' <- sequence es
-  return $ tuple es'
+  return $ parens $ folddoc (<>) $ intersperse (text ", ") es'
 alg (TuplePat es) = do
   es' <- sequence es
-  return $ tuple es'
+  return $ parens $ folddoc (<>) $ intersperse (text ", ") es'
 alg (Let [n] v b) = do
   n' <- n
   v' <- local (const 4) v
   b' <- b
   _ <- tell [minOp]
   level <- ask
-  if prettyCompact b' == prettyCompact n' then return $ align $ text "let" <+> n' <+> char '=' <+> group (nest level v')
-  else return $ align $ sep [indent level $ text "let" <+> n' <+> char '=' <+> group (nest level v') <+> text "in", group b']
+  if prettyCompact b' == prettyCompact n' then return $ align $ text "let" <+> n' <+> char '=' <+> (v' <|> (line <> group (indent 4 v')))
+  else return $ align $ sep [nest level $ text "let" <+> n' <+> char '=' <+> group (nest level v') <+> text "in", group b']
 alg (Let ns v b) = do
   ns' <- sequence ns
   let n:xs = ns'
@@ -79,8 +79,8 @@ alg (Let ns v b) = do
   b' <- b
   _ <- tell [minOp]
   level <- ask
-  if prettyCompact b' == prettyCompact n then return $ align $ text "let" <+> n <+> sep xs <+> char '=' <+> group (nest level v')
-  else return $ align $ sep [indent level $ text "let" <+> n <+> sep xs <+> char '=' <+> group (nest level v') <+> text "in", group b']
+  if prettyCompact b' == prettyCompact n then return $ align $ text "let" <+> n <+> spread xs <+> char '=' <+> (v' <|> (line <> group (indent 4 v')))
+  else return $ align $ sep [nest level $ text "let" <+> n <+> spread xs <+> char '=' <+> group (nest level v') <+> text "in", group b']
 alg (IfThenElse q t f) = do
   q' <- q
   t' <- t
