@@ -47,7 +47,7 @@ tokens :-
   $white+                       ;
 
   -- Comments
-  "#".*                         ;
+  "--".*                         ;
 
   -- Syntax
   let                           {\p s -> TokenLet (p, s) }
