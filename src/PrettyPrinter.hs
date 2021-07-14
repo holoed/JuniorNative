@@ -92,7 +92,7 @@ alg (IfThenElse q t f) = do
   f' <- f
   _ <- tell [minOp]
   level <- ask
-  return $ align $ sep [nest level $ text "if" <+> q', nest 4 $ text "then" <+> (t' <|> (line <> group (indent 4 t'))), nest 4 $ text "else" <+> (f' <|> (line <> group (indent 4 f')))]
+  return $ align $ sep [nest level $ text "if" <+> q', nest 4 $ text "then" <+>  group t', text "else" <+> group f']
 alg _ = error "Undefined"
 
 prettyDoc :: SynExp -> Doc
