@@ -5,7 +5,7 @@ import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTup
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
-import Text.PrettyPrint.Mainland ( (<+>),(<+/>), char, parens, pretty, text, Doc, parens, sep, tuple, nest, align )
+import Text.PrettyPrint.Mainland ( (<+>),(<+/>), char, parens, pretty, text, Doc, parens, sep, tuple, nest, align, indent )
 import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
 import Prelude hiding (Left, Right, (<>), pi)
 import Annotations ( unwrap )
@@ -68,7 +68,7 @@ alg (Let [n] v b) = do
   b' <- b
   _ <- tell [minOp]
   if pretty 100 b' == pretty 100 n' then return $ align $ text "let" <+> n' <+> char '=' <+/> v'
-  else return $ align $ sep [text "let" <+> n' <+> char '=' <+> v' <+> text "in", b']
+  else return $ align $ sep [indent 4 $ text "let" <+> n' <+> char '=' <+> v' <+> text "in", b']
 alg (Let ns v b) = do
   ns' <- sequence ns
   let n:xs = ns'
@@ -76,7 +76,7 @@ alg (Let ns v b) = do
   b' <- b
   _ <- tell [minOp]
   if pretty 100 b' == pretty 100 n then return $ align $ text "let" <+> n <+> sep xs <+> char '=' <+/> v'
-  else return $ align $ sep [text "let" <+> n <+> sep xs <+> char '=' <+> v' <+> text "in", b']
+  else return $ align $ sep [indent 4 $ text "let" <+> n <+> sep xs <+> char '=' <+> v' <+> text "in", b']
 alg (IfThenElse q t f) = do
   q' <- q
   t' <- t

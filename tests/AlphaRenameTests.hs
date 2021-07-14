@@ -30,4 +30,4 @@ tests =
 
      it "Rename a let" $ do
        "let x = 4" --> "let x0 = 4"
-       "let f = \\x -> x in f 5" --> "let f0 x1 = x1 in f0 5"
+       "let f = \\x -> x in f 5" --> "    let f0 x1 = x1 in f0 5"
