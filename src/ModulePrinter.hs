@@ -19,4 +19,4 @@ typedBindingToString e = (prettyDoc . fromExp . mapAnn fst) e
 
 typedModuleToString :: [TypedExp] -> String
 typedModuleToString es =
-    pretty 50 $ stack (flip (</>) (text ""). typedBindingToString . prettifyTypes <$> es)
+    pretty 40 $ stack (flip (</>) (text ""). typedBindingToString . prettifyTypes <$> es)

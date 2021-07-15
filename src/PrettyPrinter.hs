@@ -5,7 +5,7 @@ import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTup
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
-import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc, parens, sep, spread, nest, align, indent, prettyCompact )
+import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc, parens, sep, spread, nest, align, indent, prettyCompact, softbreak )
 import Control.Monad.RWS.Lazy
     ( (<>),
       evalRWS,
@@ -59,7 +59,7 @@ alg (Lam ns e) = do
   ns' <- sequence ns
   e' <- e
   _ <- tell [lamOp]
-  return $ align $ char '\\' <> sep ns' <+> text "->" <+/> group (align e')
+  return $ align $ char '\\' <> sep ns' <+> text "->" <+/> group e'
 alg (InfixApp op@(opName, _, _) e1 e2) = do
     (e1', l) <- listen e1
     (e2', r) <- listen e2
@@ -95,7 +95,8 @@ alg (IfThenElse q t f) = do
   f' <- f
   _ <- tell [minOp]
   level <- ask
-  return $ align $ sep [nest level $ text "if" <+> q', nest 4 $ text "then" <+>  group t', text "else" <+> group f']
+  let ret = group $ nest level $ sep [text "if" <+> q', text "then" <+>  group t', text "else" <+> group f']
+  return (ret <|> (line <> indent level ret))
 alg _ = error "Undefined"
 
 prettyDoc :: SynExp -> Doc
