@@ -59,7 +59,7 @@ alg (Lam ns e) = do
   ns' <- sequence ns
   e' <- e
   _ <- tell [lamOp]
-  return $ align $ char '\\' <> sep ns' <+> text "->" <+/> e'
+  return $ align $ char '\\' <> sep ns' <+> text "->" <+/> group (align e')
 alg (InfixApp op@(opName, _, _) e1 e2) = do
     (e1', l) <- listen e1
     (e2', r) <- listen e2
