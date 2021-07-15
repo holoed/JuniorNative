@@ -5,7 +5,7 @@ import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTup
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
-import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc, parens, sep, spread, nest, align, indent, prettyCompact, softbreak )
+import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc, parens, sep, spread, nest, align, indent, prettyCompact )
 import Control.Monad.RWS.Lazy
     ( (<>),
       evalRWS,
