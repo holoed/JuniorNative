@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 module Main where
 
 import StringUtils (padR)
@@ -50,10 +51,10 @@ typeOfModule code = do
    putStrLn ("+" ++ line ++ "+")
    putStrLn $ padR tableWidth "| Junior Compilation " ++ " |"
    putStrLn ("|" ++ line ++ "|")
-   (x, _, z) <- run (pipeline code) classEnv env
+   (x, (_, ss), z) <- run (pipeline code) classEnv (env, [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
-   return x
+   return $ (, ss) <$>x
 
 route :: ScottyM()
 route = do

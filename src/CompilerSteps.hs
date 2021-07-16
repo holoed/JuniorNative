@@ -16,7 +16,7 @@ import LiftNumbers ( liftN )
 import Control.Monad.Except ( MonadError(throwError) )
 import Control.Monad.Reader ( MonadReader(ask) )
 import Control.Monad.State (MonadState(put, get))
-import SymbolTable ( Symbol, build )
+import SymbolTable ( build )
 import PrettyTypes ( prettifyTypes ) 
 import ModulePrinter (typedModuleToString)
 
@@ -31,7 +31,7 @@ fromSynExpToExp es = return $ toExp <$> es
 
 dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
 dependencyAnalysis es = do
-    env <- get
+    (env, _) <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
     let dict = Map.fromList ((\e@(In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) -> (s, e)) <$> es)
     return $ ((\n -> (n, dict!n)) <$>) <$> ns
@@ -39,7 +39,7 @@ dependencyAnalysis es = do
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
 typeInference bss = do
     classEnv <- ask
-    env <- get
+    (env, symbols) <- get
     let g (_, env') (n, e) = (\e2@(In (Ann (_, t) _)) -> ([e2], toEnv [(n, t)])) . snd <$> (infer classEnv env' . liftN) e
     let f env' (n, e) = env' >>= flip g (n, e)
     let k ev1 ev2 = (\(e1, x) (e2, y) -> (e1 ++ e2, concatEnvs x y)) <$> ev1 <*> ev2
@@ -48,13 +48,14 @@ typeInference bss = do
     case ret of
         Left err -> throwError err
         Right v -> do
-             put (snd v)
+             put (snd v, symbols)
              return $ fst v
 
-buildSymbolTable :: [TypedExp] -> CompileM ([TypedExp], [Symbol])
+buildSymbolTable :: [TypedExp] -> CompileM [TypedExp]
 buildSymbolTable es = 
-    pure (es, build (prettifyTypes <$> es))
+    do (env, _) <- get
+       put (env, build (prettifyTypes <$> es))
+       return es
 
-prettyPrintModule :: ([TypedExp], [Symbol]) -> CompileM (String, [Symbol])
-prettyPrintModule (es, ss) = 
-    pure (typedModuleToString es, ss)
+prettyPrintModule :: [TypedExp] -> CompileM String
+prettyPrintModule es = return $ typedModuleToString es

@@ -17,8 +17,8 @@ extractNames ss = (\s -> (getName $ S.name s, show $ prettyQ $ S.ty s)) <$> filt
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
-   (x, _, _) <- run (pipeline code) classEnv env
-   return (nub . extractNames . snd <$> x)
+   (x, (_, ss), _) <- run (pipeline code) classEnv (env, [])
+   return (nub . extractNames . const ss <$> x)
 
 (-->) :: String -> [(String, String)] -> Expectation
 (-->) x y = do v <- typeOfModule x
@@ -61,7 +61,7 @@ tests =
                         let lessThan = filter (\\x -> f x < f pivot) rest in 
                         let greaterThan = filter (\\x -> f x > f pivot) rest in
                         concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
-                      |] --> 
+                      |] -->
                        [
                           ("foldr","(a -> b -> b) -> b -> List a -> b"),
                           ("singleton","a -> List a"),

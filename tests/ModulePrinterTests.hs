@@ -9,8 +9,8 @@ import Data.String.Interpolate ( i )
 
 build :: String -> IO String
 build code = do
-   (Right x, _, _) <- run (pipeline code) classEnv env
-   return (fst x)
+   (Right x, _, _) <- run (pipeline code) classEnv (env, [])
+   return x
 
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)

@@ -4,13 +4,12 @@ import SymbolTable (Symbol)
 import CompilerMonad (run)
 import Compiler (pipeline)
 import Intrinsics ( env, classEnv )
-import Data.Either ( fromRight )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
 
 compile :: String -> IO [Symbol]
 compile code = do
-   (x, _, _) <- run (pipeline code) classEnv env
-   return $ fromRight [] (snd <$> x)
+   (_, (_, ss), _) <- run (pipeline code) classEnv (env, [])
+   return ss
 
 (-->) :: String -> [String] -> Expectation 
 (-->) x y = do ret <- compile x

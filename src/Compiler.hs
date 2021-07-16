@@ -1,6 +1,5 @@
 module Compiler where
 
-import SymbolTable (Symbol)
 import StringUtils (padR)
 import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
@@ -18,7 +17,7 @@ step desc f x = catchError
                                            throwError e )
 
 
-pipeline :: String -> CompileM (String, [Symbol])
+pipeline :: String -> CompileM String
 pipeline = step "code to parse tree" parse >=>
            step "parse tree to syntax tree" fromSynExpToExp >=>
            step "dependency analysis" dependencyAnalysis >=>
