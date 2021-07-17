@@ -53,7 +53,8 @@ executable JuniorNative
                        Compiler,
                        SymbolTable,
                        ModulePrinter,
-                       Interpreter
+                       Interpreter,
+                       ConstraintsResolution
   build-depends:       base,
                        array,
                        containers,
@@ -109,7 +110,8 @@ executable JuniorService
                        Compiler,
                        SymbolTable,
                        ModulePrinter,
-                       Interpreter
+                       Interpreter,
+                       ConstraintsResolution
   build-depends:       base,
                        array,
                        containers,
@@ -174,6 +176,7 @@ test-suite tests
                        SymbolTable,
                        ModulePrinter,
                        Interpreter,
+                       ConstraintsResolution,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
@@ -184,7 +187,8 @@ test-suite tests
                        SymbolTableTests,
                        PrettyTypesTests,
                        ModulePrinterTests,
-                       InterpreterTests
+                       InterpreterTests,
+                       ConstraintsResolutionTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex
