@@ -1,6 +1,6 @@
 module ConstraintsResolutionTests where
 
-import Types ( Pred(IsIn), Type(TyVar, TyCon) ) 
+import Types ( Pred(IsIn), Type(TyApp, TyVar, TyCon) ) 
 import ConstraintsResolution (typeForPred, toCamel, varNameForPred)
 import Test.Hspec ( it, describe, shouldBe, SpecWith )
 import TypesPrinter () 
@@ -15,9 +15,11 @@ tests = do
        IsIn "Num" (TyVar "a" 0) --> "Num a"
        IsIn "Monad" (TyVar "m" 1) --> "Monad m"
        IsIn "Num" (TyCon "Int") --> "Num Int"
+       IsIn "Reader" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) --> "Reader (a, b)"
 
    it "camel case names" $ do
        toCamel "FooBar" `shouldBe` "fooBar"
+       toCamel "helloWorld123" `shouldBe` "helloWorld123"
 
    it "VarName for a Predicate" $ do
        let (-->) x y = varNameForPred x `shouldBe` y
