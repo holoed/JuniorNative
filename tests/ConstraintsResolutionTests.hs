@@ -1,9 +1,23 @@
+{-# LANGUAGE QuasiQuotes #-}
 module ConstraintsResolutionTests where
 
+import TypedAst (TypedExp)
 import Types ( Pred(IsIn), Type(TyApp, TyVar, TyCon) ) 
-import ConstraintsResolution (typeForPred, toCamel, varNameForPred)
+import ConstraintsResolution (typeForPred, toCamel, varNameForPred, convertPreds)
 import Test.Hspec ( it, describe, shouldBe, SpecWith )
 import TypesPrinter () 
+import Parser ( parseExpr )
+import Data.Either (fromRight)
+import Infer ( infer )
+import Intrinsics ( classEnv, env )
+import LiftNumbers ( liftN )
+import SynExpToExp ( toExp )
+import ModulePrinter ( typedModuleToString )
+import Data.String.Interpolate ( i )
+
+typeOf :: [String] -> [TypedExp]
+typeOf s = fromRight [] (parseExpr (unlines s) >>=  
+           (infer classEnv env . liftN . toExp . head) >>= (\(_, e) -> Right [e]))
 
 tests :: SpecWith ()
 tests = do
@@ -27,3 +41,9 @@ tests = do
        IsIn "Num" (TyCon "Int") --> "numInt"
        IsIn "Monad" (TyCon "List") --> "monadList"
        IsIn "Monad" (TyVar "m" 1) --> "monadm1"
+
+   it "Convert predicates" $ do
+       let (-->) x y = typedModuleToString (convertPreds <$> typeOf x) `shouldBe` y
+       ["let f x = x + 1"] --> [i|val f :: Num a -> a -> a
+let f numT2T80 x = x + 1
+|]
