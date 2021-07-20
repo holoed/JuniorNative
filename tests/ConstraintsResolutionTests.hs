@@ -45,5 +45,10 @@ tests = do
    it "Convert predicates" $ do
        let (-->) x y = typedModuleToString (convertPreds <$> typeOf x) `shouldBe` y
        ["let f x = x + 1"] --> [i|val f :: Num a -> a -> a
-let f numT2T80 x = x + 1
+let f numT20 x = 
+    (numT20 + x) (fromInteger numT20 1)
+|]
+       ["let f x y = (x + 1, y + 2)"] --> [i|val f :: Num a -> Num b -> a -> b -> (a, b)
+let f numT50 numT60 x y = 
+    ((numT50 + x) (fromInteger numT50 1), (numT60 + y) (fromInteger numT60 2))
 |]

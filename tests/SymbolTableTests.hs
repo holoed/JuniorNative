@@ -36,6 +36,6 @@ tests =
          "Symbol {name = x Just line 1 column 7, ty = Num a => a, parent = Nothing, top = False}",
          "Symbol {name = y Just line 1 column 9, ty = Num a => a, parent = Nothing, top = False}",
          "Symbol {name = + Just line 1 column 15, ty = Num a => a -> a -> a, parent = Nothing, top = False}",
-         "Symbol {name = x Just line 1 column 13, ty = Num a => a, parent = Just (Symbol {name = x Just line 1 column 7, ty = Num a => a, parent = Nothing, top = False}), top = False}",
-         "Symbol {name = y Just line 1 column 17, ty = Num a => a, parent = Just (Symbol {name = y Just line 1 column 9, ty = Num a => a, parent = Nothing, top = False}), top = False}"
+         "Symbol {name = x Just line 1 column 13, ty = a, parent = Just (Symbol {name = x Just line 1 column 7, ty = Num a => a, parent = Nothing, top = False}), top = False}",
+         "Symbol {name = y Just line 1 column 17, ty = a, parent = Just (Symbol {name = y Just line 1 column 9, ty = Num a => a, parent = Nothing, top = False}), top = False}"
          ]

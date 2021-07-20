@@ -8,7 +8,6 @@ import Fixpoint ( Fix(In) )
 import Operators ( juxtaOp, mulOp, divOp, plusOp, plusplusOp, subOp, eqeqOp, andOp, orOp, gtOp, ltOp, consOp )
 import RecursionSchemes ( cataRec )
 import Location (zeroLoc)
-import LiftNumbers ( dropN ) 
 
 toExp :: PAst.SynExp -> Ast.Exp
 toExp = cataRec alg
@@ -32,7 +31,7 @@ toExp = cataRec alg
 
 
 fromExp :: Ast.Exp -> PAst.SynExp
-fromExp = compressLets . compressLambdas . cataRec alg . dropN
+fromExp = compressLets . compressLambdas . cataRec alg 
     where alg (Ann (Just l) (Ast.Lit x)) = PAst.lit l x
           alg (Ann (Just l) (Ast.Var s)) = PAst.var l s
           alg (Ann (Just l) (Ast.VarPat s)) = PAst.varPat l s

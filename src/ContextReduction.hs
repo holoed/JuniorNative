@@ -1,6 +1,6 @@
 module ContextReduction where
 
-import Ast ( ExpF(Let) )
+import Ast ( ExpF(Let, Var) )
 import TypedAst ( TypedExp, TypedExpF )
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann) )
@@ -82,6 +82,8 @@ propagatePreds e = runReader (cataRec alg e) (fromList [])
             v' <- local (`union` ps) v
             b' <- local (`union` ps) b
             return $ In . Ann (l, qt) $ Let n' v' b'
+        alg (Ann (l, ps :=> t) (Var n)) = do
+            return $ In (Ann (l, ps :=> t) (Var n))
         alg (Ann (l, ps :=> t) x) = do
             ps' <- ask
             In . Ann (l, (ps `union` ps') :=> t) <$> sequenceA x
