@@ -14,6 +14,7 @@ import LiftNumbers ( liftN )
 import SynExpToExp ( toExp )
 import ModulePrinter ( typedModuleToString )
 import Data.String.Interpolate ( i )
+import MonomorphicRestriction (process)
 
 typeOf :: [String] -> [TypedExp]
 typeOf s = fromRight [] (parseExpr (unlines s) >>=  
@@ -43,7 +44,7 @@ tests = do
        IsIn "Monad" (TyVar "m" 1) --> "monadm1"
 
    it "Convert predicates" $ do
-       let (-->) x y = typedModuleToString (convertPreds <$> typeOf x) `shouldBe` y
+       let (-->) x y = typedModuleToString (convertPreds . process  <$> typeOf x) `shouldBe` y
        ["let f x = x + 1"] --> [i|val f :: Num a -> a -> a
 let f numT20 x = 
     (numT20 + x) (fromInteger numT20 1)
@@ -59,4 +60,8 @@ let fac eqT140 numT140 n =
     if (eqT140 == n) (fromInteger numT140 0)
         then fromInteger numT140 1
         else (numT140 * n) (fac ((numT140 - n) (fromInteger numT140 1)))
+|]
+
+       ["let x = 42"] --> [i|val x :: Int
+let x = fromInteger numInt 42
 |]

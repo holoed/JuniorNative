@@ -54,7 +54,8 @@ executable JuniorNative
                        SymbolTable,
                        ModulePrinter,
                        Interpreter,
-                       ConstraintsResolution
+                       ConstraintsResolution,
+                       MonomorphicRestriction
   build-depends:       base,
                        array,
                        containers,
@@ -111,7 +112,8 @@ executable JuniorService
                        SymbolTable,
                        ModulePrinter,
                        Interpreter,
-                       ConstraintsResolution
+                       ConstraintsResolution,
+                       MonomorphicRestriction
   build-depends:       base,
                        array,
                        containers,
@@ -177,6 +179,7 @@ test-suite tests
                        ModulePrinter,
                        Interpreter,
                        ConstraintsResolution,
+                       MonomorphicRestriction,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
