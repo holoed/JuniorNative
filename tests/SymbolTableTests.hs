@@ -2,13 +2,13 @@ module SymbolTableTests where
 
 import SymbolTable (Symbol)
 import CompilerMonad (run)
-import Compiler (pipeline)
+import Compiler (frontEndPrinted)
 import Intrinsics ( env, classEnv )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
 
 compile :: String -> IO [Symbol]
 compile code = do
-   (_, (_, ss), _) <- run (pipeline code) classEnv (env, [])
+   (_, (_, ss), _) <- run (frontEndPrinted code) classEnv (env, [])
    return ss
 
 (-->) :: String -> [String] -> Expectation 

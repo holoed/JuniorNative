@@ -191,7 +191,8 @@ test-suite tests
                        PrettyTypesTests,
                        ModulePrinterTests,
                        InterpreterTests,
-                       ConstraintsResolutionTests
+                       ConstraintsResolutionTests,
+                       CompilerTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex

@@ -18,7 +18,7 @@ import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Intrinsics ( env, classEnv )
 import Data.Aeson
     ( ToJSON(toJSON), object, encode, KeyValue((.=)) )
-import Compiler (pipeline)
+import Compiler (frontEndPrinted)
 import CompilerMonad (run)
 import qualified SymbolTable as S
 
@@ -51,7 +51,7 @@ typeOfModule code = do
    putStrLn ("+" ++ line ++ "+")
    putStrLn $ padR tableWidth "| Junior Compilation " ++ " |"
    putStrLn ("|" ++ line ++ "|")
-   (x, (_, ss), z) <- run (pipeline code) classEnv (env, [])
+   (x, (_, ss), z) <- run (frontEndPrinted code) classEnv (env, [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
    return $ (, ss) <$>x

@@ -13,6 +13,7 @@ import qualified PrettyTypesTests
 import qualified ModulePrinterTests
 import qualified InterpreterTests
 import qualified ConstraintsResolutionTests
+import qualified CompilerTests
 
 main :: IO ()
 main = hspec $ do
@@ -28,4 +29,5 @@ main = hspec $ do
     ModulePrinterTests.tests
     InterpreterTests.tests
     ConstraintsResolutionTests.tests 
+    CompilerTests.tests
     

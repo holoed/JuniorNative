@@ -2,14 +2,14 @@
 module ModulePrinterTests where
 
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
-import Compiler ( pipeline )
+import Compiler ( frontEndPrinted )
 import CompilerMonad ( run )
 import Intrinsics ( env, classEnv )
 import Data.String.Interpolate ( i )
 
 build :: String -> IO String
 build code = do
-   (Right x, _, _) <- run (pipeline code) classEnv (env, [])
+   (Right x, _, _) <- run (frontEndPrinted code) classEnv (env, [])
    return x
 
 (-->) :: String -> String -> Expectation
