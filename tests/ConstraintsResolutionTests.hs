@@ -52,3 +52,11 @@ let f numT20 x =
 let f numT50 numT60 x y = 
     ((numT50 + x) (fromInteger numT50 1), (numT60 + y) (fromInteger numT60 2))
 |]
+
+       ["let fac n = if n == 0 then 1 else n * (fac (n - 1))"] --> 
+           [i|val fac :: Eq a -> Num a -> a -> a
+let fac eqT140 numT140 n = 
+    if (eqT140 == n) (fromInteger numT140 0)
+        then fromInteger numT140 1
+        else (numT140 * n) (fac ((numT140 - n) (fromInteger numT140 1)))
+|]
