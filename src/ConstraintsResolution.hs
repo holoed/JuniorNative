@@ -4,14 +4,11 @@ import TypedAst (TypedExp, tapp, tvar)
 import Ast (ExpF(..))
 import Fixpoint (Fix(..))
 import Annotations (Ann(..))
-import qualified Data.Map as Map (Map, fromList)
-import Environment (Env, containsScheme, findScheme)
-import qualified Data.Set as Set (Set, null, fromList, toList, union, empty)
+import qualified Data.Set as Set (Set, fromList, toList, union, empty)
 import Types ( Pred(..), Type(TyCon, TyApp, TyVar), Qual(..), tyLam, TypeScheme(..) )
 import TypesPrinter ()
 import Data.Char ( toLower )
 import RecursionSchemes (cataRec)
-import Data.Tuple (swap)
 import Location (Loc)
 
 convertPreds :: TypedExp -> TypedExp
@@ -24,7 +21,7 @@ convertPreds (In (Ann (loc, ps :=> t) (Let n v b))) =
 convertPreds _ = undefined
 
 collectPreds :: TypedExp -> Set.Set Pred
-collectPreds (In (Ann _ (Lam (In (Ann (_, ps :=> _) (VarPat n))) v))) =  ps `Set.union` collectPreds v
+collectPreds (In (Ann _ (Lam (In (Ann (_, ps :=> _) (VarPat _))) v))) =  ps `Set.union` collectPreds v
 collectPreds _ = Set.empty 
 
 
@@ -34,7 +31,7 @@ fromTypeSchemeToPreds (Identity (ps :=> _)) = ps
 
 convertBody :: TypedExp -> TypedExp
 convertBody = cataRec alg
-       where alg e@(Ann (Just loc, ps :=> t) (Var n)) =
+       where alg e@(Ann (Just loc, ps :=> _) (Var _)) =
                 let args = getNewArgs (Set.toList ps) in
                 applyArgs loc args (In e)
              alg x = In x
