@@ -47,3 +47,7 @@ mkTuple l xs = In (Ann (Just l) (MkTuple xs))
 
 tuplePat :: Loc -> [Exp] -> Exp
 tuplePat l xs = In (Ann (Just l) (TuplePat xs))
+
+extractNameFromPat :: Exp -> (Maybe Loc, String) 
+extractNameFromPat (In (Ann l (VarPat s))) = (l, s)
+extractNameFromPat _ = error "Unsupported"

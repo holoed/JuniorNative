@@ -1,14 +1,14 @@
 module CompilerSteps where
 
 import Fixpoint ( Fix(..) )
-import Annotations ( Ann(Ann) )
+import Annotations (mapAnn, Ann(Ann) )
 import TypedAst (TypedExp)
 import Ast (Exp, ExpF(..))
 import PAst (SynExp)
 import CompilerMonad (CompileM)
 import Parser ( parseExpr )
 import SynExpToExp ( toExp )
-import Data.Map as Map ( keysSet, fromList, (!) )
+import Data.Map as Map ( keysSet, fromList, toList, (!) )
 import DependencyAnalysis ( chunks )
 import Environment (toEnv, concatEnvs)
 import Infer ( infer )
@@ -21,6 +21,7 @@ import PrettyTypes ( prettifyTypes )
 import ModulePrinter (typedModuleToString)
 import MonomorphicRestriction (applyRestriction)
 import ConstraintsResolution (convertPreds)
+import Interpreter (interpretModule, Result)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -40,7 +41,7 @@ dependencyAnalysis es = do
 
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
 typeInference bss = do
-    classEnv <- ask
+    (_, classEnv) <- ask
     (env, symbols) <- get
     let g (_, env') (n, e) = (\e2@(In (Ann (_, t) _)) -> ([e2], toEnv [(n, t)])) . snd <$> (infer classEnv env' . liftN) e
     let f env' (n, e) = env' >>= flip g (n, e)
@@ -67,3 +68,10 @@ applyMonomorphicRestriction es = return $ applyRestriction <$> es
 
 desugarPredicates :: [TypedExp] -> CompileM [TypedExp]
 desugarPredicates es = return $ convertPreds <$> es
+
+interpret :: [TypedExp] -> CompileM [Result]
+interpret es = do
+   (env, _) <- ask
+   case interpretModule env (mapAnn fst <$> es) of
+       Left err -> throwError err
+       Right v -> return $ snd <$> drop (length v - 1) (toList v) 

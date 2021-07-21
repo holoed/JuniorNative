@@ -11,13 +11,14 @@ import CompilerMonad (run)
 import qualified SymbolTable as S
 import Data.List (nub)
 import PrettyTypes (prettyQ)
+import qualified Data.Map as Map (empty) 
 
 extractNames :: [S.Symbol] -> [(String, String)]
 extractNames ss = (\s -> (getName $ S.name s, show $ prettyQ $ S.ty s)) <$> filter S.top ss
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
-   (x, (_, ss), _) <- run (frontEndPrinted code) classEnv (env, [])
+   (x, (_, ss), _) <- run (frontEndPrinted code) (Map.empty, classEnv) (env, [])
    return (nub . extractNames . const ss <$> x)
 
 (-->) :: String -> [(String, String)] -> Expectation

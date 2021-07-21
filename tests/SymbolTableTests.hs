@@ -5,10 +5,11 @@ import CompilerMonad (run)
 import Compiler (frontEndPrinted)
 import Intrinsics ( env, classEnv )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import qualified Data.Map as Map (empty) 
 
 compile :: String -> IO [Symbol]
 compile code = do
-   (_, (_, ss), _) <- run (frontEndPrinted code) classEnv (env, [])
+   (_, (_, ss), _) <- run (frontEndPrinted code) (Map.empty, classEnv) (env, [])
    return ss
 
 (-->) :: String -> [String] -> Expectation 

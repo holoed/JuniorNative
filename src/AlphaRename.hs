@@ -1,7 +1,7 @@
 module AlphaRename where
 
 import Location ( Loc )
-import Ast ( Exp, ExpF(Let, Lam, Var, VarPat), var, lam, leT )
+import Ast ( Exp, ExpF(Let, Lam, Var), var, lam, leT, extractNameFromPat )
 import Data.Map ( (!), empty, insert, lookup, member, Map )
 import Data.Maybe ( fromMaybe, fromJust )
 import Control.Monad.Trans.Reader ( ask, local, ReaderT(runReaderT) )
@@ -12,10 +12,6 @@ import Prelude hiding (lookup)
 import Annotations (Ann(..))
 
 type AlphaM = ReaderT (Map String String) (State (Int, Map String String))
-
-extractName :: Exp -> (Maybe Loc, String) 
-extractName (In (Ann l (VarPat s))) = (l, s)
-extractName _ = error "Unsupported"
 
 newName :: String -> AlphaM String
 newName s = do (index, names) <- get
@@ -28,7 +24,7 @@ newName s = do (index, names) <- get
 
 alg :: Ann (Maybe Loc) ExpF (AlphaM Exp) -> AlphaM Exp
 alg (Ann (Just l) (Lam p e)) = do p' <- p
-                                  let x = extractName p'
+                                  let x = extractNameFromPat p'
                                   x' <- newName (snd x)                                   
                                   e' <- local (insert (snd x) x') e
                                   return $ lam l (var (fromJust $ fst x) x') e'
@@ -38,7 +34,7 @@ alg (Ann (Just l) (Var x)) =
                      return $ var l x'
 alg (Ann (Just l) (Let p v b)) = 
                   do p' <- p
-                     let x = extractName p'
+                     let x = extractNameFromPat p'
                      x' <- newName (snd x) 
                      v' <- local (insert (snd x) x') v
                      b' <- local (insert (snd x) x') b

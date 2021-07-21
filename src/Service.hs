@@ -21,6 +21,7 @@ import Data.Aeson
 import Compiler (frontEndPrinted)
 import CompilerMonad (run)
 import qualified SymbolTable as S
+import Data.Map as Map (empty)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -51,7 +52,7 @@ typeOfModule code = do
    putStrLn ("+" ++ line ++ "+")
    putStrLn $ padR tableWidth "| Junior Compilation " ++ " |"
    putStrLn ("|" ++ line ++ "|")
-   (x, (_, ss), z) <- run (frontEndPrinted code) classEnv (env, [])
+   (x, (_, ss), z) <- run (frontEndPrinted code) (Map.empty, classEnv ) (env, [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
    return $ (, ss) <$>x
