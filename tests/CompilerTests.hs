@@ -6,24 +6,11 @@ import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
 import Compiler ( full )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
-import qualified Data.Map as Map (fromList) 
-import Interpreter (InterpreterEnv, Result(..))
-import Primitives (Prim(..))
-
-ienv :: InterpreterEnv
-ienv = Map.fromList [
-    ("numInt", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x + y))))),
-    ("fromInteger", Function(\_ -> return $ Function (\(Value x) -> return $ Value x))),
-    ("+", Function(\(Function f) -> 
-           return $ Function(\x -> 
-           return $ Function (\y -> 
-             do (Function f') <- f x
-                f' y ))))
- ]
+import qualified InterpreterIntrinsics as Interp (env)
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (full code) (ienv, classEnv) (env, [])
+   (x, _, _) <- run (full code) (Interp.env, classEnv) (env, [])
    return $ either show id x
 
 (-->) :: String -> String -> Expectation
@@ -33,11 +20,14 @@ tests :: SpecWith ()
 tests = do
   describe "Compiler Tests" $ do
 
-   it "value" $ "let x = 42" --> "[I 42]"
-
-   it "function" $ "let f x = x + 1" --> "[<function>]"
+   it "value" $ "let main = 42" --> "[I 42]"
 
    it "applied function" $ [i|
       let f x = x + 1
-      let ret = f 5
+      let main = f 5
    |] --> "[I 6]"
+
+   it "recursive function" $ [i|
+      let fac n = if n == 0 then 1 else n * (fac (n - 1))
+      let main = fac 5
+   |] --> "[I 120]"

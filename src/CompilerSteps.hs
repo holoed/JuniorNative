@@ -8,7 +8,7 @@ import PAst (SynExp)
 import CompilerMonad (CompileM)
 import Parser ( parseExpr )
 import SynExpToExp ( toExp )
-import Data.Map as Map ( keysSet, fromList, toList, (!) )
+import Data.Map as Map ( keysSet, fromList, (!), (!?) )
 import DependencyAnalysis ( chunks )
 import Environment (toEnv, concatEnvs)
 import Infer ( infer )
@@ -22,6 +22,7 @@ import ModulePrinter (typedModuleToString)
 import MonomorphicRestriction (applyRestriction)
 import ConstraintsResolution (convertPreds)
 import Interpreter (interpretModule, Result)
+import qualified Data.Maybe as Maybe
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -74,4 +75,4 @@ interpret es = do
    (env, _) <- ask
    case interpretModule env (mapAnn fst <$> es) of
        Left err -> throwError err
-       Right v -> return $ snd <$> drop (length v - 1) (toList v) 
+       Right v -> return $ Maybe.maybeToList $ v!?"main"

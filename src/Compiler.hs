@@ -33,6 +33,7 @@ full :: String -> CompileM String
 full = frontEnd >=>
        step "apply monomorphic restriction" applyMonomorphicRestriction >=>
        step "desugar constraints" desugarPredicates >=>
+   --    step "pretty print module" prettyPrintModule
        step "interpret" interpret >=>
        step "print" (return . show)
        

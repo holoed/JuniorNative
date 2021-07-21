@@ -59,7 +59,7 @@ let f numT50 numT60 x y =
 let fac eqT140 numT140 n = 
     if (eqT140 == n) (fromInteger numT140 0)
         then fromInteger numT140 1
-        else (numT140 * n) (fac ((numT140 - n) (fromInteger numT140 1)))
+        else (numT140 * n) (fac eqT140 numT140 ((numT140 - n) (fromInteger numT140 1)))
 |]
 
        ["let x = 42"] --> [i|val x :: Int

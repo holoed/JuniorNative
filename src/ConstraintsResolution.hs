@@ -1,9 +1,9 @@
 module ConstraintsResolution where
 
 import TypedAst (TypedExp, tapp, tvar)
-import Ast (ExpF(..))
+import Ast (ExpF(..), extractNameFromPat)
 import Fixpoint (Fix(..))
-import Annotations (Ann(..))
+import Annotations (Ann(..), mapAnn)
 import qualified Data.Set as Set (Set, fromList, toList, union, empty)
 import Types ( Pred(..), Type(TyCon, TyApp, TyVar), Qual(..), tyLam, TypeScheme(..) )
 import TypesPrinter ()
@@ -15,8 +15,9 @@ convertPreds :: TypedExp -> TypedExp
 convertPreds (In (Ann (loc, ps :=> t) (Let n v b))) =
         In (Ann (loc, Set.fromList [] :=> extendType (typeForPred <$> Set.toList ps) t) (Let n v'' b))
     where ps' = collectPreds v
+          (_, name) = extractNameFromPat (mapAnn fst n)
           args = getNewArgs (Set.toList ps')
-          v'  = convertBody v
+          v'  = convertBody name args v
           v'' = foldr (\(n', t') acc -> lamWithType n' (Set.fromList [] :=> t') acc) v' args
 convertPreds _ = undefined
 
@@ -29,10 +30,12 @@ fromTypeSchemeToPreds :: TypeScheme -> Set.Set Pred
 fromTypeSchemeToPreds (ForAll _ (ps :=> _)) = ps
 fromTypeSchemeToPreds (Identity (ps :=> _)) = ps
 
-convertBody :: TypedExp -> TypedExp
-convertBody = cataRec alg
-       where alg e@(Ann (Just loc, ps :=> _) (Var _)) =
-                let args = getNewArgs (Set.toList ps) in
+convertBody :: String -> [(String, Type)] -> TypedExp -> TypedExp
+convertBody name parent_args = cataRec alg
+       where alg e@(Ann (Just loc, ps :=> _) (Var n)) =
+                let args = if n == name 
+                    then parent_args 
+                    else getNewArgs (Set.toList ps) in
                 applyArgs loc args (In e)
              alg x = In x
 
