@@ -38,3 +38,8 @@ tests = do
                   fib (n - 1) + fib (n - 2)
       let main = fib 10
    |] --> "[I 55]"
+
+   it "depending on a top level value affected by monomorphic restriction" $ [i|
+      let x = 42
+      let main = x + 1
+   |] --> "[I 43]"
