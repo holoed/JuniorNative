@@ -23,6 +23,7 @@ import MonomorphicRestriction (applyRestriction)
 import ConstraintsResolution (convertPreds)
 import Interpreter (interpretModule, Result)
 import qualified Data.Maybe as Maybe
+import Substitutions
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -64,10 +65,10 @@ buildSymbolTable es =
 prettyPrintModule :: [TypedExp] -> CompileM String
 prettyPrintModule es = return $ typedModuleToString es
 
-applyMonomorphicRestriction :: [TypedExp] -> CompileM [TypedExp]
+applyMonomorphicRestriction :: [TypedExp] -> CompileM [(TypedExp, Substitutions)]
 applyMonomorphicRestriction es = return $ applyRestriction <$> es
 
-desugarPredicates :: [TypedExp] -> CompileM [TypedExp]
+desugarPredicates :: [(TypedExp, Substitutions)] -> CompileM [TypedExp]
 desugarPredicates es = return $ convertPreds <$> es
 
 interpret :: [TypedExp] -> CompileM [Result]

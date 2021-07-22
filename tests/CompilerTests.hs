@@ -31,3 +31,10 @@ tests = do
       let fac n = if n == 0 then 1 else n * (fac (n - 1))
       let main = fac 5
    |] --> "[I 120]"
+
+   it "recursive function 2" $ [i|
+      let fib n = if n == 0 then 0 else 
+                  if n == 1 then 1 else 
+                  fib (n - 1) + fib (n - 2)
+      let main = fib 10
+   |] --> "[I 55]"

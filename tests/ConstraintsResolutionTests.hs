@@ -62,6 +62,16 @@ let fac eqT140 numT140 n =
         else (numT140 * n) (fac eqT140 numT140 ((numT140 - n) (fromInteger numT140 1)))
 |]
 
+       ["let fib n = if n == 0 then 1 else if n == 1 then 1 else fib (n - 1) + fib (n - 2)"] --> 
+           [i|val fib :: Eq a -> Num a -> Num b -> a -> b
+let fib eqT280 numT280 numT30 n = 
+    if (eqT280 == n) (fromInteger numT280 0)
+        then fromInteger numT30 1 else 
+            if (eqT280 == n) (fromInteger numT280 1)
+                then fromInteger numT30 1
+                else numT30 + fib eqT280 numT280 numT30 ((numT280 - n) (fromInteger numT280 1)) (fib eqT280 numT280 numT30 ((numT280 - n) (fromInteger numT280 2)))
+|]
+
        ["let x = 42"] --> [i|val x :: Int
 let x = fromInteger numInt 42
 |]
