@@ -43,3 +43,13 @@ tests = do
       let x = 42
       let main = x + 1
    |] --> "[I 43]"
+
+   it "higher order recursive function" $ [i|
+      let foldr f v xs =
+      if (null xs) then v
+      else f (head xs) (foldr f v (tail xs))
+      
+      let xs = 1:2:3:4:5:[]
+
+      let main = foldr (*) 1 xs 
+   |] --> "[I 120]"
