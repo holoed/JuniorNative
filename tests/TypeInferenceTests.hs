@@ -92,9 +92,9 @@ tests =
       ["\\x -> \\y -> (y, x)"] --> "a -> b -> (b, a)"
 
     it "type of let" $ do
-      ["let x = 42 in x"] --> "Num a => a"
-      ["let pair = (True, 12) in pair"] --> "Num a => (Bool, a)"
-      ["let x = if (True) then 2 else 3 in x + 1"] --> "Num a => a"
+      ["let x = 42 in x"] --> "Int"
+      ["let pair = (True, 12) in pair"] --> "(Bool, Int)"
+      ["let x = if (True) then 2 else 3 in x + 1"] --> "Int"
       ["let foo = \\x -> x + x in foo"] --> "Num a => a -> a"
       ["let foo x = x + x in foo"] --> "Num a => a -> a"
 

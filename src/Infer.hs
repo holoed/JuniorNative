@@ -17,7 +17,9 @@ import Substitutions ( Substitutions, substituteQ )
 import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
 import Unification ( mgu )
 import ContextReduction (resolvePreds, ClassEnv)
+import MonomorphicRestriction (applyRestriction)
 import Data.Bifunctor (second)
+import Control.Monad ((<=<))
 
 getNameAndTypes :: TypedExp -> [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
@@ -109,7 +111,7 @@ alg (Ann (Just l) (TuplePat ns)) = do
 alg _ = throwError $ PStr ("Undefined", Nothing)
 
 infer :: ClassEnv -> Env -> Exp -> Either PString (Substitutions, TypedExp)
-infer classEnv env e = fmap f (run (m >>= resolvePreds classEnv) ctx state)
+infer classEnv env e = fmap f (run (m >>= (applyRestriction <=< resolvePreds classEnv)) ctx state)
   where
         f (e2, (subs, _), _) = (subs, g subs e2)
         g subs = mapAnn (second (deleteTautology . clean . substituteQ subs)) 

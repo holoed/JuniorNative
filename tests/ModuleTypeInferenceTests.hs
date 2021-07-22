@@ -42,7 +42,7 @@ tests =
     it "Dependent bindings" $
            [i| let x = 12
                let y = (x + 1, True) |] --> [("x","Num a => a"),
-                                             ("y","Num a => (a, Bool)")]
+                                             ("y","(Int, Bool)")]
 
     it "Many nodes" $ [i|       
                       let foldr f v xs = 

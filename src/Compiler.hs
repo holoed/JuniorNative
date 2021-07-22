@@ -5,7 +5,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, applyMonomorphicRestriction, desugarPredicates, interpret )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
@@ -31,9 +31,8 @@ frontEndPrinted = frontEnd >=>
 
 full :: String -> CompileM String
 full = frontEnd >=>
-       step "apply monomorphic restriction" applyMonomorphicRestriction >=>
        step "desugar constraints" desugarPredicates >=>
-    --    step "pretty print module" prettyPrintModule
+  --     step "pretty print module" prettyPrintModule
        step "interpret" interpret >=>
        step "print" (return . show)
        

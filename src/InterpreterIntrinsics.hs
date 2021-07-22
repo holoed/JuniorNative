@@ -34,5 +34,10 @@ env = fromList [
     ("+", binOp "+"),
     ("-", binOp "-"),
     ("*", binOp "*"),
-    ("==", binOp "==")
+    ("==", binOp "=="),
+    ("[]", List []),
+    (":", Function(\x -> return $ Function (\(List xs) -> return $ List (x:xs) ))),
+    ("head", Function(\(List xs) -> return $ head xs)),
+    ("tail", Function(\(List xs) -> return $ List (tail xs))),
+    ("null", Function(\(List xs) -> return $ Value (B $ null xs)))
  ]

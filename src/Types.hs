@@ -18,6 +18,10 @@ data Type = TyCon String
 tyLam :: Type -> Type -> Type
 tyLam t1 = TyApp (TyApp (TyCon "->") t1)
 
+isLam :: Type -> Bool
+isLam (TyApp (TyApp (TyCon "->") _) _) = True 
+isLam _ = False
+
 -- Type Schemes
 
 data TypeScheme = ForAll (Set String) (Qual Type)

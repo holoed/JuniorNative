@@ -24,11 +24,13 @@ instance MonadFail InterpreterM where
 data Result = Value Prim
             | Function (Result -> InterpreterM Result)
             | Instance (Map String Result)
+            | List [Result]
 
 instance Show Result where
   show (Value x) = show x
   show (Function _) = "<function>"
   show (Instance _) = "<instance>"
+  show (List xs) = show xs
 
 interpretExp :: InterpreterEnv -> Exp -> Either PString Result
 interpretExp env =  flip runReader env . runExceptT . runMonad .cataRec alg

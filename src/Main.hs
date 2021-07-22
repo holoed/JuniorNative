@@ -3,7 +3,7 @@ module Main where
 import Control.Monad.Trans ( MonadIO(liftIO) )
 import qualified Data.Set as Set
 import Data.Map (Map, empty, fromList)
-import Fixpoint ()
+import Fixpoint ( Fix(..) )
 import RecursionSchemes ()
 import Monads ()
 import Ast ()
@@ -17,9 +17,8 @@ import PrettyTypes (prettyQ)
 import LiftNumbers ( liftN )
 import SynExpToExp (toExp)
 import Data.Functor ((<&>))
-import Intrinsics ( env, classEnv ) 
+import Intrinsics ( env, classEnv )
 import Annotations (Ann(..))
-import Fixpoint (Fix(..))
 
 process :: String -> IO ()
 process input = do

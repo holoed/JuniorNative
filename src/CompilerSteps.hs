@@ -19,11 +19,9 @@ import Control.Monad.State (MonadState(put, get))
 import SymbolTable ( build )
 import PrettyTypes ( prettifyTypes ) 
 import ModulePrinter (typedModuleToString)
-import MonomorphicRestriction (applyRestriction)
 import ConstraintsResolution (convertPreds)
 import Interpreter (interpretModule, Result)
 import qualified Data.Maybe as Maybe
-import Substitutions
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -65,11 +63,10 @@ buildSymbolTable es =
 prettyPrintModule :: [TypedExp] -> CompileM String
 prettyPrintModule es = return $ typedModuleToString es
 
-applyMonomorphicRestriction :: [TypedExp] -> CompileM [(TypedExp, Substitutions)]
-applyMonomorphicRestriction es = return $ applyRestriction <$> es
-
-desugarPredicates :: [(TypedExp, Substitutions)] -> CompileM [TypedExp]
-desugarPredicates es = return $ convertPreds <$> es
+desugarPredicates :: [TypedExp] -> CompileM [TypedExp]
+desugarPredicates es = do
+    (env, _) <- get
+    return $ convertPreds env <$> es
 
 interpret :: [TypedExp] -> CompileM [Result]
 interpret es = do
