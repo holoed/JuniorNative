@@ -1,21 +1,22 @@
 module InterpreterIntrinsics where
 
-import Data.Map (fromList, (!)) 
+import Data.Map (fromList, (!))
 import Interpreter (InterpreterEnv, Result(..))
 import Primitives (Prim(..))
+import Control.Monad (join)
 
-applicativeList :: Result 
+applicativeList :: Result
 applicativeList = Instance (fromList [
         ("pure", Function(\x -> return $ List [x]))
        ])
 
-monadList :: Result 
+monadList :: Result
 monadList = Instance (fromList [
        ("pure", let (Instance dict) = applicativeList in dict!"pure"),
         ("bind", Function (\list -> return $ Function(\f ->
                     let (List xs) = list in
                     let (Function g) = f in
-                    List <$> sequence (g <$> xs)
+                    (List . join) . ((\(List zs) -> zs) <$>) <$> sequence (g <$> xs)
                )))
        ])
 
@@ -33,10 +34,10 @@ eqInt = Instance (fromList [
        ])
 
 binOp :: String -> Result
-binOp op = Function(\(Instance inst) -> 
+binOp op = Function(\(Instance inst) ->
            let (Function f) = inst!op in
-           return $ Function(\x -> 
-           return $ Function (\y -> 
+           return $ Function(\x ->
+           return $ Function (\y ->
              do (Function f') <- f x
                 f' y )))
 
@@ -46,7 +47,7 @@ env = fromList [
     ("eqInt", eqInt),
     ("applicativeList", applicativeList),
     ("monadList", monadList),
-    ("fromInteger", Function(\(Instance num) -> return $ Function (\x -> 
+    ("fromInteger", Function(\(Instance num) -> return $ Function (\x ->
        let (Function f) = num!"fromInteger" in f x))),
     ("+", binOp "+"),
     ("-", binOp "-"),
@@ -57,12 +58,12 @@ env = fromList [
     ("head", Function(\(List xs) -> return $ head xs)),
     ("tail", Function(\(List xs) -> return $ List (tail xs))),
     ("null", Function(\(List xs) -> return $ Value (B $ null xs))),
-    ("pure", Function(\(Instance m) -> return $ Function (\x -> 
+    ("pure", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"pure" in f x))),
-    ("bind", Function(\(Instance m) -> return $ 
-             Function(\x -> return $ 
-             Function(\y -> 
-              let (Function bind) = m!"bind" in 
+    ("bind", Function(\(Instance m) -> return $
+             Function(\x -> return $
+             Function(\y ->
+              let (Function bind) = m!"bind" in
                     do (Function g) <- bind x
-                       g y )))) 
+                       g y ))))
  ]
