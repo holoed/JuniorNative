@@ -4,6 +4,11 @@ import Data.Map (fromList, (!))
 import Interpreter (InterpreterEnv, Result(..))
 import Primitives (Prim(..))
 
+applicativeList :: Result 
+applicativeList = Instance (fromList [
+        ("pure", Function(\x -> return $ List [x]))
+       ])
+
 numInt :: Result
 numInt = Instance (fromList [
        ("*", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x * y))))),
@@ -29,6 +34,7 @@ env :: InterpreterEnv
 env = fromList [
     ("numInt", numInt),
     ("eqInt", eqInt),
+    ("applicativeList", applicativeList),
     ("fromInteger", Function(\(Instance num) -> return $ Function (\x -> 
        let (Function f) = num!"fromInteger" in f x))),
     ("+", binOp "+"),

@@ -63,3 +63,13 @@ tests = do
 
       let main = foldl (*) 1 xs 
    |] --> "[I 120]"
+
+   it "Predicates Resolution 1" $ [i|
+   let foldr f v xs =
+      if (null xs) then v
+      else f (head xs) (foldr f v (tail xs))
+
+   let (++) xs ys = foldr (:) ys xs 
+
+   let main = pure 42 ++ []
+   |] --> "[[I 42]]"
