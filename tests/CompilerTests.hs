@@ -124,3 +124,7 @@ tests = do
        [i|let f x = x + 1.5
           let main = f 5       
           |] --> "6.5"
+
+   it "Arithmetics Tests" $ do
+      "let main = (1 + 1.5) / 3" --> "0.8333333333333334"
+      "let main = 2 * (4.6 - 3.1)" --> "2.999999999999999"

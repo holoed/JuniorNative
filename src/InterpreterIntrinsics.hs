@@ -90,6 +90,7 @@ env = fromList [
     ("+", binOp "+"),
     ("-", binOp "-"),
     ("*", binOp "*"),
+    ("/", binOp "/"),
     ("==", binOp "=="),
     ("[]", List []),
     (":", Function(\x -> return $ Function (\(List xs) -> return $ List (x:xs) ))),
