@@ -5,6 +5,15 @@ import Interpreter (InterpreterEnv, Result(..))
 import Primitives (Prim(..))
 import Control.Monad (join)
 
+ordInt :: Result 
+ordInt = Instance (fromList [
+        (">", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x > y))))), 
+        ("<", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x < y))))), 
+        (">=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x >= y))))), 
+        ("<=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x <= y)))))  
+     
+       ])
+
 applicativeList :: Result
 applicativeList = Instance (fromList [
         ("pure", Function(\x -> return $ List [x]))
@@ -43,12 +52,17 @@ binOp op = Function(\(Instance inst) ->
 
 env :: InterpreterEnv
 env = fromList [
+    ("ordInt", ordInt),
     ("numInt", numInt),
     ("eqInt", eqInt),
     ("applicativeList", applicativeList),
     ("monadList", monadList),
     ("fromInteger", Function(\(Instance num) -> return $ Function (\x ->
        let (Function f) = num!"fromInteger" in f x))),
+    (">", binOp ">"),
+    ("<", binOp "<"),
+    (">=", binOp ">="),
+    ("<=", binOp "<="),
     ("+", binOp "+"),
     ("-", binOp "-"),
     ("*", binOp "*"),

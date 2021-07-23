@@ -40,6 +40,12 @@ consOp = (":", 12, Infix Right)
 eqeqOp :: ([Char], Integer, Fixity)
 eqeqOp   = ("==", 11, Infix NonAssoc) 
 
+gteqOp :: ([Char], Integer, Fixity)
+gteqOp   = (">=", 10, Infix NonAssoc) 
+
+lteqOp :: ([Char], Integer, Fixity)
+lteqOp   = ("<=", 9, Infix NonAssoc) 
+
 gtOp :: ([Char], Integer, Fixity)
 gtOp     = (">", 10, Infix NonAssoc)
 

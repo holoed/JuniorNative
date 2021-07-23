@@ -61,6 +61,8 @@ tokens :-
   @string                       {\p s -> TokenString (p, (S s)) }
   "->"                          {\p s -> TokenArrow (p, s) }
   "=="                          {\p s -> TokenEql (p, s) }
+  ">="                          {\p s -> TokenGtEql (p, s) }
+  "<="                          {\p s -> TokenLtEql (p, s) }
   \=                            {\p s -> TokenEq (p, s) }
   \\                            {\p s -> TokenLambda (p, s) }
   "[]"                          {\p s -> TokenEmpty (p, s) }
@@ -102,6 +104,8 @@ data Token
   | TokenOr (AlexPosn, String)
   | TokenEq (AlexPosn, String)
   | TokenEql (AlexPosn, String)
+  | TokenGtEql (AlexPosn, String)
+  | TokenLtEql (AlexPosn, String)
   | TokenAdd (AlexPosn, String)
   | TokenSub (AlexPosn, String)
   | TokenMul (AlexPosn, String)

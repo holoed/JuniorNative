@@ -91,3 +91,31 @@ tests = do
       
    let main = mapM (\\x -> x:[]) (1:2:3:4:[])
    |] --> "[[1,2,3,4]]"
+ 
+   it "Ord instances" $ do 
+      "let main = 2 > 5" --> "False"
+      "let main = 3 < 4" --> "True"
+      "let main = 4 >= 3" --> "True"
+      "let main = 5 <= 2" --> "False"
+
+   it "Quicksort example" $
+      [i|let foldr f v xs =
+            if (null xs) then v
+            else f (head xs) (foldr f v (tail xs))
+
+         let (++) xs ys = foldr (:) ys xs
+            
+         let filter p = foldr (\\x xs -> if (p x) then x : xs else xs) []
+                  
+         let singleton x = x : []
+                  
+         let quicksort f xs =
+               if (null xs) then xs else  
+               let pivot = head xs in
+               let rest = tail xs in
+               let lessThan = filter (\\x -> f x < f pivot) rest in
+               let greaterThan = filter (\\x -> f x >= f pivot) rest in
+               (quicksort f lessThan) ++ (singleton pivot) ++ (quicksort f greaterThan)
+               
+         let main = quicksort (\\x -> x) (5:2:9:5:3:1:2:8:5:3:[]) 
+       |] --> "[1,2,2,3,3,5,5,5,8,9]"
