@@ -21,8 +21,8 @@ tests =
   describe "Symbol Table Tests" $ do
 
       it "value binding" $  "let x = 42" --> [
-       "Symbol {name = x Just line 1 column 5, ty = Num a => a, parent = Nothing, top = True}",
-       "Symbol {name = fromInteger Just line 1 column 9, ty = Num a => Int -> a, parent = Nothing, top = False}",
+       "Symbol {name = x Just line 1 column 5, ty = Int, parent = Nothing, top = True}",
+       "Symbol {name = fromInteger Just line 1 column 9, ty = Int -> Int, parent = Nothing, top = False}",
        "Symbol {name = 42 Just line 1 column 9, ty = Int, parent = Nothing, top = False}"  
        ]
 

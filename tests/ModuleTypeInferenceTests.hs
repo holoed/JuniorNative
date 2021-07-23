@@ -36,12 +36,12 @@ tests =
 
     it "Simple bindings" $
            [i| let x = 12
-               let y = True |] --> [("x","Num a => a"),
+               let y = True |] --> [("x","Int"),
                                     ("y","Bool")]
 
     it "Dependent bindings" $
            [i| let x = 12
-               let y = (x + 1, True) |] --> [("x","Num a => a"),
+               let y = (x + 1, True) |] --> [("x","Int"),
                                              ("y","(Int, Bool)")]
 
     it "Many nodes" $ [i|       
