@@ -7,10 +7,10 @@ import Fixpoint ( Fix(In) )
 import TypedAst ( TypedExp, TypedExpF )
 import Ast ( ExpF(Let, Lam) )
 import Types (Pred(..), Qual((:=>)), Type (TyVar))
-import Substitutions (Substitutions, extend, substitute, substituteQ)
+import Substitutions (Substitutions, extend, substituteQ)
 import BuiltIns (intCon, doubleCon)
 import RecursionSchemes (cataRec)
-import Control.Monad.State ( State, MonadState(get, put), execState, evalState ) 
+import Control.Monad.State ( State, MonadState(get, put), evalState )
 import InferMonad (TypeM)
 
 defaultConstraint :: Pred -> Substitutions-> Substitutions
@@ -21,7 +21,7 @@ defaultConstraint  _ = id
 
 applyRestriction :: TypedExp -> TypeM TypedExp
 applyRestriction e@(In (Ann _ (Let _ (In (Ann _ (Lam _ _))) _))) = return e
-applyRestriction e@(In (Ann (loc, _ :=> t) (Let n v b))) =
+applyRestriction e@(In (Ann _ Let {})) =
     return $ evalState (cataRec alg e) empty
     where alg :: TypedExpF (State Substitutions TypedExp) -> State Substitutions TypedExp
           alg (Ann (l, qt@(ps3 :=> _)) x) = do
