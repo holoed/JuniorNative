@@ -5,7 +5,7 @@ import TypedAst (TypedExp, tapp, tvar)
 import Ast (ExpF(..), extractNameFromPat)
 import Fixpoint (Fix(..))
 import Annotations (Ann(..), mapAnn)
-import qualified Data.Set as Set (Set, fromList, toList, union, empty, member)
+import qualified Data.Set as Set (Set, fromList, toList, union, empty)
 import qualified Data.Map as Map
 import Types ( Pred(..), Type(TyCon, TyApp, TyVar), Qual(..), tyLam, isLam, TypeScheme(..), getTVarsOfPred )
 import TypesPrinter ()
@@ -13,7 +13,6 @@ import Data.Char ( toLower )
 import RecursionSchemes (cataRec)
 import Location (Loc)
 import Environment (Env, containsScheme, findScheme)
-import MonomorphicRestriction ( defaultConstraint )
 import Substitutions ( substitute, substitutePredicate, mappings )
 import Data.Either (fromRight)
 import ContextReduction ( ClassEnv, classes )
@@ -41,12 +40,6 @@ convertPreds _ _ _ = undefined
 collectPreds :: TypedExp -> Set.Set Pred
 collectPreds (In (Ann _ (Lam (In (Ann (_, ps :=> _) (VarPat _))) v))) =  ps `Set.union` collectPreds v
 collectPreds (In (Ann (_, ps :=> _) _)) = ps
-
-defaultIfNotInScope :: Set.Set Pred -> [Pred] -> [Pred]
-defaultIfNotInScope parent_ps ps = do
-    p <- ps
-    return $ if Set.member p parent_ps then p
-    else substitutePredicate (defaultConstraint p Map.empty) p
 
 mapEnvWithLocal :: Env -> String -> Qual Type -> ([Pred], Type)
 mapEnvWithLocal env name (_ :=> t1) =

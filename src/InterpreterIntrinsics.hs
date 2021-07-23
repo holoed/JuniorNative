@@ -1,17 +1,17 @@
 module InterpreterIntrinsics where
 
-import Data.Map (fromList, (!))
+import Data.Map (fromList, (!), member)
 import Interpreter (InterpreterEnv, Result(..))
 import Primitives (Prim(..))
 import Control.Monad (join)
 
-ordInt :: Result 
+ordInt :: Result
 ordInt = Instance (fromList [
-        (">", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x > y))))), 
-        ("<", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x < y))))), 
-        (">=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x >= y))))), 
-        ("<=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x <= y)))))  
-     
+        (">", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x > y))))),
+        ("<", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x < y))))),
+        (">=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x >= y))))),
+        ("<=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x <= y)))))
+
        ])
 
 applicativeList :: Result
@@ -29,12 +29,29 @@ monadList = Instance (fromList [
                )))
        ])
 
+fractionalDouble :: Result
+fractionalDouble = Instance (fromList [
+       ("+", let (Instance inst) = numDouble in inst!"+"),
+       ("-", let (Instance inst) = numDouble in inst!"-"),      
+       ("*", let (Instance inst) = numDouble in inst!"*"),
+       ("/", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (D (x / y))))),
+       ("fromRational", Function(\(Value (D x)) -> return $ Value (D x)))
+       ])
+
 numInt :: Result
 numInt = Instance (fromList [
        ("*", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x * y))))),
        ("+", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x + y))))),
        ("-", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x - y))))),
        ("fromInteger", Function(\(Value (I x)) -> return $ Value (I x)))
+       ])
+
+numDouble :: Result
+numDouble = Instance (fromList [
+       ("*", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (D (x * y))))),
+       ("+", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (D (x + y))))),
+       ("-", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (D (x - y))))),
+       ("fromInteger", Function(\(Value (I x)) -> return $ Value (D $ fromIntegral x)))
        ])
 
 eqInt :: Result
@@ -44,6 +61,7 @@ eqInt = Instance (fromList [
 
 binOp :: String -> Result
 binOp op = Function(\(Instance inst) ->
+           if not $ member op inst then error (op ++ " not found in instance") else
            let (Function f) = inst!op in
            return $ Function(\x ->
            return $ Function (\y ->
@@ -52,13 +70,19 @@ binOp op = Function(\(Instance inst) ->
 
 env :: InterpreterEnv
 env = fromList [
+    ("fractionalDouble", fractionalDouble),
     ("ordInt", ordInt),
     ("numInt", numInt),
+    ("numDouble", numDouble),
     ("eqInt", eqInt),
     ("applicativeList", applicativeList),
     ("monadList", monadList),
     ("fromInteger", Function(\(Instance num) -> return $ Function (\x ->
+       if not $ member "fromInteger" num then error "fromInteger not found" else
        let (Function f) = num!"fromInteger" in f x))),
+    ("fromRational", Function(\(Instance num) -> return $ Function (\x ->
+       if not $ member "fromRational" num then error "fromRational not found" else
+       let (Function f) = num!"fromRational" in f x))),
     (">", binOp ">"),
     ("<", binOp "<"),
     (">=", binOp ">="),

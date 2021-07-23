@@ -1,6 +1,6 @@
 module MonomorphicRestriction where
 
-import Data.Map (empty)
+import Data.Map (empty, member)
 import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )
 import TypedAst ( TypedExp, TypedExpF )
@@ -12,10 +12,14 @@ import RecursionSchemes (cataRec)
 import Control.Monad.State ( State, MonadState(get, put), evalState )
 import InferMonad (TypeM)
 
+extendIfNotPresent :: (String, Int) -> Type -> Substitutions -> Substitutions
+extendIfNotPresent k v subs =
+    if member k subs then subs else extend k v subs
+
 defaultConstraint :: Pred -> Substitutions-> Substitutions
-defaultConstraint (IsIn "Eq" (TyVar n k)) = extend (n, k) intCon
-defaultConstraint (IsIn "Num" (TyVar n k)) = extend (n, k) intCon
-defaultConstraint (IsIn "Fractional" (TyVar n k)) = extend (n, k) doubleCon
+defaultConstraint (IsIn "Eq" (TyVar n k)) = extendIfNotPresent (n, k) intCon
+defaultConstraint (IsIn "Num" (TyVar n k)) = extendIfNotPresent (n, k) intCon
+defaultConstraint (IsIn "Fractional" (TyVar n k)) = extendIfNotPresent (n, k) doubleCon
 defaultConstraint  _ = id
 
 applyRestriction :: TypedExp -> TypeM TypedExp

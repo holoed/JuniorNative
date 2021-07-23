@@ -119,3 +119,8 @@ tests = do
                
          let main = quicksort (\\x -> x) (5:2:9:5:3:1:2:8:5:3:[]) 
        |] --> "[1,2,2,3,3,5,5,5,8,9]"
+
+   it "Defaulting mixed Fractional and Num" $ 
+       [i|let f x = x + 1.5
+          let main = f 5       
+          |] --> "6.5"
