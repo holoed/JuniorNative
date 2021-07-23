@@ -48,24 +48,24 @@ tests =
   describe "Interpreter tests" $ do
 
     it "Literal" $ do
-        "42" --> "[I 42]"
+        "42" --> "[42]"
 
     it "let Value" $ do
-        "let x = 42" --> "[I 42]"
+        "let x = 42" --> "[42]"
 
     it "let Function" $ do
         "let f x = x" --> "[<function>]"
 
     it "Applied function" $ do
-        "let fac n = if n == 0 then 1 else n * (fac (n - 1)) in fac 5" --> "[I 120]"
+        "let fac n = if n == 0 then 1 else n * (fac (n - 1)) in fac 5" --> "[120]"
 
     it "Two dependent bindings" $ do
         [i|let x = 42
-           let y = x + 1|] --> "[I 43]"
+           let y = x + 1|] --> "[43]"
 
     it "Recursive higher order function" $ do
         [i|let foldl f v xs =
                  if (null xs) then v
                 else foldl f (f v (head xs)) (tail xs)
   
-           let main = foldl (*) 1 (1:2:3:4:5:[])  |] --> "[I 120]"
+           let main = foldl (*) 1 (1:2:3:4:5:[])  |] --> "[120]"

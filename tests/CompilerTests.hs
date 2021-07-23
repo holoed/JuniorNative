@@ -20,29 +20,29 @@ tests :: SpecWith ()
 tests = do
   describe "Compiler Tests" $ do
 
-   it "value" $ "let main = 42" --> "[I 42]"
+   it "value" $ "let main = 42" --> "42"
 
    it "applied function" $ [i|
       let f x = x + 1
       let main = f 5
-   |] --> "[I 6]"
+   |] --> "6"
 
    it "recursive function" $ [i|
       let fac n = if n == 0 then 1 else n * (fac (n - 1))
       let main = fac 5
-   |] --> "[I 120]"
+   |] --> "120"
 
    it "recursive function 2" $ [i|
       let fib n = if n == 0 then 0 else 
                   if n == 1 then 1 else 
                   fib (n - 1) + fib (n - 2)
       let main = fib 10
-   |] --> "[I 55]"
+   |] --> "55"
 
    it "depending on a top level value affected by monomorphic restriction" $ [i|
       let x = 42
       let main = x + 1
-   |] --> "[I 43]"
+   |] --> "43"
 
    it "higher order recursive function" $ [i|
       let foldr f v xs =
@@ -52,7 +52,7 @@ tests = do
       let xs = 1:2:3:4:5:[]
 
       let main = foldr (*) 1 xs 
-   |] --> "[I 120]"
+   |] --> "120"
 
    it "higher order recursive function 2" $ [i|
       let foldl f v xs =
@@ -62,7 +62,7 @@ tests = do
       let xs = 1:2:3:4:5:[]
 
       let main = foldl (*) 1 xs 
-   |] --> "[I 120]"
+   |] --> "120"
 
    it "Predicates Resolution 1" $ [i|
    let foldr f v xs =
@@ -72,7 +72,7 @@ tests = do
    let (++) xs ys = foldr (:) ys xs 
 
    let main = pure 42 ++ []
-   |] --> "[[I 42]]"
+   |] --> "[42]"
 
    it "Predicates Resolution 2" $ [i|
    let foldl f v xs =
@@ -90,4 +90,4 @@ tests = do
        foldr k (pure []) as
       
    let main = mapM (\\x -> x:[]) (1:2:3:4:[])
-   |] --> "[[[I 1,I 2,I 3,I 4]]]"
+   |] --> "[[1,2,3,4]]"

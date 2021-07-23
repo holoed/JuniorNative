@@ -10,7 +10,7 @@ import Control.Monad.Reader ( MonadReader(ask, local), runReader, Reader )
 import Control.Monad.Trans.Except ( ExceptT, runExceptT )
 import RecursionSchemes (cataRec)
 import Data.Map ( Map, (!), insert, union, member )
-import Primitives ( Prim(..) )
+import Primitives ( Prim(..), primToStr )
 import Control.Monad.Fail ()
 import Control.Monad (foldM)
 
@@ -27,7 +27,7 @@ data Result = Value Prim
             | List [Result]
 
 instance Show Result where
-  show (Value x) = show x
+  show (Value x) = primToStr x
   show (Function _) = "<function>"
   show (Instance _) = "<instance>"
   show (List xs) = show xs
