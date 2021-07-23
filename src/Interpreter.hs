@@ -43,7 +43,7 @@ interpretExp env =  flip runReader env . runExceptT . runMonad .cataRec alg
           alg (Ann _ (Lam e1 e2)) =
             do ctx <- ask
                (Value (S n))  <- e1
-               return $ Function (\r -> local (\ctx' -> insert n r ctx' `union` ctx) e2)
+               return $ Function (\r -> local (\ctx' -> insert n r (ctx `union` ctx')) e2)
           alg (Ann _ (Let e1 e2 e3)) =
             do (Value (S n)) <- e1
                v' <- e2

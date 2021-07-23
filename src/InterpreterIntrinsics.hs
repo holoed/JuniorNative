@@ -3,10 +3,11 @@ module InterpreterIntrinsics where
 import Data.Map (fromList, (!)) 
 import Interpreter (InterpreterEnv, Result(..))
 import Primitives (Prim(..))
+import Debug.Trace ( trace )
 
 numInt :: Result
 numInt = Instance (fromList [
-       ("*", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x * y))))),
+       ("*", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I $ trace (show (x * y)) (x * y))))),
        ("+", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x + y))))),
        ("-", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x - y))))),
        ("fromInteger", Function(\(Value (I x)) -> return $ Value (I x)))

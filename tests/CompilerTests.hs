@@ -53,3 +53,13 @@ tests = do
 
       let main = foldr (*) 1 xs 
    |] --> "[I 120]"
+
+   it "higher order recursive function 2" $ [i|
+      let foldl f v xs =
+          if (null xs) then v
+          else foldl f (f v (head xs)) (tail xs)
+      
+      let xs = 1:2:3:4:5:[]
+
+      let main = foldl (*) 1 xs 
+   |] --> "[I 120]"
