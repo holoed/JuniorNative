@@ -13,20 +13,18 @@ import RecursionSchemes (cataRec)
 import Location (Loc)
 import Environment (Env, containsScheme, findScheme)
 import MonomorphicRestriction ( defaultConstraint )
-import Substitutions ( substitutePredicate )
+import Substitutions ( substitute, substitutePredicate, mappings )
+import Data.Either (fromRight)
 
 filterOutTautologies :: [Pred] -> [Pred]
 filterOutTautologies = filter f
     where f p = getTVarsOfPred p /= Set.empty
 
-getTopLevelPreds :: String -> Env -> [Pred]
-getTopLevelPreds n env =
-    if containsScheme n env then
+getTypeForName :: String -> Env -> Qual Type
+getTypeForName n env =
     case findScheme n env of
-        (ForAll _ (ps :=> t)) -> Set.toList ps
-        (Identity (ps :=> t)) -> Set.toList ps
-    else []
-
+        (ForAll _ qt) -> qt
+        (Identity qt) -> qt
 
 convertPreds :: Env -> TypedExp -> TypedExp
 convertPreds env (In (Ann (loc, ps :=> t) (Let n v b))) =
@@ -34,7 +32,7 @@ convertPreds env (In (Ann (loc, ps :=> t) (Let n v b))) =
     where (_, name) = extractNameFromPat (mapAnn fst n)
           ps' = if isLam t then collectPreds v else Set.empty
           args = getNewArgs ((filterOutTautologies . Set.toList) ps')
-          v'  = convertBody env name ps' args v
+          v'  = convertBody env name args v
           v'' = foldr (\(n', t') acc -> lamWithType n' (Set.fromList [] :=> t') acc) v' args
 convertPreds _ _ = undefined
 
@@ -48,16 +46,24 @@ defaultIfNotInScope parent_ps ps = do
     return $ if Set.member p parent_ps then p
     else substitutePredicate (defaultConstraint p Map.empty) p
 
-convertBody :: Env -> String -> Set.Set Pred -> [(String, Type)] -> TypedExp -> TypedExp
-convertBody env name parent_ps parent_args = cataRec alg
-       where alg e@(Ann (Just loc, ps :=> _) (Var n)) =
+mapEnvWithLocal :: Env -> String -> Qual Type -> ([Pred], Type)
+mapEnvWithLocal env name (ps1 :=> t1) =
+    if containsScheme name env then 
+        let (ps2 :=> t2) = getTypeForName name env in
+        let subs = fromRight (error "Mapping failed") (mappings t2 t1) in
+        let resolvedPredicates = substitutePredicate subs <$> Set.toList ps2 in
+        let resolvedType = substitute subs t2 in
+        (resolvedPredicates, resolvedType)
+    else (Set.toList ps1, t1)
+
+
+convertBody :: Env -> String -> [(String, Type)] -> TypedExp -> TypedExp
+convertBody env name parent_args = cataRec alg
+       where alg e@(Ann (Just loc, qt) (Var n)) =
+                let (psList, _) = mapEnvWithLocal env n qt in
                 let args = if n == name
                     then parent_args
-                    else getNewArgs (
-                        let re = defaultIfNotInScope parent_ps (Set.toList ps) in
-                        if null re then defaultIfNotInScope parent_ps (getTopLevelPreds n env)
-                        else re
-                     ) in
+                    else getNewArgs psList in
                 applyArgs loc args (In e)
              alg x = In x
 

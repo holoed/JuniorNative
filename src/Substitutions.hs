@@ -29,3 +29,12 @@ substitutePredicates s = Set.map (substitutePredicate s)
 
 substituteQ :: Substitutions -> Qual Type -> Qual Type
 substituteQ s (ps :=> t) = substitutePredicates s ps :=> substitute s t
+
+mappings :: Type -> Type -> Either (Type, Type) Substitutions
+mappings (TyApp t1 t2) (TyApp t1' t2') = do x <- mappings t1 t1'
+                                            y <- mappings t2 t2'
+                                            return $ x `Map.union` y
+mappings (TyCon _) (TyCon _) = return Map.empty 
+mappings (TyVar n k) t2 = return $ Map.fromList [((n, k), t2)]
+mappings t1 (TyVar n k) = return $ Map.fromList [((n, k), t1)]
+mappings t1 t2 = Left (t1, t2)
