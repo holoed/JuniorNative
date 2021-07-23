@@ -73,3 +73,21 @@ tests = do
 
    let main = pure 42 ++ []
    |] --> "[[I 42]]"
+
+   it "Predicates Resolution 2" $ [i|
+   let foldl f v xs =
+       if (null xs) then v
+       else foldl f (f v (head xs)) (tail xs)
+
+   let foldr f v xs =
+       if (null xs) then v
+       else f (head xs) (foldr f v (tail xs))
+
+   let mapM f as = 
+       let k a r = bind (f a) (\\x ->
+                   bind r     (\\xs -> 
+                   pure (x:xs))) in   
+       foldr k (pure []) as
+      
+   let main = mapM (\\x -> x:[]) (1:2:3:4:[])
+   |] --> "[[[[[I 1,[[I 2,[[I 3,[[I 4]]]]]]]]]]]"

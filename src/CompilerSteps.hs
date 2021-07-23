@@ -65,8 +65,9 @@ prettyPrintModule es = return $ typedModuleToString es
 
 desugarPredicates :: [TypedExp] -> CompileM [TypedExp]
 desugarPredicates es = do
+    (_, classEnv) <- ask
     (env, _) <- get
-    return $ convertPreds env <$> es
+    return $ convertPreds classEnv env <$> es
 
 interpret :: [TypedExp] -> CompileM [Result]
 interpret es = do

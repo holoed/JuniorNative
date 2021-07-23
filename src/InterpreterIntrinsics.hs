@@ -9,6 +9,16 @@ applicativeList = Instance (fromList [
         ("pure", Function(\x -> return $ List [x]))
        ])
 
+monadList :: Result 
+monadList = Instance (fromList [
+       ("pure", let (Instance dict) = applicativeList in dict!"pure"),
+        ("bind", Function (\list -> return $ Function(\f ->
+                    let (List xs) = list in
+                    let (Function g) = f in
+                    List <$> sequence (g <$> xs)
+               )))
+       ])
+
 numInt :: Result
 numInt = Instance (fromList [
        ("*", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x * y))))),
@@ -35,6 +45,7 @@ env = fromList [
     ("numInt", numInt),
     ("eqInt", eqInt),
     ("applicativeList", applicativeList),
+    ("monadList", monadList),
     ("fromInteger", Function(\(Instance num) -> return $ Function (\x -> 
        let (Function f) = num!"fromInteger" in f x))),
     ("+", binOp "+"),
@@ -47,5 +58,11 @@ env = fromList [
     ("tail", Function(\(List xs) -> return $ List (tail xs))),
     ("null", Function(\(List xs) -> return $ Value (B $ null xs))),
     ("pure", Function(\(Instance m) -> return $ Function (\x -> 
-       let (Function f) = m!"pure" in f x)))
+       let (Function f) = m!"pure" in f x))),
+    ("bind", Function(\(Instance m) -> return $ 
+             Function(\x -> return $ 
+             Function(\y -> 
+              let (Function bind) = m!"bind" in 
+                    do (Function g) <- bind x
+                       g y )))) 
  ]

@@ -1,6 +1,5 @@
 module MonomorphicRestriction where
 
-import Data.Set (fromList, union)
 import Data.Map (empty)
 import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )

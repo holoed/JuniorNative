@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 module ConstraintsResolution where
 
 import TypedAst (TypedExp, tapp, tvar)
@@ -15,6 +16,7 @@ import Environment (Env, containsScheme, findScheme)
 import MonomorphicRestriction ( defaultConstraint )
 import Substitutions ( substitute, substitutePredicate, mappings )
 import Data.Either (fromRight)
+import ContextReduction ( ClassEnv, classes )
 
 filterOutTautologies :: [Pred] -> [Pred]
 filterOutTautologies = filter f
@@ -26,15 +28,15 @@ getTypeForName n env =
         (ForAll _ qt) -> qt
         (Identity qt) -> qt
 
-convertPreds :: Env -> TypedExp -> TypedExp
-convertPreds env (In (Ann (loc, ps :=> t) (Let n v b))) =
+convertPreds :: ClassEnv -> Env -> TypedExp -> TypedExp
+convertPreds classEnv env (In (Ann (loc, ps :=> t) (Let n v b))) =
         In (Ann (loc, Set.fromList [] :=> extendType (typeForPred <$> Set.toList ps) t) (Let n v'' b))
     where (_, name) = extractNameFromPat (mapAnn fst n)
           ps' = if isLam t then collectPreds v else Set.empty
           args = getNewArgs ((filterOutTautologies . Set.toList) ps')
-          v'  = convertBody env name args v
+          v'  = convertBody classEnv env name args v
           v'' = foldr (\(n', t') acc -> lamWithType n' (Set.fromList [] :=> t') acc) v' args
-convertPreds _ _ = undefined
+convertPreds _ _ _ = undefined
 
 collectPreds :: TypedExp -> Set.Set Pred
 collectPreds (In (Ann _ (Lam (In (Ann (_, ps :=> _) (VarPat _))) v))) =  ps `Set.union` collectPreds v
@@ -47,23 +49,38 @@ defaultIfNotInScope parent_ps ps = do
     else substitutePredicate (defaultConstraint p Map.empty) p
 
 mapEnvWithLocal :: Env -> String -> Qual Type -> ([Pred], Type)
-mapEnvWithLocal env name (ps1 :=> t1) =
-    if containsScheme name env then 
+mapEnvWithLocal env name (_ :=> t1) =
+    if containsScheme name env then
         let (ps2 :=> t2) = getTypeForName name env in
         let subs = fromRight (error "Mapping failed") (mappings t2 t1) in
         let resolvedPredicates = substitutePredicate subs <$> Set.toList ps2 in
         let resolvedType = substitute subs t2 in
         (resolvedPredicates, resolvedType)
-    else (Set.toList ps1, t1)
+    else ([], t1)
 
+buildClassHiearchy :: ClassEnv -> (String, Type) -> Map.Map (String, Type) (String, Type)
+buildClassHiearchy classEnv v@(_, TyApp (TyCon className) t') =
+    let classDict = classes classEnv in
+    let (parents, _) = (Map.!) classDict className in
+    let args = getNewArgs ((`IsIn` t') <$> parents) in
+    Map.fromList ((, v) <$> args)
+buildClassHiearchy _ _ = undefined
 
-convertBody :: Env -> String -> [(String, Type)] -> TypedExp -> TypedExp
-convertBody env name parent_args = cataRec alg
+buildHierchyForAllArgs :: ClassEnv -> [(String, Type)] -> Map.Map (String, Type) (String, Type)
+buildHierchyForAllArgs classEnv = foldl (\acc x -> acc `Map.union` buildClassHiearchy classEnv x) Map.empty
+
+mapCompatibleTypes :: ClassEnv -> [(String, Type)] -> [(String, Type)] -> [(String, Type)]
+mapCompatibleTypes classEnv parent_args child_args =
+   (\arg -> Map.findWithDefault arg arg dict)  <$> child_args
+   where dict = buildHierchyForAllArgs classEnv parent_args
+
+convertBody :: ClassEnv -> Env -> String -> [(String, Type)] -> TypedExp -> TypedExp
+convertBody classEnv env name parent_args = cataRec alg
        where alg e@(Ann (Just loc, qt) (Var n)) =
                 let (psList, _) = mapEnvWithLocal env n qt in
                 let args = if n == name
                     then parent_args
-                    else getNewArgs psList in
+                    else mapCompatibleTypes classEnv parent_args (getNewArgs psList) in
                 applyArgs loc args (In e)
              alg x = In x
 
