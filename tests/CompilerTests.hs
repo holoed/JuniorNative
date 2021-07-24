@@ -128,3 +128,9 @@ tests = do
    it "Arithmetics Tests" $ do
       "let main = (1 + 1.5) / 3" --> "0.8333333333333334"
       "let main = 2 * (4.6 - 3.1)" --> "2.999999999999999"
+
+   it "Lambda many tuples pattern" $ do
+        [i|
+            let f (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+            let main = f (2, 3) (5, 6)
+        |] --> "(7,9)"

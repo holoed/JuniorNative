@@ -69,3 +69,15 @@ tests =
                 else foldl f (f v (head xs)) (tail xs)
   
            let main = foldl (*) 1 (1:2:3:4:5:[])  |] --> "[120]"
+    
+    it "Lambda tuple pattern" $ do
+        [i|
+            let f (x, y) = x + y
+            let main = f (2, 3)
+        |] --> "[5]"
+
+    it "Lambda many tuples pattern" $ do
+        [i|
+            let f (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+            let main = f (2, 3) (5, 6)
+        |] --> "[(7,9)]"
