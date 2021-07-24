@@ -115,8 +115,8 @@ env = fromList [
               let (Function bind) = m!"bind" in
                     do (Function g) <- bind x
                        g y )))),
-    ("toDouble", Function (\(Value x) -> case x of
-                                      (I n) -> return $ Value (D $ fromIntegral n) 
-                                      (D v) -> return $ Value (D v)
-                                      _ -> undefined))
+    ("toDouble", Function (\(Value (I n)) ->
+           return $ Value (D $ fromIntegral n))),
+    ("truncate", Function (\(Value (D x)) -> 
+           return $ Value (I $ truncate x)))
  ]
