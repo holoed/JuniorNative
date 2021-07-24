@@ -78,3 +78,32 @@ let fib eqT280 numT280 numT30 n =
        "let x = 42" --> [i|val x :: Int
 let x = fromInteger numInt 42
 |]
+
+   it "Foo" $
+    [i|
+let foldl f v xs =
+  if (null xs) then v
+  else foldl f (f v (head xs)) (tail xs)
+
+let reverse xs = foldl (\\xs x -> x : xs) [] xs
+
+let partition n xs =
+    let partition' n acc xs =
+      if (n == 0 || null xs) then (reverse acc, xs)
+          else partition' (n - 1) ((head xs) : acc) (tail xs) in
+    partition' n [] xs|] --> [i|val foldl :: (a -> b -> a) -> a -> List b -> a
+let foldl f v xs = if null xs then v
+    else foldl f (f v (head xs)) (tail xs)
+
+val reverse :: List a -> List a
+let reverse xs = ((foldl (\\xs x ->
+                          x : xs)) []) xs
+
+val partition :: Eq a -> Num a -> a -> List b -> (List b, List b)
+let partition eqT440 numT440 n xs = 
+    let partition' n acc xs = 
+                if (eqT440 == n) (fromInteger numT440 0) || null xs
+                    then (reverse acc, xs)
+                    else ((partition' ((numT440 - n) (fromInteger numT440 1))) (head xs : acc)) (tail xs) in
+    partition' n [] xs
+|]

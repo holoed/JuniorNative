@@ -11,7 +11,7 @@ import Data.Map (fromList)
 import Data.Set (Set, toList, (\\), map, unions)
 import Prelude hiding (map)
 
-type TypeM = ErrorReaderWriterState PString (Env, Type, Set String) (Set Pred) (Substitutions, Int)
+type TypeM = ErrorReaderWriterState PString (Env, Type, Set String, Bool) (Set Pred) (Substitutions, Int)
 
 newTyVar :: Int -> TypeM Type
 newTyVar k = do (subs, i) <- get
@@ -22,10 +22,10 @@ refreshNames :: Set (String, Int) -> TypeM Substitutions
 refreshNames ns = newTyVar 0 >>= (\(TyVar n' k) -> return $ fromList (fmap (\(n, k') -> ((n, k), TyVar (n ++ n') k')) (toList ns)))
 
 getBaseType :: TypeM Type
-getBaseType = fmap (\(_,b,_) -> b) ask
+getBaseType = fmap (\(_,b,_,_) -> b) ask
 
 getEnv :: TypeM Env
-getEnv = fmap (\(env,_,_) -> env) ask
+getEnv = fmap (\(env,_,_,_) -> env) ask
 
 updateSubs :: (Substitutions -> TypeM Substitutions) -> TypeM ()
 updateSubs f =
@@ -51,9 +51,9 @@ getTypeForName l n =
                           return t
        Identity (_ :=> t) -> return t
 
-generalise :: Set String -> Qual Type -> TypeScheme
-generalise sv (ps :=> t@(TyApp (TyApp (TyCon "->") _) _)) = ForAll sv (ps :=> t)
-generalise _ qt = Identity qt
+generalise :: Bool -> Set String -> Qual Type -> TypeScheme
+generalise True sv (ps :=> t@(TyApp (TyApp (TyCon "->") _) _)) = ForAll sv (ps :=> t)
+generalise _ _ qt = Identity qt
 
 substituteQM :: Qual Type -> TypeM (Qual Type)
 substituteQM qt = do

@@ -79,7 +79,7 @@ tests = do
                         [("quicksort",["concat","filter","singleton"])]
                         ]
                        
-    it "Complex example" $ "tests/example.jnr" ---> [          
+    it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [          
           [("foldr",[]),("cadd",[]),("cmul",[]),("foldl",[]),("norm",[]),("posToCoord",[]),("singleton",[]),("range",[])],
           [("++",["foldr"]),("filter",["foldr"]),("map",["foldr"])],
           [("join",["foldl"]),("reverse",["foldl"]),("product",["foldl"]),("sum",["foldl"])],

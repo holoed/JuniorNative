@@ -50,8 +50,8 @@ alg (Ann (Just l) (Var n)) =
 
 alg (Ann Nothing  (App e1 e2)) =
   do t1 <- newTyVar 0
-     (e1', ps1) <- listen $ local (\(env, t, sv) -> (env, TyApp (TyApp (TyCon "->") t1) t, sv)) e1
-     (e2', ps2) <- listen $ local (\(env, _, sv)  -> (env, t1, sv)) e2
+     (e1', ps1) <- listen $ local (\(env, t, sv, b) -> (env, TyApp (TyApp (TyCon "->") t1) t, sv, b)) e1
+     (e2', ps2) <- listen $ local (\(env, _, sv, b)  -> (env, t1, sv, b)) e2
      bt <- getBaseType
      qt <- substituteQM ((ps1 `union` ps2) :=> bt)
      return (tapp qt e1' e2')
@@ -64,16 +64,16 @@ alg (Ann (Just l) (Lam n e)) =
      let t = TyApp (TyApp (TyCon "->") t0) t2
      mgu l t bt
      let (TyVar t1n _) = t0
-     (e', ps'') <- listen $ local (\(env, _, sv) ->
-       (foldToScheme env nts, t2, insert t1n sv)) e
+     (e', ps'') <- listen $ local (\(env, _, sv, _) ->
+       (foldToScheme env nts, t2, insert t1n sv, False)) e
      return (tlam l (ps'' :=> t) n' e')
 
 alg (Ann (Just l) (IfThenElse p e1 e2)) =
   do t2 <- newTyVar 0
      bt <- getBaseType
-     (p', ps1) <- listen $ local (\(env, _, sv) -> (env, boolCon, sv)) p
-     (e1', ps2) <- listen $ local (\(env, _, sv) -> (env, t2, sv)) e1
-     (e2', ps3) <- listen $ local (\(env, _, sv) -> (env, t2, sv)) e2
+     (p', ps1) <- listen $ local (\(env, _, sv, b) -> (env, boolCon, sv, b)) p
+     (e1', ps2) <- listen $ local (\(env, _, sv, b) -> (env, t2, sv, b)) e1
+     (e2', ps3) <- listen $ local (\(env, _, sv, b) -> (env, t2, sv, b)) e2
      mgu l t2 bt
      qt <- substituteQM ((ps1 `union` ps2 `union` ps3) :=> bt)
      return (tifThenElse l qt p' e1' e2')
@@ -82,11 +82,11 @@ alg (Ann (Just l) (Let n e1 e2)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
      let nts = getNameAndTypes n'
      let (TyVar tn _) = t0
-     (e1', ps1) <- listen $ local (\(env, _, sv) ->
-       (foldToScheme env nts, t0, insert tn sv)) e1
+     (e1', ps1) <- listen $ local (\(env, _, sv, _) ->
+       (foldToScheme env nts, t0, insert tn sv, False)) e1
      (subs, _) <- get
-     (e2', ps2) <- listen $ local (\(env, bt, sv) ->
-       (foldl (\env' (n'', ps2 :=> t3) -> addScheme n'' (generalise sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env nts, bt, sv)) e2
+     (e2', ps2) <- listen $ local (\(env, bt, sv, b) ->
+       (foldl (\env' (n'', ps2 :=> t3) -> addScheme n'' (generalise b sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env nts, bt, sv, b)) e2
      bt <- getBaseType
      return (tleT l ((ps1 `union` ps2) :=> bt) n' e1' e2')
 
@@ -95,7 +95,7 @@ alg (Ann (Just l) (MkTuple es)) =
      ts <- mapM (const (newTyVar 0)) es
      let t = tupleCon ts
      mgu l t bt
-     (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv) -> (env, t', sv)) e) (zip es ts)
+     (es', ps) <- listen $ traverse (\(e, t') -> local (\(env, _, sv, b) -> (env, t', sv, b)) e) (zip es ts)
      return (tmkTuple l (ps :=> t) es')
 
 alg (Ann (Just l) (VarPat s)) = do
@@ -117,6 +117,6 @@ infer classEnv env e = fmap f (run (m >>= (applyRestriction <=< resolvePreds cla
         g subs = mapAnn (second (deleteTautology . clean . substituteQ subs)) 
         m = cataRec alg e
         bt =  TyVar "TBase" 0
-        ctx = (env, bt, fromList [])
+        ctx = (env, bt, fromList [], True)
         state = (empty, 0)
  

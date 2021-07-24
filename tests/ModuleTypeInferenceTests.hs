@@ -71,7 +71,7 @@ tests =
                           ("quicksort","Ord a => (b -> a) -> List b -> List b")
                        ]
 
-    it "Complex example" $ "tests/example.jnr" ---> [
+    it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [
       ("foldr","(a -> b -> b) -> b -> List a -> b"),
       ("cadd","(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"),
       ("cmul","Num a => (a, a) -> (a, a) -> (a, a)"),

@@ -16,7 +16,8 @@ ordInt = Instance (fromList [
         (">", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x > y))))),
         ("<", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x < y))))),
         (">=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x >= y))))),
-        ("<=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x <= y)))))
+        ("<=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x <= y))))),
+        ("==", let (Instance inst) = eqInt in inst!"==")
        ])
 
 ordDouble :: Result
@@ -143,5 +144,7 @@ env = fromList [
     ("truncate", Function (\(Value (D x)) ->
            return $ Value (I $ truncate x))),
     ("cos", Function(\(Instance m) -> return $ Function (\x ->
-       let (Function f) = m!"cos" in f x)))
+       let (Function f) = m!"cos" in f x))),
+    ("fst", Function(\(Tuple [x,_]) -> return x)),
+    ("snd", Function(\(Tuple [_,y]) -> return y))
  ]
