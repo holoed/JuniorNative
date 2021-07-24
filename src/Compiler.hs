@@ -29,10 +29,14 @@ frontEndPrinted :: String -> CompileM String
 frontEndPrinted = frontEnd >=>
                   step "pretty print module" prettyPrintModule
 
+backendPrinted :: String -> CompileM String
+backendPrinted = frontEnd >=>
+       step "desugar constraints" desugarPredicates >=>
+       step "pretty print module" prettyPrintModule
+       
 full :: String -> CompileM String
 full = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
-      --  step "pretty print module" prettyPrintModule
        step "interpret" interpret >=>
        step "print" (return . unwords . (show <$>))
        

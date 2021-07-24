@@ -66,8 +66,6 @@ interpretExp env =  flip runReader env . runExceptT . runMonad .cataRec alg
           alg (Ann _ (IfThenElse e1 e2 e3)) =
             do (Value (B b)) <- e1
                if b then e2 else e3
-          alg _ = undefined
-
 
 interpret :: InterpreterEnv -> Exp -> Either PString InterpreterEnv
 interpret env e@(In (Ann _ (Let p _ _))) =

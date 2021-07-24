@@ -134,3 +134,10 @@ tests = do
             let f (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
             let main = f (2, 3) (5, 6)
         |] --> "(7,9)"
+
+   it "Nested let with variable capture" $ do
+         [i|let f x = x + 1.5
+            let g x =
+               let y = f x in
+               (x,y)
+            let main = g 5|] --> "(5.0,6.5)"
