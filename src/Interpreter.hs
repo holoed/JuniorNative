@@ -13,7 +13,7 @@ import Data.Map ( Map, (!), insert, union, member )
 import Primitives ( Prim(..), primToStr )
 import Control.Monad.Fail ()
 import Control.Monad (foldM)
-import Data.List (intercalate)
+import Data.List (intercalate, foldl')
 
 type InterpreterEnv = Map String Result
 newtype InterpreterM a = InterpreterM { runMonad :: ExceptT PString (Reader InterpreterEnv) a }
@@ -38,7 +38,7 @@ instance Show Result where
 insertMany :: Result -> Result -> InterpreterEnv -> InterpreterEnv
 insertMany (Value (S n)) v env = insert n v env
 insertMany (Tuple xs) (Tuple ys) env = 
-  foldl (\acc (n, v) -> insertMany n v acc) env (zip xs ys) 
+  foldl' (\acc (n, v) -> insertMany n v acc) env (zip xs ys) 
 insertMany _ _ _ = undefined  
 
 interpretExp :: InterpreterEnv -> Exp -> Either PString Result
