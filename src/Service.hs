@@ -13,7 +13,7 @@ import Data.Text.Lazy as Lazy ( pack )
 import System.Environment (lookupEnv)
 import Web.Scotty         (ScottyM, scotty)
 import Web.Scotty.Trans ( body, text, post, middleware )
-import Network.Wai.Middleware.RequestLogger ( logStdoutDev )
+import Network.Wai.Middleware.RequestLogger ( logStdout )
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Intrinsics ( env, classEnv )
 import Data.Aeson
@@ -59,7 +59,7 @@ compile code = do
 
 route :: ScottyM()
 route = do
-    middleware logStdoutDev
+    middleware logStdout
     post "/" $ do
          code <- body
          ret <- liftIO $ compile (Char8.unpack code)
