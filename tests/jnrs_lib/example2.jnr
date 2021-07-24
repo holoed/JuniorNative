@@ -35,13 +35,13 @@ let partition' n acc xs =
   let row = x / sz in
     let col = x - sz * row in
     (row, col)
-   
+    
  let norm (re, im) = re * re + im * im
    
  let cadd (re1, im1) (re2, im2) = (re1 + re2, im1 + im2)
    
  let cmul (re1, im1) (re2, im2) = (re1 * re2 - im1 * im2, re1 * im2 + im1 * re2)
-   
+    
  let mPoint i c z =
   if (i == 65 || norm z > 4.0) then i else mPoint (i + 1) c (cadd (cmul z z) c)
    
@@ -50,7 +50,7 @@ let partition' n acc xs =
   let y' = (4.0 * toDouble x / toDouble s) - 2.0 in
   let i' = mPoint 0 (x', y') (0.0, 0.0) in
   let f i = 128 + truncate (128.0 * (cos (toDouble i + 0.3))) in
-  ((f i'), (f (i' + 16)), (f (i' + 32)))
+  ((f i') : (f (i' + 16)) : (f (i' + 32)) : [])
     
 let render effect pixSize = 
 	let f = effect pixSize . posToCoord pixSize in
