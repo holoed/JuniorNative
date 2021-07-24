@@ -45,10 +45,21 @@ monadList = Instance (fromList [
 fractionalDouble :: Result
 fractionalDouble = Instance (fromList [
        ("+", let (Instance inst) = numDouble in inst!"+"),
-       ("-", let (Instance inst) = numDouble in inst!"-"),      
+       ("-", let (Instance inst) = numDouble in inst!"-"),
        ("*", let (Instance inst) = numDouble in inst!"*"),
        ("/", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (D (x / y))))),
-       ("fromRational", Function(\(Value (D x)) -> return $ Value (D x)))
+       ("fromRational", Function(\(Value (D x)) -> return $ Value (D x))),
+       ("fromInteger", let (Instance inst) = numDouble in inst!"fromInteger")
+       ])
+
+fractionalInt :: Result
+fractionalInt = Instance (fromList [
+       ("+", let (Instance inst) = numInt in inst!"+"),
+       ("-", let (Instance inst) = numInt in inst!"-"),
+       ("*", let (Instance inst) = numInt in inst!"*"),
+       ("/", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x `div` y))))),
+       ("fromRational", Function(\(Value (D x)) -> return $ Value (I $ truncate x))),
+       ("fromInteger", let (Instance inst) = numInt in inst!"fromInteger")
        ])
 
 numInt :: Result
@@ -85,6 +96,7 @@ env :: InterpreterEnv
 env = fromList [
     ("floatingDouble", floatingDouble),
     ("fractionalDouble", fractionalDouble),
+    ("fractionalInt", fractionalInt),
     ("ordInt", ordInt),
     ("ordDouble", ordDouble),
     ("numInt", numInt),
@@ -114,6 +126,10 @@ env = fromList [
     ("null", Function(\(List xs) -> return $ Value (B $ null xs))),
     ("&&", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x && y))))),
     ("||", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x || y))))),
+    (".", Function(\(Function f) -> return $
+                     Function(\(Function g) -> return $
+                     Function(\x -> do y <- g x
+                                       f y)))),
     ("pure", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"pure" in f x))),
     ("bind", Function(\(Instance m) -> return $
@@ -124,7 +140,7 @@ env = fromList [
                        g y )))),
     ("toDouble", Function (\(Value (I n)) ->
            return $ Value (D $ fromIntegral n))),
-    ("truncate", Function (\(Value (D x)) -> 
+    ("truncate", Function (\(Value (D x)) ->
            return $ Value (I $ truncate x))),
     ("cos", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"cos" in f x)))

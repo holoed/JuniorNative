@@ -53,12 +53,18 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Eq" (TyCon "Double"),
        Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
       ])),
-     ("Ord", (["Eq"], [Set.fromList [] :=> IsIn "Ord" (TyCon "Double")])),
+     ("Ord", (["Eq"], [
+       Set.fromList [] :=> IsIn "Ord" (TyCon "Int"),
+       Set.fromList [] :=> IsIn "Ord" (TyCon "Double")
+       ])),
      ("Num", ([], [
        Set.fromList [] :=> IsIn "Num" (TyCon "Int"),
        Set.fromList [] :=> IsIn "Num" (TyCon "Double")
        ])),
-     ("Fractional", (["Num"], [Set.fromList [] :=> IsIn "Fractional" (TyCon "Double")])),
+     ("Fractional", (["Num"], [
+       Set.fromList [] :=> IsIn "Fractional" (TyCon "Int"),
+       Set.fromList [] :=> IsIn "Fractional" (TyCon "Double")
+       ])),
      ("Floating", (["Fractional"], [Set.fromList [] :=> IsIn "Floating" (TyCon "Double")])),
 
      ("Functor", ([], [
