@@ -141,3 +141,13 @@ tests = do
                let y = f x in
                (x,y)
             let main = g 5|] --> "(5.0,6.5)"
+
+   it "Logical operators" $ do
+      "let main = True && True" --> "True"
+      "let main = True && False" --> "False"
+      "let main = False && True" --> "False"
+      "let main = False && False" --> "False"
+      "let main = True || True" --> "True"
+      "let main = True || False" --> "True"
+      "let main = False || True" --> "True"
+      "let main = False || False" --> "False"

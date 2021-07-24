@@ -11,7 +11,14 @@ ordInt = Instance (fromList [
         ("<", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x < y))))),
         (">=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x >= y))))),
         ("<=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x <= y)))))
+       ])
 
+ordDouble :: Result
+ordDouble = Instance (fromList [
+        (">", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x > y))))),
+        ("<", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x < y))))),
+        (">=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x >= y))))),
+        ("<=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x <= y)))))
        ])
 
 applicativeList :: Result
@@ -72,6 +79,7 @@ env :: InterpreterEnv
 env = fromList [
     ("fractionalDouble", fractionalDouble),
     ("ordInt", ordInt),
+    ("ordDouble", ordDouble),
     ("numInt", numInt),
     ("numDouble", numDouble),
     ("eqInt", eqInt),
@@ -97,6 +105,8 @@ env = fromList [
     ("head", Function(\(List xs) -> return $ head xs)),
     ("tail", Function(\(List xs) -> return $ List (tail xs))),
     ("null", Function(\(List xs) -> return $ Value (B $ null xs))),
+    ("&&", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x && y))))),
+    ("||", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x || y))))),
     ("pure", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"pure" in f x))),
     ("bind", Function(\(Instance m) -> return $
@@ -104,5 +114,9 @@ env = fromList [
              Function(\y ->
               let (Function bind) = m!"bind" in
                     do (Function g) <- bind x
-                       g y ))))
+                       g y )))),
+    ("toDouble", Function (\(Value x) -> case x of
+                                      (I n) -> return $ Value (D $ fromIntegral n) 
+                                      (D v) -> return $ Value (D v)
+                                      _ -> undefined))
  ]
