@@ -5,6 +5,12 @@ import Interpreter (InterpreterEnv, Result(..))
 import Primitives (Prim(..))
 import Control.Monad (join)
 
+floatingDouble :: Result
+floatingDouble = Instance (fromList [
+        ("cos", Function(\(Value (D x)) -> return $ Value (D (cos x)))),
+        ("sin", Function(\(Value (D x)) -> return $ Value (D (sin x))))
+       ])
+
 ordInt :: Result
 ordInt = Instance (fromList [
         (">", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x > y))))),
@@ -77,6 +83,7 @@ binOp op = Function(\(Instance inst) ->
 
 env :: InterpreterEnv
 env = fromList [
+    ("floatingDouble", floatingDouble),
     ("fractionalDouble", fractionalDouble),
     ("ordInt", ordInt),
     ("ordDouble", ordDouble),
@@ -118,5 +125,7 @@ env = fromList [
     ("toDouble", Function (\(Value (I n)) ->
            return $ Value (D $ fromIntegral n))),
     ("truncate", Function (\(Value (D x)) -> 
-           return $ Value (I $ truncate x)))
+           return $ Value (I $ truncate x))),
+    ("cos", Function(\(Instance m) -> return $ Function (\x ->
+       let (Function f) = m!"cos" in f x)))
  ]

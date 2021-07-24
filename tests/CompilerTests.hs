@@ -151,3 +151,27 @@ tests = do
       "let main = True || False" --> "True"
       "let main = False || True" --> "True"
       "let main = False || False" --> "False"
+
+   it "Floating operators" $ do
+      [i| 
+ let normal (re, im) = 
+    re * re + im * im
+ 
+ let complex_add (re1, im1) (re2, im2) = 
+    (re1 + re2, im1 + im2)
+ 
+ let complex_mul (re1, im1) (re2, im2) = 
+    (re1 * re2 - im1 * im2, re1 * im2 + im1 * re2)
+ 
+ let mid_point i c z =
+  if (i == 65 || normal z > 4.0) then i 
+  else mid_point (i + 1) c (complex_add (complex_mul z z) c)
+   
+ let foo s (x, y) =
+  let x' = (4.0 * toDouble y / toDouble s) - 2.5 in
+  let y' = (4.0 * toDouble x / toDouble s) - 2.0 in
+  let i' = mid_point 0 (x', y') (0.0, 0.0) in
+  let f i = 128 + truncate (128.0 * (cos (toDouble i + 0.3))) in 
+  ((f i'), (f (i' + 16)), (f (i' + 32))) 
+    
+ let main = foo 2 (3, 4) |] --> "(162,130,89)"
