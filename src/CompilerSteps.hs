@@ -8,7 +8,8 @@ import PAst (SynExp)
 import CompilerMonad (CompileM)
 import Parser ( parseExpr )
 import SynExpToExp ( toExp )
-import Data.Map as Map ( member, keysSet, fromList, (!), (!?) )
+import Data.Map as Map ( keysSet, fromList, (!) )
+import Data.HashMap.Strict as HashMap ( member, (!?) )
 import DependencyAnalysis ( chunks )
 import Environment (toEnv, concatEnvs)
 import Infer ( infer )
@@ -75,6 +76,6 @@ interpret es = do
    case interpretModule env (mapAnn fst <$> es) of
        Left err -> throwError err
        Right v -> 
-           return $ if Map.member "it" v
+           return $ if member "it" v
            then Maybe.maybeToList $ v!?"it"
            else Maybe.maybeToList $ v!?"main"

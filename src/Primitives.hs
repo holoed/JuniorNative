@@ -1,6 +1,6 @@
 module Primitives where
 
-data Prim = U | I Int | D Double | B Bool | S String deriving (Eq, Show)
+data Prim = U | I !Int | D !Double | B !Bool | S !String deriving (Eq, Show)
 
 isInt :: RealFrac a => a -> Bool
 isInt x = x == fromInteger (round x)

@@ -9,13 +9,13 @@ import Control.Monad.Error.Class (MonadError(..))
 import Control.Monad.Reader ( MonadReader(ask, local), runReader, Reader )
 import Control.Monad.Trans.Except ( ExceptT, runExceptT )
 import RecursionSchemes (cataRec)
-import Data.Map ( Map, (!), insert, union, member )
+import Data.HashMap.Strict ( HashMap, (!), insert, union, member )
 import Primitives ( Prim(..), primToStr )
 import Control.Monad.Fail ()
 import Control.Monad (foldM)
 import Data.List (intercalate, foldl')
 
-type InterpreterEnv = Map String Result
+type InterpreterEnv = HashMap String Result
 newtype InterpreterM a = InterpreterM { runMonad :: ExceptT PString (Reader InterpreterEnv) a }
    deriving ( Functor, Applicative, Monad, MonadReader InterpreterEnv, MonadError PString )
 
@@ -24,7 +24,7 @@ instance MonadFail InterpreterM where
 
 data Result = Value Prim
             | Function (Result -> InterpreterM Result)
-            | Instance (Map String Result)
+            | Instance (HashMap String Result)
             | List [Result]
             | Tuple [Result]
 

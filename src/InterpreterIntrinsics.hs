@@ -1,6 +1,6 @@
 module InterpreterIntrinsics where
 
-import Data.Map (fromList, (!), member)
+import Data.HashMap.Strict (fromList, (!), member)
 import Interpreter (InterpreterEnv, Result(..))
 import Primitives (Prim(..))
 import Control.Monad (join)
