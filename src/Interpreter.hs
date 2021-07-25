@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Interpreter where
 
@@ -10,17 +11,36 @@ import Control.Monad.Reader ( MonadReader(ask, local), runReader, Reader )
 import Control.Monad.Trans.Except ( ExceptT, runExceptT )
 import RecursionSchemes (cataRec)
 import Data.HashMap.Strict ( HashMap, (!), insert, union, member )
-import Primitives ( Prim(..), primToStr )
 import Control.Monad.Fail ()
 import Control.Monad (foldM)
-import Data.List (intercalate, foldl')
+import Data.List (foldl')
+import Data.Text (Text, pack, intercalate)
+import qualified Primitives as P 
 
-type InterpreterEnv = HashMap String Result
+type InterpreterEnv = HashMap Text Result
 newtype InterpreterM a = InterpreterM { runMonad :: ExceptT PString (Reader InterpreterEnv) a }
    deriving ( Functor, Applicative, Monad, MonadReader InterpreterEnv, MonadError PString )
 
 instance MonadFail InterpreterM where
   fail s = throwError (PStr (s, Nothing))
+
+data Prim = U | I !Int | D !Double | B !Bool | S !Text deriving Eq
+
+{-# INLINE toInterpPrim #-}
+toInterpPrim :: P.Prim -> Prim
+toInterpPrim P.U = U
+toInterpPrim (P.I n) = I n 
+toInterpPrim (P.D x) = D x
+toInterpPrim (P.B b) = B b 
+toInterpPrim (P.S s) = S (pack s)
+ 
+{-# INLINE primToStr #-}
+primToStr :: Prim -> Text
+primToStr (I n) = pack (show n)
+primToStr (D x) = pack (show x)
+primToStr (B b) = pack (show b)
+primToStr (S s) = s
+primToStr U = "()"
 
 data Result = Value !Prim
             | Function !(Result -> InterpreterM Result)
@@ -28,12 +48,13 @@ data Result = Value !Prim
             | List ![Result]
             | Tuple ![Result]
 
-instance Show Result where
-  show (Value x) = primToStr x
-  show (Function _) = "<function>"
-  show (Instance _) = "<instance>"
-  show (List xs) = show xs
-  show (Tuple xs) = "(" ++ intercalate "," (show <$> xs) ++ ")"
+{-# INLINE showResult #-}
+showResult :: Result -> Text
+showResult (Value x) = primToStr x
+showResult (Function _) = "<function>"
+showResult (Instance _) = "<instance>"
+showResult (List xs) = "[" <> intercalate "," (showResult <$> xs) <> "]"
+showResult (Tuple xs) = "(" <> intercalate "," (showResult <$> xs) <> ")"
 
 {-# INLINE insertMany #-}
 insertMany :: Result -> Result -> InterpreterEnv -> InterpreterEnv
@@ -45,13 +66,14 @@ insertMany _ _ _ = undefined
 interpretExp :: InterpreterEnv -> Exp -> Either PString Result
 interpretExp env =  flip runReader env . runExceptT . runMonad . cataRec alg
     where {-# INLINE alg #-}
-          alg (Ann _ (Lit x)) = return $ Value x
+          alg (Ann _ (Lit x)) = return $ Value (toInterpPrim x)
           alg (Ann _ (MkTuple xs)) = Tuple <$> sequence xs
           alg (Ann l (Var n)) =
+            let n' = pack n in
             do ctx <- ask
-               if not (member n ctx) then throwError (PStr (n, l))
-               else return $ ctx!n
-          alg (Ann _ (VarPat n)) = return $ Value (S n)
+               if not (member n' ctx) then throwError (PStr (n, l))
+               else return $ ctx!n'
+          alg (Ann _ (VarPat n)) = return $ Value (S $ pack n)
           alg (Ann _ (TuplePat ns)) = Tuple <$> sequence ns
           alg (Ann _ (Lam e1 e2)) =
             do ctx <- ask
@@ -72,7 +94,7 @@ interpretExp env =  flip runReader env . runExceptT . runMonad . cataRec alg
 {-# INLINE interpret #-}
 interpret :: InterpreterEnv -> Exp -> Either PString InterpreterEnv
 interpret env e@(In (Ann _ (Let p _ _))) =
-  (\v -> insert n v env) <$> interpretExp env e
+  (\v -> insert (pack n) v env) <$> interpretExp env e
   where (_, n) = extractNameFromPat p
 interpret env e =
    (\v -> insert "it" v env) <$> interpretExp env e

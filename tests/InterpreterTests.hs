@@ -1,10 +1,10 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 module InterpreterTests where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation)
-import Primitives ( Prim(I, B) )
-import Interpreter (interpretModule, Result(..), InterpreterEnv)
+import Interpreter (interpretModule, Result(..), InterpreterEnv, Prim(..), showResult)
 import Parser (parseExpr)
 import SynExpToExp (toExp)
 import Location ( PString )
@@ -13,6 +13,7 @@ import Data.Maybe ( maybeToList )
 import PAst ( SynExp, SynExpF(VarPat, Let) )
 import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )
+import Data.Text (pack, unpack)
 
 
 env :: InterpreterEnv
@@ -38,10 +39,10 @@ run code = do ast <- parseExpr code
               return $ getItem ast env'
     where getItem ast xs = maybeToList $
            if member "it" xs then xs!?"it"
-           else extractName (last ast) >>= (xs!?)
+           else extractName (last ast) >>= ((xs!?) . pack)
 
 (-->) :: String -> String -> Expectation
-(-->) code v  = either show show (run code) `shouldBe` v
+(-->) code v  = either show (unpack . showResult . List) (run code) `shouldBe` v
 
 tests :: SpecWith ()
 tests =

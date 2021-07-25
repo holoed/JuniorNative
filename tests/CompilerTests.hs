@@ -7,11 +7,12 @@ import Compiler ( full )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
+import Data.Text (unpack)
 
 build :: String -> IO String
 build code = do
    (x, _, _) <- run (full code) (Interp.env, classEnv) (env, [])
-   return $ either show id x
+   return $ either show unpack x
 
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)

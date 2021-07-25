@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module CompilerSteps where
 
 import Fixpoint ( Fix(..) )

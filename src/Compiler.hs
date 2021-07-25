@@ -9,6 +9,9 @@ import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
+import Interpreter (showResult)
+import Data.Text (Text, unwords)
+import Prelude hiding (unwords)
 
 step :: String -> (a -> CompileM b) -> (a -> CompileM b)
 step desc f x = catchError
@@ -34,9 +37,9 @@ backendPrinted = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
        step "pretty print module" prettyPrintModule
        
-full :: String -> CompileM String
+full :: String -> CompileM Text
 full = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
        step "interpret" interpret >=>
-       step "print" (return . unwords . (show <$>))
+       step "print" (return . unwords . (showResult <$>))
        

@@ -21,7 +21,8 @@ import Data.Aeson
 import Compiler (full)
 import CompilerMonad (run)
 import qualified SymbolTable as S
-import qualified InterpreterIntrinsics as Interp (env) 
+import qualified InterpreterIntrinsics as Interp (env)
+import Data.Text (unpack)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -55,7 +56,7 @@ compile code = do
    (x, (_, ss), z) <- run (full code) (Interp.env, classEnv ) (env, [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
-   return $ (, ss) <$>x
+   return $ (, ss) . Data.Text.unpack <$> x
 
 route :: ScottyM()
 route = do
