@@ -22,11 +22,11 @@ newtype InterpreterM a = InterpreterM { runMonad :: ExceptT PString (Reader Inte
 instance MonadFail InterpreterM where
   fail s = throwError (PStr (s, Nothing))
 
-data Result = Value Prim
-            | Function (Result -> InterpreterM Result)
-            | Instance (HashMap String Result)
-            | List [Result]
-            | Tuple [Result]
+data Result = Value !Prim
+            | Function !(Result -> InterpreterM Result)
+            | Instance !(HashMap String Result)
+            | List ![Result]
+            | Tuple ![Result]
 
 instance Show Result where
   show (Value x) = primToStr x
@@ -35,6 +35,7 @@ instance Show Result where
   show (List xs) = show xs
   show (Tuple xs) = "(" ++ intercalate "," (show <$> xs) ++ ")"
 
+{-# INLINE insertMany #-}
 insertMany :: Result -> Result -> InterpreterEnv -> InterpreterEnv
 insertMany (Value (S n)) v env = insert n v env
 insertMany (Tuple xs) (Tuple ys) env = 
@@ -42,8 +43,9 @@ insertMany (Tuple xs) (Tuple ys) env =
 insertMany _ _ _ = undefined  
 
 interpretExp :: InterpreterEnv -> Exp -> Either PString Result
-interpretExp env =  flip runReader env . runExceptT . runMonad .cataRec alg
-    where alg (Ann _ (Lit x)) = return $ Value x
+interpretExp env =  flip runReader env . runExceptT . runMonad . cataRec alg
+    where {-# INLINE alg #-}
+          alg (Ann _ (Lit x)) = return $ Value x
           alg (Ann _ (MkTuple xs)) = Tuple <$> sequence xs
           alg (Ann l (Var n)) =
             do ctx <- ask
@@ -67,6 +69,7 @@ interpretExp env =  flip runReader env . runExceptT . runMonad .cataRec alg
             do (Value (B b)) <- e1
                if b then e2 else e3
 
+{-# INLINE interpret #-}
 interpret :: InterpreterEnv -> Exp -> Either PString InterpreterEnv
 interpret env e@(In (Ann _ (Let p _ _))) =
   (\v -> insert n v env) <$> interpretExp env e
