@@ -10,7 +10,7 @@ import CompilerMonad (CompileM)
 import Parser ( parseExpr )
 import SynExpToExp ( toExp )
 import Data.Map as Map ( keysSet, fromList, (!) )
-import Data.HashMap.Strict as HashMap ( member, (!?) )
+import Data.HashMap as HashMap ( member, lookup )
 import DependencyAnalysis ( chunks )
 import Environment (toEnv, concatEnvs)
 import Infer ( infer )
@@ -24,6 +24,7 @@ import ModulePrinter (typedModuleToString)
 import ConstraintsResolution (convertPreds)
 import Interpreter (interpretModule, Result)
 import qualified Data.Maybe as Maybe
+import Prelude hiding (lookup)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -39,7 +40,7 @@ dependencyAnalysis es = do
     (env, _) <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
     let dict = Map.fromList ((\e@(In (Ann _ (Let (In (Ann _ (VarPat s))) _ _))) -> (s, e)) <$> es)
-    return $ ((\n -> (n, dict!n)) <$>) <$> ns
+    return $ ((\n -> (n, (Map.!) dict n)) <$>) <$> ns
 
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
 typeInference bss = do
@@ -78,5 +79,5 @@ interpret es = do
        Left err -> throwError err
        Right v -> 
            return $ if member "it" v
-           then Maybe.maybeToList $ v!?"it"
-           else Maybe.maybeToList $ v!?"main"
+           then Maybe.maybeToList $ lookup "it" v
+           else Maybe.maybeToList $ lookup "main" v

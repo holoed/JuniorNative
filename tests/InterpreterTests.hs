@@ -8,12 +8,13 @@ import Interpreter (interpretModule, Result(..), InterpreterEnv, Prim(..), showR
 import Parser (parseExpr)
 import SynExpToExp (toExp)
 import Location ( PString )
-import Data.HashMap.Strict (fromList, member, (!?))
+import Data.HashMap (fromList, member, lookup)
 import Data.Maybe ( maybeToList )
 import PAst ( SynExp, SynExpF(VarPat, Let) )
 import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )
 import Data.Text (pack, unpack)
+import Prelude hiding (lookup)
 
 
 env :: InterpreterEnv
@@ -38,8 +39,8 @@ run code = do ast <- parseExpr code
               env' <- interpretModule env (toExp <$> ast)
               return $ getItem ast env'
     where getItem ast xs = maybeToList $
-           if member "it" xs then xs!?"it"
-           else extractName (last ast) >>= ((xs!?) . pack)
+           if member "it" xs then lookup "it" xs
+           else extractName (last ast) >>= ((`lookup` xs) . pack)
 
 (-->) :: String -> String -> Expectation
 (-->) code v  = either show (unpack . showResult . List) (run code) `shouldBe` v
@@ -70,7 +71,7 @@ tests =
                 else foldl f (f v (head xs)) (tail xs)
   
            let main = foldl (*) 1 (1:2:3:4:5:[])  |] --> "[120]"
-    
+
     it "Lambda tuple pattern" $ do
         [i|
             let f (x, y) = x + y

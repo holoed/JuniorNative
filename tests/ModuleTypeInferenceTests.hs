@@ -11,7 +11,7 @@ import CompilerMonad (run)
 import qualified SymbolTable as S
 import Data.List (nub)
 import PrettyTypes (prettyQ)
-import qualified Data.HashMap.Strict as Map (empty) 
+import qualified Data.HashMap as Map (empty) 
 
 extractNames :: [S.Symbol] -> [(String, String)]
 extractNames ss = (\s -> (getName $ S.name s, show $ prettyQ $ S.ty s)) <$> filter S.top ss

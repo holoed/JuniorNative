@@ -7,7 +7,7 @@ import Test.Hspec ( it, describe, shouldBe, SpecWith, Expectation )
 import TypesPrinter () 
 import Intrinsics ( classEnv, env )
 import Data.String.Interpolate ( i )
-import Data.HashMap.Strict (empty)
+import Data.HashMap (empty)
 import Compiler ( backendPrinted )
 import CompilerMonad ( run )
 

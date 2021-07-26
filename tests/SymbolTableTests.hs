@@ -5,7 +5,7 @@ import CompilerMonad (run)
 import Compiler (frontEndPrinted)
 import Intrinsics ( env, classEnv )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
-import qualified Data.HashMap.Strict as Map (empty) 
+import qualified Data.HashMap as Map (empty) 
 
 compile :: String -> IO [Symbol]
 compile code = do

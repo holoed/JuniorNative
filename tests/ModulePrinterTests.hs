@@ -6,7 +6,7 @@ import Compiler ( frontEndPrinted )
 import CompilerMonad ( run )
 import Intrinsics ( env, classEnv )
 import Data.String.Interpolate ( i )
-import qualified Data.HashMap.Strict as Map (empty) 
+import qualified Data.HashMap as Map (empty) 
 
 build :: String -> IO String
 build code = do
