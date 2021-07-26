@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Interpreter where
 
 import Fixpoint (Fix(In))
@@ -7,33 +8,59 @@ import Location ( PString(..) )
 import Annotations ( Ann(..) )
 import Ast (Exp, ExpF(..), extractNameFromPat)
 import Control.Monad.Error.Class (MonadError(..))
-import Control.Monad.Reader ( MonadReader(ask, local), runReader, Reader )
-import Control.Monad.Trans.Except ( ExceptT, runExceptT )
 import RecursionSchemes (cataRec)
 import Data.HashMap ( Map, (!), insert, union, member )
 import Control.Monad.Fail ()
 import Control.Monad (foldM)
 import Data.List (foldl')
 import Data.Text (Text, pack, intercalate)
-import qualified Primitives as P 
+import qualified Primitives as P
 
 type InterpreterEnv = Map Text Result
-newtype InterpreterM a = InterpreterM { runMonad :: ExceptT PString (Reader InterpreterEnv) a }
-   deriving ( Functor, Applicative, Monad, MonadReader InterpreterEnv, MonadError PString )
+
+newtype InterpreterM a = InterpreterM { runMonad :: InterpreterEnv -> Either PString a }
+  deriving ( Functor )
+
+instance Applicative InterpreterM where
+  pure x = InterpreterM (\_ -> Right x)
+  (<*>) mf mx = InterpreterM(\env -> case runMonad mf env of
+                                      Right f -> case runMonad mx env of
+                                                  Right x -> Right (f x)
+                                                  Left s -> Left s
+                                      Left s -> Left s)
+
+instance Monad InterpreterM where
+  (>>=) m f = InterpreterM(\env -> case runMonad m env of
+                                      Right x -> runMonad (f x) env
+                                      Left s -> Left s)
+
+instance MonadError PString InterpreterM where
+  throwError e = InterpreterM(\_ -> Left e)
+  catchError m f = InterpreterM(\env -> case runMonad m env of
+                                        Right x -> Right x
+                                        Left s -> runMonad (f s) env)
 
 instance MonadFail InterpreterM where
   fail s = throwError (PStr (s, Nothing))
+
+{-# INLINE ask #-}
+ask :: InterpreterM InterpreterEnv
+ask = InterpreterM Right
+
+{-# INLINE local #-}
+local :: (InterpreterEnv -> InterpreterEnv) -> InterpreterM a -> InterpreterM a
+local f m = InterpreterM(runMonad m . f )
 
 data Prim = U | I !Int | D !Double | B !Bool | S !Text deriving Eq
 
 {-# INLINE toInterpPrim #-}
 toInterpPrim :: P.Prim -> Prim
 toInterpPrim P.U = U
-toInterpPrim (P.I n) = I n 
+toInterpPrim (P.I n) = I n
 toInterpPrim (P.D x) = D x
-toInterpPrim (P.B b) = B b 
+toInterpPrim (P.B b) = B b
 toInterpPrim (P.S s) = S (pack s)
- 
+
 {-# INLINE primToStr #-}
 primToStr :: Prim -> Text
 primToStr (I n) = pack (show n)
@@ -59,12 +86,12 @@ showResult (Tuple xs) = "(" <> intercalate "," (showResult <$> xs) <> ")"
 {-# INLINE insertMany #-}
 insertMany :: Result -> Result -> InterpreterEnv -> InterpreterEnv
 insertMany (Value (S n)) v env = insert n v env
-insertMany (Tuple xs) (Tuple ys) env = 
-  foldl' (\acc (n, v) -> insertMany n v acc) env (zip xs ys) 
-insertMany _ _ _ = undefined  
+insertMany (Tuple xs) (Tuple ys) env =
+  foldl' (\acc (n, v) -> insertMany n v acc) env (zip xs ys)
+insertMany _ _ _ = undefined
 
 interpretExp :: InterpreterEnv -> Exp -> Either PString Result
-interpretExp env =  flip runReader env . runExceptT . runMonad . cataRec alg
+interpretExp env e = runMonad (cataRec alg e) env
     where {-# INLINE alg #-}
           alg (Ann _ (Lit x)) = return $ Value (toInterpPrim x)
           alg (Ann _ (MkTuple xs)) = Tuple <$> sequence xs
