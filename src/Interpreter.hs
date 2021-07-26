@@ -22,7 +22,9 @@ newtype InterpreterM a = InterpreterM { runMonad :: InterpreterEnv -> Either PSt
   deriving ( Functor )
 
 instance Applicative InterpreterM where
+  {-# INLINE pure #-}
   pure x = InterpreterM (\_ -> Right x)
+  {-# INLINE (<*>) #-}
   (<*>) mf mx = InterpreterM(\env -> case runMonad mf env of
                                       Right f -> case runMonad mx env of
                                                   Right x -> Right (f x)
@@ -30,17 +32,21 @@ instance Applicative InterpreterM where
                                       Left s -> Left s)
 
 instance Monad InterpreterM where
+  {-# INLINE (>>=) #-}
   (>>=) m f = InterpreterM(\env -> case runMonad m env of
                                       Right x -> runMonad (f x) env
                                       Left s -> Left s)
 
 instance MonadError PString InterpreterM where
+  {-# INLINE throwError #-}
   throwError e = InterpreterM(\_ -> Left e)
+  {-# INLINE catchError #-}
   catchError m f = InterpreterM(\env -> case runMonad m env of
                                         Right x -> Right x
                                         Left s -> runMonad (f s) env)
 
 instance MonadFail InterpreterM where
+  {-# INLINE fail #-}
   fail s = throwError (PStr (s, Nothing))
 
 {-# INLINE ask #-}
