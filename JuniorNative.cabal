@@ -74,7 +74,7 @@ executable JuniorNative
   default-language:    Haskell2010
 
 executable JuniorService
-  ghc-options:         -O2 -threaded -rtsopts -with-rtsopts=-N -Wall -fno-warn-orphans -fexpose-all-unfoldings -fspecialise-aggressively
+  ghc-options:         -O2 -threaded -rtsopts -with-rtsopts=-N -Wall -fno-warn-orphans
   -- -prof -fprof-auto 
   main-is:             Service.hs
   other-extensions:    DeriveFunctor, UndecidableInstances
