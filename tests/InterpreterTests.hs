@@ -8,7 +8,7 @@ import Interpreter (interpretModule, Result(..), InterpreterEnv, Prim(..), showR
 import Parser (parseExpr)
 import SynExpToExp (toExp)
 import Location ( PString )
-import Data.HashMap (fromList, member, lookup)
+import Data.HashMap.Strict (fromList, member, lookup)
 import Data.Maybe ( maybeToList )
 import PAst ( SynExp, SynExpF(VarPat, Let) )
 import Annotations ( Ann(Ann) )

@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module InterpreterIntrinsics where
 
-import Data.HashMap (fromList, (!), member)
+import Data.HashMap.Strict (fromList, (!), member)
 import Interpreter (InterpreterEnv, Result(..), Prim(..))
 import Control.Monad (join)
 

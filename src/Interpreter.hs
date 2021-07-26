@@ -9,14 +9,14 @@ import Annotations ( Ann(..) )
 import Ast (Exp, ExpF(..), extractNameFromPat)
 import Control.Monad.Error.Class (MonadError(..))
 import RecursionSchemes (cataRec)
-import Data.HashMap ( Map, (!), insert, union, member )
+import Data.HashMap.Strict ( HashMap, (!), insert, union, member )
 import Control.Monad.Fail ()
 import Control.Monad (foldM)
 import Data.List (foldl')
 import Data.Text (Text, pack, intercalate)
 import qualified Primitives as P
 
-type InterpreterEnv = Map Text Result
+type InterpreterEnv = HashMap Text Result
 
 newtype InterpreterM a = InterpreterM { runMonad :: InterpreterEnv -> Either PString a }
   deriving ( Functor )
@@ -77,7 +77,7 @@ primToStr U = "()"
 
 data Result = Value !Prim
             | Function !(Result -> InterpreterM Result)
-            | Instance !(Map String Result)
+            | Instance !(HashMap String Result)
             | List ![Result]
             | Tuple ![Result]
 
