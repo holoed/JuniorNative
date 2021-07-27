@@ -7,11 +7,12 @@ import CompilerMonad ( run )
 import Intrinsics ( env, classEnv )
 import Data.String.Interpolate ( i )
 import InterpreterMonad (empty) 
+import Data.Text (unpack)
 
 build :: String -> IO String
 build code = do
    (Right x, _, _) <- run (frontEndPrinted code) (empty, classEnv) (env, [])
-   return x
+   return (unpack x)
 
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)

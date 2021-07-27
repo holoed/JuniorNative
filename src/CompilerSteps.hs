@@ -25,6 +25,7 @@ import Interpreter (interpretModule)
 import InterpreterMonad (Result, member, lookup)
 import qualified Data.Maybe as Maybe
 import Prelude hiding (lookup)
+import Data.Text (Text)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -63,7 +64,7 @@ buildSymbolTable es =
        put (env, build (prettifyTypes <$> es))
        return es
 
-prettyPrintModule :: [TypedExp] -> CompileM String
+prettyPrintModule :: [TypedExp] -> CompileM Text
 prettyPrintModule es = return $ typedModuleToString es
 
 desugarPredicates :: [TypedExp] -> CompileM [TypedExp]

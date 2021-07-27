@@ -18,11 +18,11 @@ import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Intrinsics ( env, classEnv )
 import Data.Aeson
     ( ToJSON(toJSON), object, encode, KeyValue((.=)) )
-import Compiler (full)
-import CompilerMonad (run)
+import Compiler (full, backendPrinted, frontEndPrinted)
+import CompilerMonad (CompileM, run)
 import qualified SymbolTable as S
 import qualified InterpreterIntrinsics as Interp (env)
-import Data.Text (unpack)
+import Data.Text (Text, unpack)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -46,14 +46,14 @@ main = do
   let p = read pStr :: Int
   scotty p route
 
-compile :: String -> IO (Either PString (String, [S.Symbol ]))
-compile code = do
+compile :: (String -> CompileM Text) -> String -> IO (Either PString (String, [S.Symbol ]))
+compile strategy code = do
    let tableWidth = 49
    let line = replicate tableWidth '-'
    putStrLn ("+" ++ line ++ "+")
    putStrLn $ padR tableWidth "| Junior Compilation " ++ " |"
    putStrLn ("|" ++ line ++ "|")
-   (x, (_, ss), z) <- run (full code) (Interp.env, classEnv ) (env, [])
+   (x, (_, ss), z) <- run (strategy code) (Interp.env, classEnv ) (env, [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
    return $ (, ss) . Data.Text.unpack <$> x
@@ -61,8 +61,16 @@ compile code = do
 route :: ScottyM()
 route = do
     middleware logStdout
-    post "/" $ do
+    post "/type" $ do
          code <- body
-         ret <- liftIO $ compile (Char8.unpack code)
+         ret <- liftIO $ compile frontEndPrinted (Char8.unpack code)
+         text $ Lazy.pack (either (Char8.unpack . encode) (Char8.unpack . encode) ret)
+    post "/compile" $ do
+         code <- body
+         ret <- liftIO $ compile backendPrinted (Char8.unpack code)
+         text $ Lazy.pack (either (Char8.unpack . encode) (Char8.unpack . encode) ret)
+    post "/run" $ do
+         code <- body
+         ret <- liftIO $ compile full (Char8.unpack code)
          text $ Lazy.pack (either (Char8.unpack . encode) (Char8.unpack . encode) ret)
 

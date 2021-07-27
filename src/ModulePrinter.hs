@@ -9,6 +9,7 @@ import TypesPrinter ()
 import PrettyPrinter (prettyDoc, isop)
 import SynExpToExp (fromExp)
 import Text.PrettyPrint.Mainland ( (<+>), text, Doc, pretty, (</>), stack, parens )
+import Data.Text ( Text, pack ) 
 
 typedBindingToString :: TypedExp -> Doc
 typedBindingToString e@(In (Ann (_, qt) (Let (In (Ann _ (VarPat n))) _ _))) =
@@ -17,6 +18,6 @@ typedBindingToString e@(In (Ann (_, qt) (Let (In (Ann _ (VarPat n))) _ _))) =
           (prettyDoc . fromExp . mapAnn fst) e]
 typedBindingToString e = (prettyDoc . fromExp . mapAnn fst) e
 
-typedModuleToString :: [TypedExp] -> String
+typedModuleToString :: [TypedExp] -> Text
 typedModuleToString es =
-    pretty 40 $ stack (flip (</>) (text ""). typedBindingToString . prettifyTypes <$> es)
+    pack $ pretty 40 $ stack (flip (</>) (text ""). typedBindingToString . prettifyTypes <$> es)

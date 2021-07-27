@@ -28,11 +28,11 @@ frontEnd = step "code to parse tree" parse >=>
            step "type inference" typeInference >=>
            step "build symbol table" buildSymbolTable
 
-frontEndPrinted :: String -> CompileM String
+frontEndPrinted :: String -> CompileM Text
 frontEndPrinted = frontEnd >=>
                   step "pretty print module" prettyPrintModule
 
-backendPrinted :: String -> CompileM String
+backendPrinted :: String -> CompileM Text
 backendPrinted = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
        step "pretty print module" prettyPrintModule

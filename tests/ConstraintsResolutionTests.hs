@@ -10,11 +10,12 @@ import Data.String.Interpolate ( i )
 import Compiler ( backendPrinted )
 import CompilerMonad ( run )
 import InterpreterMonad (empty)
+import Data.Text (unpack)
 
 build :: String -> IO String
 build code = do
    (x, _, _) <- run (backendPrinted code) (empty, classEnv) (env, [])
-   return $ either show id x
+   return $ either show unpack x
 
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
@@ -79,7 +80,7 @@ let fib eqT280 numT280 numT30 n =
 let x = fromInteger numInt 42
 |]
 
-   it "Foo" $
+   it "Regression Test" $
     [i|
 let foldl f v xs =
   if (null xs) then v
