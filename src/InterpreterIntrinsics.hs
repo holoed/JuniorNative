@@ -2,7 +2,7 @@
 module InterpreterIntrinsics where
 
 import Data.HashMap.Strict (fromList, (!), member)
-import Interpreter (InterpreterEnv, Result(..), Prim(..))
+import InterpreterMonad (InterpreterEnv, Result(..), Prim(..))
 import Control.Monad (join)
 
 floatingDouble :: Result
@@ -94,7 +94,7 @@ binOp op = Function(\(Instance inst) ->
                 f' y )))
 
 env :: InterpreterEnv
-env = fromList [
+env = (fromList [
     ("floatingDouble", floatingDouble),
     ("fractionalDouble", fractionalDouble),
     ("fractionalInt", fractionalInt),
@@ -146,5 +146,5 @@ env = fromList [
     ("cos", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"cos" in f x))),
     ("fst", Function(\(Tuple [x,_]) -> return x)),
-    ("snd", Function(\(Tuple [_,y]) -> return y))
- ]
+    ("snd", Function(\(Tuple [_,y]) -> return y))], fromList [])
+ 

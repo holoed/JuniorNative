@@ -9,7 +9,7 @@ import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
-import Interpreter (showResult)
+import InterpreterMonad (showResult)
 import Data.Text (Text, unwords)
 import Prelude hiding (unwords)
 

@@ -54,6 +54,7 @@ executable JuniorNative
                        SymbolTable,
                        ModulePrinter,
                        Interpreter,
+                       InterpreterMonad,
                        ConstraintsResolution,
                        MonomorphicRestriction,
                        InterpreterIntrinsics
@@ -116,6 +117,7 @@ executable JuniorService
                        SymbolTable,
                        ModulePrinter,
                        Interpreter,
+                       InterpreterMonad,
                        ConstraintsResolution,
                        MonomorphicRestriction,
                        InterpreterIntrinsics
@@ -184,6 +186,7 @@ test-suite tests
                        SymbolTable,
                        ModulePrinter,
                        Interpreter,
+                       InterpreterMonad,
                        ConstraintsResolution,
                        MonomorphicRestriction,
                        InterpreterIntrinsics,

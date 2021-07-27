@@ -5,11 +5,11 @@ import CompilerMonad (run)
 import Compiler (frontEndPrinted)
 import Intrinsics ( env, classEnv )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
-import qualified Data.HashMap.Strict as Map (empty) 
+import InterpreterMonad (empty) 
 
 compile :: String -> IO [Symbol]
 compile code = do
-   (_, (_, ss), _) <- run (frontEndPrinted code) (Map.empty, classEnv) (env, [])
+   (_, (_, ss), _) <- run (frontEndPrinted code) (empty, classEnv) (env, [])
    return ss
 
 (-->) :: String -> [String] -> Expectation 

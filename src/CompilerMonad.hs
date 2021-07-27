@@ -6,7 +6,7 @@ import ContextReduction ( ClassEnv )
 import qualified Control.Monad.Trans.Except as E
 import qualified Control.Monad.Trans.RWS.Lazy as S
 import SymbolTable ( Symbol )
-import Interpreter (InterpreterEnv)
+import InterpreterMonad (InterpreterEnv)
 
 type CompilerState = (Env, [Symbol]) 
 

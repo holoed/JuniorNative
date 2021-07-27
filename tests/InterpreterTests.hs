@@ -4,11 +4,12 @@ module InterpreterTests where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation)
-import Interpreter (interpretModule, Result(..), InterpreterEnv, Prim(..), showResult)
+import Interpreter (interpretModule)
+import InterpreterMonad (Result(..), InterpreterEnv, Prim(..), showResult, member, lookup)
 import Parser (parseExpr)
 import SynExpToExp (toExp)
 import Location ( PString )
-import Data.HashMap.Strict (fromList, member, lookup)
+import Data.HashMap.Strict (fromList)
 import Data.Maybe ( maybeToList )
 import PAst ( SynExp, SynExpF(VarPat, Let) )
 import Annotations ( Ann(Ann) )
@@ -18,7 +19,7 @@ import Prelude hiding (lookup)
 
 
 env :: InterpreterEnv
-env = fromList [
+env = (fromList [
     ("==", Function(\(Value x) -> return $ Function (\(Value y) -> return $ Value (B (x == y))))),
     ("*", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x * y))))),
     ("-", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x - y))))),
@@ -27,8 +28,7 @@ env = fromList [
     ("head", Function(\(List xs) -> return $ head xs)),
     ("tail", Function(\(List xs) -> return $ List (tail xs))),
     ("null", Function(\(List xs) -> return $ Value (B $ null xs))),
-    ("[]", List [])
- ]
+    ("[]", List [])], fromList [])
 
 extractName :: SynExp -> Maybe String
 extractName (In (Ann _ (Let (In (Ann _ (VarPat n)):_) _ _))) = Just n

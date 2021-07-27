@@ -7,9 +7,9 @@ import Test.Hspec ( it, describe, shouldBe, SpecWith, Expectation )
 import TypesPrinter () 
 import Intrinsics ( classEnv, env )
 import Data.String.Interpolate ( i )
-import Data.HashMap.Strict (empty)
 import Compiler ( backendPrinted )
 import CompilerMonad ( run )
+import InterpreterMonad (empty)
 
 build :: String -> IO String
 build code = do

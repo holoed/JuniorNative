@@ -6,11 +6,11 @@ import Compiler ( frontEndPrinted )
 import CompilerMonad ( run )
 import Intrinsics ( env, classEnv )
 import Data.String.Interpolate ( i )
-import qualified Data.HashMap.Strict as Map (empty) 
+import InterpreterMonad (empty) 
 
 build :: String -> IO String
 build code = do
-   (Right x, _, _) <- run (frontEndPrinted code) (Map.empty, classEnv) (env, [])
+   (Right x, _, _) <- run (frontEndPrinted code) (empty, classEnv) (env, [])
    return x
 
 (-->) :: String -> String -> Expectation
