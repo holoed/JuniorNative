@@ -3,11 +3,14 @@
 {-# LANGUAGE DeriveFunctor #-}
 module InterpreterMonad where
 
+import Control.Applicative ( Alternative((<|>)) )
+import Data.Maybe ( fromJust )
 import Data.Text (Text, pack, intercalate)
 import qualified Primitives as P
 import Location ( PString(..) )
 import Control.Monad.Error.Class ( MonadError(..) )
-import qualified Data.HashMap.Strict as Map ( HashMap, (!), insert, union, member, lookup, empty )
+import qualified Data.HashMap.Strict as Map ( HashMap, insert, union, member, lookup, empty )
+import Prelude hiding (lookup)
 
 newtype InterpreterM a = InterpreterM { runMonad :: InterpreterEnv -> Either PString a }
   deriving ( Functor )
@@ -82,28 +85,28 @@ showResult (Tuple xs) = "(" <> intercalate "," (showResult <$> xs) <> ")"
 
 type InterpreterEnv = (Map.HashMap Text Result, Map.HashMap Text Result)
 
+{-# INLINE insertStatic #-}
 insertStatic :: Text -> Result -> InterpreterEnv -> InterpreterEnv
 insertStatic n v (dict1, dict2) = (Map.insert n v dict1, dict2)
 
+{-# INLINE insertDynamic #-}
 insertDynamic :: Text -> Result -> InterpreterEnv -> InterpreterEnv
 insertDynamic n v (dict1, dict2) = (dict1, Map.insert n v dict2)
 
+{-# INLINE member #-}
 member :: Text -> InterpreterEnv -> Bool
 member n (dict1, dict2) =
     Map.member n dict1 || Map.member n dict2
 
+{-# INLINE (!) #-}
 (!) :: InterpreterEnv -> Text -> Result
-(!) (dict1, dict2) n
-  | Map.member n dict2 = (Map.!) dict2 n
-  | Map.member n dict1 = (Map.!) dict1 n
-  | otherwise = error "not found"
+(!) env n = fromJust (lookup n env)
 
+{-# INLINE lookup #-}
 lookup :: Text -> InterpreterEnv -> Maybe Result
-lookup n (dict1, dict2)
-  | Map.member n dict2 = Map.lookup n dict2
-  | Map.member n dict1 = Map.lookup n dict1
-  | otherwise = Nothing 
+lookup n (dict1, dict2) = Map.lookup n dict2 <|> Map.lookup n dict1
 
+{-# INLINE union #-}
 union :: InterpreterEnv -> InterpreterEnv -> InterpreterEnv
 union (dictA1, dictB1) (_, dictB2) = (dictA1, dictB1 `Map.union` dictB2)
 
