@@ -84,6 +84,20 @@ eqInt = Instance (fromList [
        ("==", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x == y)))))
        ])
 
+eqTuple2 :: Result 
+eqTuple2 = Function(\(Instance instA) -> return $ Function(\(Instance instB) -> return $ Instance(fromList [
+   ("==", Function(\(Tuple [x1,y1]) -> return $ Function (\(Tuple [x2,y2]) -> 
+          let (Function f1) = instA ! "==" in
+          let (Function g1) = instB ! "==" in
+          let ret1 = do (Function f2) <- f1 x1
+                        f2 x2 in
+          let ret2 = do (Function g2) <- g1 y1 
+                        g2 y2 in                       
+          do v@(Value (B b)) <- ret1
+             if b then ret2
+             else return v)))                         
+  ])))
+
 binOp :: String -> Result
 binOp op = Function(\(Instance inst) ->
            if not $ member op inst then error (op ++ " not found in instance") else
@@ -103,6 +117,7 @@ env = (fromList [
     ("numInt", numInt),
     ("numDouble", numDouble),
     ("eqInt", eqInt),
+    ("eqTuple2", eqTuple2),
     ("applicativeList", applicativeList),
     ("monadList", monadList),
     ("fromInteger", Function(\(Instance num) -> return $ Function (\x ->

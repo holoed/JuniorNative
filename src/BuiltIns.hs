@@ -16,3 +16,9 @@ strCon = TyCon "String"
 
 tupleCon :: [Type] -> Type
 tupleCon = foldl TyApp (TyCon "Tuple")
+
+untuple :: Type -> [Type]
+untuple  = reverse . untuple'
+ where untuple' (TyApp t1 t2) = t2 : untuple' t1
+       untuple' (TyCon "Tuple") = []
+       untuple' _ = undefined 

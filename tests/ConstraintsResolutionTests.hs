@@ -80,10 +80,11 @@ let fib eqT280 numT280 numT30 n =
 let x = fromInteger numInt 42
 |]
 
---    it "Instance construction - Equality of Tuples" $
---        "let main = (2, 3) == (4, 7)" --> [i|val x :: Int
--- let x = fromInteger numInt 42
--- |]
+   it "Instance construction - Equality of Tuples" $
+       "let main = (2, 3) == (4, 7)" --> [i|val main :: Bool
+let main = 
+    eqTuple2 eqInt eqInt == (fromInteger numInt 2, fromInteger numInt 3) ((fromInteger numInt 4, fromInteger numInt 7))
+|]
 
    it "Regression Test" $
     [i|

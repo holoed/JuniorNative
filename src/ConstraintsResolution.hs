@@ -17,7 +17,7 @@ import Substitutions ( substitute, substitutePredicate, mappings, substitutePred
 import Data.Either (fromRight)
 import ContextReduction ( ClassEnv, classes )
 import Data.Maybe (isJust, isNothing, listToMaybe, fromJust)
-import BuiltIns (tupleCon)
+import BuiltIns (tupleCon, untuple)
 import Debug.Trace
 import Data.List ( find )
 
@@ -115,8 +115,11 @@ findInstance classEnv p@(IsIn name _) =
           (_, instances) = (Map.!) dict name
 
 createExpFromType :: Type -> TypedExp
-createExpFromType t | isLam t = trace ("We got here " ++ show t) (undefined)
+createExpFromType ty@(TyApp (TyApp (TyCon "->") tuple) (TyApp (TyCon n) _))  = 
+    let ts = untuple tuple in
+    applyArgs (createExpFromType <$> ts) (tvar zeroLoc (Set.fromList [] :=> ty) (toCamel (n ++ "Tuple" ++ show (length ts))))
 createExpFromType t@(TyApp (TyCon n) t') = tvar zeroLoc (Set.fromList [] :=> t) (toCamel (n ++ show t'))
+createExpFromType _ = undefined 
 
 getArgs :: [Pred] -> [TypedExp]
 getArgs ps =

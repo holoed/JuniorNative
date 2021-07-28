@@ -143,6 +143,10 @@ tests = do
                (x,y)
             let main = g 5|] --> "(5.0,6.5)"
 
+   it "Predicates with predicates" $ do
+      [i|let main = (2, 3) == (4, 7)|] --> "False"
+      [i|let main = (2, 3) == (2, 3)|] --> "True"
+
    it "Logical operators" $ do
       "let main = True && True" --> "True"
       "let main = True && False" --> "False"
