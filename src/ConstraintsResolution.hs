@@ -5,9 +5,9 @@ import TypedAst (TypedExp, tapp, tvar)
 import Ast (ExpF(..), extractNameFromPat)
 import Fixpoint (Fix(..))
 import Annotations (Ann(..), mapAnn)
-import qualified Data.Set as Set (Set, fromList, toList, union, empty)
+import qualified Data.Set as Set (Set, fromList, toList, union)
 import qualified Data.Map as Map
-import Types ( Pred(..), Type(TyCon, TyApp, TyVar), Qual(..), tyLam, isLam, TypeScheme(..), getTVarsOfPred )
+import Types ( Pred(..), Type(TyCon, TyApp, TyVar), Qual(..), tyLam, isLam, TypeScheme(..) )
 import TypesPrinter ()
 import Data.Char ( toLower )
 import RecursionSchemes (cataRec)
@@ -18,12 +18,7 @@ import Data.Either (fromRight)
 import ContextReduction ( ClassEnv, classes )
 import Data.Maybe (isJust, isNothing, listToMaybe, fromJust)
 import BuiltIns (tupleCon, untuple)
-import Debug.Trace
 import Data.List ( find )
-
-filterOutTautologies :: [Pred] -> [Pred]
-filterOutTautologies = filter f
-    where f p = getTVarsOfPred p /= Set.empty
 
 getTypeForName :: String -> Env -> Qual Type
 getTypeForName n env =
@@ -61,7 +56,7 @@ buildClassHiearchy classEnv v@(In (Ann (_, _  :=> TyApp (TyCon className) t') _)
     let (parents, _) = (Map.!) classDict className in
     let args = getArgs ((`IsIn` t') <$> parents) in
     Map.fromList ((\(In (Ann _ (Var k))) -> (k, v)) <$> args)
-buildClassHiearchy _ v = trace ("Unexpected type " ++ show v) undefined
+buildClassHiearchy _ _ =  undefined
 
 buildHierchyForAllArgs :: ClassEnv -> [TypedExp] -> Map.Map String TypedExp
 buildHierchyForAllArgs classEnv = foldl (\acc x -> acc `Map.union` buildClassHiearchy classEnv x) Map.empty

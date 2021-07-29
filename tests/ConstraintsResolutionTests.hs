@@ -86,6 +86,13 @@ let main =
     eqTuple2 eqInt eqInt == (fromInteger numInt 2, fromInteger numInt 3) ((fromInteger numInt 4, fromInteger numInt 7))
 |]
 
+-- TODO: Work in progress 
+--    it "Instance construction - Function Equality of Tuples" $
+--        "let f x y = (x, y) == (x, y)" --> [i|val f :: Eq a -> Eq b -> a -> b -> Bool
+-- let f eqT80 eqT90 x y = 
+--     eqTuple2 eqT80 eqT90 == (x, y) (x, y)
+-- |]
+
    it "Regression Test" $
     [i|
 let foldl f v xs =
