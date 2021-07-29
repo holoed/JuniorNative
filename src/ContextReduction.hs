@@ -15,7 +15,6 @@ import Data.Maybe ( fromJust, maybeToList )
 import RecursionSchemes ( cataRec )
 import Location ( Loc, PString(..) )
 import Data.Map (Map, (!?))
-import Debug.Trace
 
 -- Typing Haskell in Haskell Context Reduction
 -- https://web.cecs.pdx.edu/~mpj/thih/thih.pdf
@@ -42,7 +41,6 @@ inHnf (IsIn _ t) = hnf t
 
 tryInst :: Loc -> Qual Pred -> Pred -> TypeM (Maybe [Pred])
 tryInst l (ps :=> p') p =
-               trace ("tryInst " ++ show p ++ " with instance " ++ show p') $
                do mguPred l p' p
                   (subs, _) <- get
                   return $ Just (toList (substitutePredicates subs ps))
@@ -57,14 +55,11 @@ byInst l classEnv p@(IsIn i _) = msum [do it' <- refreshInstance it
 
 toHnf :: Loc -> ClassEnv -> Pred -> TypeM [Pred]
 toHnf l classEnv p =
-    trace ("input " ++ show p) $
     if inHnf p then return [p]
     else do x <- catchError (byInst l classEnv p) (const $ return Nothing)
             case x of
               Nothing -> throwError $ PStr ("Cannot find class instance for " ++ show p, Just l)
-              Just ps ->
-                  trace ("output " ++ show ps) $
-                  toHnfs l classEnv ps
+              Just ps -> toHnfs l classEnv ps
 
 toHnfs :: Loc -> ClassEnv -> [Pred] -> TypeM [Pred]
 toHnfs l classEnv ps = do pss <- mapM (toHnf l classEnv) ps
@@ -103,7 +98,7 @@ resolvePreds classEnv = cataRec alg . propagatePreds
     where alg (Ann (l, qt) x) = do
             (subs, _) <- get
             let (ps :=> t) = substituteQ subs qt
-            ps' <- trace ("input " ++ show ps) $ toHnfs (fromJust l) classEnv (toList ps)
-            y <- trace ("output " ++ show ps') $ sequenceA (Ann (l, fromList (simplify classEnv ps') :=> t) x)
+            ps' <- toHnfs (fromJust l) classEnv (toList ps)
+            y <- sequenceA (Ann (l, fromList (simplify classEnv ps') :=> t) x)
             return $ In y
 
