@@ -9,20 +9,19 @@ import Control.Monad.IO.Class ( MonadIO(liftIO) )
 import Data.List (intersperse)
 import System.Console.Haskeline ()
 import Data.Maybe ( fromMaybe )
-import Data.Text.Lazy as Lazy ( pack )
 import System.Environment (lookupEnv)
 import Web.Scotty         (ScottyM, scotty)
-import Web.Scotty.Trans ( body, text, post, middleware )
+import Web.Scotty.Trans ( body, json, post, middleware )
 import Network.Wai.Middleware.RequestLogger ( logStdout )
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Intrinsics ( env, classEnv )
 import Data.Aeson
-    ( ToJSON(toJSON), object, encode, KeyValue((.=)) )
+    ( ToJSON(toJSON), object, KeyValue((.=)) )
 import Compiler (full, backendPrinted, frontEndPrinted)
 import CompilerMonad (CompileM, run)
 import qualified SymbolTable as S
 import qualified InterpreterIntrinsics as Interp (env)
-import Data.Text (Text, unpack)
+import Data.Text (Text)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -46,7 +45,7 @@ main = do
   let p = read pStr :: Int
   scotty p route
 
-compile :: (String -> CompileM Text) -> String -> IO (Either PString (String, [S.Symbol ]))
+compile :: (String -> CompileM Text) -> String -> IO (Either PString (Text, [S.Symbol ]))
 compile strategy code = do
    let tableWidth = 49
    let line = replicate tableWidth '-'
@@ -56,7 +55,7 @@ compile strategy code = do
    (x, (_, ss), z) <- run (strategy code) (Interp.env, classEnv ) (env, [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
-   return $ (, ss) . Data.Text.unpack <$> x
+   return $ (, ss) <$> x
 
 route :: ScottyM()
 route = do
@@ -64,13 +63,13 @@ route = do
     post "/type" $ do
          code <- body
          ret <- liftIO $ compile frontEndPrinted (Char8.unpack code)
-         text $ Lazy.pack (either (Char8.unpack . encode) (Char8.unpack . encode) ret)
+         either json json ret
     post "/compile" $ do
          code <- body
          ret <- liftIO $ compile backendPrinted (Char8.unpack code)
-         text $ Lazy.pack (either (Char8.unpack . encode) (Char8.unpack . encode) ret)
+         either json json ret
     post "/run" $ do
          code <- body
          ret <- liftIO $ compile full (Char8.unpack code)
-         text $ Lazy.pack (either (Char8.unpack . encode) (Char8.unpack . encode) ret)
+         either json json ret
 
