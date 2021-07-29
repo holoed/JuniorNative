@@ -138,6 +138,9 @@ tests =
     it "Equality of tuples" $ do
       ["let f x y = (x, y) == (x, y) in f"] --> "(Eq a, Eq b) => a -> b -> Bool"
 
+    it "Nested Equality of tuples" $ do
+      ["let f x y z = ((x, y), z) == ((x, y), z) in f"] --> "(Eq a, Eq b, Eq c) => b -> c -> a -> Bool"
+
     it "Equality of tuples Error" $ do
       ["let f x y z = (x, y) == (x, y, z) in f"] --> "Unable to unify Tuple T12 with Tuple"
 

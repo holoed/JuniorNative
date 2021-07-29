@@ -30,6 +30,9 @@ substitutePredicates s = Set.map (substitutePredicate s)
 substituteQ :: Substitutions -> Qual Type -> Qual Type
 substituteQ s (ps :=> t) = substitutePredicates s ps :=> substitute s t
 
+substituteQPred :: Substitutions -> Qual Pred  -> Qual Pred 
+substituteQPred s (ps :=> p) = substitutePredicates s ps :=> substitutePredicate s p
+
 mappings :: Type -> Type -> Either (Type, Type) Substitutions
 mappings (TyApp t1 t2) (TyApp t1' t2') = do x <- mappings t1 t1'
                                             y <- mappings t2 t2'

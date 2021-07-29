@@ -38,6 +38,9 @@ getTVarsOfPred (IsIn _ t) = getTVarsOfType t
 getTVarsOfQType :: Qual Type -> Set (String, Int)
 getTVarsOfQType (ps :=> t) = unions (fmap getTVarsOfPred (toList ps)) `union` getTVarsOfType t 
 
+getTVarsOfQPred :: Qual Pred -> Set (String, Int)
+getTVarsOfQPred (ps :=> p) = unions (fmap getTVarsOfPred (toList ps)) `union` getTVarsOfPred p 
+
 clean :: Qual Type -> Qual Type 
 clean (ps :=> t) = filter p ps :=> t
   where tvs = getTVarsOfType t 
