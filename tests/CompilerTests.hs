@@ -157,6 +157,12 @@ tests = do
       "let main = False || True" --> "True"
       "let main = False || False" --> "False"
 
+   it "Fix value level example" $ do [i|
+      let fix f x = f (fix f) x
+      let fac f n = if n == 0 then 1 else n * f (n - 1)
+      let facRec = fix fac
+      let main = facRec 5|] --> "120"
+
    it "Floating operators" $ do
       [i| 
  let normal (re, im) = 
@@ -180,3 +186,5 @@ tests = do
   ((f i'), (f (i' + 16)), (f (i' + 32))) 
     
  let main = foo 2 (3, 4) |] --> "(162,130,89)"
+
+
