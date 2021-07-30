@@ -7,7 +7,7 @@ import Fixpoint (Fix(..))
 import Annotations (Ann(..), mapAnn)
 import qualified Data.Set as Set (Set, fromList, toList, union)
 import qualified Data.Map as Map
-import Types ( Pred(..), Type(TyCon, TyApp, TyVar), Qual(..), tyLam, isLam, TypeScheme(..) )
+import Types ( Pred(..), Type(TyCon, TyApp), Qual(..), tyLam, isLam, TypeScheme(..) )
 import TypesPrinter ()
 import Data.Char ( toLower )
 import RecursionSchemes (cataRec)
@@ -93,10 +93,9 @@ lamWithType :: String -> Qual Type -> TypedExp -> TypedExp
 lamWithType n qt1 e@(In (Ann (loc, qt2) _)) =
     In (Ann (loc, qt2) (Lam (In (Ann (loc, qt1) (VarPat n))) e))
 
-
 compatibleType :: Pred -> Qual Pred -> [Type]
 compatibleType p (ps :=> p') =
-    case mappings (typeForPred p) (typeForPred p') of
+    case mappings (typeForPred p') (typeForPred p) of
         Left _ -> []
         Right subs ->
             let p'' = substitutePredicate subs p in
@@ -144,6 +143,4 @@ typeForQPred ps p = tyLam (tupleCon $ typeForPred <$> ps) (typeForPred p)
 varNameForPred :: Pred -> String
 varNameForPred = toCamel . f
     where f :: Pred -> String
-          f (IsIn name (TyVar n k)) = name ++ n ++ show k
-          f (IsIn name (TyCon n)) = name ++ n
           f (IsIn name t) = name ++ show t
