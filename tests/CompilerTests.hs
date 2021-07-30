@@ -187,4 +187,9 @@ tests = do
     
  let main = foo 2 (3, 4) |] --> "(162,130,89)"
 
+   it "Instance construction - Function Equality of Tuples" $
+      [i|
+      let f x y = (x, y) == (x, y)
+      let main = f 2 4
+      |] --> "True"
 
