@@ -1,8 +1,9 @@
 {-# LANGUAGE QuasiQuotes #-}
 module ConstraintsResolutionTests where
 
+import Annotations (mapAnn)
 import Types ( Pred(IsIn), Type(TyApp, TyVar, TyCon) ) 
-import ConstraintsResolution (typeForPred, toCamel, varNameForPred)
+import ConstraintsResolution (typeForPred, toCamel, varNameForPred, getNewArgs)
 import Test.Hspec ( it, describe, shouldBe, SpecWith, Expectation )
 import TypesPrinter () 
 import Intrinsics ( classEnv, env )
@@ -11,6 +12,9 @@ import Compiler ( backendPrinted )
 import CompilerMonad ( run )
 import InterpreterMonad (empty)
 import Data.Text (unpack)
+import BuiltIns (tupleCon)
+import SynExpToExp ( fromExp )
+import PrettyPrinter ( prettyPrint )
 
 build :: String -> IO String
 build code = do
@@ -42,6 +46,11 @@ tests = do
        IsIn "Num" (TyCon "Int") ---> "numInt"
        IsIn "Monad" (TyCon "List") ---> "monadList"
        IsIn "Monad" (TyVar "m" 1) ---> "monadm"
+
+   it "getNewArgs" $ do
+       let testGetNewArgs xs = prettyPrint . fromExp . mapAnn fst <$> getNewArgs classEnv xs
+       testGetNewArgs [IsIn "Eq" (TyCon "Int")] `shouldBe` ["eqInt"] 
+       testGetNewArgs [IsIn "Eq" (tupleCon [TyCon "Int", TyCon "Int"])] `shouldBe` ["eqTuple2 eqInt eqInt"] 
 
    it "Convert predicates for Num function" $ 
        "let f x = x + 1" --> [i|val f :: Num a -> a -> a
@@ -80,11 +89,12 @@ let fib eqT28 numT28 numT3 n =
 let x = fromInteger numInt 42
 |]
 
-   it "Instance construction - Equality of Tuples" $
-       "let main = (2, 3) == (4, 7)" --> [i|val main :: Bool
-let main = 
-    eqTuple2 eqInt eqInt == (fromInteger numInt 2, fromInteger numInt 3) ((fromInteger numInt 4, fromInteger numInt 7))
-|]
+-- TODO: Working on this
+--    it "Instance construction - Nested tuples" $
+--        "let main = ((1,2),3) == ((1,2), 3)" --> [i|val main :: Bool
+-- let main = 
+--     eqTuple2 (eqTuple2 eqInt eqInt) eqInt == ((fromInteger numInt 1, fromInteger numInt 2), fromInteger numInt 3) (((fromInteger numInt 1, fromInteger numInt 2), fromInteger numInt 3))
+-- |]
 
    it "Instance construction - Function Equality of Tuples" $
        "let f x y = (x, y) == (x, y)" --> [i|val f :: Eq a -> Eq b -> a -> b -> Bool

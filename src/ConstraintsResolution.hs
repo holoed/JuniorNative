@@ -93,18 +93,18 @@ lamWithType :: String -> Qual Type -> TypedExp -> TypedExp
 lamWithType n qt1 e@(In (Ann (loc, qt2) _)) =
     In (Ann (loc, qt2) (Lam (In (Ann (loc, qt1) (VarPat n))) e))
 
-compatibleType :: Pred -> Qual Pred -> [Type]
+compatibleType :: Pred -> Qual Pred -> [([Pred], Pred)]
 compatibleType p (ps :=> p') =
     case mappings (typeForPred p') (typeForPred p) of
         Left _ -> []
         Right subs ->
             let p'' = substitutePredicate subs p in
             let ps' = substitutePredicate subs <$> Set.toList ps in
-            [typeForQPred ps' p'']
+            [(ps',  p'')]
 
-findInstance :: ClassEnv -> Pred -> Maybe Type
+findInstance :: ClassEnv -> Pred -> Maybe ([Pred], Pred)
 findInstance classEnv p@(IsIn name _) =
-    listToMaybe (instances >>= compatibleType p)
+    listToMaybe (instances >>= compatibleType p) 
     where dict = classes classEnv
           (_, instances) = (Map.!) dict name
 
@@ -126,7 +126,7 @@ getNewArgs classEnv ps =
        let inst = findInstance classEnv p
        if isNothing inst then
            return $ tvar zeroLoc (Set.fromList [] :=> typeForPred p) (varNameForPred p)
-       else return $ createExpFromType (fromJust inst)
+       else return $ (createExpFromType . uncurry typeForQPred) (fromJust inst)
 
 toCamel :: String -> String
 toCamel "" = ""
