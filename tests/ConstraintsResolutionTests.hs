@@ -50,7 +50,8 @@ tests = do
    it "getNewArgs" $ do
        let testGetNewArgs xs = prettyPrint . fromExp . mapAnn fst <$> getNewArgs classEnv xs
        testGetNewArgs [IsIn "Eq" (TyCon "Int")] `shouldBe` ["eqInt"] 
-       testGetNewArgs [IsIn "Eq" (tupleCon [TyCon "Int", TyCon "Int"])] `shouldBe` ["eqTuple2 eqInt eqInt"] 
+   -- TODO: Working on this    
+       testGetNewArgs [IsIn "Eq" (tupleCon [tupleCon [TyCon "Int", TyCon "Int"], TyCon "Int"])] `shouldBe` ["eqTuple2 eq(Int, Int) eqInt"] 
 
    it "Convert predicates for Num function" $ 
        "let f x = x + 1" --> [i|val f :: Num a -> a -> a
