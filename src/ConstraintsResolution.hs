@@ -125,7 +125,7 @@ getNewArgs classEnv ps =
     do p <- ps
        let inst = findInstance classEnv p
        if isNothing inst then
-           return $ tvar zeroLoc (Set.fromList [] :=> typeForPred p) (varNameForPred p)
+           return $ createExpFromType (buildType [] (typeForPred p))
        else let (ps', p') = fromJust inst in
             let ts = typeForPred <$> ps' in
             let t = typeForPred p' in
