@@ -126,7 +126,10 @@ getNewArgs classEnv ps =
        let inst = findInstance classEnv p
        if isNothing inst then
            return $ tvar zeroLoc (Set.fromList [] :=> typeForPred p) (varNameForPred p)
-       else return $ (createExpFromType . uncurry typeForQPred) (fromJust inst)
+       else let (ps', p') = fromJust inst in
+            let ts = typeForPred <$> ps' in
+            let t = typeForPred p' in
+            return $ createExpFromType (buildType ts t)
 
 toCamel :: String -> String
 toCamel "" = ""
@@ -135,10 +138,10 @@ toCamel (x:xs) = toLower x : xs
 typeForPred :: Pred -> Type
 typeForPred (IsIn name t) = TyApp (TyCon name) t
 
-typeForQPred :: [Pred] -> Pred -> Type
-typeForQPred [] p = typeForPred p
-typeForQPred [p'] p = tyLam (typeForPred p') (typeForPred p)
-typeForQPred ps p = tyLam (tupleCon $ typeForPred <$> ps) (typeForPred p)
+buildType :: [Type] -> Type -> Type
+buildType [] t = t
+buildType [t'] t = tyLam t' t
+buildType ts t = tyLam (tupleCon ts) t
 
 varNameForPred :: Pred -> String
 varNameForPred = toCamel . f
