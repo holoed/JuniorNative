@@ -118,6 +118,7 @@ numTuple2op instA instB op =
 
 numTuple2 :: Result 
 numTuple2 = Function(\(Instance instA) -> return $ Function(\(Instance instB) -> return $ Instance(fromList [
+   ("fromInteger", Function(\r -> return $ Tuple [r, r])),
    ("+", numTuple2op instA instB "+"),
    ("-", numTuple2op instA instB "-"),
    ("*", Function(\(Tuple [re1,im1]) -> return $ Function (\(Tuple [re2,im2]) -> 

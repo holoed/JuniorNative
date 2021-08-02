@@ -114,6 +114,9 @@ tests = do
       "let main = (2, 3) + (5, 6)" --> "(7,9)"
       "let main = (3, 9) - (2, 5)" --> "(1,4)"
       "let main = (7, 3) * (2, 5)" --> "(-1,41)"
+      "let main = (2, 3) + 1" --> "(3,4)"
+      "let main = 1 + (2, 3)" --> "(3,4)"
+      "let main = (2, 3) - 1" --> "(1,2)"
 
    it "Quicksort example" $
       [i|let foldr f v xs =
