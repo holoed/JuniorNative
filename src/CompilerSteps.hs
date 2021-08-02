@@ -26,6 +26,7 @@ import InterpreterMonad (Result, member, lookup)
 import qualified Data.Maybe as Maybe
 import Prelude hiding (lookup)
 import Data.Text (Text)
+import JavascriptGenerator (generate)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -82,3 +83,6 @@ interpret es = do
            return $ if member "it" v
            then Maybe.maybeToList $ lookup "it" v
            else Maybe.maybeToList $ lookup "main" v
+
+toJs :: [TypedExp] -> CompileM Text
+toJs = return . generate

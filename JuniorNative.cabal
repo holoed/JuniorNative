@@ -57,7 +57,8 @@ executable JuniorNative
                        InterpreterMonad,
                        ConstraintsResolution,
                        MonomorphicRestriction,
-                       InterpreterIntrinsics
+                       InterpreterIntrinsics,
+                       JavascriptGenerator
   build-depends:       base,
                        array,
                        containers,
@@ -120,7 +121,8 @@ executable JuniorService
                        InterpreterMonad,
                        ConstraintsResolution,
                        MonomorphicRestriction,
-                       InterpreterIntrinsics
+                       InterpreterIntrinsics,
+                       JavascriptGenerator
   build-depends:       base,
                        array,
                        containers,
@@ -190,6 +192,7 @@ test-suite tests
                        ConstraintsResolution,
                        MonomorphicRestriction,
                        InterpreterIntrinsics,
+                       JavascriptGenerator
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
@@ -203,7 +206,8 @@ test-suite tests
                        InterpreterTests,
                        ConstraintsResolutionTests,
                        CompilerTests,
-                       MandelbrotTests
+                       MandelbrotTests,
+                       CompileToJsTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex

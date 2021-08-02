@@ -5,7 +5,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret, toJs )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
@@ -37,9 +37,14 @@ backendPrinted = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
        step "pretty print module" prettyPrintModule
        
-full :: String -> CompileM Text
-full = frontEnd >=>
+fullInterp :: String -> CompileM Text
+fullInterp = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
        step "interpret" interpret >=>
        step "print" (return . unwords . (showResult <$>))
+
+fullJS :: String -> CompileM Text
+fullJS = frontEnd >=>
+       step "desugar constraints" desugarPredicates >=>
+       step "to javascript" toJs
        

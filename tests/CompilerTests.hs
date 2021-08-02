@@ -3,7 +3,7 @@ module CompilerTests where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
-import Compiler ( full )
+import Compiler ( fullInterp )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
@@ -11,7 +11,7 @@ import Data.Text (unpack)
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (full code) (Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullInterp code) (Interp.env, classEnv) (env, [])
    return $ either show unpack x
 
 (-->) :: String -> String -> Expectation

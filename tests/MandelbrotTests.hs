@@ -2,7 +2,7 @@ module MandelbrotTests where
 
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
-import Compiler ( full )
+import Compiler ( fullInterp )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
@@ -10,7 +10,7 @@ import Data.Text (unpack)
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (full code) (Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullInterp code) (Interp.env, classEnv) (env, [])
    return $ either show unpack x
 
 (--->) :: FilePath -> String -> Expectation 

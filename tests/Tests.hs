@@ -15,6 +15,7 @@ import qualified InterpreterTests
 import qualified ConstraintsResolutionTests
 import qualified CompilerTests
 import qualified MandelbrotTests
+import qualified CompileToJsTests
 
 main :: IO ()
 main = hspec $ do
@@ -32,4 +33,5 @@ main = hspec $ do
     ConstraintsResolutionTests.tests 
     CompilerTests.tests
     MandelbrotTests.tests
+    CompileToJsTests.tests 
     
