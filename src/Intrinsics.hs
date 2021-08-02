@@ -52,6 +52,7 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Eq" (TyCon "Bool"),
        Set.fromList [] :=> IsIn "Eq" (TyCon "Int"),
        Set.fromList [] :=> IsIn "Eq" (TyCon "Double"),
+       Set.fromList [] :=> IsIn "Eq" (TyCon "String"),
        Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
       ])),
      ("Ord", (["Eq"], [
