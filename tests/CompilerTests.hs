@@ -193,3 +193,9 @@ tests = do
       let main = f 2 4
       |] --> "True"
 
+   it "Instance construction - Function Equality of Nested Tuples" $
+      [i|
+      let f x y z = (x, (y, z)) == (x, (y, z))
+      let main = f 2 4 5
+      |] --> "True"
+

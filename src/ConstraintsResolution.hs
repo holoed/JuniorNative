@@ -15,7 +15,7 @@ import Location (zeroLoc)
 import Environment (Env, containsScheme, findScheme)
 import Substitutions ( substitute, substitutePredicate, mappings )
 import Data.Either (fromRight)
-import ContextReduction ( ClassEnv, classes )
+import ContextReduction ( ClassEnv, classes, inHnf )
 import Data.Maybe (isJust, isNothing, listToMaybe, fromJust)
 import BuiltIns (tupleCon, untuple)
 import Data.List ( find )
@@ -120,16 +120,20 @@ getArgs ps =
     do p <- ps
        return $ tvar zeroLoc (Set.fromList [] :=> typeForPred p) (varNameForPred p)
 
-getNewArgs :: ClassEnv -> [Pred] -> [TypedExp]
-getNewArgs classEnv ps =
+resolvePredsToType :: ClassEnv -> [Pred] -> [Type]
+resolvePredsToType classEnv ps = 
     do p <- ps
        let inst = findInstance classEnv p
        if isNothing inst then
-           return $ createExpFromType (buildType [] (typeForPred p))
+           return $ buildType [] (typeForPred p)
        else let (ps', p') = fromJust inst in
-            let ts = typeForPred <$> ps' in
+            let ts = ps' >>= (\p2 -> if inHnf p2 then [typeForPred p2] 
+                                     else resolvePredsToType classEnv [p2]) in
             let t = typeForPred p' in
-            return $ createExpFromType (buildType ts t)
+            return $ buildType ts t
+
+getNewArgs :: ClassEnv -> [Pred] -> [TypedExp]
+getNewArgs classEnv ps = createExpFromType <$> resolvePredsToType classEnv ps
 
 toCamel :: String -> String
 toCamel "" = ""
