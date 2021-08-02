@@ -49,6 +49,7 @@ classEnv :: ClassEnv
 classEnv = ClassEnv { 
   classes = Map.fromList [
      ("Eq", ([], [
+       Set.fromList [] :=> IsIn "Eq" (TyCon "Bool"),
        Set.fromList [] :=> IsIn "Eq" (TyCon "Int"),
        Set.fromList [] :=> IsIn "Eq" (TyCon "Double"),
        Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
@@ -59,7 +60,8 @@ classEnv = ClassEnv {
        ])),
      ("Num", ([], [
        Set.fromList [] :=> IsIn "Num" (TyCon "Int"),
-       Set.fromList [] :=> IsIn "Num" (TyCon "Double")
+       Set.fromList [] :=> IsIn "Num" (TyCon "Double"),
+       Set.fromList [IsIn "Num" (TyVar "a" 0), IsIn "Num" (TyVar "b" 0)] :=> IsIn "Num" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
        ])),
      ("Fractional", (["Num"], [
        Set.fromList [] :=> IsIn "Fractional" (TyCon "Int"),

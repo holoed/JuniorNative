@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module InterpreterIntrinsics where
 
-import Data.HashMap.Strict (fromList, (!), member)
+import Data.HashMap.Strict (fromList, (!), member, HashMap)
 import InterpreterMonad (InterpreterEnv, Result(..), Prim(..))
 import Control.Monad (join)
 
@@ -79,6 +79,11 @@ numDouble = Instance (fromList [
        ("fromInteger", Function(\(Value (I x)) -> return $ Value (D $ fromIntegral x)))
        ])
 
+eqBool :: Result
+eqBool = Instance (fromList [
+       ("==", Function(\(Value (B x)) -> return $ Function (\(Value (B y)) -> return $ Value (B (x == y)))))
+       ])
+
 eqInt :: Result
 eqInt = Instance (fromList [
        ("==", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x == y)))))
@@ -96,6 +101,48 @@ eqTuple2 = Function(\(Instance instA) -> return $ Function(\(Instance instB) -> 
           do v@(Value (B b)) <- ret1
              if b then ret2
              else return v)))                         
+  ])))
+
+numTuple2op :: HashMap String Result -> HashMap String Result -> String -> Result
+numTuple2op instA instB op = 
+       Function(\(Tuple [x1,y1]) -> return $ Function (\(Tuple [x2,y2]) -> 
+          let (Function f1) = instA ! op in
+          let (Function g1) = instB ! op in
+          let ret1 = do (Function f2) <- f1 x1
+                        f2 x2 in
+          let ret2 = do (Function g2) <- g1 y1 
+                        g2 y2 in                       
+          do r1 <- ret1
+             r2 <- ret2
+             return $ Tuple [r1, r2]))
+
+numTuple2 :: Result 
+numTuple2 = Function(\(Instance instA) -> return $ Function(\(Instance instB) -> return $ Instance(fromList [
+   ("+", numTuple2op instA instB "+"),
+   ("-", numTuple2op instA instB "-"),
+   ("*", Function(\(Tuple [re1,im1]) -> return $ Function (\(Tuple [re2,im2]) -> 
+          let (Function f1) = instA ! "*" in
+          let (Function h1) = instA ! "-" in
+          let (Function j1) = instA ! "+" in
+          let re1re2 = do (Function f2) <- f1 re1
+                          f2 re2 in
+          let im1im2 = do (Function f2) <- f1 im1 
+                          f2 im2 in   
+          let part1 =  do v <- re1re2
+                          w <- im1im2
+                          (Function h2) <- h1 v   
+                          h2 w in  
+          let re1im2 = do (Function f2) <- f1 re1
+                          f2 im2 in
+          let im1re2 = do (Function f2) <- f1 im1
+                          f2 re2 in
+          let part2 =  do v <- re1im2 
+                          w <- im1re2
+                          (Function h2) <- j1 v 
+                          h2 w in  
+          do r1 <- part1
+             r2 <- part2
+             return $ Tuple [r1, r2])))                         
   ])))
 
 binOp :: String -> Result
@@ -116,6 +163,8 @@ env = (fromList [
     ("ordDouble", ordDouble),
     ("numInt", numInt),
     ("numDouble", numDouble),
+    ("numTuple2", numTuple2),
+    ("eqBool", eqBool),
     ("eqInt", eqInt),
     ("eqTuple2", eqTuple2),
     ("applicativeList", applicativeList),

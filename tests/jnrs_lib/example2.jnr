@@ -38,12 +38,8 @@ let partition' n acc xs =
     
  let norm (re, im) = re * re + im * im
    
- let cadd (re1, im1) (re2, im2) = (re1 + re2, im1 + im2)
-   
- let cmul (re1, im1) (re2, im2) = (re1 * re2 - im1 * im2, re1 * im2 + im1 * re2)
-    
  let mPoint i c z =
-  if (i == 65 || norm z > 4.0) then i else mPoint (i + 1) c (cadd (cmul z z) c)
+  if (i == 65 || norm z > 4.0) then i else mPoint (i + 1) c (z * z + c)
    
  let mandelbrot s (x, y) =
   let x' = (4.0 * toDouble y / toDouble s) - 2.5 in

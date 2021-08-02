@@ -99,6 +99,22 @@ tests = do
       "let main = 4 >= 3" --> "True"
       "let main = 5 <= 2" --> "False"
 
+   it "Eq instances" $ do 
+      "let main = 2 == 5" --> "False"
+      "let main = 3 == 3" --> "True"
+      "let main = True == True" --> "True"
+      "let main = True == False" --> "False"
+
+   it "Num instances" $ do 
+      "let main = 2 + 5" --> "7"
+      "let main = 3 - 3" --> "0"
+      "let main = 6 * 3" --> "18"
+
+   it "Complex numbers" $ do 
+      "let main = (2, 3) + (5, 6)" --> "(7,9)"
+      "let main = (3, 9) - (2, 5)" --> "(1,4)"
+      "let main = (7, 3) * (2, 5)" --> "(-1,41)"
+
    it "Quicksort example" $
       [i|let foldr f v xs =
             if (null xs) then v
@@ -198,4 +214,5 @@ tests = do
       let f x y z = (x, (y, z)) == (x, (y, z))
       let main = f 2 4 5
       |] --> "True"
+
 
