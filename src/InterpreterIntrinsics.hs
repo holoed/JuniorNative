@@ -28,6 +28,11 @@ ordDouble = Instance (fromList [
         ("<=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x <= y)))))
        ])
 
+functorList :: Result 
+functorList = Instance (fromList [
+   ("fmap", Function(\(Function f) -> return $ Function(\(List xs) -> List <$> mapM f xs)))
+  ])
+
 applicativeList :: Result
 applicativeList = Instance (fromList [
         ("pure", Function(\x -> return $ List [x]))
@@ -174,6 +179,7 @@ env = (fromList [
     ("eqInt", eqInt),
     ("eqString", eqString),
     ("eqTuple2", eqTuple2),
+    ("functorList", functorList),
     ("applicativeList", applicativeList),
     ("monadList", monadList),
     ("fromInteger", Function(\(Instance num) -> return $ Function (\x ->
@@ -202,6 +208,12 @@ env = (fromList [
                      Function(\(Function g) -> return $
                      Function(\x -> do y <- g x
                                        f y)))),
+    ("fmap", Function(\(Instance f) -> return $
+             Function(\x -> return $
+             Function(\y -> 
+              let (Function fmap') = f!"fmap" in
+                    do (Function g) <- fmap' x
+                       g y )))),
     ("pure", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"pure" in f x))),
     ("bind", Function(\(Instance m) -> return $

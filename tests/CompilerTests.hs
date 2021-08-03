@@ -219,4 +219,9 @@ tests = do
       let main = f 2 4 5
       |] --> "True"
 
+   it "Functor test" $
+      [i|
+      let xs = 1:2:3:4:[]
+      let main = fmap (\\x -> x * x) xs 
+      |] --> "[1,4,9,16]"
 
