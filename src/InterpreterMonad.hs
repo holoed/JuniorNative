@@ -96,7 +96,7 @@ insertDynamic n v (dict1, dict2) = (dict1, Map.insert n v dict2)
 {-# INLINE member #-}
 member :: Text -> InterpreterEnv -> Bool
 member n (dict1, dict2) =
-    Map.member n dict1 || Map.member n dict2
+    Map.member n dict2 || Map.member n dict1
 
 {-# INLINE (!) #-}
 (!) :: InterpreterEnv -> Text -> Result
@@ -108,7 +108,7 @@ lookup n (dict1, dict2) = Map.lookup n dict2 <|> Map.lookup n dict1
 
 {-# INLINE union #-}
 union :: InterpreterEnv -> InterpreterEnv -> InterpreterEnv
-union (dictA1, dictB1) (_, dictB2) = (dictA1, dictB1 `Map.union` dictB2)
+union (_, dictB1) (dictA2, dictB2) = (dictA2, dictB1 `Map.union` dictB2)
 
 empty :: InterpreterEnv
 empty = (Map.empty , Map.empty )

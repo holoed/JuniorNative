@@ -10,8 +10,9 @@ import Control.Monad.Fail ()
 import Control.Monad (foldM)
 import Data.List (foldl')
 import Data.Text ( pack  )
+import Data.HashMap.Strict (empty)
 import Control.Monad.Except (   MonadError(throwError) )
-import InterpreterMonad ( InterpreterM(runMonad), ask, local, Result(Value, Tuple, Function), Prim(B, S), toInterpPrim, InterpreterEnv, member, (!), union, insertDynamic )
+import InterpreterMonad ( InterpreterM(runMonad), ask, local, Result(Value, Tuple, Function), Prim(B, S), toInterpPrim, InterpreterEnv, member, (!), union, insertDynamic, insertStatic )
 
 {-# INLINE insertMany #-}
 insertMany :: Result -> Result -> InterpreterEnv -> InterpreterEnv
@@ -50,11 +51,11 @@ interpretExp env e = runMonad (cataRec alg e) env
 
 {-# INLINE interpret #-}
 interpret :: InterpreterEnv -> Exp -> Either PString InterpreterEnv
-interpret env e@(In (Ann _ (Let p _ _))) =
-  (\v -> insertDynamic (pack n) v env) <$> interpretExp env e
+interpret (dict1, _) e@(In (Ann _ (Let p _ _))) =
+  (\v -> insertStatic (pack n) v (dict1, empty)) <$> interpretExp (dict1, empty) e
   where (_, n) = extractNameFromPat p
-interpret env e =
-   (\v -> insertDynamic "it" v env) <$> interpretExp env e
+interpret (dict1, _) e =
+   (\v -> insertStatic "it" v (dict1, empty)) <$> interpretExp (dict1, empty) e
 
 interpretModule :: InterpreterEnv -> [Exp] -> Either PString InterpreterEnv
 interpretModule = foldM interpret
