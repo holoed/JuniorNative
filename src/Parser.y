@@ -40,6 +40,7 @@ import Control.Monad.Except
     VAR   { TokenSym $$ }
     '\\'  { TokenLambda $$ }
     '->'  { TokenArrow $$ }
+    '<*>' { TokenLtStarGt $$ }
     '='   { TokenEq $$ }
     '=='  { TokenEql $$ }
     '>='  { TokenGtEql $$ }
@@ -64,6 +65,7 @@ import Control.Monad.Except
 %right '||'
 %right '&&'
 %nonassoc '>' '<' '==' '>=' '<='
+%left '<*>'
 %right '++' ':'
 %left '+' '-'
 %left '*' '/'
@@ -95,6 +97,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '++' Form              { infixApp (mkLoc $2) plusplusOp $1 $3}
      | Form ':' Form               { infixApp (mkLoc $2) consOp $1 $3 }
      | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
+     | Form '<*>' Form             { infixApp (mkLoc $2) ltStarGtOp $1 $3}
      | Fact                        { $1 }
 
 Fact : Fact Atom                   { infixApp (mkLoc (alexStartPos, " ")) juxtaOp $1 $2 }
@@ -114,6 +117,8 @@ Atom : '(' Expr ')'                { $2 }
      | '(' '/' ')'                 { var (mkLoc $2) "/" }
      | '(' '++' ')'                { var (mkLoc $2) "++" }
      | '(' ':' ')'                 { var (mkLoc $2) ":" }
+     | '(' '.' ')'                 { var (mkLoc $2) "." }
+     | '(' '<*>' ')'               { var (mkLoc $2) "<*>" }
 
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }

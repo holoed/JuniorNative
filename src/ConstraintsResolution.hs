@@ -76,6 +76,7 @@ mapCompatibleTypes classEnv parent_args child_args resolved_args =
 extractNames :: TypedExp -> [String]
 extractNames (In (Ann _ (VarPat s))) = [s]
 extractNames (In (Ann _ (TuplePat xs))) = xs >>= extractNames 
+extractNames _ = error "Unsupported"
 
 convertBody :: ClassEnv -> Env -> String -> [TypedExp] -> TypedExp -> TypedExp
 convertBody classEnv baseEnv name parent_args = flip runReader baseEnv . cataRec alg

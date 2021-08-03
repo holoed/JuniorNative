@@ -34,6 +34,9 @@ subOp    = ("-", 14, Infix Left)
 plusplusOp :: ([Char], Integer, Fixity)
 plusplusOp = ("++", 12, Infix Right) 
 
+ltStarGtOp :: ([Char], Integer, Fixity)
+ltStarGtOp = ("<*>", 11, Infix Left)
+
 consOp :: ([Char], Integer, Fixity)
 consOp = (":", 12, Infix Right) 
 

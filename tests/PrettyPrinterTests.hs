@@ -89,5 +89,8 @@ tests =
     it "Print symbol functions" $ do
       ["let (++) x y = (x, y)"] --> ["let (++) x y = (x, y)"]
 
+    it "Print applicative operator" $ do
+      ["let foo f x = f <*> x"] --> ["let foo f x = f <*> x"]
+
 
 

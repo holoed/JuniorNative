@@ -60,6 +60,7 @@ tokens :-
   @sign? @number                {\p s -> TokenNum (p, strToPrim s) }
   @string                       {\p s -> TokenString (p, (S s)) }
   "->"                          {\p s -> TokenArrow (p, s) }
+  "<*>"                         {\p s -> TokenLtStarGt (p, s) }
   "=="                          {\p s -> TokenEql (p, s) }
   ">="                          {\p s -> TokenGtEql (p, s) }
   "<="                          {\p s -> TokenLtEql (p, s) }
@@ -97,6 +98,7 @@ data Token
   | TokenString (AlexPosn, Prim)
   | TokenSym (AlexPosn, String)
   | TokenArrow (AlexPosn, String)
+  | TokenLtStarGt (AlexPosn, String)
   | TokenConcat (AlexPosn, String)
   | TokenEmpty (AlexPosn, String)
   | TokenCons (AlexPosn, String)

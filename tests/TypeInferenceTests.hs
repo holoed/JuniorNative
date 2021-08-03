@@ -183,3 +183,6 @@ tests =
 
     it "scoped tvars" $
       ["let f x = let y = (x, x, x) in (y, x)"] --> "a -> ((a, a, a), a)"
+
+    it "applicative operator" $ do
+      ["let main = (\\x -> x + 1):[] <*> 5:[]"] --> "List Int"

@@ -28,14 +28,18 @@ ordDouble = Instance (fromList [
         ("<=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x <= y)))))
        ])
 
-functorList :: Result 
+functorList :: Result
 functorList = Instance (fromList [
    ("fmap", Function(\(Function f) -> return $ Function(\(List xs) -> List <$> mapM f xs)))
   ])
 
 applicativeList :: Result
 applicativeList = Instance (fromList [
-        ("pure", Function(\x -> return $ List [x]))
+        ("pure", Function(\x -> return $ List [x])),
+        ("<*>", Function(\(List fs) -> return $ Function(\(List xs) ->
+                let vs = sequence $ do (Function f) <- fs
+                                       f <$> xs in
+                List <$> vs)))
        ])
 
 monadList :: Result
@@ -99,61 +103,61 @@ eqString = Instance (fromList [
        ("==", Function(\(Value (S x)) -> return $ Function (\(Value (S y)) -> return $ Value (B (x == y)))))
        ])
 
-eqTuple2 :: Result 
+eqTuple2 :: Result
 eqTuple2 = Function(\(Instance instA) -> return $ Function(\(Instance instB) -> return $ Instance(fromList [
-   ("==", Function(\(Tuple [x1,y1]) -> return $ Function (\(Tuple [x2,y2]) -> 
+   ("==", Function(\(Tuple [x1,y1]) -> return $ Function (\(Tuple [x2,y2]) ->
           let (Function f1) = instA ! "==" in
           let (Function g1) = instB ! "==" in
           let ret1 = do (Function f2) <- f1 x1
                         f2 x2 in
-          let ret2 = do (Function g2) <- g1 y1 
-                        g2 y2 in                       
+          let ret2 = do (Function g2) <- g1 y1
+                        g2 y2 in
           do v@(Value (B b)) <- ret1
              if b then ret2
-             else return v)))                         
+             else return v)))
   ])))
 
 numTuple2op :: HashMap String Result -> HashMap String Result -> String -> Result
-numTuple2op instA instB op = 
-       Function(\(Tuple [x1,y1]) -> return $ Function (\(Tuple [x2,y2]) -> 
+numTuple2op instA instB op =
+       Function(\(Tuple [x1,y1]) -> return $ Function (\(Tuple [x2,y2]) ->
           let (Function f1) = instA ! op in
           let (Function g1) = instB ! op in
           let ret1 = do (Function f2) <- f1 x1
                         f2 x2 in
-          let ret2 = do (Function g2) <- g1 y1 
-                        g2 y2 in                       
+          let ret2 = do (Function g2) <- g1 y1
+                        g2 y2 in
           do r1 <- ret1
              r2 <- ret2
              return $ Tuple [r1, r2]))
 
-numTuple2 :: Result 
+numTuple2 :: Result
 numTuple2 = Function(\(Instance instA) -> return $ Function(\(Instance instB) -> return $ Instance(fromList [
    ("fromInteger", Function(\r -> return $ Tuple [r, r])),
    ("+", numTuple2op instA instB "+"),
    ("-", numTuple2op instA instB "-"),
-   ("*", Function(\(Tuple [re1,im1]) -> return $ Function (\(Tuple [re2,im2]) -> 
+   ("*", Function(\(Tuple [re1,im1]) -> return $ Function (\(Tuple [re2,im2]) ->
           let (Function f1) = instA ! "*" in
           let (Function h1) = instA ! "-" in
           let (Function j1) = instA ! "+" in
           let re1re2 = do (Function f2) <- f1 re1
                           f2 re2 in
-          let im1im2 = do (Function f2) <- f1 im1 
-                          f2 im2 in   
+          let im1im2 = do (Function f2) <- f1 im1
+                          f2 im2 in
           let part1 =  do v <- re1re2
                           w <- im1im2
-                          (Function h2) <- h1 v   
-                          h2 w in  
+                          (Function h2) <- h1 v
+                          h2 w in
           let re1im2 = do (Function f2) <- f1 re1
                           f2 im2 in
           let im1re2 = do (Function f2) <- f1 im1
                           f2 re2 in
-          let part2 =  do v <- re1im2 
+          let part2 =  do v <- re1im2
                           w <- im1re2
-                          (Function h2) <- j1 v 
-                          h2 w in  
+                          (Function h2) <- j1 v
+                          h2 w in
           do r1 <- part1
              r2 <- part2
-             return $ Tuple [r1, r2])))                         
+             return $ Tuple [r1, r2])))
   ])))
 
 binOp :: String -> Result
@@ -210,12 +214,18 @@ env = (fromList [
                                        f y)))),
     ("fmap", Function(\(Instance f) -> return $
              Function(\x -> return $
-             Function(\y -> 
+             Function(\y ->
               let (Function fmap') = f!"fmap" in
                     do (Function g) <- fmap' x
                        g y )))),
     ("pure", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"pure" in f x))),
+    ("<*>", Function(\(Instance f) -> return $
+             Function(\x -> return $
+             Function(\y ->
+              let (Function ap) = f!"<*>" in
+                    do (Function g) <- ap x
+                       g y )))),
     ("bind", Function(\(Instance m) -> return $
              Function(\x -> return $
              Function(\y ->

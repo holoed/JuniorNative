@@ -225,3 +225,8 @@ tests = do
       let main = fmap (\\x -> x * x) xs 
       |] --> "[1,4,9,16]"
 
+   it "Applicative operator test" $
+      [i|
+      let main = (\\x -> x + x):(\\x -> x * x):[] <*> 5:6:[]
+      |] --> "[10,12,25,36]"
+
