@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 module ConstraintsResolution where
 
-import TypedAst (TypedExp, tapp, tvar)
+import TypedAst (TypedExp, TypedExpF, tapp, tvar)
 import Ast (ExpF(..), extractNameFromPat)
 import Fixpoint (Fix(..))
 import Annotations (Ann(..), mapAnn)
@@ -19,6 +19,7 @@ import ContextReduction ( ClassEnv, classes, inHnf )
 import Data.Maybe (isJust, isNothing, listToMaybe, fromJust)
 import BuiltIns (tupleCon, untuple)
 import Data.List ( find )
+import Control.Monad.Reader (Reader, runReader, ask, local)
 
 getTypeForName :: String -> Env -> Qual Type
 getTypeForName n env =
@@ -72,15 +73,26 @@ mapCompatibleTypes classEnv parent_args child_args resolved_args =
        else Map.findWithDefault arg3 k2 dict)  <$> zip child_args resolved_args
    where dict = buildHierchyForAllArgs classEnv parent_args
 
+extractNames :: TypedExp -> [String]
+extractNames (In (Ann _ (VarPat s))) = [s]
+extractNames (In (Ann _ (TuplePat xs))) = xs >>= extractNames 
+
 convertBody :: ClassEnv -> Env -> String -> [TypedExp] -> TypedExp -> TypedExp
-convertBody classEnv env name parent_args = cataRec alg
-       where alg e@(Ann (_, qt) (Var n)) =
-                let (psList, _) = mapEnvWithLocal env n qt in
+convertBody classEnv baseEnv name parent_args = flip runReader baseEnv . cataRec alg
+       where alg :: TypedExpF (Reader Env TypedExp) -> Reader Env TypedExp
+             alg (Ann (l, qt) (Lam s e)) = do
+                 s'  <- s
+                 let ns = extractNames s'
+                 e' <- local (\env2 -> foldr Map.delete env2 ns) e
+                 return $ In (Ann (l, qt) (Lam s' e'))
+             alg (Ann (l, qt) (Var n)) = do
+                env <- ask 
+                let (psList, _) = mapEnvWithLocal env n qt 
                 let args = if n == name
                     then parent_args
-                    else mapCompatibleTypes classEnv parent_args (getArgs psList) (getNewArgs classEnv psList) in
-                applyArgs args (In e)
-             alg x = In x
+                    else mapCompatibleTypes classEnv parent_args (getArgs psList) (getNewArgs classEnv psList) 
+                return $ applyArgs args (In (Ann (l, qt) (Var n)))
+             alg x = fmap In (sequence x)
 
 applyArgs :: [TypedExp] -> TypedExp -> TypedExp
 applyArgs args e =

@@ -90,12 +90,11 @@ let fib eqT28 numT28 numT3 n =
 let x = fromInteger numInt 42
 |]
 
--- TODO: Working on this
---    it "Instance construction - Nested tuples" $
---        "let main = ((1,2),3) == ((1,2), 3)" --> [i|val main :: Bool
--- let main = 
---     eqTuple2 (eqTuple2 eqInt eqInt) eqInt == ((fromInteger numInt 1, fromInteger numInt 2), fromInteger numInt 3) (((fromInteger numInt 1, fromInteger numInt 2), fromInteger numInt 3))
--- |]
+   it "Instance construction - Nested tuples" $
+       "let main = ((1,2),3) == ((1,2), 3)" --> [i|val main :: Bool
+let main = 
+    eqTuple2 (eqTuple2 eqInt eqInt) eqInt == ((fromInteger numInt 1, fromInteger numInt 2), fromInteger numInt 3) (((fromInteger numInt 1, fromInteger numInt 2), fromInteger numInt 3))
+|]
 
    it "Instance construction - Function Equality of Tuples" $
        "let f x y = (x, y) == (x, y)" --> [i|val f :: Eq a -> Eq b -> a -> b -> Bool
@@ -130,4 +129,48 @@ let partition eqT44 numT44 n xs =
                     then (reverse acc, xs)
                     else ((partition' ((numT44 - n) (fromInteger numT44 1))) (head xs : acc)) (tail xs) in
     partition' n [] xs
+|]
+
+   it "Regression Test - Variable f shadowing top level decl f" $ [i|
+let foldl f v xs =
+        if (null xs) then v
+        else foldl f (f v (head xs)) (tail xs)
+        
+let map f xs = 
+        if (null xs) then []
+        else (f (head xs)) : map f (tail xs)
+        
+let xs = 1 : 2 : 3 : 4 : 5 : []
+
+let f x = x + 1
+
+let compose f g = f . g
+
+let const x = \\v -> x
+
+let main = (foldl compose f (map (const f) xs)) (5)   
+|] --> [i|val compose :: (a -> b) -> (c -> a) -> c -> b
+let compose f g = . f g
+
+val const :: a -> b -> a
+let const x v = x
+
+val f :: Num a -> a -> a
+let f numT2 x = \n    (numT2 + x) (fromInteger numT2 1)
+
+val foldl :: (a -> b -> a) -> a -> List b -> a
+let foldl f v xs = if null xs then v
+    else foldl f (f v (head xs)) (tail xs)
+
+val map :: (a -> b) -> List a -> List b
+let map f xs = if null xs then []
+    else f (head xs) : map f (tail xs)
+
+val xs :: List Int
+let xs = 
+    fromInteger numInt 1 : fromInteger numInt 2 : fromInteger numInt 3 : fromInteger numInt 4 : fromInteger numInt 5 : []
+
+val main :: Int
+let main = 
+    foldl compose (f numInt) (map (const (f numInt)) xs) (fromInteger numInt 5)
 |]
