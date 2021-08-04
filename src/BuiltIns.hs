@@ -14,6 +14,9 @@ doubleCon = TyCon "Double"
 strCon :: Type
 strCon = TyCon "String" 
 
+charCon :: Type 
+charCon = TyCon "Char"
+
 tupleCon :: [Type] -> Type
 tupleCon = foldl TyApp (TyCon "Tuple")
 

@@ -1,6 +1,6 @@
 module PrettyPrinter where
 
-import Primitives ( Prim(U, I, D, B, S) )
+import Primitives ( Prim(U, I, D, B, S, C) )
 import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, TuplePat, Let) )
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
@@ -45,6 +45,8 @@ alg (Lit (B b)) =
    return $ text (show b)
 alg (Lit (S s)) =
    return $ text s
+alg (Lit (C c)) =
+   return $ text "'" <> text [c] <> text "'"
 alg (Lit U) =
    return $ text "()"
 alg (VarPat x) =

@@ -4,6 +4,7 @@ module InterpreterIntrinsics where
 import Data.HashMap.Strict (fromList, (!), member, HashMap)
 import InterpreterMonad (InterpreterEnv, Result(..), Prim(..))
 import Control.Monad (join)
+import Data.Text (unpack, dropAround)
 
 floatingDouble :: Result
 floatingDouble = Instance (fromList [
@@ -26,6 +27,50 @@ ordDouble = Instance (fromList [
         ("<", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x < y))))),
         (">=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x >= y))))),
         ("<=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x <= y)))))
+       ])
+
+functorParser :: Result
+functorParser = Instance (fromList [
+   ("fmap", Function(\(Function f) -> return $
+            Function(\(Function m) -> return $
+            Function(\inp ->
+            do (List rs) <- m inp
+               List <$> mapM (\(Tuple [x, xs]) -> (\x' -> Tuple [x', xs]) <$> f x) rs))))
+  ])
+
+applicativeParser :: Result
+applicativeParser = Instance (fromList [
+        ("fmap", let (Instance f) = functorParser in
+                 f!"fmap"),
+        ("pure", Function(\x -> return $
+                 Function(\imp -> return $ List [Tuple [x, imp]] ))),
+        ("<*>", Function(\(Function mf) -> return $
+                Function(\(Function mx) -> return $
+                 Function(\inp -> List <$> (sequence =<<
+                                   do (List fs) <- mf inp
+                                      (List xs) <- mx inp
+                                      return $
+                                       do (Tuple [Function f, _]) <- fs
+                                          (Tuple [x, _]) <- xs
+                                          return $ f x)))))
+       ])
+
+flattenList :: Result -> Result
+flattenList (List xs) = List (xs >>= (\(List ys) -> ys))
+flattenList x = x
+
+monadParser :: Result
+monadParser = Instance (fromList [
+       ("pure", let (Instance dict) = applicativeParser in dict!"pure"),
+        ("bind", Function(\(Function mx) -> return $
+                 Function(\(Function f) -> return $
+                 Function(\inp -> flattenList .
+                                  List <$> (sequence =<< sequence =<<
+                                   do (List xs) <- mx inp
+                                      return $ do (Tuple [v, inp']) <- xs
+                                                  return $ do (Function n) <- f v
+                                                              return $ n inp')))))
+
        ])
 
 functorList :: Result
@@ -101,6 +146,11 @@ eqInt = Instance (fromList [
 eqString :: Result
 eqString = Instance (fromList [
        ("==", Function(\(Value (S x)) -> return $ Function (\(Value (S y)) -> return $ Value (B (x == y)))))
+       ])
+
+eqChar :: Result
+eqChar = Instance (fromList [
+       ("==", Function(\(Value (C x)) -> return $ Function (\(Value (C y)) -> return $ Value (B (x == y)))))
        ])
 
 eqTuple2 :: Result
@@ -182,7 +232,11 @@ env = (fromList [
     ("eqBool", eqBool),
     ("eqInt", eqInt),
     ("eqString", eqString),
+    ("eqChar", eqChar),
     ("eqTuple2", eqTuple2),
+    ("functorParser", functorParser),
+    ("applicativeParser", applicativeParser),
+    ("monadParser", monadParser),
     ("functorList", functorList),
     ("applicativeList", applicativeList),
     ("monadList", monadList),
@@ -239,5 +293,9 @@ env = (fromList [
     ("cos", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"cos" in f x))),
     ("fst", Function(\(Tuple [x,_]) -> return x)),
-    ("snd", Function(\(Tuple [_,y]) -> return y))], fromList [])
+    ("snd", Function(\(Tuple [_,y]) -> return y)),
+    ("mkParser", Function return),
+    ("runParser", Function return),
+    ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s))))
+    ], fromList [])
  

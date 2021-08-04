@@ -17,7 +17,7 @@ step :: String -> (a -> CompileM b) -> (a -> CompileM b)
 step desc f x = catchError
                  (do (elapsedTime, ret) <- timeItT $ f x
                      tell [printf (padR 40 desc ++ "%6.2fs") elapsedTime]
-                     return ret) (\e -> do tell [padR 40 desc ++ "failed"]
+                     return ret) (\e -> do tell [padR 40 desc ++ " " ++ show e]
                                            throwError e )
 
 

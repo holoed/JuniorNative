@@ -39,6 +39,7 @@ $alpha = [a-zA-Z]
 $eol   = [\n]
 $graphic = $printable # $white
 @string = \" ($graphic # \")* \"
+@char = \' ($graphic) \'
 
 tokens :-
 
@@ -59,6 +60,7 @@ tokens :-
   in                            {\p s -> TokenIn (p, s) }
   @sign? @number                {\p s -> TokenNum (p, strToPrim s) }
   @string                       {\p s -> TokenString (p, (S s)) }
+  @char                         {\p s -> TokenChar (p, ((C . (!!1)) s)) }
   "->"                          {\p s -> TokenArrow (p, s) }
   "<*>"                         {\p s -> TokenLtStarGt (p, s) }
   "=="                          {\p s -> TokenEql (p, s) }
@@ -96,6 +98,7 @@ data Token
   | TokenFalse (AlexPosn, String)
   | TokenNum (AlexPosn, Prim)
   | TokenString (AlexPosn, Prim)
+  | TokenChar (AlexPosn, Prim)
   | TokenSym (AlexPosn, String)
   | TokenArrow (AlexPosn, String)
   | TokenLtStarGt (AlexPosn, String)

@@ -1,0 +1,19 @@
+
+let zero = mkParser (\inp -> [])
+
+let item = mkParser (\inp -> if (null inp) then []
+                             else (head inp, tail inp) : [])
+   
+let sat p = bind item (\x ->
+              if p x then pure x else zero)
+              
+let char x = sat (\y -> x == y)
+
+let string xs = 
+  if null xs then pure []
+  else bind (char (head xs)) (\y ->
+       bind (string (tail xs)) (\ys ->
+       pure (y:ys)))
+ 
+let main = runParser ((string . toCharList) "He") (toCharList "Hello")  
+                                           

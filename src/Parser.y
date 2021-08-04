@@ -37,6 +37,7 @@ import Control.Monad.Except
     in    { TokenIn $$ }
     NUM   { TokenNum $$ }
     STRING { TokenString $$ }
+    CHAR   { TokenChar $$ }
     VAR   { TokenSym $$ }
     '\\'  { TokenLambda $$ }
     '->'  { TokenArrow $$ }
@@ -107,6 +108,7 @@ Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple (mkLoc $1) $2 }
      | NUM                         { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
      | STRING                      { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
+     | CHAR                        { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
      | VAR                         { var (mkLoc ($1)) (snd $1) }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }

@@ -11,7 +11,7 @@ import Location ( Loc, PString(..) )
 import Ast ( Exp, ExpF(..) )
 import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat, ttuplePat )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology )
-import BuiltIns ( boolCon, intCon, doubleCon, strCon, tupleCon )
+import BuiltIns ( boolCon, intCon, doubleCon, strCon, charCon, tupleCon )
 import Environment ( Env, addScheme )
 import Substitutions ( Substitutions, substituteQ )
 import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
@@ -31,6 +31,7 @@ valueToType (I _) = intCon
 valueToType (D _) = doubleCon
 valueToType (B _) = boolCon
 valueToType (S _) = strCon
+valueToType (C _) = charCon
 valueToType U     = TyCon "()"
 
 foldToScheme :: Env ->  [(String, Qual Type)] -> Env

@@ -43,7 +43,10 @@ env = toEnv [
   ("bind", Set.fromList [IsIn "Monad" (TyVar "m" 1)] :=> tyLam (TyApp (TyVar "m" 1) (TyVar "a" 0)) (tyLam (tyLam (TyVar "a" 0) (TyApp (TyVar "m" 1) (TyVar "b" 0))) (TyApp (TyVar "m" 1) (TyVar "b" 0)))  ),
   ("runReader", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Reader") (TyVar "a" 0)) (TyVar "b" 0)) (tyLam (TyVar "a" 0) (TyVar "b" 0))),
   ("fixOut", Set.fromList [] :=> tyLam (TyApp (TyCon "Fix") (TyVar "f" 1)) (TyApp (TyVar "f" 1) (TyApp (TyCon "Fix") (TyVar "f" 1)))),
-  ("fixIn", Set.fromList [] :=> tyLam (TyApp (TyVar "f" 1) (TyApp (TyCon "Fix") (TyVar "f" 1))) (TyApp (TyCon "Fix") (TyVar "f" 1)))
+  ("fixIn", Set.fromList [] :=> tyLam (TyApp (TyVar "f" 1) (TyApp (TyCon "Fix") (TyVar "f" 1))) (TyApp (TyCon "Fix") (TyVar "f" 1))),
+  ("mkParser", Set.fromList [] :=> tyLam (tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyApp (TyCon "List") (TyCon "Char"))))) (TyApp (TyCon "Parser") (TyVar "a" 0))),
+  ("runParser", Set.fromList [] :=> tyLam (TyApp (TyCon "Parser") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyApp (TyCon "List") (TyCon "Char")))))),
+  ("toCharList", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "List") (TyCon "Char")))
  ]
 
 classEnv :: ClassEnv
@@ -54,6 +57,7 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Eq" (TyCon "Int"),
        Set.fromList [] :=> IsIn "Eq" (TyCon "Double"),
        Set.fromList [] :=> IsIn "Eq" (TyCon "String"),
+       Set.fromList [] :=> IsIn "Eq" (TyCon "Char"),
        Set.fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Eq" (TyVar "b" 0)] :=> IsIn "Eq" (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))
       ])),
      ("Ord", (["Eq"], [
@@ -73,14 +77,17 @@ classEnv = ClassEnv {
 
      ("Functor", ([], [
        Set.fromList [] :=> IsIn "Functor" (TyCon "List"),
+       Set.fromList [] :=> IsIn "Functor" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "Reader") (TyVar "a" 0))
        ])),
      ("Applicative", (["Functor"], [
        Set.fromList [] :=> IsIn "Applicative" (TyCon "List"),
+       Set.fromList [] :=> IsIn "Applicative" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Applicative" (TyApp (TyCon "Reader") (TyVar "a" 0))
        ])),
      ("Monad", (["Applicative"], [
        Set.fromList [] :=> IsIn "Monad" (TyCon "List"),
+       Set.fromList [] :=> IsIn "Monad" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Monad" (TyApp (TyCon "Reader") (TyVar "a" 0))
       ]))
    ],

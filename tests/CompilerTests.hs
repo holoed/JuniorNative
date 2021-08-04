@@ -3,6 +3,7 @@ module CompilerTests where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullInterp )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
@@ -17,11 +18,18 @@ build code = do
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
+(--->) :: FilePath -> String -> Expectation
+(--->) x y = do handle <- openFile x ReadMode
+                contents <- hGetContents handle
+                contents --> y
+
 tests :: SpecWith ()
 tests = do
   describe "Compiler Tests" $ do
 
-   it "value" $ "let main = 42" --> "42"
+   it "value" $ do
+     "let main = 42" --> "42"
+     "let main = 'H'" --> "'H'"
 
    it "applied function" $ [i|
       let f x = x + 1
@@ -105,6 +113,7 @@ tests = do
       "let main = True == True" --> "True"
       "let main = True == False" --> "False"
       "let main = \"Hello\" == \"World\"" --> "False"
+      "let main = \'h\' == \'x\'" --> "False"
 
    it "Num instances" $ do 
       "let main = 2 + 5" --> "7"
@@ -229,4 +238,6 @@ tests = do
       [i|
       let main = (\\x -> x + x):(\\x -> x * x):[] <*> 5:6:[]
       |] --> "[10,12,25,36]"
+
+   it "Parser Test 1" $ "tests/jnrs_lib/parser_example1.jnr" ---> "[(['H','e'],['l','l','o'])]"
 

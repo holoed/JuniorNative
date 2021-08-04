@@ -4,8 +4,7 @@
 module InterpreterMonad where
 
 import Control.Applicative ( Alternative((<|>)) )
-import Data.Maybe ( fromJust )
-import Data.Text (Text, pack, intercalate)
+import Data.Text (Text, unpack, pack, intercalate)
 import qualified Primitives as P
 import Location ( PString(..) )
 import Control.Monad.Error.Class ( MonadError(..) )
@@ -51,7 +50,7 @@ ask = InterpreterM Right
 local :: (InterpreterEnv -> InterpreterEnv) -> InterpreterM a -> InterpreterM a
 local f m = InterpreterM(runMonad m . f )
 
-data Prim = U | I !Int | D !Double | B !Bool | S !Text deriving Eq
+data Prim = U | I !Int | D !Double | B !Bool | S !Text | C !Char deriving Eq
 
 {-# INLINE toInterpPrim #-}
 toInterpPrim :: P.Prim -> Prim
@@ -60,6 +59,7 @@ toInterpPrim (P.I n) = I n
 toInterpPrim (P.D x) = D x
 toInterpPrim (P.B b) = B b
 toInterpPrim (P.S s) = S (pack s)
+toInterpPrim (P.C c) = C c
 
 {-# INLINE primToStr #-}
 primToStr :: Prim -> Text
@@ -67,6 +67,7 @@ primToStr (I n) = pack (show n)
 primToStr (D x) = pack (show x)
 primToStr (B b) = pack (show b)
 primToStr (S s) = s
+primToStr (C c) = "\'" <> pack [c] <> "\'"
 primToStr U = "()"
 
 data Result = Value !Prim
@@ -100,7 +101,10 @@ member n (dict1, dict2) =
 
 {-# INLINE (!) #-}
 (!) :: InterpreterEnv -> Text -> Result
-(!) env n = fromJust (lookup n env)
+(!) env n = case lookup n env of
+             Just x -> x
+             Nothing -> error (unpack $ "Cannot find " <> n <> " in interpreter env")
+
 
 {-# INLINE lookup #-}
 lookup :: Text -> InterpreterEnv -> Maybe Result
