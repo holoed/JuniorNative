@@ -21,6 +21,17 @@ let many p = or (bind p (\x ->
 let many1 p = bind p (\x ->
               bind (many p) (\xs ->
               pure (x:xs)))
+  
+let sepby1 p sep = 
+      bind p (\x ->
+      bind (many (bind sep (\v ->
+                  bind p (\y ->
+                  pure y)))) (\xs -> pure (x:xs)))
+                  
+let bracket open p close = bind open (\v1 ->
+                           bind p    (\x  ->
+                           bind close(\v2 ->
+                           pure x)))
 
 let foldl f v xs =
   if (null xs) then v
@@ -42,7 +53,11 @@ let int =
     bind op (\f -> 
     bind nat (\n -> pure (f n)))
 
-let main = runParser int (toCharList "-42")     
+let ints = bracket (char '[')
+                   (sepby1 int (char ','))
+                   (char ']')
+
+let main = runParser ints (toCharList "[1,2,-5,-3,7]")     
   
                                        
   
