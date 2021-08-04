@@ -1,0 +1,38 @@
+let zero = mkParser (\inp -> [])
+
+let item = mkParser (\inp -> if (null inp) then []
+                             else (head inp, tail inp) : [])
+                             
+let sat p = bind item (\x ->
+              if p x then pure x else zero)
+              
+let digit = sat (\x -> '0' <= x && x <= '9')
+   
+let or p q = mkParser(\inp -> let ret = runParser p inp in
+                              if null ret then runParser q inp
+                              else ret)
+ 
+let many p = or (bind p (\x ->
+             bind (many p) (\xs ->
+             pure (x:xs)))) (pure [])
+ 
+let many1 p = bind p (\x ->
+              bind (many p) (\xs ->
+              pure (x:xs)))
+
+let foldl f v xs =
+  if (null xs) then v
+  else foldl f (f v (head xs)) (tail xs)
+  
+let foldl1 f xs = foldl f (head xs) (tail xs)
+
+let eval xs = 
+  let op m n = 10*m + n in 
+  foldl1 op (bind xs (\x -> pure (ord x - ord '0'))) 
+
+let nat = bind (many1 digit) (pure . eval)
+
+let main = runParser nat (toCharList "42")    
+
+                                       
+ 

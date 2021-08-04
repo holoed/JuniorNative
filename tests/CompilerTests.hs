@@ -243,3 +243,5 @@ tests = do
 
    it "Parser Test 2" $ "tests/jnrs_lib/parser_example2.jnr" ---> "[(['H','e','l','l','o'],[])]"
 
+   it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[(42,[])]"
+

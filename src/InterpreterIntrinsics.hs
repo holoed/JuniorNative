@@ -5,6 +5,7 @@ import Data.HashMap.Strict (fromList, (!), member, HashMap)
 import InterpreterMonad (InterpreterEnv, Result(..), Prim(..))
 import Control.Monad (join)
 import Data.Text (unpack, dropAround)
+import Data.Char ( ord )
 
 floatingDouble :: Result
 floatingDouble = Instance (fromList [
@@ -27,6 +28,14 @@ ordDouble = Instance (fromList [
         ("<", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x < y))))),
         (">=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x >= y))))),
         ("<=", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x <= y)))))
+       ])
+
+ordChar :: Result
+ordChar = Instance (fromList [
+        (">", Function(\(Value (C x)) -> return $ Function (\(Value (C y)) -> return $ Value (B (x > y))))),
+        ("<", Function(\(Value (C x)) -> return $ Function (\(Value (C y)) -> return $ Value (B (x < y))))),
+        (">=", Function(\(Value (C x)) -> return $ Function (\(Value (C y)) -> return $ Value (B (x >= y))))),
+        ("<=", Function(\(Value (C x)) -> return $ Function (\(Value (C y)) -> return $ Value (B (x <= y)))))
        ])
 
 functorParser :: Result
@@ -226,6 +235,7 @@ env = (fromList [
     ("fractionalInt", fractionalInt),
     ("ordInt", ordInt),
     ("ordDouble", ordDouble),
+    ("ordChar", ordChar),
     ("numInt", numInt),
     ("numDouble", numDouble),
     ("numTuple2", numTuple2),
@@ -296,6 +306,7 @@ env = (fromList [
     ("snd", Function(\(Tuple [_,y]) -> return y)),
     ("mkParser", Function return),
     ("runParser", Function return),
-    ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s))))
+    ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s)))),
+    ("ord", Function(\(Value (C c)) -> return $ Value (I (ord c))))
     ], fromList [])
  

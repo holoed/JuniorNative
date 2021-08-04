@@ -46,7 +46,8 @@ env = toEnv [
   ("fixIn", Set.fromList [] :=> tyLam (TyApp (TyVar "f" 1) (TyApp (TyCon "Fix") (TyVar "f" 1))) (TyApp (TyCon "Fix") (TyVar "f" 1))),
   ("mkParser", Set.fromList [] :=> tyLam (tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyApp (TyCon "List") (TyCon "Char"))))) (TyApp (TyCon "Parser") (TyVar "a" 0))),
   ("runParser", Set.fromList [] :=> tyLam (TyApp (TyCon "Parser") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyApp (TyCon "List") (TyCon "Char")))))),
-  ("toCharList", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "List") (TyCon "Char")))
+  ("toCharList", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "List") (TyCon "Char"))),
+  ("ord", Set.fromList [] :=> tyLam (TyCon "Char") (TyCon "Int"))
  ]
 
 classEnv :: ClassEnv
@@ -62,7 +63,8 @@ classEnv = ClassEnv {
       ])),
      ("Ord", (["Eq"], [
        Set.fromList [] :=> IsIn "Ord" (TyCon "Int"),
-       Set.fromList [] :=> IsIn "Ord" (TyCon "Double")
+       Set.fromList [] :=> IsIn "Ord" (TyCon "Double"),
+       Set.fromList [] :=> IsIn "Ord" (TyCon "Char")
        ])),
      ("Num", ([], [
        Set.fromList [] :=> IsIn "Num" (TyCon "Int"),
