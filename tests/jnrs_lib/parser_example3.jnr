@@ -6,6 +6,8 @@ let item = mkParser (\inp -> if (null inp) then []
 let sat p = bind item (\x ->
               if p x then pure x else zero)
               
+let char x = sat (\y -> x == y)
+              
 let digit = sat (\x -> '0' <= x && x <= '9')
    
 let or p q = mkParser(\inp -> let ret = runParser p inp in
@@ -32,7 +34,15 @@ let eval xs =
 
 let nat = bind (many1 digit) (pure . eval)
 
-let main = runParser nat (toCharList "42")    
+let negate x = 0 - x
 
+let int = 
+	let op = or (bind (char '-') (\v -> pure negate)) 
+                (pure (\x -> x)) in
+    bind op (\f -> 
+    bind nat (\n -> pure (f n)))
+
+let main = runParser int (toCharList "-42")     
+  
                                        
- 
+  
