@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module JavascriptGenerator where
 
-import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, IfThenElse, MkTuple) )
+import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, IfThenElse, MkTuple, TuplePat) )
 import TypedAst ( TypedExp )
 import Data.Text (Text, intercalate, pack, isPrefixOf, replace)
 import RecursionSchemes ( cataRec )
@@ -40,6 +40,8 @@ generateExp = cataRec alg
     where alg (Lit p) = generatePrim p
           alg (Var n) = mapName (pack n)
           alg (VarPat n) = mapName (pack n)
+          alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
+          alg (TuplePat xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "var" e then "" else " return ") <> e <> " }"
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"
           alg (Let s e1 e2) =
@@ -52,8 +54,6 @@ generateExp = cataRec alg
                  "function() { if (" <> p <> ") { " <> 
                      (if isPrefixOf "if" e1 || isPrefixOf "var" e1 then e1 else "return " <> e1)  <> 
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "var" e2 then e2 else "return " <> e2) <> " } }()"
-          alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
-          alg e = error ("Unsupported: " ++ show e)
 
 generateDecl :: TypedExp -> Text
 generateDecl = generateLet . unwrap

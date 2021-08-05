@@ -51,3 +51,8 @@ var main = ((f (numInt)) (((fromInteger (numInt)) (5))))|]
          
    let main = fac 5     
    |] --> "var foldl = function (f) {  return function (v) {  return function (xs) {  return function() { if ((isEmpty (xs))) { return v } else { return (((foldl (f)) (((f (v)) ((head (xs)))))) ((tail (xs)))) } }() } } }\nvar range = function (numT24) {  return function (ordT24) {  return function (startIndex) {  return function (endIndex) { var rangeQuoted = function (acc) {  return function (endIndex) {  return function() { if ((((__gt (ordT24)) (startIndex)) (endIndex))) { return acc } else { return ((rangeQuoted (((__colon (endIndex)) (acc)))) ((((__sub (numT24)) (endIndex)) (((fromInteger (numT24)) (1)))))) } }() } }; return ((rangeQuoted ([])) (endIndex)) } } } }\nvar fac = function (numT13T19T6) {  return function (ordT13T19T6) {  return function (n) {  return (((foldl ((__mul (numT13T19T6)))) (((fromInteger (numT13T19T6)) (1)))) (((((range (numT13T19T6)) (ordT13T19T6)) (((fromInteger (numT13T19T6)) (1)))) (n)))) } } }\nvar main = (((fac (numInt)) (ordInt)) (((fromInteger (numInt)) (5))))"
+
+   it "deconstucting tuples" $ [i|
+      let f (x, y) = x + y
+      let main = f (2, 3)
+   |] --> "var f = function (numT3) {  return function ([x,y]) {  return (((__add (numT3)) (x)) (y)) } }\nvar main = ((f (numInt)) ([((fromInteger (numInt)) (2)),((fromInteger (numInt)) (3))]))"
