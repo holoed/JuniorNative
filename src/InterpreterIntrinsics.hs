@@ -307,6 +307,7 @@ env = (fromList [
     ("mkParser", Function return),
     ("runParser", Function return),
     ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s)))),
-    ("ord", Function(\(Value (C c)) -> return $ Value (I (ord c))))
+    ("ord", Function(\(Value (C c)) -> return $ Value (I (ord c)))),
+    ("display", Function(\x -> return x))
     ], fromList [])
  
