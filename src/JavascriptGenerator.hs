@@ -3,7 +3,7 @@ module JavascriptGenerator where
 
 import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, IfThenElse, MkTuple) )
 import TypedAst ( TypedExp )
-import Data.Text (Text, intercalate, pack, isPrefixOf)
+import Data.Text (Text, intercalate, pack, isPrefixOf, replace)
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Annotations (unwrap)
@@ -31,11 +31,15 @@ mapOp ":"  = "__colon"
 mapOp "."  = "__dot"
 mapOp x    = x
 
+mapName :: Text -> Text
+mapName "null" = "isEmpty"
+mapName x      = replace "'" "Quoted" x
+
 generateExp :: Fix ExpF -> Text
 generateExp = cataRec alg 
     where alg (Lit p) = generatePrim p
-          alg (Var n) = pack n
-          alg (VarPat n) = pack n
+          alg (Var n) = mapName (pack n)
+          alg (VarPat n) = mapName (pack n)
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "var" e then "" else " return ") <> e <> " }"
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"
           alg (Let s e1 e2) =
