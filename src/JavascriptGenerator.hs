@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module JavascriptGenerator where
 
-import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, IfThenElse) )
+import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, IfThenElse, MkTuple) )
 import TypedAst ( TypedExp )
 import Data.Text (Text, intercalate, pack, isPrefixOf)
 import RecursionSchemes ( cataRec )
@@ -46,7 +46,8 @@ generateExp = cataRec alg
                  "function() { if (" <> p <> ") { " <> 
                      (if isPrefixOf "if" e1 || isPrefixOf "var" e1 then e1 else "return " <> e1)  <> 
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "var" e2 then e2 else "return " <> e2) <> " } }()"
-          alg _ = undefined 
+          alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
+          alg e = error ("Unsupported: " ++ show e)
 
 generateDecl :: TypedExp -> Text
 generateDecl = generateLet . unwrap
