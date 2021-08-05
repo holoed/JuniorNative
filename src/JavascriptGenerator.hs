@@ -27,6 +27,8 @@ mapOp "-"  = "__sub"
 mapOp "/"  = "__div"
 mapOp ">"  = "__gt"
 mapOp "<"  = "__lt"
+mapOp ":"  = "__colon"
+mapOp "."  = "__dot"
 mapOp x    = x
 
 generateExp :: Fix ExpF -> Text
