@@ -24,6 +24,12 @@ tests = do
    it "value" $ "let main = 42" --> 
          "var main = ((fromInteger (numInt)) (42))"
 
+   it "string value" $ "let main = \"Hello\"" -->
+         "var main = \"Hello\""
+
+   it "char value" $ "let main = 'h'" -->
+         "var main = 'h'"
+
    it "applied function" $ [i|
       let f x = x + 1
       let main = f 5
