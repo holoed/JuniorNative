@@ -27,6 +27,8 @@ mapOp "-"  = "__sub"
 mapOp "/"  = "__div"
 mapOp ">"  = "__gt"
 mapOp "<"  = "__lt"
+mapOp ">="  = "__gteq"
+mapOp "<="  = "__lteq"
 mapOp ":"  = "__colon"
 mapOp "."  = "__dot"
 mapOp x    = x

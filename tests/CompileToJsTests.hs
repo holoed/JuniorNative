@@ -3,6 +3,7 @@ module CompileToJsTests where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullJS )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
@@ -16,6 +17,11 @@ build code = do
 
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+
+(--->) :: FilePath -> String -> Expectation
+(--->) x y = do handle <- openFile x ReadMode
+                contents <- hGetContents handle
+                contents --> y
 
 tests :: SpecWith ()
 tests = do
@@ -62,3 +68,5 @@ var main = ((f (numInt)) (((fromInteger (numInt)) (5))))|]
       let f (x, y) = x + y
       let main = f (2, 3)
    |] --> "var f = function (numT3) {  return function ([x,y]) {  return (((__add (numT3)) (x)) (y)) } }\nvar main = ((f (numInt)) ([((fromInteger (numInt)) (2)),((fromInteger (numInt)) (3))]))"
+
+   it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "var bracket = function (monadm) {  return function (open) {  return function (p) {  return function (close) {  return (((bind (monadm)) (open)) (function (v1) {  return (((bind (monadm)) (p)) (function (x) {  return (((bind (monadm)) (close)) (function (v2) {  return ((pure (monadm)) (x)) })) })) })) } } } }\nvar item = (mkParser (function (inp) {  return function() { if ((isEmpty (inp))) { return [] } else { return ((__colon ([(head (inp)),(tail (inp))])) ([])) } }() }))\nvar zero = (mkParser (function (inp) {  return [] }))\nvar foldl = function (f) {  return function (v) {  return function (xs) {  return function() { if ((isEmpty (xs))) { return v } else { return (((foldl (f)) (((f (v)) ((head (xs)))))) ((tail (xs)))) } }() } } }\nvar or = function (p) {  return function (q) {  return (mkParser (function (inp) { var ret = ((runParser (p)) (inp)); return function() { if ((isEmpty (ret))) { return ((runParser (q)) (inp)) } else { return ret } }() })) } }\nvar negate = function (numT2) {  return function (x) {  return (((__sub (numT2)) (((fromInteger (numT2)) (0)))) (x)) } }\nvar sat = function (p) {  return (((bind (monadParser)) (item)) (function (x) {  return function() { if ((p (x))) { return ((pure (applicativeParser)) (x)) } else { return zero } }() })) }\nvar char = function (x) {  return (sat (function (y) {  return (((__eqeq (eqChar)) (x)) (y)) })) }\nvar digit = (sat (function (x) {  return ((__and ((((__lteq (ordChar)) ('0')) (x)))) ((((__lteq (ordChar)) (x)) ('9')))) }))\nvar foldl1 = function (f) {  return function (xs) {  return (((foldl (f)) ((head (xs)))) ((tail (xs)))) } }\nvar eval = function (xs) { var op = function (m) {  return function (n) {  return (((__add (numInt)) ((((__mul (numInt)) (((fromInteger (numInt)) (10)))) (m)))) (n)) } }; return ((foldl1 (op)) ((((bind (monadList)) (xs)) (function (x) {  return ((pure (applicativeList)) ((((__sub (numInt)) ((ord (x)))) ((ord ('0')))))) })))) }\nvar many = function (p) {  return ((or ((((bind (monadParser)) (p)) (function (x) {  return (((bind (monadParser)) ((many (p)))) (function (xs) {  return ((pure (applicativeParser)) (((__colon (x)) (xs)))) })) })))) (((pure (applicativeParser)) ([])))) }\nvar many1 = function (p) {  return (((bind (monadParser)) (p)) (function (x) {  return (((bind (monadParser)) ((many (p)))) (function (xs) {  return ((pure (applicativeParser)) (((__colon (x)) (xs)))) })) })) }\nvar nat = (((bind (monadParser)) ((many1 (digit)))) (((__dot ((pure (applicativeParser)))) (eval))))\nvar int = function () { var op = ((or ((((bind (monadParser)) ((char ('-')))) (function (v) {  return ((pure (applicativeParser)) ((negate (numInt)))) })))) (((pure (applicativeParser)) (function (x) {  return x })))); return (((bind (monadParser)) (op)) (function (f) {  return (((bind (monadParser)) (nat)) (function (n) {  return ((pure (applicativeParser)) ((f (n)))) })) })) }();\nvar sepby1 = function (p) {  return function (sep) {  return (((bind (monadParser)) (p)) (function (x) {  return (((bind (monadParser)) ((many ((((bind (monadParser)) (sep)) (function (v) {  return (((bind (monadParser)) (p)) (function (y) {  return ((pure (applicativeParser)) (y)) })) })))))) (function (xs) {  return ((pure (applicativeParser)) (((__colon (x)) (xs)))) })) })) } }\nvar ints = ((((bracket (monadParser)) ((char ('[')))) (((sepby1 (int)) ((char (',')))))) ((char (']'))))\nvar main = ((runParser (ints)) ((toCharList (\"[1,2,-5,-3,7]\"))))"
