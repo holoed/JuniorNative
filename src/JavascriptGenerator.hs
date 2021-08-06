@@ -44,26 +44,26 @@ generateExp = cataRec alg
           alg (VarPat n) = mapName (pack n)
           alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
           alg (TuplePat xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
-          alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "var" e then "" else " return ") <> e <> " }"
+          alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "const" e then "" else " return ") <> e <> " }"
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"
           alg (Let s e1 e2) =
-            "var " <> s <> " = " <>
-            (if "var" `isPrefixOf` e1
+            "const " <> s <> " = " <>
+            (if "const" `isPrefixOf` e1
                 then "function () { " <> e1 <> " }();" else e1) <>
             (if e2 == "()" then "" else
-                (if isPrefixOf "if" e2 || isPrefixOf "var" e2 then "; " else "; return ") <> e2)
+                (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then "; " else "; return ") <> e2)
           alg (IfThenElse p e1 e2) =
                  "function() { if (" <> p <> ") { " <> 
-                     (if isPrefixOf "if" e1 || isPrefixOf "var" e1 then e1 else "return " <> e1)  <> 
-                     " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "var" e2 then e2 else "return " <> e2) <> " } }()"
+                     (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <> 
+                     " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " } }()"
 
 generateDecl :: TypedExp -> Text
 generateDecl = generateLet . unwrap
   where generateLet (In (Let n v _)) =
             let s = generateExp n in
             let e1 = generateExp v in 
-            "var " <> s <> " = " <>
-            (if "var" `isPrefixOf` e1
+            "const " <> s <> " = " <>
+            (if "const" `isPrefixOf` e1
                 then "function () { " <> e1 <> " }();" else e1) 
         generateLet _ = undefined
 
