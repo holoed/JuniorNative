@@ -37,9 +37,8 @@ $hexit       = [$digit A-F a-f]
 
 $alpha = [a-zA-Z]
 $eol   = [\n]
-$graphic = $printable # $white
-@string = \" ($graphic # \")* \"
-@char = \' ($graphic) \'
+@string = \" ($printable # \")* \"
+@char = \' ($printable # \') \'
 
 tokens :-
 

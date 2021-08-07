@@ -30,6 +30,9 @@ tests = do
    it "value" $ do
      "let main = 42" --> "42"
      "let main = 'H'" --> "'H'"
+     "let main = ' '" --> "' '"
+     "let main = \"2 + 3\"" --> "\"2 + 3\""
+     "let main = \"    \"" --> "\"    \"" 
 
    it "applied function" $ [i|
       let f x = x + 1
