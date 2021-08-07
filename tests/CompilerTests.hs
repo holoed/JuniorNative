@@ -245,3 +245,5 @@ tests = do
 
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[([1,2,-5,-3,7],[])]"
 
+   it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[(5,[])]"
+

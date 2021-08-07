@@ -52,32 +52,32 @@ let int =
     bind op (\f -> 
     bind nat (\n -> pure (f n)))
 
-let chainl1 p op = 
-   let rest x = or (bind op (\f ->
-                    bind p  (\y ->
-                    rest (f x y)))) (pure x) in
-   bind p rest
+let lazy p = mkParser(\inp -> runParser (p ()) inp)
+
+let rest p op x = or (bind op (\f ->
+                      bind p  (\y ->
+                      rest p op (f x y)))) (pure x)
+
+let chainl1 p op = bind p (rest p op)
 
 let chainr1 p op =
    bind p (\x -> or (bind op (\f ->
                      bind (chainr1 p op) (\y ->
                      pure (f x y)))) (pure x))
 
-let lazy p = mkParser(\inp -> runParser (p ()) inp)
-
 let foo p op = lazy (\v -> bind p (\v -> pure op))
 
 let ops xs = foldr1 or (bind xs (\(p, op) -> (foo p op):[]))
 
-let addop = ops ((char '+', (+)) : (char '-', (-)):[])
+let addop v = ops ((char '+', (+)) : (char '-', (-)):[])
 
-let mulop = ops ((char '*', (*)) : (char '/', (-)):[])
+let mulop v = ops ((char '*', (*)) : (char '/', (/)):[])
 
 let expr = 
   let factor = or nat (lazy (\v -> (bracket (char '(') expr (char ')')))) in
-  let term = chainl1 factor mulop in
-  chainl1 term addop 
+  let term = chainl1 factor (mulop ()) in
+  chainl1 term (addop ()) 
 
-let main = runParser expr (toCharList "3*(2+5)")  
+let main = runParser expr (toCharList "(3+2)*(5-3)/2")  
                                         
    
