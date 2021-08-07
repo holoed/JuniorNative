@@ -60,6 +60,7 @@ import Control.Monad.Except
     ')'   { TokenRParen $$ }
     '.'   { TokenDot $$ }
     '[]'  { TokenEmpty $$ }
+    '()'  { TokenUnit $$ }
     ':'   { TokenCons $$ }
 
 -- Operators
@@ -113,6 +114,7 @@ Atom : '(' Expr ')'                { $2 }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }
      | '[]'                        { var (mkLoc $1) "[]" }
+     | '()'                        { var (mkLoc $1) "()" }
      | '(' '+' ')'                 { var (mkLoc $2) "+" }
      | '(' '-' ')'                 { var (mkLoc $2) "-" }
      | '(' '*' ')'                 { var (mkLoc $2) "*" }
@@ -157,6 +159,7 @@ makePString (TokenDot (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString (TokenArrow (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString (TokenEq (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString (TokenEql (p, n)) = PStr (n, Just $ mkLoc (p, n))
+makePString (TokenUnit (p, n)) = PStr (n, Just $ mkLoc (p, n))
 makePString t = PStr (show t, Nothing) 
   
 parseError :: [Token] -> Except PString a

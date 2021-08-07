@@ -69,6 +69,7 @@ tokens :-
   \=                            {\p s -> TokenEq (p, s) }
   \\                            {\p s -> TokenLambda (p, s) }
   "[]"                          {\p s -> TokenEmpty (p, s) }
+  "()"                          {\p s -> TokenUnit (p, s) }
   ":"                           {\p s -> TokenCons (p, s) }
   "++"                          {\p s -> TokenConcat (p, s) }
   "&&"                          {\p s -> TokenAnd (p, s) }
@@ -121,6 +122,7 @@ data Token
   | TokenRParen (AlexPosn, String)
   | TokenComma
   | TokenDot (AlexPosn, String)
+  | TokenUnit (AlexPosn, String)
   | TokenEOF
   deriving (Eq,Show)
 

@@ -266,6 +266,7 @@ env = (fromList [
     ("/", binOp "/"),
     ("==", binOp "=="),
     ("[]", List []),
+    ("()", Value U),
     (":", Function(\x -> return $ Function (\(List xs) -> return $ List (x:xs) ))),
     ("head", Function(\(List xs) -> return $ head xs)),
     ("tail", Function(\(List xs) -> return $ List (tail xs))),

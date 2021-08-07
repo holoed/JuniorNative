@@ -35,6 +35,7 @@ mapOp x    = x
 
 mapName :: Text -> Text
 mapName "null" = "isEmpty"
+mapName "()" = "undefined"
 mapName x      = replace "'" "Quoted" x
 
 generateExp :: Fix ExpF -> Text

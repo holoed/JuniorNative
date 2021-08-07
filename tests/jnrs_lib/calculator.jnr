@@ -1,0 +1,90 @@
+let zero = mkParser (\inp -> [])
+
+let item = mkParser (\inp -> if (null inp) then []
+                             else (head inp, tail inp) : [])
+                             
+let sat p = bind item (\x ->
+              if p x then pure x else zero)
+              
+let char x = sat (\y -> x == y)
+              
+let digit = sat (\x -> '0' <= x && x <= '9')
+   
+let or p q = mkParser(\inp -> let ret = runParser p inp in
+                              if null ret then runParser q inp
+                              else ret)
+ 
+let many p = or (bind p (\x ->
+             bind (many p) (\xs ->
+             pure (x:xs)))) (pure [])
+ 
+let many1 p = bind p (\x ->
+              bind (many p) (\xs ->
+              pure (x:xs)))
+  
+let sepby1 p sep = 
+      bind p (\x ->
+      bind (many (bind sep (\v ->
+                  bind p (\y ->
+                  pure y)))) (\xs -> pure (x:xs)))
+                  
+let bracket open p close = bind open (\v1 ->
+                           bind p    (\x  ->
+                           bind close(\v2 ->
+                           pure x)))
+
+let foldl f v xs =
+  if (null xs) then v
+  else foldl f (f v (head xs)) (tail xs)
+  
+let foldl1 f xs = foldl f (head xs) (tail xs)
+
+let foldr f v xs =
+  if (null xs) then v
+  else f (head xs) (foldr f v (tail xs))
+  
+let foldr1 f xs = foldr f (head xs) (tail xs)
+
+let eval xs = 
+  let op m n = 10*m + n in 
+  foldl1 op (bind xs (\x -> pure (ord x - ord '0'))) 
+
+let nat = bind (many1 digit) (pure . eval)
+
+let negate x = 0 - x
+
+let int = 
+	let op = or (bind (char '-') (\v -> pure negate)) 
+                (pure (\x -> x)) in
+    bind op (\f -> 
+    bind nat (\n -> pure (f n)))
+
+let chainl1 p op = 
+   let rest x = or (bind op (\f ->
+                    bind p  (\y ->
+                    rest (f x y)))) (pure x) in
+   bind p rest
+
+let chainr1 p op =
+   bind p (\x -> or (bind op (\f ->
+                     bind (chainr1 p op) (\y ->
+                     pure (f x y)))) (pure x))
+
+let parser p = mkParser(\inp -> runParser p inp)
+
+let foo p op = parser (bind p (\v -> pure op))
+
+let ops xs = foldr1 or (bind xs (\(p, op) -> (foo p op):[]))
+
+let addop = ops ((char '+', (+)) : (char '-', (-)):[])
+
+let mulop = ops ((char '*', (+)) : (char '/', (-)):[])
+
+let expr = 
+  let factor = or nat (bracket (char '(') expr (char ')')) in
+  let term = chainl1 factor mulop in
+  chainl1 term addop 
+
+let main = runParser expr (toCharList "42")  
+                                        
+   
