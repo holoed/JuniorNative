@@ -1,0 +1,102 @@
+let zero = mkParser (\inp -> [])
+
+let item = mkParser (\inp -> if (null inp) then []
+                             else (head inp, tail inp) : [])
+                             
+let sat p = bind item (\x ->
+              if p x then pure x else zero)
+              
+let char x = sat (\y -> x == y)
+              
+let digit = sat (\x -> '0' <= x && x <= '9')
+   
+let or p q = mkParser(\inp -> let ret = runParser p inp in
+                              if null ret then runParser q inp
+                              else ret)
+ 
+let many p = or (bind p (\x ->
+             bind (many p) (\xs ->
+             pure (x:xs)))) (pure [])
+ 
+let many1 p = bind p (\x ->
+              bind (many p) (\xs -> 
+              pure (x:xs)))  
+                
+let bracket open p close = bind open (\v1 ->
+                           bind p    (\x  ->
+                           bind close(\v2 ->
+                           pure x)))
+
+let space = many (sat (\x -> x == ' '))
+
+let token p = bind p     (\x ->
+              bind space (\v ->
+              pure x))
+
+let string s = 
+	let string' cs = 
+      if null cs then pure []
+      else let c   = head cs in
+           let cs' = tail cs in
+           bind (char c)      (\x1 ->
+           bind (string' cs') (\x2 ->
+           pure (c:cs')))
+    in string' (toCharList s)
+           
+
+let symb cs = token (string cs)
+
+let foldl f v xs =
+  if (null xs) then v
+  else foldl f (f v (head xs)) (tail xs)
+  
+let foldl1 f xs = foldl f (head xs) (tail xs)
+
+let foldr f v xs =
+  if (null xs) then v
+  else f (head xs) (foldr f v (tail xs))
+  
+let foldr1 f xs = foldr f (head xs) (tail xs)
+
+let eval xs = 
+  let op m n = 10*m + n in 
+  foldl1 op (bind xs (\x -> pure (ord x - ord '0'))) 
+
+let nat = bind (many1 digit) (pure . eval)
+
+let int = 
+    let negate x = 0 - x in
+	let op = or (bind (char '-') (\v -> pure negate)) 
+                (pure (\x -> x)) in
+    bind op (\f -> 
+    bind nat (\n -> pure (f n)))
+
+let lazy p = mkParser(\inp -> runParser (p ()) inp)
+
+let rest p op x = or (bind op (\f ->
+                      bind p  (\y ->
+                      rest p op (f x y)))) (pure x)
+
+let chainl1 p op = bind p (rest p op) 
+  
+let chainr1 p op =
+   bind p (\x -> or (bind op (\f ->
+                     bind (chainr1 p op) (\y ->
+                     pure (f x y)))) (pure x)) 
+
+let foo p op = lazy (\v -> bind p (\v -> pure op))
+
+let ops xs = foldr1 or (bind xs (\(p, op) -> (foo p op):[]))
+
+let addop v = ops ((symb "+", (+)) : (symb "-", (-)):[])
+
+let mulop v = ops ((symb "*", (*)) : (symb "/", (/)):[])
+
+let expr = 
+  let factor = or (token nat) (lazy (\v -> (bracket (symb "(") expr (symb ")")))) in
+  let term = chainl1 factor (mulop ()) in
+  chainl1 term (addop ()) 
+
+let main = runParser expr (toCharList "(3 + 4) * (6 - 2) / 2")    
+                                        
+   
