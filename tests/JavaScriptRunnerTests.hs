@@ -1,7 +1,8 @@
-module RunJavaScriptTests where
+module JavaScriptRunnerTests where
 
 import System.Process ( readProcess ) 
 import Test.Hspec ( describe, it, shouldBe, SpecWith)
+import JavaScriptRunner ( runJS )
 
 tests :: SpecWith ()
 tests =
@@ -16,3 +17,8 @@ tests =
       let jsCode = "const main = (((__add(numInt))(((fromInteger(numInt))(2))))(((fromInteger(numInt))(3))))"
       ret <- readProcess "node" ["-"] (lib ++ "\r\n\r\n" ++ jsCode ++ "\r\n\r\n" ++ "console.log(main);")
       ret `shouldBe` "5\n"
+
+    it "Run js" $ do
+      let jsCode = "const main = (((__add(numInt))(((fromInteger(numInt))(2))))(((fromInteger(numInt))(3))))"
+      ret <- runJS "tests/js_lib/jslib.js" jsCode 
+      ret `shouldBe` "5"
