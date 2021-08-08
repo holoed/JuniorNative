@@ -207,7 +207,8 @@ test-suite tests
                        ConstraintsResolutionTests,
                        CompilerTests,
                        MandelbrotTests,
-                       CompileToJsTests
+                       CompileToJsTests,
+                       RunJavaScriptTests
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex
@@ -225,5 +226,7 @@ test-suite tests
                        haskeline,
                        parallel,
                        deepseq,
-                       timeit
+                       timeit,
+                       process,
+                       directory
   default-language:    Haskell2010
