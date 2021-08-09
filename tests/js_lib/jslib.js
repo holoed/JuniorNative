@@ -254,9 +254,8 @@ const display = function(imageData) {
           buffer.data[index++] = 255;
       }
   }
-  try {
-  createImageBitmap(buffer).then(img =>  
-  ctx.drawImage(img, 0, 0));
+  try { 
+    ctx.putImageData(buffer, 0, 0);
   } catch(e) {
     console.log(e);
   }
