@@ -31,9 +31,9 @@ tests = do
 
    it "value" $ "let main = 42" --> "42"
 
-   it "string value" $ "let main = \"Hello\"" --> "Hello"
+   it "string value" $ "let main = \"Hello\"" --> "\"Hello\""
 
-   it "char value" $ "let main = 'h'" --> "h"
+   it "char value" $ "let main = 'h'" --> "\"h\""
 
    it "applied function" $ [i|
       let f x = x + 1
@@ -66,8 +66,8 @@ tests = do
       let main = f (2, 3)
    |] --> "5"
 
-   it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[ [ [ 1, 2, -5, -3, 7 ], [] ] ]"
+   it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 
-   it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[ [ 5, [] ] ]"
+   it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[[5,[]]]"
 
-   it "Calculator Test 2" $ "tests/jnrs_lib/calculator_with_spaces.jnr" ---> "[ [ 14, [] ] ]"
+   it "Calculator Test 2" $ "tests/jnrs_lib/calculator_with_spaces.jnr" ---> "[[14,[]]]"
