@@ -81,14 +81,17 @@ const floatingDouble = {
 
 const numTuple2 = function(instA) {
   return function(instB) {
+    const addA = instA["+"];
+    const addB = instB["+"];
+    const subA = instA["-"];
+    const subB = instB["-"];
+    const mulA = instA["*"];
     return {
-      "+": function([x1, y1]){ return function([x2, y2]) { return [instA["+"](x1)(x2), instB["+"](y1)(y2)]  } },
-      "-": function([x1, y1]){ return function([x2, y2]) { return [instA["-"](x1)(x2), instB["-"](y1)(y2)]  } },
+      "fromInteger": function(x) { return [x, x]; },
+      "+": function([x1, y1]){ return function([x2, y2]) { return [addA(x1)(x2), addB(y1)(y2)]  } },
+      "-": function([x1, y1]){ return function([x2, y2]) { return [subA(x1)(x2), subB(y1)(y2)]  } },
       "*": function([x1, y1]){ return function([x2, y2]) { 
-        const mul = instA["*"];
-        const sub = instA["-"];
-        const add = instA["+"];
-        return [sub(mul(x1)(x2))(mul(y1)(y2)), add(mul(x1)(y2))(mul(y1)(x2))];
+        return [subA(mulA(x1)(x2))(mulA(y1)(y2)), addA(mulA(x1)(y2))(mulA(y1)(x2))];
       } 
     }
     }
@@ -241,12 +244,17 @@ const display = function(imageData) {
   canvas.width  = imageData.length;
   canvas.height = imageData.length; 
   canvas.style.display = "block";
-      for(let y = 0; y < imageData.length; y++){
-          for(let x = 0; x < imageData[y].length; x++){
-             ctx.fillStyle = `rgb(${imageData[y][x][0]}, ${imageData[y][x][1]}, ${imageData[y][x][2]})`;
-             ctx.fillRect( x, y, 1, 1 );
-          }
+  const buffer = ctx.createImageData(imageData.length - 1, imageData.length - 1);
+  var index = 0;
+  for(let y = 0; y < imageData.length; y++){
+      for(let x = 0; x < imageData[y].length; x++){
+          buffer.data[index++] = imageData[y][x][0];
+          buffer.data[index++] = imageData[y][x][1];
+          buffer.data[index++] = imageData[y][x][2];
+          buffer.data[index++] = 255;
       }
+  }
+  ctx.putImageData(buffer, 0, 0);
   return imageData;
 }
 
