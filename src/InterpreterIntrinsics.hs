@@ -6,6 +6,7 @@ import InterpreterMonad (InterpreterEnv, Result(..), Prim(..))
 import Control.Monad (join)
 import Data.Text (unpack, dropAround)
 import Data.Char ( ord )
+import Data.List (unfoldr)
 
 floatingDouble :: Result
 floatingDouble = Instance (fromList [
@@ -228,6 +229,15 @@ binOp op = Function(\(Instance inst) ->
              do (Function f') <- f x
                 f' y )))
 
+
+chunks :: Int -> [a] -> [[a]]
+chunks n = unfoldr $ \xs ->
+    case xs of
+        -- If there are no elements left, stop iteration
+        [] -> Nothing
+        -- Otherwise, split off n elements and yield them
+        _ -> Just $ splitAt n xs
+
 env :: InterpreterEnv
 env = (fromList [
     ("floatingDouble", floatingDouble),
@@ -309,6 +319,13 @@ env = (fromList [
     ("runParser", Function return),
     ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s)))),
     ("ord", Function(\(Value (C c)) -> return $ Value (I (ord c)))),
-    ("display", Function(\x -> return x))
+    ("display", Function return),
+    ("range", Function(\(Function f) -> return $
+              Function(\(Value (I start)) -> return $
+              Function(\(Value (I stop)) ->
+                    List <$> mapM (f . Value . I) [start .. stop])))),
+    ("split", Function(\(Value (I n)) -> return $
+              Function(\(List xs) ->
+                return $ List (List <$> chunks n xs))))
     ], fromList [])
  

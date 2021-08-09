@@ -311,3 +311,16 @@ const pure = function(inst) {
 const ord = function(ch) {
   return ch.charCodeAt(0);
 }
+
+const range = (f) => (start) => (end) => Array(end - start + 1).fill(start).map((x, y) => f(x + y))
+
+const split = (size) => (array) => {
+  let result = []
+  if (size > 0 && array.length > 0) { 
+    for (let i = 0; i < array.length; i += size) {
+        let chunk = array.slice(i, i + size)
+        result.push(chunk)
+    }
+  }
+  return result
+}

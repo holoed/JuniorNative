@@ -1,37 +1,4 @@
-
-let foldl f v xs =
-  if (null xs) then v
-  else foldl f (f v (head xs)) (tail xs)
-
-let foldr f v xs =
-  if (null xs) then v
-  else f (head xs) (foldr f v (tail xs))
- 
-let filter p = foldr (\x xs -> if (p x) then x : xs else xs) []
-          
-let reverse xs = foldl (\xs x -> x : xs) [] xs
-
-let range f startIndex endIndex =
-let range' acc endIndex =
-    if startIndex > endIndex then acc
-        else range' ((f endIndex) : acc) (endIndex - 1) in
-    range' [] endIndex
-   
-let partition n xs =
-let partition' n acc xs =
-    if (n == 0 || null xs) then (reverse acc, xs)
-        else partition' (n - 1) ((head xs) : acc) (tail xs) in
-    partition' n [] xs
-       
- let split n xs =
-  let split' acc xs =
-    if (null xs) then acc
-        else
-        let pair = partition n xs in
-            split' ((fst pair) : acc) (snd pair) in
-    reverse (split' [] xs)
-   
- let posToCoord sz x =
+let posToCoord sz x =
   let row = x / sz in
     let col = x - sz * row in
     (row, col)

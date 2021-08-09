@@ -50,13 +50,7 @@ tests = do
       if (null xs) then v
       else foldl f (f v (head xs)) (tail xs)
       
-   let range startIndex endIndex =
-      let range' acc endIndex =
-            if startIndex > endIndex then acc
-               else range' (endIndex : acc) (endIndex - 1) in
-            range' [] endIndex
-         
-   let fac n = foldl (*) 1 (range 1 n)    
+   let fac n = foldl (*) 1 (range (\\x-> x) 1 n)    
          
    let main = fac 5     
    |] --> "120"

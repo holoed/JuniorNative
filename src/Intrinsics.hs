@@ -49,7 +49,9 @@ env = toEnv [
   ("runParser", Set.fromList [] :=> tyLam (TyApp (TyCon "Parser") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyApp (TyCon "List") (TyCon "Char")))))),
   ("toCharList", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "List") (TyCon "Char"))),
   ("ord", Set.fromList [] :=> tyLam (TyCon "Char") (TyCon "Int")),
-  ("display", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Int")))) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Int")))))  
+  ("display", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Int")))) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Int"))))),
+  ("range", Set.fromList[] :=> tyLam (tyLam (TyCon "Int") (TyVar "a" 0)) (tyLam (TyCon "Int") (tyLam (TyCon "Int") (TyApp (TyCon "List") (TyVar "a" 0))))),
+  ("split", Set.fromList[] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyVar "a" 0)))))
  ]
 
 classEnv :: ClassEnv
