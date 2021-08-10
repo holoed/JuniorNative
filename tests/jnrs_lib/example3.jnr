@@ -2,21 +2,31 @@ let posToCoord sz x =
   let row = x / sz in
     let col = x - sz * row in
     (row, col)
-    
- let norm (re, im) = re * re + im * im
    
- let mPoint i c z =
+let norm (re, im) = re * re + im * im
+   
+let mPoint i c z =
   if (i == 65 || norm z > 4.0) then i else mPoint (i + 1) c (z * z + c)
    
- let mandelbrot s (x, y) =
+let rads d = d * 0.01745329252
+
+let horizontalBars s (x, y) =
+  let r = 128 + (128 * cos (rads (toDouble x) * 12)) in
+  (truncate r, 0, 0)
+
+let verticalBars s (x, y) =
+  let r = 128 + (128 * cos (rads (toDouble y) * 12)) in
+  (truncate r, 0, 0)
+     
+let mandelbrot s (x, y) =
   let x' = (4.0 * toDouble y / toDouble s) - 2.5 in
   let y' = (4.0 * toDouble x / toDouble s) - 2.0 in
   let i' = mPoint 0 (x', y') (0.0, 0.0) in
   let f i = 128 + truncate (128.0 * (cos (toDouble i * 0.3))) in
   (f i', f (i' + 16), f (i' + 32))
-    
-let render effect pixSize = 
-	let f = effect pixSize . posToCoord pixSize in
+   
+let render effect pixSize =
+let f = effect pixSize . posToCoord pixSize in
     split pixSize (range f 0 (pixSize * pixSize))
      
-let main = render mandelbrot 10
+let main = display (render horizontalBars 500)

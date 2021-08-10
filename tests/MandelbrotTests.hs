@@ -70,15 +70,15 @@ mPoint i c z =
 toDouble :: Int -> Double
 toDouble = fromIntegral  
 
-mandelbrot :: Int -> (Int, Int) -> [Int]
+mandelbrot :: Int -> (Int, Int) -> (Int, Int, Int)
 mandelbrot s (x, y) =
   let x' = 4.0 * toDouble y / toDouble s - 2.5 in
   let y' = 4.0 * toDouble x / toDouble s - 2.0 in
   let i' = mPoint 0 (x', y') (0.0, 0.0) in
   let f i = 128 + truncate (128.0 * cos (toDouble i * 0.3)) in
-  [f i', f (i' + 16), f (i' + 32)]
+  (f i', f (i' + 16), f (i' + 32))
 
-render :: (Int -> (Int, Int) -> [Int]) -> Int -> [[[Int]]]
+render :: (Int -> (Int, Int) -> (Int, Int, Int)) -> Int -> [[(Int, Int, Int)]]
 render effect pixSize =
   let f = effect pixSize . posToCoord pixSize in
   split pixSize (range f 0 (pixSize * pixSize))
