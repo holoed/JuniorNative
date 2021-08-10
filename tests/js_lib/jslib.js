@@ -75,8 +75,8 @@ const fractionalDouble = {
 }
 
 const floatingDouble = {
-  "cos": function(x) { return Math.cos(x); },
-  "sin": function(x) { return Math.sin(x); }
+  "cos": Math.cos,
+  "sin": Math.sin
 }
 
 const numTuple2 = function(instA) {
@@ -162,9 +162,7 @@ const toDouble = function(x) {
   return x + 0.0;
 }
 
-const truncate = function(x) {
-  return Math.floor(x);
-}
+const truncate = Math.floor;
 
 const sin = function(inst) { return inst["sin"]; }
 
