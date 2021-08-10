@@ -98,81 +98,25 @@ const numTuple2 = function(instA) {
   }
 }
 
-const fromInteger = function(inst) {
-  return function(x) {
-     return inst["fromInteger"](x);
-  }
-}
+const fromInteger = function(inst) { return inst["fromInteger"]; }
 
-const fromRational = function(inst) {
-  return function(x) {
-     return inst["fromRational"](x);
-  }
-}
+const fromRational = function(inst) { return inst["fromRational"]; }
 
-const __add = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst["+"](x)(y)
-    }
-  }
-}
+const __add = function(inst) { return inst["+"]; }
 
-const __mul = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst["*"](x)(y)
-    }
-  }
-}
+const __mul = function(inst) { return inst["*"]; }
 
-const __sub = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst["-"](x)(y)
-    }
-  }
-}
+const __sub = function(inst) { return inst["-"]; }
 
-const __div = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst["/"](x)(y)
-    }
-  }
-}
+const __div = function(inst) { return inst["/"]; }
 
-const __eqeq = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst["=="](x)(y)
-    }
-  }
-}
+const __eqeq = function(inst) { return inst["=="]; }
 
-const __gt = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst[">"](x)(y)
-    }
-  }
-}
+const __gt = function(inst)   { return inst[">"]; }
 
-const __gteq = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst[">="](x)(y)
-    }
-  }
-}
+const __gteq = function(inst) { return inst[">="]; }
 
-const __lteq = function(inst) {
-  return function(x) {
-    return function(y) {
-      return inst["<="](x)(y)
-    }
-  }
-}
+const __lteq = function(inst) { return inst["<="]; }
 
 const __or = function(x) {
     return function(y) {
@@ -222,11 +166,9 @@ const truncate = function(x) {
   return Math.floor(x);
 }
 
-const cos = function(inst) {
-  return function(x) {
-    return inst["cos"](x);
-  }
-}
+const sin = function(inst) { return inst["sin"]; }
+
+const cos = function(inst) { return inst["cos"]; }
 
 const fst = function([x,y]){
   return x;
@@ -306,19 +248,9 @@ const monadList = {
   }
 }
 
-const bind = function(inst) {
-  return function(m) {
-    return function(f) {
-      return inst["bind"](m)(f);
-    }
-  }
-}
+const bind = function(inst) { return inst["bind"]; }
 
-const pure = function(inst) {
-  return function(x) {
-    return inst["pure"](x);
-  }
-}
+const pure = function(inst) { return inst["pure"]; }
 
 const ord = function(ch) {
   return ch.charCodeAt(0);
