@@ -13,7 +13,7 @@ import JavaScriptRunner (runJS)
 
 build :: String -> IO String
 build code = do
-   let libPath = "tests/js_lib/jslib.js"
+   let libPath = "src/js_lib/base.js"
    (x, _, _) <- run (fullJS code) (Interp.env, classEnv) (env, [])
    either (return . show) (runJS libPath . unpack) x
 

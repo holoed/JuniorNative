@@ -13,12 +13,12 @@ tests =
       ret `shouldBe` "5\n"
 
     it "Run js using lib" $ do
-      lib <- readFile "tests/js_lib/jslib.js"
+      lib <- readFile "src/js_lib/base.js"
       let jsCode = "const main = (((__add(numInt))(((fromInteger(numInt))(2))))(((fromInteger(numInt))(3))))"
       ret <- readProcess "node" ["-"] (lib ++ "\r\n\r\n" ++ jsCode ++ "\r\n\r\n" ++ "console.log(main);")
       ret `shouldBe` "5\n"
 
     it "Run js" $ do
       let jsCode = "const main = (((__add(numInt))(((fromInteger(numInt))(2))))(((fromInteger(numInt))(3))))"
-      ret <- runJS "tests/js_lib/jslib.js" jsCode 
+      ret <- runJS "src/js_lib/base.js" jsCode 
       ret `shouldBe` "5"

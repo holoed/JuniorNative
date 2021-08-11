@@ -11,7 +11,7 @@ import System.Console.Haskeline ()
 import Data.Maybe ( fromMaybe )
 import System.Environment (lookupEnv)
 import Web.Scotty         (ScottyM, scotty)
-import Web.Scotty.Trans ( body, json, post, middleware )
+import Web.Scotty.Trans ( body, json, post, get, middleware )
 import Network.Wai.Middleware.RequestLogger ( logStdout )
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Intrinsics ( env, classEnv )
@@ -21,7 +21,7 @@ import Compiler (fullInterp, backendPrinted, frontEndPrinted, fullJS)
 import CompilerMonad (CompileM, run)
 import qualified SymbolTable as S
 import qualified InterpreterIntrinsics as Interp (env)
-import Data.Text (Text)
+import Data.Text (Text, pack)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -76,4 +76,7 @@ route = do
          code <- body
          ret <- liftIO $ compile fullJS (Char8.unpack code)
          either json json ret
+    get "/libJs" $ do
+         ret <- liftIO $ readFile "src/js_lib/base.js"
+         json (pack ret)
 
