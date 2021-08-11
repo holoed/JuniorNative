@@ -10,6 +10,7 @@ import Location ( PString(..) )
 import Control.Monad.Error.Class ( MonadError(..) )
 import qualified Data.HashMap.Strict as Map ( HashMap, insert, union, member, lookup, empty )
 import Prelude hiding (lookup)
+import Control.Monad.Fix
 
 newtype InterpreterM a = InterpreterM { runMonad :: InterpreterEnv -> Either PString a }
   deriving ( Functor )
@@ -41,6 +42,9 @@ instance MonadError PString InterpreterM where
 instance MonadFail InterpreterM where
   {-# INLINE fail #-}
   fail s = throwError (PStr (s, Nothing))
+
+instance MonadFix InterpreterM where
+  mfix f = InterpreterM $ \ r -> mfix $ \ a -> runMonad (f a) r
 
 {-# INLINE ask #-}
 ask :: InterpreterM InterpreterEnv

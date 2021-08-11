@@ -51,6 +51,12 @@ tests = do
    it "Integral instances" $ do
       "let main = mod 5 3" --> "2"
 
+   it "Fix value level example" $ do [i|
+      let fix f x = f (fix f) x
+      let fac f n = if n == 0 then 1 else n * f (n - 1)
+      let facRec = fix fac
+      let main = facRec 5|] --> "120"
+
    it "factorial example" $ [i|
      let fac n = if n == 0 then 1 else n * fac (n - 1)
      let main = fac 5
