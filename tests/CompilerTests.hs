@@ -123,6 +123,9 @@ tests = do
       "let main = 3 - 3" --> "0"
       "let main = 6 * 3" --> "18"
 
+   it "Integral instances" $ do
+      "let main = mod 5 3" --> "2"
+
    it "Complex numbers" $ do 
       "let main = (2, 3) + (5, 6)" --> "(7,9)"
       "let main = (3, 9) - (2, 5)" --> "(1,4)"

@@ -48,6 +48,9 @@ tests = do
       "let main = 1 + (2, 3)" --> "[3,4]"
       "let main = (2, 3) - 1" --> "[1,2]"
 
+   it "Integral instances" $ do
+      "let main = mod 5 3" --> "2"
+
    it "factorial example" $ [i|
      let fac n = if n == 0 then 1 else n * fac (n - 1)
      let main = fac 5

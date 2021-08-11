@@ -18,6 +18,12 @@ const eqChar = {
   }}
 }
 
+const eqBool = {
+  "==": function(x) { return function(y) { 
+      return x == y; 
+  }}
+}
+
 const ordInt = {
   ">": function(x) { return function(y) { return x > y }},
   "<": function(x) { return function(y) { return x < y }},
@@ -56,6 +62,10 @@ const fractionalInt = {
   "/": function(x) { return function(y) { return ~~(x/y); }},
   "fromInteger": numInt["fromInteger"],
   "fromRational": function(x) { return Math.floor(x); }
+}
+
+const integralInt = {
+  "mod": function(x) { return function(y) { return x % y; }},
 }
 
 const numDouble = {
@@ -97,6 +107,8 @@ const numTuple2 = function(instA) {
     }
   }
 }
+
+const __mod = function(inst) { return inst["mod"]; }
 
 const fromInteger = function(inst) { return inst["fromInteger"]; }
 

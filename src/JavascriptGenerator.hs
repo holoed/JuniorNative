@@ -36,6 +36,7 @@ mapOp x    = x
 mapName :: Text -> Text
 mapName "null" = "isEmpty"
 mapName "eval" = "__eval"
+mapName "mod"  = "__mod"
 mapName "()" = "undefined"
 mapName x      = replace "'" "Quoted" x
 

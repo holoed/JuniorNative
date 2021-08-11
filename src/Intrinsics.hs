@@ -51,7 +51,8 @@ env = toEnv [
   ("ord", Set.fromList [] :=> tyLam (TyCon "Char") (TyCon "Int")),
   ("display", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyApp (TyApp (TyCon "Tuple") (TyCon "Int")) (TyCon "Int")) (TyCon "Int")))) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyApp (TyApp (TyCon "Tuple") (TyCon "Int")) (TyCon "Int")) (TyCon "Int"))))),
   ("range", Set.fromList[] :=> tyLam (tyLam (TyCon "Int") (TyVar "a" 0)) (tyLam (TyCon "Int") (tyLam (TyCon "Int") (TyApp (TyCon "List") (TyVar "a" 0))))),
-  ("split", Set.fromList[] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyVar "a" 0)))))
+  ("split", Set.fromList[] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyVar "a" 0))))),
+  ("mod", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0)))
  ]
 
 classEnv :: ClassEnv
@@ -79,8 +80,12 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Fractional" (TyCon "Int"),
        Set.fromList [] :=> IsIn "Fractional" (TyCon "Double")
        ])),
-     ("Floating", (["Fractional"], [Set.fromList [] :=> IsIn "Floating" (TyCon "Double")])),
-
+     ("Floating", (["Fractional"], [
+       Set.fromList [] :=> IsIn "Floating" (TyCon "Double")
+       ])),
+      ("Integral", (["Num"], [
+        Set.fromList [] :=> IsIn "Integral" (TyCon "Int")
+      ])),
      ("Functor", ([], [
        Set.fromList [] :=> IsIn "Functor" (TyCon "List"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "Parser"),

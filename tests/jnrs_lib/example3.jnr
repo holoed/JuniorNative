@@ -17,7 +17,15 @@ let horizontalBars s (x, y) =
 let verticalBars s (x, y) =
   let r = 128 + (128 * cos (rads (toDouble y) * 12)) in
   (truncate r, 0, 0)
-     
+
+let inCarpet x y = 
+  if x == 0 || y == 0 then True
+  else if mod x 3 == 1 && mod y 3 == 1 then False
+  else inCarpet (x / 3) (y / 3)
+  
+let sierpinskyCarpet s (x, y) = 
+  if inCarpet x y then (255, 255, 255) else (0, 0, 0)
+
 let mandelbrot s (x, y) =
   let x' = (4.0 * toDouble y / toDouble s) - 2.5 in
   let y' = (4.0 * toDouble x / toDouble s) - 2.0 in

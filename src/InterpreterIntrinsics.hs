@@ -143,6 +143,11 @@ numDouble = Instance (fromList [
        ("fromInteger", Function(\(Value (I x)) -> return $ Value (D $ fromIntegral x)))
        ])
 
+integralInt :: Result 
+integralInt = Instance (fromList [
+       ("mod", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x `mod` y)))))
+       ])
+
 eqBool :: Result
 eqBool = Instance (fromList [
        ("==", Function(\(Value (B x)) -> return $ Function (\(Value (B y)) -> return $ Value (B (x == y)))))
@@ -247,6 +252,7 @@ env = (fromList [
     ("ordDouble", ordDouble),
     ("ordChar", ordChar),
     ("numInt", numInt),
+    ("integralInt", integralInt),
     ("numDouble", numDouble),
     ("numTuple2", numTuple2),
     ("eqBool", eqBool),
@@ -326,6 +332,7 @@ env = (fromList [
                     List <$> mapM (f . Value . I) [start .. stop])))),
     ("split", Function(\(Value (I n)) -> return $
               Function(\(List xs) ->
-                return $ List (List <$> chunks n xs))))
+                return $ List (List <$> chunks n xs)))),
+    ("mod", Function(\(Instance m) -> return $ m!"mod"))
     ], fromList [])
  
