@@ -245,6 +245,10 @@ const monadParser = {
   }
 }
 
+const functorList = {
+  "fmap": f => xs => xs.map(f)
+}
+
 const applicativeList = {
   "pure": function(x) { return [x]; }
 }
@@ -261,6 +265,8 @@ const monadList = {
 const bind = function(inst) { return inst["bind"]; }
 
 const pure = function(inst) { return inst["pure"]; }
+
+const fmap = function(inst) { return inst["fmap"]; }
 
 const ord = function(ch) {
   return ch.charCodeAt(0);
