@@ -15,7 +15,11 @@ getLoc = fromMaybe zeroLoc
 
 toExp :: PAst.SynExp -> Ast.Exp
 toExp = cataRec alg
-    where alg (Ann (Just l) (PAst.Lit x)) = Ast.lit l x
+    where alg (Ann (Just l) (PAst.Defn [s@(In (Ann (Just l') (Ast.VarPat n)))] e1)) =
+              Ast.leT l s e1 (Ast.var l' n)
+          alg (Ann (Just l) (PAst.Defn (s@(In (Ann (Just l') (Ast.VarPat n))):ss) e1)) =
+              Ast.leT l s (foldr (Ast.lam l) e1 ss) (Ast.var l' n)
+          alg (Ann (Just l) (PAst.Lit x)) = Ast.lit l x
           alg (Ann (Just l) (PAst.Var s)) = Ast.var l s
           alg (Ann (Just l) (PAst.VarPat s)) = Ast.varPat l s
           alg (Ann (Just l) (PAst.MkTuple es)) = Ast.mkTuple l es

@@ -11,7 +11,7 @@ import SynExpToExp (toExp)
 import Location ( PString )
 import Data.HashMap.Strict (fromList)
 import Data.Maybe ( maybeToList )
-import PAst ( SynExp, SynExpF(VarPat, Let) )
+import PAst ( SynExp, SynExpF(VarPat, Defn) )
 import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )
 import Data.Text (pack, unpack)
@@ -31,7 +31,7 @@ env = (fromList [
     ("[]", List [])], fromList [])
 
 extractName :: SynExp -> Maybe String
-extractName (In (Ann _ (Let (In (Ann _ (VarPat n)):_) _ _))) = Just n
+extractName (In (Ann _ (Defn (In (Ann _ (VarPat n)):_) _))) = Just n
 extractName _ = Nothing
 
 run :: String -> Either PString [Result]
@@ -60,7 +60,8 @@ tests =
         "let f x = x" --> "[<function>]"
 
     it "Applied function" $ do
-        "let fac n = if n == 0 then 1 else n * (fac (n - 1)) in fac 5" --> "[120]"
+        [i|let fac n = if n == 0 then 1 else n * (fac (n - 1))
+           let main = fac 5 |] --> "[120]"
 
     it "Two dependent bindings" $ do
         [i|let x = 42

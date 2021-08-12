@@ -20,7 +20,8 @@ data SynExpF a = Lit Prim
                | InfixApp Operator a a
                | Lam [a] a
                | Let [a] a a
-               | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
+               | IfThenElse a a a 
+               | Defn [a] a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type SynExp = Fix (Ann (Maybe Loc) SynExpF)
 
@@ -55,4 +56,4 @@ mkTuple :: Loc -> [SynExp] -> SynExp
 mkTuple l xs = In (Ann (Just l) (MkTuple xs))
 
 defn :: Loc -> [SynExp] -> SynExp -> SynExp
-defn l (p@(In (Ann (Just l') (VarPat s))):ps) v = In (Ann (Just l) (Let (p:ps) v (var l' s)))
+defn l ps v = In (Ann (Just l) (Defn ps v))
