@@ -284,3 +284,9 @@ const split = (size) => (array) => {
   }
   return result
 }
+
+const fromList = xs => {
+  var dict = {};
+  xs.forEach(([k,v]) => dict[k] = v);
+  return dict;
+}

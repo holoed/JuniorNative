@@ -51,6 +51,9 @@ tests = do
    it "Integral instances" $ do
       "let main = mod 5 3" --> "2"
 
+   it "from List to Map" $ do
+      "let main = fromList (('a', 2):[])" --> "{\"a\":2}"
+
    it "Fix value level example" $ do [i|
       let fix f x = f (fix f) x
       let fac f n = if n == 0 then 1 else n * f (n - 1)

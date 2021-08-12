@@ -7,6 +7,7 @@ import Control.Monad (join)
 import Data.Text (unpack, dropAround)
 import Data.Char ( ord )
 import Data.List (unfoldr)
+import qualified Data.Map as Map (fromList)
 
 floatingDouble :: Result
 floatingDouble = Instance (fromList [
@@ -333,6 +334,7 @@ env = (fromList [
     ("split", Function(\(Value (I n)) -> return $
               Function(\(List xs) ->
                 return $ List (List <$> chunks n xs)))),
-    ("mod", Function(\(Instance m) -> return $ m!"mod"))
+    ("mod", Function(\(Instance m) -> return $ m!"mod")),
+    ("fromList", Function(\(List xs) -> return $ Map (Map.fromList ((\(Tuple [k,v]) -> (k, v)) <$> xs))))
     ], fromList [])
  

@@ -192,6 +192,9 @@ tests = do
       "let main = False || True" --> "True"
       "let main = False || False" --> "False"
 
+   it "from List to Map" $ do
+      "let main = fromList (('a', 2):[])" --> "{'a' -> 2}"
+
    it "Fix value level example" $ do [i|
       let fix f x = f (fix f) x
       let fac f n = if n == 0 then 1 else n * f (n - 1)

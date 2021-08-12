@@ -10,7 +10,8 @@ import Location ( PString(..) )
 import Control.Monad.Error.Class ( MonadError(..) )
 import qualified Data.HashMap.Strict as Map ( HashMap, insert, union, member, lookup, empty )
 import Prelude hiding (lookup)
-import Control.Monad.Fix
+import Control.Monad.Fix ( MonadFix(..) )
+import qualified Data.Map (Map, toList)
 
 newtype InterpreterM a = InterpreterM { runMonad :: InterpreterEnv -> Either PString a }
   deriving ( Functor )
@@ -54,7 +55,7 @@ ask = InterpreterM Right
 local :: (InterpreterEnv -> InterpreterEnv) -> InterpreterM a -> InterpreterM a
 local f m = InterpreterM(runMonad m . f )
 
-data Prim = U | I !Int | D !Double | B !Bool | S !Text | C !Char deriving Eq
+data Prim = U | I !Int | D !Double | B !Bool | S !Text | C !Char deriving (Eq, Ord)
 
 {-# INLINE toInterpPrim #-}
 toInterpPrim :: P.Prim -> Prim
@@ -79,6 +80,21 @@ data Result = Value !Prim
             | Instance !(Map.HashMap String Result)
             | List ![Result]
             | Tuple ![Result]
+            | Map !(Data.Map.Map Result Result) 
+
+instance Eq Result where
+  (Value p) == (Value q) = p == q
+  (List xs) == (List ys) = xs == ys
+  (Tuple xs) == (Tuple ys) = xs == ys
+  (Map dictA) == (Map dictB) = Data.Map.toList dictA == Data.Map.toList dictB 
+  _ == _ = False
+
+instance Ord Result where
+  compare (Value p) (Value q) = compare p q
+  compare (List xs) (List ys) = compare xs ys
+  compare (Tuple xs) (Tuple ys) = compare xs ys
+  compare (Map dictA) (Map dictB) = compare (Data.Map.toList dictA) (Data.Map.toList dictB)
+  compare _ _ = undefined 
 
 {-# INLINE showResult #-}
 showResult :: Result -> Text
@@ -87,6 +103,7 @@ showResult (Function _) = "<function>"
 showResult (Instance _) = "<instance>"
 showResult (List xs) = "[" <> intercalate "," (showResult <$> xs) <> "]"
 showResult (Tuple xs) = "(" <> intercalate "," (showResult <$> xs) <> ")"
+showResult (Map dict) = "{" <> intercalate "," (fmap (\(k, v) -> showResult k <> " -> " <> showResult v ) (Data.Map.toList dict)) <> "}"
 
 type InterpreterEnv = (Map.HashMap Text Result, Map.HashMap Text Result)
 

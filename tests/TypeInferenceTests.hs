@@ -186,3 +186,6 @@ tests =
 
     it "applicative operator" $ do
       ["let main = (\\x -> x + 1):[] <*> 5:[]"] --> "List Int"
+
+    it "from list to map" $ do
+      ["let main = fromList (('a', 2):[])"] --> "Map Char Int"
