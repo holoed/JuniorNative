@@ -13,7 +13,7 @@ generatePrim :: Prim -> Text
 generatePrim (I n) = (pack . show) n
 generatePrim (D x) = (pack . show) x
 generatePrim (B b) = if b then "true" else "false"
-generatePrim (S s) = pack s
+generatePrim (S s) = "\"" <> pack s <> "\""
 generatePrim (C c) = "\'" <> pack [c] <> "\'"
 generatePrim U = "()"
 

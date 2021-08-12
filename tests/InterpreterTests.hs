@@ -54,6 +54,7 @@ tests =
 
     it "let Value" $ do
         "let x = 42" --> "[42]"
+        "let x = \"Hello\"" --> "[\"Hello\"]"
 
     it "let Function" $ do
         "let f x = x" --> "[<function>]"

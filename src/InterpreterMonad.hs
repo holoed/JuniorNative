@@ -71,7 +71,7 @@ primToStr :: Prim -> Text
 primToStr (I n) = pack (show n)
 primToStr (D x) = pack (show x)
 primToStr (B b) = pack (show b)
-primToStr (S s) = s
+primToStr (S s) = "\"" <> s <> "\""
 primToStr (C c) = "\'" <> pack [c] <> "\'"
 primToStr U = "()"
 
@@ -103,7 +103,7 @@ showResult (Function _) = "<function>"
 showResult (Instance _) = "<instance>"
 showResult (List xs) = "[" <> intercalate "," (showResult <$> xs) <> "]"
 showResult (Tuple xs) = "(" <> intercalate "," (showResult <$> xs) <> ")"
-showResult (Map dict) = "{" <> intercalate "," (fmap (\(k, v) -> showResult k <> " -> " <> showResult v ) (Data.Map.toList dict)) <> "}"
+showResult (Map dict) = "{" <> intercalate "," (fmap (\(k, v) -> showResult k <> ":" <> showResult v ) (Data.Map.toList dict)) <> "}"
 
 type InterpreterEnv = (Map.HashMap Text Result, Map.HashMap Text Result)
 

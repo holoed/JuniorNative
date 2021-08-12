@@ -326,7 +326,7 @@ env = (fromList [
     ("runParser", Function return),
     ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s)))),
     ("ord", Function(\(Value (C c)) -> return $ Value (I (ord c)))),
-    ("display", Function return),
+    ("display", Function(\r -> return $ Map (Map.fromList [(Value (S "image"), r)]))),
     ("range", Function(\(Function f) -> return $
               Function(\(Value (I start)) -> return $
               Function(\(Value (I stop)) ->

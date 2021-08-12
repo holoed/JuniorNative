@@ -58,7 +58,7 @@ tokens :-
   else                          {\p s -> TokenElse (p, s) }
   in                            {\p s -> TokenIn (p, s) }
   @sign? @number                {\p s -> TokenNum (p, strToPrim s) }
-  @string                       {\p s -> TokenString (p, (S s)) }
+  @string                       {\p s -> TokenString (p, (S (tail (init s)))) }
   @char                         {\p s -> TokenChar (p, ((C . (!!1)) s)) }
   "->"                          {\p s -> TokenArrow (p, s) }
   "<*>"                         {\p s -> TokenLtStarGt (p, s) }

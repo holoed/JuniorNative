@@ -44,7 +44,7 @@ alg (Lit (D v)) =
 alg (Lit (B b)) =
    return $ text (show b)
 alg (Lit (S s)) =
-   return $ text s
+   return $ text "\"" <> text s <> text "\""
 alg (Lit (C c)) =
    return $ text "'" <> text [c] <> text "'"
 alg (Lit U) =

@@ -193,7 +193,7 @@ tests = do
       "let main = False || False" --> "False"
 
    it "from List to Map" $ do
-      "let main = fromList (('a', 2):[])" --> "{'a' -> 2}"
+      "let main = fromList (('a', 2):[])" --> "{'a':2}"
 
    it "Fix value level example" $ do [i|
       let fix f x = f (fix f) x
