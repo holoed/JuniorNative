@@ -29,10 +29,11 @@ toDoc (TyApp (TyApp (TyCon "->") t1) t2) =
        (x2, r) <- listen $ toDoc t2
        tell [lamOp]
        return (bracket Left lamOp l x1 <+> text "->" <+> bracket Right lamOp r x2)
+-- TODO: This wrong, fix it.
 toDoc (TyApp t1 t2) =
     do x1 <- toDoc t1
        x2 <- toDoc t2
-       return $ x1 <+> x2
+       return (x1 <+> x2)
 
 instance Show Type where
   show = pretty 80 . fst . runWriter . toDoc

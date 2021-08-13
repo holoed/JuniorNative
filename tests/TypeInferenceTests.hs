@@ -230,4 +230,6 @@ tests =
     it "type application signature" $ do
       [i|val f :: Int -> List Int
          let f x = x:[] |] --> "Int -> List Int"
+      [i|val f :: Int -> List (List Int)
+         let f x = (x:[]):[] |] --> "Int -> List List Int" -- TODO: Fix types printer bug
 

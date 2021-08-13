@@ -103,6 +103,7 @@ Type : VAR                         { let name = (snd $1) in
                                         else TyCon name }
      | Type '->' Type              { tyLam $1 $3 } 
      | Type Type                   { TyApp $1 $2 }
+     | '(' Type ')'                { $2 }
      | '(' Types ')'               { tupleCon $2 }        
 
 QualType : Type                    { fromList [] :=> $1 }
