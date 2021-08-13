@@ -12,6 +12,7 @@ import Operators
 import Primitives
 import PAst
 import Types
+import BuiltIns
 import Data.Set
 import Data.Char (isLower)
 
@@ -93,11 +94,16 @@ Preds : Pred                       { [$1] }
       | Pred ',' Preds             { $1 : $3 }
 PredList : '(' Preds ')'           { fromList $2 }
 
+Types : Type                       { [$1]    }
+      | Type ',' Types             { $1 : $3 }  
+
 Type : VAR                         { let name = (snd $1) in 
                                         if (isLower (head name)) 
                                         then TyVar name 0
                                         else TyCon name }
-     | Type '->' Type              { tyLam $1 $3 }         
+     | Type '->' Type              { tyLam $1 $3 } 
+     | Type Type                   { TyApp $1 $2 }
+     | '(' Types ')'               { tupleCon $2 }        
 
 QualType : Type                    { fromList [] :=> $1 }
          | Pred  '=>' Type         { fromList [$1] :=> $3 }

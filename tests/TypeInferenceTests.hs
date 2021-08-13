@@ -220,4 +220,14 @@ tests =
     it "function signature" $ do
       [i|val f :: Int -> Int
          let f x = x|] --> "Int -> Int"
+    
+    it "tuples in signatures" $ do
+      [i|val pair :: (Int, Int)
+         let pair = (2, 3)|] --> "(Int, Int)"
+      [i|val norm :: (Double, Double) -> Double
+         let norm (re, im) = re * re + im * im|] --> "(Double, Double) -> Double"
+
+    it "type application signature" $ do
+      [i|val f :: Int -> List Int
+         let f x = x:[] |] --> "Int -> List Int"
 
