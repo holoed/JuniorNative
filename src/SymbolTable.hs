@@ -26,7 +26,7 @@ fromTypedExp :: String -> TypedExp -> (PString, Qual Type)
 fromTypedExp s (In (Ann (loc, qt) _)) = (PStr (s, loc), qt)
 
 extractSymbolsFromLet :: TypedExp -> [(String, Symbol)]
-extractSymbolsFromLet (In (Ann (_, qt) (Let n _ _))) = do
+extractSymbolsFromLet (In (Ann (_, qt) (Defn n _))) = do
   (n', s) <- extractSymbols n
   return (n', Symbol { name = name s, ty = qt, parent = Nothing, top = True })
 extractSymbolsFromLet _ = []
@@ -72,6 +72,11 @@ alg (Ann (loc, qt) (IfThenElse p t h)) = do
     p' <- p
     t' <- t
     In . Ann (loc, qt) . IfThenElse p' t' <$> h
+alg (Ann (loc, qt) (Defn n v)) = do
+    n' <- n
+    let names = fromList $ extractSymbols n'
+    v' <- local (`union` names) v
+    return $ In (Ann (loc, qt) (Defn n' v'))
 
 fromBinding :: Map String Symbol -> TypedExp -> [Symbol]
 fromBinding env e = snd $ runWriter $ runReaderT (cataRec alg e) env

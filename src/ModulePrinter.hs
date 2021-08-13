@@ -12,7 +12,7 @@ import Text.PrettyPrint.Mainland ( (<+>), text, Doc, pretty, (</>), stack, paren
 import Data.Text ( Text, pack ) 
 
 typedBindingToString :: TypedExp -> Doc
-typedBindingToString e@(In (Ann (_, qt) (Let (In (Ann _ (VarPat n))) _ _))) =
+typedBindingToString e@(In (Ann (_, qt) (Defn (In (Ann _ (VarPat n))) _))) =
     let fnName x = if isop x then parens (text x) else text x in
     stack [text "val" <+> fnName n <+> text "::" <+> text (show qt),
           (prettyDoc . fromExp . mapAnn fst) e]

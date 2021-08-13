@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module JavascriptGenerator where
 
-import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, IfThenElse, MkTuple, TuplePat) )
+import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat) )
 import TypedAst ( TypedExp )
 import Data.Text (Text, intercalate, pack, isPrefixOf, replace)
 import RecursionSchemes ( cataRec )
@@ -59,10 +59,11 @@ generateExp = cataRec alg
                  "function() { if (" <> p <> ") { " <> 
                      (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <> 
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " } }()"
+          alg (Defn _ _ ) = undefined 
 
 generateDecl :: TypedExp -> Text
 generateDecl = generateLet . unwrap
-  where generateLet (In (Let n v _)) =
+  where generateLet (In (Defn n v)) =
             let s = generateExp n in
             let e1 = generateExp v in 
             "const " <> s <> " = " <>

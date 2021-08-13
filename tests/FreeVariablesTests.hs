@@ -4,7 +4,7 @@ import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation)
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann), mapAnn )
 import Primitives ( Prim(I) )
-import Ast ( ExpF(Lit, Var, VarPat, MkTuple, App, Lam, Let, IfThenElse) )
+import Ast ( ExpF(Lit, Var, VarPat, MkTuple, App, Lam, Let, IfThenElse, Defn) )
 import FreeVariables ( freeVars )
 import Data.Set (Set(), empty, fromList )
 import Parser (parseExpr)
@@ -42,10 +42,9 @@ tests =
 
     it "Free vars of a let" $ do
       "let x = 42" -->
-        In (Ann (fromList []) (Let (In (Ann (fromList ["x"]) (VarPat "x"))) (In (Ann (fromList []) (Lit $ I 42))) (In (Ann (fromList ["x"]) (Var "x")))))
-      "let x = 42 in let y = 24 in x" -->
-        In (Ann (fromList []) (Let (In (Ann (fromList ["x"]) (VarPat "x"))) (In (Ann (fromList []) (Lit $ I 42)))
-         (In (Ann (fromList ["x"]) (Let (In (Ann (fromList ["y"]) (VarPat "y"))) (In (Ann (fromList []) (Lit $ I 24))) (In (Ann (fromList ["x"]) (Var "x"))))))))
+        In (Ann (fromList []) (Defn (In (Ann (fromList ["x"]) (VarPat "x"))) (In (Ann (fromList []) (Lit $ I 42)))))
+      "let foo = let x = 42 in let y = 24 in x" --> 
+        In (Ann (fromList []) (Defn (In (Ann (fromList ["foo"]) (VarPat "foo"))) (In (Ann (fromList []) (Let (In (Ann (fromList ["x"]) (VarPat "x"))) (In (Ann (fromList []) (Lit (I 42)))) (In (Ann (fromList ["x"]) (Let (In (Ann (fromList ["y"]) (VarPat "y"))) (In (Ann (fromList []) (Lit (I 24)))) (In (Ann (fromList ["x"]) (Var "x")))))))))))
 
     it "Free vars of if then else" $
       "if x then y else z" -->

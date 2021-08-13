@@ -17,7 +17,8 @@ data ExpF a = Lit Prim
             | App a a
             | Lam a a
             | Let a a a
-            | IfThenElse a a a deriving (Show, Eq, Functor, Traversable, Foldable)
+            | IfThenElse a a a 
+            | Defn a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type Exp = Fix (Ann (Maybe Loc) ExpF)
 
@@ -47,6 +48,9 @@ mkTuple l xs = In (Ann (Just l) (MkTuple xs))
 
 tuplePat :: Loc -> [Exp] -> Exp
 tuplePat l xs = In (Ann (Just l) (TuplePat xs))
+
+defn :: Loc -> Exp -> Exp -> Exp
+defn l p v = In (Ann (Just l) (Defn p v))
 
 extractNameFromPat :: Exp -> (Maybe Loc, String) 
 extractNameFromPat (In (Ann l (VarPat s))) = (l, s)

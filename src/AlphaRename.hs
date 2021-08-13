@@ -1,7 +1,7 @@
 module AlphaRename where
 
 import Location ( Loc )
-import Ast ( Exp, ExpF(Let, Lam, Var), var, lam, leT, extractNameFromPat )
+import Ast ( Exp, ExpF(Let, Lam, Var, Defn), var, lam, leT, defn, extractNameFromPat )
 import Data.Map ( (!), empty, insert, lookup, member, Map )
 import Data.Maybe ( fromMaybe, fromJust )
 import Control.Monad.Trans.Reader ( ask, local, ReaderT(runReaderT) )
@@ -39,6 +39,12 @@ alg (Ann (Just l) (Let p v b)) =
                      v' <- local (insert (snd x) x') v
                      b' <- local (insert (snd x) x') b
                      return $ leT l (var (fromJust $ fst x) x') v' b'
+alg (Ann (Just l) (Defn p v)) = 
+                  do p' <- p
+                     let x = extractNameFromPat p'
+                     x' <- newName (snd x) 
+                     v' <- local (insert (snd x) x') v
+                     return $ defn l (var (fromJust $ fst x) x') v' 
 alg x = fmap In (sequenceA x)
 
 rename :: Exp -> Exp

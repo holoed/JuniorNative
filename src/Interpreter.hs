@@ -48,10 +48,11 @@ interpretExp env e = runMonad (cataRec alg e) env
           alg (Ann _ (IfThenElse e1 e2 e3)) =
             do (Value (B b)) <- e1
                if b then e2 else e3
+          alg (Ann _ (Defn _ e2)) = e2
 
 {-# INLINE interpret #-}
 interpret :: InterpreterEnv -> Exp -> Either PString InterpreterEnv
-interpret (dict1, _) e@(In (Ann _ (Let p _ _))) =
+interpret (dict1, _) e@(In (Ann _ (Defn p _))) =
   (\v -> insertStatic (pack n) v (dict1, empty)) <$> interpretExp (dict1, empty) e
   where (_, n) = extractNameFromPat p
 interpret (dict1, _) e =

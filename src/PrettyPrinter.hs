@@ -1,7 +1,7 @@
 module PrettyPrinter where
 
 import Primitives ( Prim(U, I, D, B, S, C) )
-import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, TuplePat, Let) )
+import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, TuplePat, Let, Defn) )
 import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
@@ -99,6 +99,17 @@ alg (IfThenElse q t f) = do
   level <- ask
   let ret = group $ nest level $ sep [text "if" <+> q', text "then" <+>  group t', text "else" <+> group f']
   return (ret <|> (line <> indent level ret))
+alg (Defn [n] v) = do
+  n' <- n
+  v' <- local (const 4) v
+  _ <- tell [minOp]
+  return $ align $ text "let" <+> n' <+> char '=' <+> (v' <|> (line <> group (indent 4 v')))
+alg (Defn ns v) = do
+  ns' <- sequence ns
+  let n:xs = ns'
+  v' <- local (const 4) v
+  _ <- tell [minOp]
+  return $ align $ text "let" <+> n <+> spread xs <+> char '=' <+> (v' <|> (line <> group (indent 4 v')))
 alg _ = error "Undefined"
 
 prettyDoc :: SynExp -> Doc

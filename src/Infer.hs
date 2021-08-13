@@ -9,7 +9,7 @@ import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Location ( Loc, PString(..) )
 import Ast ( Exp, ExpF(..) )
-import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat, ttuplePat )
+import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat, ttuplePat, tdefn )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, charCon, tupleCon )
 import Environment ( Env, addScheme )
@@ -108,6 +108,16 @@ alg (Ann (Just l) (TuplePat ns)) = do
   let nts = ns' >>= getNameAndTypes
   let t = tupleCon ((\(_, _ :=> t') -> t') <$> nts)
   return $ ttuplePat l (fromList [] :=> t) ns'
+
+alg (Ann (Just l) (Defn n e1)) =
+  do n'@(In (Ann (_, _ :=> t0) _)) <- n
+     let nts = getNameAndTypes n'
+     let (TyVar tn _) = t0
+     (e1', ps1) <- listen $ local (\(env, _, sv, _) ->
+       (foldToScheme env nts, t0, insert tn sv, False)) e1
+     bt <- getBaseType
+     mgu l t0 bt
+     return (tdefn l (ps1 :=> bt) n' e1')
 
 alg _ = throwError $ PStr ("Undefined", Nothing)
 
