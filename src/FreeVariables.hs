@@ -61,12 +61,12 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
       (e1',fvs2) <- listen e1
       (e2',fvs3) <- listen e2
       return $ In (Ann (l, fvs1 `union` fvs2 `union` fvs3) $ IfThenElse p' e1' e2')
-    alg (Ann l (Defn n v)) = pass (do 
+    alg (Ann l (Defn qt n v)) = pass (do 
        n' <- n
        let s' = getNames n'
        (v', fvs1) <- listen v
        let f x = foldl (flip delete) x s'
-       return (In (Ann (l, f fvs1) $ Defn n' v'), f))
+       return (In (Ann (l, f fvs1) $ Defn qt n' v'), f))
     
 
 

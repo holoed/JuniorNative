@@ -39,12 +39,12 @@ alg (Ann (Just l) (Let p v b)) =
                      v' <- local (insert (snd x) x') v
                      b' <- local (insert (snd x) x') b
                      return $ leT l (var (fromJust $ fst x) x') v' b'
-alg (Ann (Just l) (Defn p v)) = 
+alg (Ann (Just l) (Defn qt p v)) = 
                   do p' <- p
                      let x = extractNameFromPat p'
                      x' <- newName (snd x) 
                      v' <- local (insert (snd x) x') v
-                     return $ defn l (var (fromJust $ fst x) x') v' 
+                     return $ defn l qt (var (fromJust $ fst x) x') v' 
 alg x = fmap In (sequenceA x)
 
 rename :: Exp -> Exp

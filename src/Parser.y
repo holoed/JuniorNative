@@ -11,6 +11,8 @@ import Lexer
 import Operators
 import Primitives
 import PAst
+import Types
+import Data.Set
 
 import Control.Monad.Except
 
@@ -28,6 +30,7 @@ import Control.Monad.Except
 
 -- Token Names
 %token
+    val   { TokenVal $$ }
     let   { TokenLet $$ }
     true  { TokenTrue $$ }
     false { TokenFalse $$ }
@@ -62,6 +65,7 @@ import Control.Monad.Except
     '[]'  { TokenEmpty $$ }
     '()'  { TokenUnit $$ }
     ':'   { TokenCons $$ }
+    '::'  { TokenColonColon $$ }
 
 -- Operators
 %right '||'
@@ -78,7 +82,11 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : let Pats '=' Expr           { defn (mkLoc $1) $2 $4 }
+Decl : val Pats '::' Type
+       let Pats '=' Expr           { defn (mkLoc $5) (Just $4) $6 $8 }
+     | let Pats '=' Expr           { defn (mkLoc $1) Nothing $2 $4 }
+
+Type : VAR                         { fromList [] :=> TyCon (snd $1) }
 
 Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
      | '\\' Pats '->' Expr         { lam (mkLoc $1) $2 $4 }

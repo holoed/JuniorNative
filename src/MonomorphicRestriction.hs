@@ -23,8 +23,8 @@ defaultConstraint (IsIn "Fractional" (TyVar n k)) = extendIfNotPresent (n, k) do
 defaultConstraint  _ = id
 
 applyRestriction :: TypedExp -> TypeM TypedExp
-applyRestriction e@(In (Ann _ (Defn _ (In (Ann _ (Lam _ _)))))) = return e
-applyRestriction e@(In (Ann _ Defn {})) =
+applyRestriction e@(In (Ann _ (Defn _ _ (In (Ann _ (Lam _ _)))))) = return e
+applyRestriction e@(In (Ann _ (Defn Nothing _ _ ))) =
     return $ evalState (cataRec alg e) empty
     where alg :: TypedExpF (State Substitutions TypedExp) -> State Substitutions TypedExp
           alg (Ann (l, qt@(ps3 :=> _)) x) = do

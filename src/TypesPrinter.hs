@@ -7,7 +7,7 @@ import qualified Data.Set as Set
 import Prelude hiding (Left, Right, (<>))
 import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
 import Operators ( Operator, Associativity(Right, Left), lamOp )
-import PrettyPrinter ( bracket )
+import PrettyPrinterUtils ( bracket )
 import Control.Monad ( foldM )
 
 foldDoc :: [Type] -> Writer [Operator] Doc

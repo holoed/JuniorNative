@@ -28,7 +28,7 @@ env' = concatEnvs env $ toEnv [
  ]
 
 extractName :: SynExp -> String
-extractName (In (Ann _ (Defn (In (Ann _ (VarPat n)):_) _))) = n
+extractName (In (Ann _ (Defn _ (In (Ann _ (VarPat n)):_) _))) = n
 extractName _ = "it"
 
 typeOf :: String -> Either PString [(String, String)]
@@ -210,3 +210,7 @@ tests =
 
     it "from list to map" $ do
       "let main = fromList (('a', 2):[])" --> "Map Char Int"
+
+    it "val signature" $ do
+      [i|val main :: Double
+         let main = 42|] --> "Double"

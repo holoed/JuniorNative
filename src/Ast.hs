@@ -8,6 +8,8 @@ import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
 import Annotations ( Ann(..) )
 import Location (Loc)
+import Types ( Qual, Type )
+import TypesPrinter ()
 
 data ExpF a = Lit Prim
             | Var String
@@ -18,7 +20,7 @@ data ExpF a = Lit Prim
             | Lam a a
             | Let a a a
             | IfThenElse a a a 
-            | Defn a a deriving (Show, Eq, Functor, Traversable, Foldable)
+            | Defn (Maybe (Qual Type)) a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type Exp = Fix (Ann (Maybe Loc) ExpF)
 
@@ -49,8 +51,8 @@ mkTuple l xs = In (Ann (Just l) (MkTuple xs))
 tuplePat :: Loc -> [Exp] -> Exp
 tuplePat l xs = In (Ann (Just l) (TuplePat xs))
 
-defn :: Loc -> Exp -> Exp -> Exp
-defn l p v = In (Ann (Just l) (Defn p v))
+defn :: Loc -> Maybe (Qual Type) -> Exp -> Exp -> Exp
+defn l qt p v = In (Ann (Just l) (Defn qt p v))
 
 extractNameFromPat :: Exp -> (Maybe Loc, String) 
 extractNameFromPat (In (Ann l (VarPat s))) = (l, s)

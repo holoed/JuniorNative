@@ -31,7 +31,7 @@ env = (fromList [
     ("[]", List [])], fromList [])
 
 extractName :: SynExp -> Maybe String
-extractName (In (Ann _ (Defn (In (Ann _ (VarPat n)):_) _))) = Just n
+extractName (In (Ann _ (Defn _ (In (Ann _ (VarPat n)):_) _))) = Just n
 extractName _ = Nothing
 
 run :: String -> Either PString [Result]

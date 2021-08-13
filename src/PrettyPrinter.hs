@@ -2,7 +2,8 @@ module PrettyPrinter where
 
 import Primitives ( Prim(U, I, D, B, S, C) )
 import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, TuplePat, Let, Defn) )
-import Operators ( Operator, Fixity(Infix, Postfix, Prefix), Associativity(..), lamOp, minOp )
+import Operators ( Operator, Associativity(..), lamOp, minOp )
+import PrettyPrinterUtils ( bracket ) 
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
 import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc, parens, sep, spread, nest, align, indent, prettyCompact )
@@ -15,21 +16,6 @@ import Control.Monad.RWS.Lazy
 import Prelude hiding (Left, Right, (<>), pi)
 import Annotations ( unwrap )
 import Data.List (intersperse)
-
-
-noparens ::Operator -> Operator -> Associativity -> Bool
-noparens (_, pi, fi) (_, po, fo) side = pi > po || other fi side
-  where other Postfix Left  = True
-        other Prefix  Right = True
-        other (Infix Left) Left = pi == po && fo == Infix Left
-        other (Infix Right) Right = pi == po && fo == Infix Right
-        other _ NonAssoc = fi == fo
-        other _ _ = False
-
-bracket :: Associativity -> Operator -> [Operator] -> Doc -> Doc
-bracket _ _ [] doc = doc
-bracket side outer (inner:_) doc =
-  if noparens inner outer side then doc else parens doc
 
 type PrettyM = RWS Int [Operator] ()
 
@@ -99,12 +85,12 @@ alg (IfThenElse q t f) = do
   level <- ask
   let ret = group $ nest level $ sep [text "if" <+> q', text "then" <+>  group t', text "else" <+> group f']
   return (ret <|> (line <> indent level ret))
-alg (Defn [n] v) = do
+alg (Defn _ [n] v) = do
   n' <- n
   v' <- local (const 4) v
   _ <- tell [minOp]
   return $ align $ text "let" <+> n' <+> char '=' <+> (v' <|> (line <> group (indent 4 v')))
-alg (Defn ns v) = do
+alg (Defn _ ns v) = do
   ns' <- sequence ns
   let n:xs = ns'
   v' <- local (const 4) v

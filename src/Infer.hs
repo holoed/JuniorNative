@@ -20,6 +20,7 @@ import ContextReduction (resolvePreds, ClassEnv)
 import MonomorphicRestriction (applyRestriction)
 import Data.Bifunctor (second)
 import Control.Monad ((<=<))
+import Data.Maybe (isJust)
 
 getNameAndTypes :: TypedExp -> [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
@@ -109,15 +110,21 @@ alg (Ann (Just l) (TuplePat ns)) = do
   let t = tupleCon ((\(_, _ :=> t') -> t') <$> nts)
   return $ ttuplePat l (fromList [] :=> t) ns'
 
-alg (Ann (Just l) (Defn n e1)) =
+alg (Ann (Just l) (Defn givenQt n e1)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
      let nts = getNameAndTypes n'
      let (TyVar tn _) = t0
      (e1', ps1) <- listen $ local (\(env, _, sv, _) ->
        (foldToScheme env nts, t0, insert tn sv, False)) e1
      bt <- getBaseType
+     ps2 <- if isJust givenQt
+            then do
+                 let Just (givenPreds :=> givenType) = givenQt
+                 mgu l givenType t0
+                 return givenPreds
+            else return (fromList [])
      mgu l t0 bt
-     return (tdefn l (ps1 :=> bt) n' e1')
+     return (tdefn l (ps1 `union` ps2 :=> bt) givenQt n' e1')
 
 alg _ = throwError $ PStr ("Undefined", Nothing)
 
@@ -125,7 +132,7 @@ infer :: ClassEnv -> Env -> Exp -> Either PString (Substitutions, TypedExp)
 infer classEnv env e = fmap f (run (m >>= (applyRestriction <=< resolvePreds classEnv)) ctx state)
   where
         f (e2, (subs, _), _) = (subs, g subs e2)
-        g subs = mapAnn (second (deleteTautology . clean . substituteQ subs)) 
+        g subs = mapAnn (second (deleteTautology . clean . substituteQ subs))
         m = cataRec alg e
         bt =  TyVar "TBase" 0
         ctx = (env, bt, fromList [], True)

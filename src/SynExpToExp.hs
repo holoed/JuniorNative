@@ -9,16 +9,17 @@ import Operators ( juxtaOp, mulOp, divOp, plusOp, plusplusOp, subOp, eqeqOp, gte
 import RecursionSchemes ( cataRec )
 import Location (Loc, zeroLoc)
 import Data.Maybe ( fromMaybe )
+import TypesPrinter () 
 
 getLoc :: Maybe Loc -> Loc
 getLoc = fromMaybe zeroLoc
 
 toExp :: PAst.SynExp -> Ast.Exp
 toExp = cataRec alg
-    where alg (Ann (Just l) (PAst.Defn [s] e1)) =
-              Ast.defn l s e1 
-          alg (Ann (Just l) (PAst.Defn (s:ss) e1)) =
-              Ast.defn l s (foldr (Ast.lam l) e1 ss) 
+    where alg (Ann (Just l) (PAst.Defn qt [s] e1)) =
+              Ast.defn l qt s e1 
+          alg (Ann (Just l) (PAst.Defn qt (s:ss) e1)) =
+              Ast.defn l qt s (foldr (Ast.lam l) e1 ss) 
           alg (Ann (Just l) (PAst.Lit x)) = Ast.lit l x
           alg (Ann (Just l) (PAst.Var s)) = Ast.var l s
           alg (Ann (Just l) (PAst.VarPat s)) = Ast.varPat l s
@@ -62,7 +63,7 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
           alg (Ann Nothing (Ast.App e1 e2)) = PAst.infixApp zeroLoc juxtaOp e1 e2
           alg (Ann l (Ast.Lam s e)) = PAst.lam (getLoc l) [s] e
           alg (Ann (Just l) (Ast.Let s e1 e2)) = PAst.leT l [s] e1 e2
-          alg (Ann (Just l) (Ast.Defn s e1)) = PAst.defn l [s] e1
+          alg (Ann (Just l) (Ast.Defn qt s e1)) = PAst.defn l qt [s] e1
           alg (Ann (Just l) (Ast.IfThenElse p e1 e2)) = PAst.ifThenElse l p e1 e2
           alg x = error ("fromExp error: " ++ show x)
 
@@ -80,6 +81,6 @@ compressLets = cataRec alg
 
 compressDefn :: PAst.SynExp -> PAst.SynExp
 compressDefn = cataRec alg
- where alg (Ann (Just l) (PAst.Defn n1 (In (Ann _ (PAst.Lam n2 v))))) =
-             PAst.defn l (n1 ++ n2) v
+ where alg (Ann (Just l) (PAst.Defn Nothing n1 (In (Ann _ (PAst.Lam n2 v))))) =
+             PAst.defn l Nothing (n1 ++ n2) v
        alg e = In e

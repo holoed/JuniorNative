@@ -10,6 +10,8 @@ import Primitives ( Prim )
 import Operators ( Operator )
 import Annotations ( Ann(..) )
 import Location (Loc)
+import Types ( Qual, Type )
+import TypesPrinter () 
 
 data SynExpF a = Lit Prim
                | Var String
@@ -21,7 +23,7 @@ data SynExpF a = Lit Prim
                | Lam [a] a
                | Let [a] a a
                | IfThenElse a a a 
-               | Defn [a] a deriving (Show, Eq, Functor, Traversable, Foldable)
+               | Defn (Maybe (Qual Type)) [a] a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type SynExp = Fix (Ann (Maybe Loc) SynExpF)
 
@@ -55,5 +57,5 @@ ifThenElse l p e1 e2 = In (Ann (Just l) (IfThenElse p e1 e2))
 mkTuple :: Loc -> [SynExp] -> SynExp
 mkTuple l xs = In (Ann (Just l) (MkTuple xs))
 
-defn :: Loc -> [SynExp] -> SynExp -> SynExp
-defn l ps v = In (Ann (Just l) (Defn ps v))
+defn :: Loc -> Maybe (Qual Type) -> [SynExp] -> SynExp -> SynExp
+defn l qt ps v = In (Ann (Just l) (Defn qt ps v))

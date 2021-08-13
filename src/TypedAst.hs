@@ -37,5 +37,5 @@ tmkTuple l t xs = In (Ann (Just l, t) (MkTuple xs))
 ttuplePat :: Loc -> Qual Type -> [TypedExp] -> TypedExp
 ttuplePat l t xs = In (Ann (Just l, t) (TuplePat xs))
 
-tdefn :: Loc -> Qual Type -> TypedExp -> TypedExp -> TypedExp
-tdefn l t ps v = In (Ann (Just l, t) (Defn ps v))
+tdefn :: Loc -> Qual Type -> Maybe (Qual Type) -> TypedExp -> TypedExp -> TypedExp
+tdefn l t t2 ps v = In (Ann (Just l, t) (Defn t2 ps v))

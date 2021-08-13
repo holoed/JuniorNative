@@ -82,10 +82,10 @@ propagatePreds :: TypedExp -> TypedExp
 propagatePreds e = runReader (cataRec alg e) (fromList [])
     where
         alg :: TypedExpF (Reader (Set Pred) TypedExp) -> Reader (Set Pred) TypedExp
-        alg (Ann (l, qt@(ps :=> _)) (Defn n v)) = do
+        alg (Ann (l, qt@(ps :=> _)) (Defn qt' n v)) = do
             n' <- local (`union` ps) n
             v' <- local (`union` ps) v
-            return $ In . Ann (l, qt) $ Defn n' v'
+            return $ In . Ann (l, qt) $ Defn qt' n' v'
         alg (Ann (l, ps :=> t) (Var n)) = do
             return $ In (Ann (l, ps :=> t) (Var n))
         alg (Ann (l, ps :=> t) x) = do

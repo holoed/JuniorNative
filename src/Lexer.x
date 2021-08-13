@@ -50,6 +50,7 @@ tokens :-
   "--".*                         ;
 
   -- Syntax
+  val                           {\p s -> TokenVal (p, s) }
   let                           {\p s -> TokenLet (p, s) }
   True                          {\p s -> TokenTrue (p, s) }
   False                         {\p s -> TokenFalse (p, s) }
@@ -70,6 +71,7 @@ tokens :-
   "[]"                          {\p s -> TokenEmpty (p, s) }
   "()"                          {\p s -> TokenUnit (p, s) }
   ":"                           {\p s -> TokenCons (p, s) }
+  "::"                          {\p s -> TokenColonColon (p, s) }
   "++"                          {\p s -> TokenConcat (p, s) }
   "&&"                          {\p s -> TokenAnd (p, s) }
   "||"                          {\p s -> TokenOr (p, s) }
@@ -88,7 +90,8 @@ tokens :-
 {
 
 data Token
-  = TokenLet (AlexPosn, String)
+  = TokenVal (AlexPosn, String)
+  | TokenLet (AlexPosn, String)
   | TokenIf (AlexPosn, String)
   | TokenThen (AlexPosn, String)
   | TokenElse (AlexPosn, String)
@@ -105,6 +108,7 @@ data Token
   | TokenConcat (AlexPosn, String)
   | TokenEmpty (AlexPosn, String)
   | TokenCons (AlexPosn, String)
+  | TokenColonColon (AlexPosn, String)
   | TokenAnd (AlexPosn, String)
   | TokenOr (AlexPosn, String)
   | TokenEq (AlexPosn, String)

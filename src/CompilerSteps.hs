@@ -41,7 +41,7 @@ dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
 dependencyAnalysis es = do
     (env, _) <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
-    let dict = Map.fromList ((\e@(In (Ann _ (Defn (In (Ann _ (VarPat s))) _))) -> (s, e)) <$> es)
+    let dict = Map.fromList ((\e@(In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) -> (s, e)) <$> es)
     return $ ((\n -> (n, (Map.!) dict n)) <$>) <$> ns
 
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]

@@ -28,8 +28,8 @@ getTypeForName n env =
         (Identity qt) -> qt
 
 convertPreds :: ClassEnv -> Env -> TypedExp -> TypedExp
-convertPreds classEnv env (In (Ann (loc, ps :=> t) (Defn n v))) =
-        In (Ann (loc, Set.fromList [] :=> extendType (typeForPred <$> Set.toList ps) t) (Defn n v''))
+convertPreds classEnv env (In (Ann (loc, ps :=> t) (Defn givenQt n v))) =
+        In (Ann (loc, Set.fromList [] :=> extendType (typeForPred <$> Set.toList ps) t) (Defn givenQt n v''))
     where (_, name) = extractNameFromPat (mapAnn fst n)
           ps' = if isLam t then Set.toList (collectPreds v) else []
           args = getArgs ps'

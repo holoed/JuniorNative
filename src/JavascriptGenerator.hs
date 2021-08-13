@@ -41,12 +41,12 @@ mapName "()" = "undefined"
 mapName x      = replace "'" "Quoted" x
 
 generateExp :: Fix ExpF -> Text
-generateExp = cataRec alg 
+generateExp = cataRec alg
     where alg (Lit p) = generatePrim p
           alg (Var n) = mapName (pack n)
           alg (VarPat n) = mapName (pack n)
-          alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
-          alg (TuplePat xs) = pack "[" <> intercalate (pack ",") xs <> pack "]" 
+          alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]"
+          alg (TuplePat xs) = pack "[" <> intercalate (pack ",") xs <> pack "]"
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "const" e then "" else " return ") <> e <> " }"
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"
           alg (Let s e1 e2) =
@@ -56,19 +56,19 @@ generateExp = cataRec alg
             (if e2 == "()" then "" else
                 (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then "; " else "; return ") <> e2)
           alg (IfThenElse p e1 e2) =
-                 "function() { if (" <> p <> ") { " <> 
-                     (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <> 
+                 "function() { if (" <> p <> ") { " <>
+                     (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <>
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " } }()"
-          alg (Defn _ _ ) = undefined 
+          alg Defn {} = undefined
 
 generateDecl :: TypedExp -> Text
 generateDecl = generateLet . unwrap
-  where generateLet (In (Defn n v)) =
+  where generateLet (In (Defn _ n v)) =
             let s = generateExp n in
-            let e1 = generateExp v in 
+            let e1 = generateExp v in
             "const " <> s <> " = " <>
             (if "const" `isPrefixOf` e1
-                then "function () { " <> e1 <> " }();" else e1) 
+                then "function () { " <> e1 <> " }();" else e1)
         generateLet _ = undefined
 
 generate :: [TypedExp] -> Text

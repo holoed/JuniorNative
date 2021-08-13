@@ -55,12 +55,12 @@ prettyQ :: Qual Type -> Qual Type
 prettyQ qt = evalState (prettyQM qt) (Map.empty, 'a')
 
 prettifyTypesM :: TypedExp -> PrettyM TypedExp
-prettifyTypesM (In (Ann (loc, qt) (Defn n v))) = do
+prettifyTypesM (In (Ann (loc, qt) (Defn qt'' n v))) = do
      qt' <- prettyQM qt 
      put (Map.empty, 'a')
      n' <- prettifyTypesM n
      v' <- prettifyTypesM v
-     return $ In (Ann (loc, qt') (Defn n' v'))
+     return $ In (Ann (loc, qt') (Defn qt'' n' v'))
 prettifyTypesM e = 
     mapAnnM (\(loc, qt) -> (loc,) <$> prettyQM qt) e
 
