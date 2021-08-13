@@ -62,6 +62,7 @@ tokens :-
   @string                       {\p s -> TokenString (p, (S (tail (init s)))) }
   @char                         {\p s -> TokenChar (p, ((C . (!!1)) s)) }
   "->"                          {\p s -> TokenArrow (p, s) }
+  "=>"                          {\p s -> TokenFatArrow (p, s) }
   "<*>"                         {\p s -> TokenLtStarGt (p, s) }
   "=="                          {\p s -> TokenEql (p, s) }
   ">="                          {\p s -> TokenGtEql (p, s) }
@@ -104,6 +105,7 @@ data Token
   | TokenChar (AlexPosn, Prim)
   | TokenSym (AlexPosn, String)
   | TokenArrow (AlexPosn, String)
+  | TokenFatArrow (AlexPosn, String)
   | TokenLtStarGt (AlexPosn, String)
   | TokenConcat (AlexPosn, String)
   | TokenEmpty (AlexPosn, String)

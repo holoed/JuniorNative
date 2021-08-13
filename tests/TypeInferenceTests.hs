@@ -211,6 +211,13 @@ tests =
     it "from list to map" $ do
       "let main = fromList (('a', 2):[])" --> "Map Char Int"
 
-    it "val signature" $ do
+    it "value signature" $ do
       [i|val main :: Double
          let main = 42|] --> "Double"
+      [i|val main :: Num a => a
+         let main = 42|] --> "Num a => a"
+
+    it "function signature" $ do
+      [i|val f :: Int -> Int
+         let f x = x|] --> "Int -> Int"
+

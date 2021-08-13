@@ -13,6 +13,7 @@ import Primitives
 import PAst
 import Types
 import Data.Set
+import Data.Char (isLower)
 
 import Control.Monad.Except
 
@@ -66,6 +67,7 @@ import Control.Monad.Except
     '()'  { TokenUnit $$ }
     ':'   { TokenCons $$ }
     '::'  { TokenColonColon $$ }
+    '=>'  { TokenFatArrow $$ }
 
 -- Operators
 %right '||'
@@ -82,11 +84,24 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : val Pats '::' Type
+Decl : val Pats '::' QualType
        let Pats '=' Expr           { defn (mkLoc $5) (Just $4) $6 $8 }
      | let Pats '=' Expr           { defn (mkLoc $1) Nothing $2 $4 }
 
-Type : VAR                         { fromList [] :=> TyCon (snd $1) }
+Pred : VAR Type                    { IsIn (snd $1) $2 }
+Preds : Pred                       { [$1] }
+      | Pred ',' Preds             { $1 : $3 }
+PredList : '(' Preds ')'           { fromList $2 }
+
+Type : VAR                         { let name = (snd $1) in 
+                                        if (isLower (head name)) 
+                                        then TyVar name 0
+                                        else TyCon name }
+     | Type '->' Type              { tyLam $1 $3 }         
+
+QualType : Type                    { fromList [] :=> $1 }
+         | Pred  '=>' Type         { fromList [$1] :=> $3 }
+         | PredList '=>' Type      { $1 :=> $3 }
 
 Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
      | '\\' Pats '->' Expr         { lam (mkLoc $1) $2 $4 }
