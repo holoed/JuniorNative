@@ -65,6 +65,10 @@ const fractionalInt = {
 }
 
 const integralInt = {
+  "+": numInt["+"],
+  "*": numInt["*"],
+  "-": numInt["-"],
+  "fromInteger": numInt["fromInteger"],
   "mod": function(x) { return function(y) { return x % y; }},
 }
 
@@ -174,7 +178,7 @@ const toDouble = function(x) {
   return x + 0.0;
 }
 
-const truncate = Math.floor;
+const truncate = instA => instB => Math.floor;
 
 const sin = function(inst) { return inst["sin"]; }
 

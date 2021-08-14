@@ -86,7 +86,7 @@ tests =
       ("mapM","Monad a => (b -> a c) -> List b -> a List c"),
       ("join","List List a -> List a"),
       ("mPoint","(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"),
-      ("mandelbrot","Int -> (Int, Int) -> (Int, Int, Int)"),
+      ("mandelbrot","Integral a => Int -> (Int, Int) -> (a, a, a)"),
       ("reverse","List a -> List a"),
       ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
       ("product","Num a => List a -> a"),

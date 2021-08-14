@@ -146,6 +146,10 @@ numDouble = Instance (fromList [
 
 integralInt :: Result 
 integralInt = Instance (fromList [
+       ("+", let (Instance inst) = numInt in inst!"+"),
+       ("-", let (Instance inst) = numInt in inst!"-"),
+       ("*", let (Instance inst) = numInt in inst!"*"),
+       ("fromInteger", let (Instance inst) = numInt in inst!"fromInteger"),
        ("mod", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x `mod` y)))))
        ])
 
@@ -316,8 +320,9 @@ env = (fromList [
                        g y )))),
     ("toDouble", Function (\(Value (I n)) ->
            return $ Value (D $ fromIntegral n))),
-    ("truncate", Function (\(Value (D x)) ->
-           return $ Value (I $ truncate x))),
+    ("truncate", Function(\(Instance _) -> return $  
+                 Function(\(Instance _) -> return $  
+                     Function (\(Value (D x))  -> return $ Value (I $ truncate x))))),
     ("cos", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"cos" in f x))),
     ("fst", Function(\(Tuple [x,_]) -> return x)),
