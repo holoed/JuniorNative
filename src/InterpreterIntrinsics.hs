@@ -163,6 +163,11 @@ eqInt = Instance (fromList [
        ("==", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x == y)))))
        ])
 
+eqDouble :: Result
+eqDouble = Instance (fromList [
+       ("==", Function(\(Value (D x)) -> return $ Function (\(Value (D y)) -> return $ Value (B (x == y)))))
+       ])
+
 eqString :: Result
 eqString = Instance (fromList [
        ("==", Function(\(Value (S x)) -> return $ Function (\(Value (S y)) -> return $ Value (B (x == y)))))
@@ -262,6 +267,7 @@ env = (fromList [
     ("numTuple2", numTuple2),
     ("eqBool", eqBool),
     ("eqInt", eqInt),
+    ("eqDouble", eqDouble),
     ("eqString", eqString),
     ("eqChar", eqChar),
     ("eqTuple2", eqTuple2),

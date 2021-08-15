@@ -257,5 +257,7 @@ tests = do
    it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[(5,[])]"
 
    it "Calculator Test 2" $ "tests/jnrs_lib/calculator_with_spaces.jnr" ---> "[(14,[])]"
+
+   it "Colors Test" $ "tests/jnrs_lib/color_conversion.jnr" ---> "([(255,0,0),(0,255,0),(0,0,255)],[(127,127,127),(127,0,0),(255,127,127)])"
    
 
