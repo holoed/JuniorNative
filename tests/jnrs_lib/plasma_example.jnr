@@ -1,0 +1,38 @@
+let hsvToRgb (h, s, v) =  
+  let scale x = truncate (x * 255) in
+  let rgb r g b = (scale r, scale g, scale b) in
+  if s == 0 then rgb v v v 
+  else let h' = h / 60 in
+       let i = truncate h' in
+       let f = h' - toDouble i in
+       let p = v * (1 - s) in
+       let q = v * (1 - s * f) in
+       let t = v * (1 - s * (1 - f)) in
+       if i == 0 then rgb v t p else
+       if i == 1 then rgb q v p else 
+       if i == 2 then rgb p v t else
+       if i == 3 then rgb p q v else  
+       if i == 4 then rgb t p v else
+       if i == 5 then rgb v p q else
+       rgb 0 0 0
+
+let posToCoord sz x =
+  let row = x / sz in
+    let col = x - sz * row in
+    (row, col)
+   
+val myEffect :: Int -> (Int, Int) -> (Int, Int, Int)   
+let myEffect s (x, y) =
+  let x' = toDouble x in
+  let y' = toDouble y in
+  hsvToRgb (sin (x' / 16.0) + 
+            sin (y' / 8) +
+            sin ((x' + y') / 16.0) +
+            sin (sqrt(x' * x' + y' * y') / 8.0), 1.0, 1.0)
+
+let render effect pixSize =
+let f = effect pixSize . posToCoord pixSize in
+    split pixSize (range f 0 (pixSize * pixSize))
+     
+let main = render myEffect 5
+            

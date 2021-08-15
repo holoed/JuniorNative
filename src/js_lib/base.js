@@ -90,7 +90,8 @@ const fractionalDouble = {
 
 const floatingDouble = {
   "cos": Math.cos,
-  "sin": Math.sin
+  "sin": Math.sin,
+  "sqrt": Math.sqrt
 }
 
 const numTuple2 = function(instA) {
@@ -183,6 +184,8 @@ const truncate = instA => instB => Math.floor;
 const sin = function(inst) { return inst["sin"]; }
 
 const cos = function(inst) { return inst["cos"]; }
+
+const sqrt = function(inst) { return inst["sqrt"]; }
 
 const fst = function([x,y]){
   return x;

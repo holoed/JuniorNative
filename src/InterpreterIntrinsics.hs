@@ -12,7 +12,8 @@ import qualified Data.Map as Map (fromList)
 floatingDouble :: Result
 floatingDouble = Instance (fromList [
         ("cos", Function(\(Value (D x)) -> return $ Value (D (cos x)))),
-        ("sin", Function(\(Value (D x)) -> return $ Value (D (sin x))))
+        ("sin", Function(\(Value (D x)) -> return $ Value (D (sin x)))),
+        ("sqrt", Function(\(Value (D x)) -> return $ Value (D (sqrt x))))
        ])
 
 ordInt :: Result
@@ -329,8 +330,12 @@ env = (fromList [
     ("truncate", Function(\(Instance _) -> return $  
                  Function(\(Instance _) -> return $  
                      Function (\(Value (D x))  -> return $ Value (I $ truncate x))))),
+    ("sin", Function(\(Instance m) -> return $ Function (\x ->
+       let (Function f) = m!"sin" in f x))),
     ("cos", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"cos" in f x))),
+    ("sqrt", Function(\(Instance m) -> return $ Function (\x ->
+       let (Function f) = m!"sqrt" in f x))),
     ("fst", Function(\(Tuple [x,_]) -> return x)),
     ("snd", Function(\(Tuple [_,y]) -> return y)),
     ("mkParser", Function return),
