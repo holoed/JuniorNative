@@ -55,6 +55,9 @@ tests :: SpecWith ()
 tests =
   describe "Type Inference Tests" $ do
 
+    it "Integral instances" $ do
+      "let main = mod 5 3" --> "Integral a => a"
+
     it "type of a literal Int" $ "42" --> "Num a => a"
     it "type of a literal Double" $ "2.5" --> "Fractional a => a"
     it "type of a literal String" $ "\"Hello\"" --> "String"

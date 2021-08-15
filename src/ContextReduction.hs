@@ -69,14 +69,16 @@ bySuper :: ClassEnv -> Pred -> [Pred]
 bySuper ce p@(IsIn i t) =
     p : concat [bySuper ce (IsIn i' t) | i' <- super ce i]
 
-entail :: ClassEnv -> [Pred] -> Pred -> Bool
-entail ce ps p = any ((p `elem`) . bySuper ce) ps
+entail :: Loc -> ClassEnv -> [Pred] -> Pred -> TypeM Bool
+entail _ ce ps p = return $ any ((p `elem`) . bySuper ce) ps                   
 
-simplify :: ClassEnv -> [Pred] -> [Pred]
-simplify ce = loop [ ]
-    where loop rs [ ] = rs
-          loop rs (p : ps) | entail ce (rs ++ ps) p = loop rs ps
-            | otherwise = loop (p : rs) ps
+simplify :: Loc -> ClassEnv -> [Pred] -> TypeM [Pred]
+simplify l ce = loop [ ]
+    where loop rs [ ] = return rs
+          loop rs (p : ps) = do
+              b <- entail l ce (rs ++ ps) p
+              if b then loop rs ps
+              else loop (p : rs) ps
 
 propagatePreds :: TypedExp -> TypedExp
 propagatePreds e = runReader (cataRec alg e) (fromList [])
@@ -86,7 +88,7 @@ propagatePreds e = runReader (cataRec alg e) (fromList [])
             n' <- local (`union` ps) n
             v' <- local (`union` ps) v
             return $ In . Ann (l, qt) $ Defn qt' n' v'
-        alg (Ann (l, ps :=> t) (Var n)) = do
+        alg (Ann (l, ps :=> t) (Var n)) =
             return $ In (Ann (l, ps :=> t) (Var n))
         alg (Ann (l, ps :=> t) x) = do
             ps' <- ask
@@ -98,6 +100,7 @@ resolvePreds classEnv = cataRec alg . propagatePreds
             (subs, _) <- get
             let (ps :=> t) = substituteQ subs qt
             ps' <- toHnfs (fromJust l) classEnv (toList ps)
-            y <- sequenceA (Ann (l, fromList (simplify classEnv ps') :=> t) x)
+            ps'' <- simplify (fromJust l) classEnv ps'
+            y <- sequenceA (Ann (l, fromList ps'' :=> t) x)
             return $ In y
 
