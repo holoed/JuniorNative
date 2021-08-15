@@ -18,7 +18,9 @@ extendIfNotPresent k v subs =
 
 defaultConstraint :: Pred -> Substitutions-> Substitutions
 defaultConstraint (IsIn "Num" (TyVar n k)) = extendIfNotPresent (n, k) intCon
+defaultConstraint (IsIn "Integral" (TyVar n k)) = extendIfNotPresent (n, k) intCon
 defaultConstraint (IsIn "Fractional" (TyVar n k)) = extendIfNotPresent (n, k) doubleCon
+defaultConstraint (IsIn "Floating" (TyVar n k)) = extendIfNotPresent (n, k) doubleCon
 defaultConstraint  _ = id
 
 numClasses :: [String]

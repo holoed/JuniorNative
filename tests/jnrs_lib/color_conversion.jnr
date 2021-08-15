@@ -1,4 +1,3 @@
-val hsvToRgb :: (Double, Double, Double) -> (Int, Int, Int)
 let hsvToRgb (h, s, v) = 
   let scale x = truncate (x * 255) in
   let rgb r g b = (scale r, scale g, scale b) in
