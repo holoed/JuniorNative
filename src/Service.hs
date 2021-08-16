@@ -77,6 +77,6 @@ route = do
          ret <- liftIO $ compile fullJS (Char8.unpack code)
          either json json ret
     get "/libJs" $ do
-         ret <- liftIO $ readFile "src/js_lib/base.js"
+         ret <- liftIO $ readFile "src/javascript/baselib.js"
          json (pack ret)
 
