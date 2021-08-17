@@ -59,7 +59,7 @@ generateExp = cataRec alg
                  "function() { if (" <> p <> ") { " <>
                      (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <>
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " } }()"
-          alg Defn {} = undefined
+          alg _ = undefined
 
 generateDecl :: TypedExp -> Text
 generateDecl = generateLet . unwrap

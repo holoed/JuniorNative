@@ -20,7 +20,12 @@ data ExpF a = Lit Prim
             | Lam a a
             | Let a a a
             | IfThenElse a a a 
-            | Defn (Maybe (Qual Type)) a a deriving (Show, Eq, Functor, Traversable, Foldable)
+            | Defn (Maybe (Qual Type)) a a 
+            {- This section is for Closure Conversion -}
+            | MkClosure String 
+            | SetEnv String a a a 
+            | GetEnv String a 
+            | ClosureRef a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type Exp = Fix (Ann (Maybe Loc) ExpF)
 

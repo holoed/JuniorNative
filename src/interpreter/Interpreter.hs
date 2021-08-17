@@ -49,6 +49,7 @@ interpretExp env e = runMonad (cataRec alg e) env
             do (Value (B b)) <- e1
                if b then e2 else e3
           alg (Ann _ (Defn _ _ e2)) = e2
+          alg _ = undefined
 
 {-# INLINE interpret #-}
 interpret :: InterpreterEnv -> Exp -> Either PString InterpreterEnv

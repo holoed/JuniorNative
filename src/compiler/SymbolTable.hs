@@ -77,6 +77,7 @@ alg (Ann (loc, qt) (Defn qt' n v)) = do
     let names = fromList $ extractSymbols n'
     v' <- local (`union` names) v
     return $ In (Ann (loc, qt) (Defn qt' n' v'))
+alg _ = undefined
 
 fromBinding :: Map String Symbol -> TypedExp -> [Symbol]
 fromBinding env e = snd $ runWriter $ runReaderT (cataRec alg e) env

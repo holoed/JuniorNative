@@ -1,7 +1,6 @@
 module FreeVariables where
 
-import Location ( Loc )
-import Ast ( Exp, ExpF(..) )
+import Ast ( ExpF(..) )
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(..), unwrap )
 import RecursionSchemes ( cataRec )
@@ -9,17 +8,17 @@ import Data.Set ( delete, empty, singleton, union, member, Set )
 import Control.Monad.Writer ( runWriter, MonadWriter(listen, tell, pass), Writer )
 
 type FreeVarsM = Writer (Set String)
-type FreeVarsExp = Fix (Ann (Maybe Loc, Set String) ExpF)
+type FreeVarsExp attr = Fix (Ann (attr, Set String) ExpF)
 
-getNames :: FreeVarsExp -> [String]
+getNames :: FreeVarsExp attr -> [String]
 getNames (In (Ann (_, _) (VarPat s))) = [s]
 getNames (In (Ann (_, _) (TuplePat ss))) = ss >>= getNames
 getNames x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
-freeVars :: Set String -> Exp -> Fix (Ann (Maybe Loc, Set String) ExpF)
+freeVars :: Set String -> Fix (Ann attr ExpF) -> Fix (Ann (attr, Set String) ExpF)
 freeVars globals e = fst $ runWriter (cataRec alg e)
   where
-    alg :: Ann (Maybe Loc) ExpF (FreeVarsM FreeVarsExp) -> FreeVarsM FreeVarsExp
+    alg :: Ann attr ExpF (FreeVarsM (FreeVarsExp attr)) -> FreeVarsM (FreeVarsExp attr)
     alg (Ann l (Lit x)) = return $ In (Ann (l, empty) (Lit x))
     alg (Ann l (Var s)) = do
       let fv = if member s globals
@@ -67,6 +66,20 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
        (v', fvs1) <- listen v
        let f x = foldl (flip delete) x s'
        return (In (Ann (l, f fvs1) $ Defn qt n' v'), f))
+    {- Dedicated to Closure Conversion -}
+    alg (Ann l (MkClosure n)) = return $ In (Ann (l, empty) (MkClosure n))
+    alg (Ann l (SetEnv n e1 e2 e3)) = do
+      (e1',fvs1) <- listen e1
+      (e2',fvs2) <- listen e2
+      (e3',fvs3) <- listen e3
+      return $ In (Ann (l, fvs1 `union` fvs2 `union` fvs3) $ SetEnv n e1' e2' e3')
+    alg (Ann l (GetEnv n e1)) = do
+      (e1', fvs) <- listen e1 
+      return $ In (Ann (l, fvs) (GetEnv n e1'))
+    alg (Ann l (ClosureRef e1)) = do 
+      (e1', fvs) <- listen e1 
+      return $ In (Ann (l, fvs) (ClosureRef e1'))
+
     
 
 
