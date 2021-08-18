@@ -1,17 +1,20 @@
+{-# LANGUAGE FlexibleContexts #-}
 module ClosureConversion where
 
 import Location (zeroLoc)
 import Annotations ( Ann(Ann), mapAnn )
 import Fixpoint ( Fix(In) )
 import Ast ( ExpF(Var, Lit, VarPat, MkTuple, TuplePat, Lam, App, SetEnv, GetEnv, Var, Let, MkClosure, Defn, ClosureRef, IfThenElse) )
-import Data.Set ( Set, toList, member, fromList )
+import Data.Set ( Set, toList, member, fromList, delete )
 import Control.Monad.RWS.Lazy ( RWS, asks, runRWS )
 import Control.Monad.Writer ( MonadWriter(tell) )
 import Control.Monad.State ( MonadState(put, get) )
+import Control.Monad.Reader ( MonadReader(local, ask), runReader )
 import RecursionSchemes (cataRec)
 import FreeVariables (FreeVarsExp, freeVars)
 import Types (Qual, Type)
 import TypedAst (TypedExp)
+import Data.Bifunctor (second)
 
 type TypedFExp = FreeVarsExp (Qual Type)
 type ClosureM = RWS (Set String) [TypedFExp] (Int, Int)
@@ -94,10 +97,22 @@ convert = cataRec alg
      alg (Ann _ Defn {}) = undefined
 
 subst :: Set String -> TypedFExp -> TypedFExp -> TypedFExp
-subst = undefined
+subst vars env expr = runReader (cataRec alg expr) (env, vars)
+   where alg (Ann attr (Lit n)) = return $ In (Ann attr (Lit n))
+         alg (Ann attr (Let n v b)) = do
+            n' <- n
+            let (In (Ann _ (VarPat name))) = n'
+            v' <- v
+            b' <- local (second (delete name)) b
+            return $ In (Ann attr (Let n' v' b'))
+         alg (Ann attr (Var name)) = do
+            (env, vars) <- ask
+            if member name vars 
+            then return $ In (Ann attr (GetEnv name env))
+            else return $ In (Ann attr (Var name))
 
 callClosure ::  (Qual Type, Set String) -> TypedFExp -> TypedFExp -> TypedFExp
 callClosure attr closure args =
-    In (Ann attr (App e1 e2))
+ In (Ann attr (App e1 e2))
     where e1 = In (Ann attr (ClosureRef closure))
           e2 = args
