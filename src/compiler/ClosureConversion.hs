@@ -1,18 +1,27 @@
 module ClosureConversion where
 
-import Annotations ( Ann(Ann) )
+import Location (zeroLoc)
+import Annotations ( Ann(Ann), mapAnn )
 import Fixpoint ( Fix(In) )
 import Ast ( ExpF(Var, Lit, VarPat, MkTuple, TuplePat, Lam, App, SetEnv, GetEnv, Var, Let, MkClosure, Defn, ClosureRef, IfThenElse) )
-import Data.Set ( Set, toList, member )
-import Control.Monad.RWS.Lazy ( RWS, asks )
+import Data.Set ( Set, toList, member, fromList )
+import Control.Monad.RWS.Lazy ( RWS, asks, runRWS )
 import Control.Monad.Writer ( MonadWriter(tell) )
 import Control.Monad.State ( MonadState(put, get) )
 import RecursionSchemes (cataRec)
-import FreeVariables (FreeVarsExp)
+import FreeVariables (FreeVarsExp, freeVars)
 import Types (Qual, Type)
+import TypedAst (TypedExp)
 
 type TypedFExp = FreeVarsExp (Qual Type)
 type ClosureM = RWS (Set String) [TypedFExp] (Int, Int)
+
+convertProg :: [TypedExp] -> [TypedExp]
+convertProg defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> origDefs ++ reverse newDefs
+  where
+    globals = fromList . map (\(In (Ann _ (Defn _ (In (Ann _ (VarPat name))) _))) -> name) $ defs
+    newDefsM = sequence $ convert . freeVars globals . mapAnn snd <$> defs
+    (origDefs, _, newDefs) = runRWS newDefsM globals (0, 0)
 
 freshFunc :: ClosureM String
 freshFunc = do
@@ -46,7 +55,7 @@ convert = cataRec alg
             n' <- n
             v' <- v
             In . Ann attr . Let n' v' <$> b
-     alg (Ann attr@(_,freeVars) (Lam e1 e2)) = do
+     alg (Ann attr@(_,freeVars') (Lam e1 e2)) = do
             arg@(In (Ann varAttr _)) <- e1
             name <- freshFunc
             e2' <- e2
@@ -55,9 +64,9 @@ convert = cataRec alg
             tell [In (Ann attr (Defn Nothing
                                      (In (Ann attr (VarPat name)))
                                      (In (Ann attr (Lam (In (Ann varAttr (TuplePat [newArg, arg])))
-                                                        (subst freeVars newArgRef e2'))))))]
+                                                        (subst freeVars' newArgRef e2'))))))]
             closName <- freshClos
-            let envBindings = foldr (setEnv attr closName) (In (Ann attr (Var closName))) (toList freeVars)
+            let envBindings = foldr (setEnv attr closName) (In (Ann attr (Var closName))) (toList freeVars')
             return $ In (Ann attr (Let (In (Ann attr (Var closName)))
                                        (In (Ann attr (MkClosure name)))
                                        envBindings))
