@@ -98,7 +98,14 @@ convert = cataRec alg
 
 subst :: Set String -> TypedFExp -> TypedFExp -> TypedFExp
 subst vars env expr = runReader (cataRec alg expr) (env, vars)
-   where alg (Ann attr (Lit n)) = return $ In (Ann attr (Lit n))
+   where alg (Ann attr (VarPat n)) = return $ In (Ann attr (VarPat n))
+         alg (Ann attr (TuplePat xs)) = do
+            xs' <- sequence xs
+            return $ In (Ann attr (TuplePat xs'))
+         alg (Ann attr (MkTuple xs)) = do
+            xs' <- sequence xs
+            return $ In (Ann attr (MkTuple xs'))
+         alg (Ann attr (Lit n)) = return $ In (Ann attr (Lit n))
          alg (Ann attr (Let n v b)) = do
             n' <- n
             let (In (Ann _ (VarPat name))) = n'
@@ -106,10 +113,33 @@ subst vars env expr = runReader (cataRec alg expr) (env, vars)
             b' <- local (second (delete name)) b
             return $ In (Ann attr (Let n' v' b'))
          alg (Ann attr (Var name)) = do
-            (env, vars) <- ask
-            if member name vars 
-            then return $ In (Ann attr (GetEnv name env))
+            (env', vars') <- ask
+            if member name vars'
+            then return $ In (Ann attr (GetEnv name env'))
             else return $ In (Ann attr (Var name))
+         alg (Ann attr (Lam e1 e2)) = do
+            e1' <- e1
+            let In (Ann _ (VarPat name)) = e1'
+            e2' <- local (second (delete name)) e2
+            return $ In (Ann attr (Lam e1' e2'))
+         alg (Ann attr (App e1 e2)) = do
+            e1' <- e1
+            In . Ann attr . App e1' <$> e2
+         alg (Ann attr (MkClosure name)) =
+            return $ In (Ann attr (MkClosure name))
+         alg (Ann attr (SetEnv name e1 e2 e3)) = do
+            e1' <- e1
+            e2' <- e2
+            In . Ann attr . SetEnv name e1' e2' <$> e3
+         alg (Ann attr (GetEnv name e1)) = do
+            In . Ann attr . GetEnv name <$> e1
+         alg (Ann attr (ClosureRef e1)) = do
+            In . Ann attr . ClosureRef <$> e1
+         alg (Ann attr (IfThenElse e1 e2 e3)) = do
+            e1' <- e1
+            e2' <- e2
+            In . Ann attr . IfThenElse e1' e2' <$> e3
+         alg (Ann _ Defn {}) = undefined
 
 callClosure ::  (Qual Type, Set String) -> TypedFExp -> TypedFExp -> TypedFExp
 callClosure attr closure args =
