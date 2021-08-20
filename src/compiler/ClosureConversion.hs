@@ -15,6 +15,7 @@ import FreeVariables (FreeVarsExp, freeVars)
 import Types (Qual, Type)
 import TypedAst (TypedExp)
 import Data.Bifunctor (second)
+import Debug.Trace
 
 type TypedFExp = FreeVarsExp (Qual Type)
 type ClosureM = RWS (Set String) [TypedFExp] (Int, Int)
@@ -23,7 +24,8 @@ convertProg :: [TypedExp] -> [TypedExp]
 convertProg defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> origDefs ++ reverse newDefs
   where
     globals = fromList . map (\(In (Ann _ (Defn _ (In (Ann _ (VarPat name))) _))) -> name) $ defs
-    newDefsM = sequence $ convert . freeVars globals . mapAnn snd <$> defs
+    bodies = (\(In (Ann _ (Defn _ _ b))) -> b) <$> defs
+    newDefsM = sequence $ convert . freeVars globals . mapAnn snd <$> bodies
     (origDefs, _, newDefs) = runRWS newDefsM globals (0, 0)
 
 freshFunc :: ClosureM String
@@ -70,18 +72,20 @@ convert = cataRec alg
                                                         (subst freeVars' newArgRef e2'))))))]
             closName <- freshClos
             let envBindings = foldr (setEnv attr closName) (In (Ann attr (Var closName))) (toList freeVars')
-            return $ In (Ann attr (Let (In (Ann attr (Var closName)))
+            return $ In (Ann attr (Let (In (Ann attr (VarPat closName)))
                                        (In (Ann attr (MkClosure name)))
                                        envBindings))
 
      alg (Ann attr (App e1 e2)) = do
            e1' <- e1
-           let (In (Ann _ (VarPat name))) = e1'
            e2' <- e2
-           isGlobal <- asks (member name)
-           if isGlobal
-           then return $ In (Ann attr (App (In (Ann attr (Var name))) e2'))
-           else return $ callClosure attr (In (Ann attr (Var name))) e2'
+           case e1' of
+            (In (Ann _ (Var name))) -> do 
+                isGlobal <- asks (member name)
+                if isGlobal
+                then return $ In (Ann attr (App (In (Ann attr (Var name))) e2'))
+                else return $ callClosure attr (In (Ann attr (Var name))) e2'
+            _ -> return $ callClosure attr e1' e2'
      alg (Ann attr (MkClosure name)) = return $ In (Ann attr (MkClosure name))
      alg (Ann attr (ClosureRef clos)) = In . Ann attr . ClosureRef <$> clos
      alg (Ann attr (SetEnv name clos binding body)) = do
@@ -108,7 +112,7 @@ subst vars env expr = runReader (cataRec alg expr) (env, vars)
          alg (Ann attr (Lit n)) = return $ In (Ann attr (Lit n))
          alg (Ann attr (Let n v b)) = do
             n' <- n
-            let (In (Ann _ (VarPat name))) = n'
+            let (In (Ann _ (VarPat name))) = trace (show n') n'
             v' <- v
             b' <- local (second (delete name)) b
             return $ In (Ann attr (Let n' v' b'))

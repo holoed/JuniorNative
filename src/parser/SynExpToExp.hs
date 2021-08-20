@@ -65,7 +65,19 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
           alg (Ann (Just l) (Ast.Let s e1 e2)) = PAst.leT l [s] e1 e2
           alg (Ann (Just l) (Ast.Defn qt s e1)) = PAst.defn l qt [s] e1
           alg (Ann (Just l) (Ast.IfThenElse p e1 e2)) = PAst.ifThenElse l p e1 e2
-          alg x = error ("fromExp error: " ++ show x)
+          alg (Ann (Just l) (Ast.MkClosure name)) = 
+              PAst.infixApp l juxtaOp (PAst.var l "MkClosure") (PAst.var l ("\"" ++ name ++ "\""))
+          alg (Ann (Just l) (Ast.SetEnv name e1 e2 e3)) =
+               PAst.infixApp l juxtaOp (
+                   PAst.infixApp l juxtaOp (
+                       PAst.infixApp l juxtaOp (
+                           PAst.infixApp l juxtaOp (PAst.var l "SetEnv") (PAst.var l ("\"" ++ name ++ "\""))) e1) e2) e3
+          alg (Ann (Just l) (Ast.GetEnv name e)) = 
+              PAst.infixApp l juxtaOp (
+                  PAst.infixApp l juxtaOp (PAst.var l "GetEnv") (PAst.var l ("\"" ++ name ++ "\""))) e
+          alg (Ann (Just l) (Ast.ClosureRef e)) =
+              PAst.infixApp l juxtaOp (PAst.var l "ClosureRef") e
+          alg x = PAst.var zeroLoc ("# " ++ show x ++ " #")
 
 compressLambdas :: PAst.SynExp -> PAst.SynExp
 compressLambdas = cataRec alg
