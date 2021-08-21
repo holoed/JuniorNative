@@ -5,7 +5,7 @@ import Location (zeroLoc)
 import Annotations ( Ann(Ann), mapAnn )
 import Fixpoint ( Fix(In) )
 import Ast ( ExpF(Var, Lit, VarPat, MkTuple, TuplePat, Lam, App, SetEnv, GetEnv, Var, Let, MkClosure, Defn, ClosureRef, IfThenElse) )
-import Data.Set ( Set, toList, member, fromList, delete )
+import Data.Set ( Set, toList, member, fromList, delete, union )
 import Control.Monad.RWS.Lazy ( RWS, asks, runRWS )
 import Control.Monad.Writer ( MonadWriter(tell) )
 import Control.Monad.State ( MonadState(put, get) )
@@ -20,13 +20,19 @@ import Debug.Trace
 type TypedFExp = FreeVarsExp (Qual Type)
 type ClosureM = RWS (Set String) [TypedFExp] (Int, Int)
 
-convertProg :: [TypedExp] -> [TypedExp]
-convertProg defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> origDefs ++ reverse newDefs
+convertProg :: Set String -> [TypedExp] -> [TypedExp]
+convertProg existing defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> origDefs ++ reverse newDefs
   where
-    globals = fromList . map (\(In (Ann _ (Defn _ (In (Ann _ (VarPat name))) _))) -> name) $ defs
-    bodies = (\(In (Ann _ (Defn _ _ b))) -> b) <$> defs
-    newDefsM = sequence $ convert . freeVars globals . mapAnn snd <$> bodies
+    topLevelNames = fromList . map (\(In (Ann _ (Defn _ (In (Ann _ (VarPat name))) _))) -> name) $ defs
+    globals = topLevelNames `union` existing
+    newDefsM = sequence (
+       (\(In (Ann (_, qt) (Defn _ (In (Ann (_, qt2) (VarPat n))) b))) -> 
+          do b' <- convertBody globals b
+             return $ In (Ann (qt, fromList []) (Defn Nothing (In (Ann (qt2, fromList []) (VarPat n))) b'))) <$> defs)
     (origDefs, _, newDefs) = runRWS newDefsM globals (0, 0)
+
+convertBody :: Set String -> Fix (Ann (a, Qual Type) ExpF) -> ClosureM TypedFExp
+convertBody globals = convert . freeVars globals . mapAnn snd
 
 freshFunc :: ClosureM String
 freshFunc = do
@@ -80,7 +86,7 @@ convert = cataRec alg
            e1' <- e1
            e2' <- e2
            case e1' of
-            (In (Ann _ (Var name))) -> do 
+            (In (Ann _ (Var name))) -> do
                 isGlobal <- asks (member name)
                 if isGlobal
                 then return $ In (Ann attr (App (In (Ann attr (Var name))) e2'))

@@ -10,6 +10,7 @@ import TypedAst (TypedExp)
 import SynExpToExp ( fromExp )
 import PrettyPrinter (prettyPrint)
 import Annotations (mapAnn)
+import Data.Map (keysSet)
 
 typeOf :: String -> IO [TypedExp]
 typeOf code = do
@@ -19,10 +20,21 @@ typeOf code = do
 toString :: TypedExp -> String
 toString = prettyPrint . fromExp . mapAnn fst
 
+process :: String -> IO [String]
+process code = (toString <$>) . convertProg (keysSet env) <$> typeOf code
+
 tests :: SpecWith ()
 tests =
   describe "Closure Conversion Tests" $ do
 
+    it "convert lit bool" $ do
+      xs <- process "let x = True"
+      xs `shouldBe` ["let x = True"]
+
+    it "convert lit num" $ do
+      xs <- process "let x = 42"
+      xs `shouldBe` ["let x = fromInteger 42"]
+
     it "convert simple function" $ do
-      xs <- typeOf "let f x = x"
-      ((toString <$>) . convertProg) xs `shouldBe` ["let _c0 = MkClosure \"_f0\"","let _f0 (_env, x) = x"]
+      xs <- process "let f x = x"
+      xs `shouldBe` ["let f = let _c0 = MkClosure \"_f0\"","let _f0 (_env, x) = x"]
