@@ -53,19 +53,6 @@ setEnv attr closName name x = In (Ann attr (SetEnv name (In (Ann attr (Var closN
 convert :: TypedFExp -> ClosureM TypedFExp
 convert = cataRec alg
     where
-     alg (Ann attr (Lit x)) = return $ In (Ann attr (Lit x))
-     alg (Ann attr (Var n)) = return $ In (Ann attr (Var n))
-     alg (Ann attr (VarPat n)) = return $ In (Ann attr (VarPat n))
-     alg (Ann attr (MkTuple es)) =
-         do es' <- sequence es
-            return $ In (Ann attr (MkTuple es'))
-     alg (Ann attr (TuplePat es)) =
-         do es' <- sequence es
-            return $ In (Ann attr (TuplePat es'))
-     alg (Ann attr (Let n v b)) = do
-            n' <- n
-            v' <- v
-            In . Ann attr . Let n' v' <$> b
      alg (Ann attr@(_,freeVars') (Lam e1 e2)) = do
             arg@(In (Ann varAttr _)) <- e1
             name <- freshFunc
@@ -92,33 +79,14 @@ convert = cataRec alg
                 then return $ In (Ann attr (App (In (Ann attr (Var name))) e2'))
                 else return $ callClosure attr (In (Ann attr (Var name))) e2'
             _ -> return $ callClosure attr e1' e2'
-     alg (Ann attr (MkClosure name)) = return $ In (Ann attr (MkClosure name))
-     alg (Ann attr (ClosureRef clos)) = In . Ann attr . ClosureRef <$> clos
-     alg (Ann attr (SetEnv name clos binding body)) = do
-        clos' <- clos
-        binding' <- binding
-        In . Ann attr . SetEnv name clos' binding' <$> body
-     alg (Ann attr (GetEnv name clos)) = do
-        In . Ann attr . GetEnv name <$> clos
-     alg (Ann attr (IfThenElse e1 e2 e3)) = do
-        e1' <- e1
-        e2' <- e2
-        In . Ann attr . IfThenElse e1' e2' <$> e3
      alg (Ann _ Defn {}) = undefined
+     alg x = fmap In (sequenceA x)
 
 subst :: Set String -> TypedFExp -> TypedFExp -> TypedFExp
 subst vars env expr = runReader (cataRec alg expr) (env, vars)
-   where alg (Ann attr (VarPat n)) = return $ In (Ann attr (VarPat n))
-         alg (Ann attr (TuplePat xs)) = do
-            xs' <- sequence xs
-            return $ In (Ann attr (TuplePat xs'))
-         alg (Ann attr (MkTuple xs)) = do
-            xs' <- sequence xs
-            return $ In (Ann attr (MkTuple xs'))
-         alg (Ann attr (Lit n)) = return $ In (Ann attr (Lit n))
-         alg (Ann attr (Let n v b)) = do
+   where alg (Ann attr (Let n v b)) = do
             n' <- n
-            let (In (Ann _ (VarPat name))) = trace (show n') n'
+            let (In (Ann _ (VarPat name))) = n'
             v' <- v
             b' <- local (second (delete name)) b
             return $ In (Ann attr (Let n' v' b'))
@@ -132,24 +100,8 @@ subst vars env expr = runReader (cataRec alg expr) (env, vars)
             let In (Ann _ (VarPat name)) = e1'
             e2' <- local (second (delete name)) e2
             return $ In (Ann attr (Lam e1' e2'))
-         alg (Ann attr (App e1 e2)) = do
-            e1' <- e1
-            In . Ann attr . App e1' <$> e2
-         alg (Ann attr (MkClosure name)) =
-            return $ In (Ann attr (MkClosure name))
-         alg (Ann attr (SetEnv name e1 e2 e3)) = do
-            e1' <- e1
-            e2' <- e2
-            In . Ann attr . SetEnv name e1' e2' <$> e3
-         alg (Ann attr (GetEnv name e1)) = do
-            In . Ann attr . GetEnv name <$> e1
-         alg (Ann attr (ClosureRef e1)) = do
-            In . Ann attr . ClosureRef <$> e1
-         alg (Ann attr (IfThenElse e1 e2 e3)) = do
-            e1' <- e1
-            e2' <- e2
-            In . Ann attr . IfThenElse e1' e2' <$> e3
          alg (Ann _ Defn {}) = undefined
+         alg x = fmap In (sequenceA x)
 
 callClosure ::  (Qual Type, Set String) -> TypedFExp -> TypedFExp -> TypedFExp
 callClosure attr closure args =
