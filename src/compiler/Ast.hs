@@ -23,7 +23,7 @@ data ExpF a = Lit Prim
             | Defn (Maybe (Qual Type)) a a 
             {- This section is for Closure Conversion -}
             | MkClosure String 
-            | SetEnv String a a a 
+            | SetEnv String a a
             | GetEnv String a 
             | ClosureRef a deriving (Show, Eq, Functor, Traversable, Foldable)
 

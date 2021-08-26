@@ -68,11 +68,10 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
        return (In (Ann (l, f fvs1) $ Defn qt n' v'), f))
     {- Dedicated to Closure Conversion -}
     alg (Ann l (MkClosure n)) = return $ In (Ann (l, empty) (MkClosure n))
-    alg (Ann l (SetEnv n e1 e2 e3)) = do
+    alg (Ann l (SetEnv n e1 e2)) = do
       (e1',fvs1) <- listen e1
       (e2',fvs2) <- listen e2
-      (e3',fvs3) <- listen e3
-      return $ In (Ann (l, fvs1 `union` fvs2 `union` fvs3) $ SetEnv n e1' e2' e3')
+      return $ In (Ann (l, fvs1 `union` fvs2) $ SetEnv n e1' e2')
     alg (Ann l (GetEnv n e1)) = do
       (e1', fvs) <- listen e1 
       return $ In (Ann (l, fvs) (GetEnv n e1'))

@@ -6,7 +6,7 @@ import Operators ( Operator, Associativity(..), lamOp, minOp )
 import PrettyPrinterUtils ( bracket ) 
 import RecursionSchemes ( cataRec )
 import Text.PrettyPrint.Mainland.Class ()
-import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc, parens, sep, spread, nest, align, indent, prettyCompact )
+import Text.PrettyPrint.Mainland ( (<+>),(<+/>), (<|>), char, parens, pretty, folddoc, group, text, line, Doc, parens, sep, spread, nest, align, indent )
 import Control.Monad.RWS.Lazy
     ( (<>),
       evalRWS,
@@ -66,8 +66,7 @@ alg (Let [n] v b) = do
   b' <- b
   _ <- tell [minOp]
   level <- ask
-  if prettyCompact b' == prettyCompact n' then return $ align $ text "let" <+> n' <+> char '=' <+> (v' <|> (line <> group (indent 4 v')))
-  else return $ align $ sep [nest level $ text "let" <+> n' <+> char '=' <+> group (nest level v') <+> text "in", group b']
+  return $ align $ sep [nest level $ text "let" <+> n' <+> char '=' <+> group (nest level v') <+> text "in", group b']
 alg (Let ns v b) = do
   ns' <- sequence ns
   let n:xs = ns'
@@ -75,8 +74,7 @@ alg (Let ns v b) = do
   b' <- b
   _ <- tell [minOp]
   level <- ask
-  if prettyCompact b' == prettyCompact n then return $ align $ text "let" <+> n <+> spread xs <+> char '=' <+> (v' <|> (line <> group (indent 4 v')))
-  else return $ align $ sep [nest level $ text "let" <+> n <+> spread xs <+> char '=' <+> group (nest level v') <+> text "in", group b']
+  return $ align $ sep [nest level $ text "let" <+> n <+> spread xs <+> char '=' <+> group (nest level v') <+> text "in", group b']
 alg (IfThenElse q t f) = do
   q' <- q
   t' <- t
