@@ -4,9 +4,9 @@ module ClosureConversion where
 import Location (zeroLoc)
 import Annotations ( Ann(Ann), mapAnn )
 import Fixpoint ( Fix(In) )
-import Ast ( ExpF(Var, VarPat, TuplePat, Lam, App, SetEnv, GetEnv, Var, Let, MkClosure, Defn, ClosureRef) )
+import Ast ( ExpF(Var, VarPat, TuplePat, Lam, App, SetEnv, GetEnv, Var, Let, MkClosure, Defn, AppClosure) )
 import Data.Set ( Set, toList, member, fromList, delete, union )
-import Control.Monad.RWS.Lazy ( RWS, asks, runRWS )
+import Control.Monad.RWS.Lazy ( RWS, runRWS )
 import Control.Monad.Writer ( MonadWriter(tell) )
 import Control.Monad.State ( MonadState(put, get) )
 import Control.Monad.Reader ( MonadReader(local, ask), runReader )
@@ -20,12 +20,12 @@ type TypedFExp = FreeVarsExp (Qual Type)
 type ClosureM = RWS (Set String) [TypedFExp] (Int, Int)
 
 convertProg :: Set String -> [TypedExp] -> [TypedExp]
-convertProg existing defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> newDefs ++ origDefs 
+convertProg existing defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> newDefs ++ origDefs
   where
     topLevelNames = fromList . map (\(In (Ann _ (Defn _ (In (Ann _ (VarPat name))) _))) -> name) $ defs
     globals = topLevelNames `union` existing
     newDefsM = sequence (
-       (\(In (Ann (_, qt) (Defn _ (In (Ann (_, qt2) (VarPat n))) b))) -> 
+       (\(In (Ann (_, qt) (Defn _ (In (Ann (_, qt2) (VarPat n))) b))) ->
           do b' <- convertBody globals b
              return $ In (Ann (qt, fromList []) (Defn Nothing (In (Ann (qt2, fromList []) (VarPat n))) b'))) <$> defs)
     (origDefs, _, newDefs) = runRWS newDefsM globals (0, 0)
@@ -50,7 +50,7 @@ setEnv attr name x = In (Ann attr (SetEnv name (In (Ann attr (Var name))) x))
 
 convert :: TypedFExp -> ClosureM TypedFExp
 convert = cataRec alg
-    where     
+    where
      alg (Ann attr@(_,freeVars') (Lam e1 e2)) = do
             arg@(In (Ann varAttr _)) <- e1
             name <- freshFunc
@@ -69,14 +69,7 @@ convert = cataRec alg
 
      alg (Ann attr (App e1 e2)) = do
            e1' <- e1
-           e2' <- e2
-           case e1' of
-            (In (Ann _ (Var name))) -> do
-                isGlobal <- asks (member name)
-                if isGlobal
-                then return $ In (Ann attr (App (In (Ann attr (Var name))) e2'))
-                else return $ callClosure attr (In (Ann attr (Var name))) e2'
-            _ -> return $ callClosure attr e1' e2'
+           callClosure attr e1' <$> e2
      alg (Ann _ Defn {}) = undefined
      alg x = fmap In (sequenceA x)
 
@@ -102,7 +95,6 @@ subst vars env expr = runReader (cataRec alg expr) (env, vars)
          alg x = fmap In (sequenceA x)
 
 callClosure ::  (Qual Type, Set String) -> TypedFExp -> TypedFExp -> TypedFExp
-callClosure attr closure args =
- In (Ann attr (App e1 e2))
-    where e1 = In (Ann attr (ClosureRef closure))
-          e2 = args
+callClosure attr closure arg =
+ In (Ann attr (AppClosure closure arg))
+

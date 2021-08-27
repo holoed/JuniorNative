@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module JavascriptGenerator where
 
-import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat) )
+import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat, MkClosure, AppClosure, GetEnv, SetEnv) )
 import TypedAst ( TypedExp )
 import Data.Text (Text, intercalate, pack, isPrefixOf, replace)
 import RecursionSchemes ( cataRec )
@@ -59,7 +59,11 @@ generateExp = cataRec alg
                  "function() { if (" <> p <> ") { " <>
                      (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <>
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " } }()"
-          alg _ = undefined
+          alg (AppClosure e1 e2) = "applyClosure("<> mapOp e1 <> "," <> e2 <> ")"
+          alg (GetEnv name a) = "getEnv(" <> "\"" <> pack name <> "\"" <> "," <> a <> ")"
+          alg (SetEnv name v b) = "setEnv(" <> "\"" <> pack name <> "\"" <> "," <> v <> "," <> b <> ")"
+          alg (MkClosure name) = "mkClosure(" <> pack name <> ")"
+          alg x = error (show x)
 
 generateDecl :: TypedExp -> Text
 generateDecl = generateLet . unwrap

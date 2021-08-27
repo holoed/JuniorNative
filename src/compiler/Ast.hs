@@ -25,7 +25,7 @@ data ExpF a = Lit Prim
             | MkClosure String 
             | SetEnv String a a
             | GetEnv String a 
-            | ClosureRef a deriving (Show, Eq, Functor, Traversable, Foldable)
+            | AppClosure a a deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type Exp = Fix (Ann (Maybe Loc) ExpF)
 

@@ -71,8 +71,8 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
               PAst.infixApp l juxtaOp (PAst.var l "SetEnv") (PAst.mkTuple l [PAst.var l ("\"" ++ name ++ "\""), e1, e2])
           alg (Ann (Just l) (Ast.GetEnv name e)) = 
               PAst.infixApp l juxtaOp (PAst.var l "GetEnv") (PAst.mkTuple l [PAst.var l ("\"" ++ name ++ "\""), e])
-          alg (Ann (Just l) (Ast.ClosureRef e)) =
-              PAst.infixApp l juxtaOp (PAst.var l "ClosureRef") e
+          alg (Ann (Just l) (Ast.AppClosure e1 e2)) =
+              PAst.infixApp l juxtaOp (PAst.var l "AppClosure") (PAst.mkTuple l [e1, e2])
           alg x = PAst.var zeroLoc ("# " ++ show x ++ " #")
 
 compressLambdas :: PAst.SynExp -> PAst.SynExp

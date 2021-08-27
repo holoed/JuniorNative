@@ -216,7 +216,8 @@ test-suite tests
                        MandelbrotTests,
                        CompileToJsTests,
                        JavaScriptRunnerTests,
-                       ClosureConversionTests
+                       ClosureConversionTests,
+                       CompileToClosedJsTests
 
   hs-source-dirs:      tests, src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
   build-tool-depends:  happy:happy, alex:alex

@@ -52,4 +52,8 @@ fullJS :: String -> CompileM Text
 fullJS = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
        step "to javascript" toJs
+
+fullJSClosed :: String -> CompileM Text
+fullJSClosed = closed >=>
+       step "to javascript" toJs
        

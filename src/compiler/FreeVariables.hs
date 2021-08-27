@@ -75,9 +75,10 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
     alg (Ann l (GetEnv n e1)) = do
       (e1', fvs) <- listen e1 
       return $ In (Ann (l, fvs) (GetEnv n e1'))
-    alg (Ann l (ClosureRef e1)) = do 
-      (e1', fvs) <- listen e1 
-      return $ In (Ann (l, fvs) (ClosureRef e1'))
+    alg (Ann l (AppClosure e1 e2)) = do
+      (e1', fvs1) <- listen e1
+      (e2', fvs2) <- listen e2
+      return $ In (Ann (l, fvs1 `union` fvs2) $ AppClosure e1' e2')
 
     
 
