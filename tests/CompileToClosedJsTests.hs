@@ -33,3 +33,8 @@ tests = do
       let f x = x + 1
       let main = f 5
    |] --> "6"
+
+   it "factorial example" $ [i|
+     let fac n = if n == 0 then 1 else n * fac (n - 1)
+     let main = fac 5
+   |] --> "120"
