@@ -38,3 +38,20 @@ tests = do
      let fac n = if n == 0 then 1 else n * fac (n - 1)
      let main = fac 5
    |] --> "120"
+
+   it "Fix value level example" $ do [i|
+      let fix f x = f (fix f) x
+      let fac f n = if n == 0 then 1 else n * f (n - 1)
+      let facRec = fix fac
+      let main = facRec 5|] --> "120"
+
+   it "factorial with lists" $ [i|
+   let foldl f v xs =
+      if (null xs) then v
+      else foldl f (f v (head xs)) (tail xs)
+      
+   let fac n = foldl (*) 1 (range (\\x-> x) 1 n)    
+         
+   let main = fac 5     
+   |] --> "120"   
+   
