@@ -3,6 +3,7 @@ module CompileToClosedJsTests where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullJSClosed )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
@@ -18,6 +19,11 @@ build code = do
 
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+
+(--->) :: FilePath -> String -> Expectation
+(--->) x y = do handle <- openFile x ReadMode
+                contents <- hGetContents handle
+                contents --> y
 
 tests :: SpecWith ()
 tests = do
@@ -53,5 +59,6 @@ tests = do
    let fac n = foldl (*) 1 (range (\\x-> x) 1 n)    
          
    let main = fac 5     
-   |] --> "120"   
+   |] --> "120"    
    
+   it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"

@@ -6,6 +6,22 @@ const eqInt = {
     "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__eqeqInt2))})
   }
 
+function __eqeqChar2([env, y]){
+    return env["x"] == y;
+}
+
+const eqChar = {
+    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__eqeqChar2))})
+  }
+
+const ordChar = {
+    ">": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] > y }))}),
+    "<": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] < y }))}),
+    ">=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] >= y }))}),
+    "<=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] <= y }))}),
+    "==": eqChar["=="]
+  }
+
 function __plusInt2([env, y]){
     return env["x"] + y; 
 }
@@ -26,6 +42,8 @@ const numInt = {
   }
 
 const __eqeq = mkClosure(function([_, inst]) { return inst["=="]; })
+
+const __lteq = mkClosure(function([_, inst]) { return inst["<="]; })
 
 const fromInteger = mkClosure(function([_, inst]) { return inst["fromInteger"]; })
 
@@ -61,6 +79,80 @@ const head = mkClosure(function([_, xs]) {
 const tail = mkClosure(function([_, xs]) {
     return xs.slice(1);
   })
+
+const ord = mkClosure(function([_, ch]) {
+    return ch.charCodeAt(0);
+  })
+
+const toCharList = mkClosure(function([_, s]) {
+    return Array.from(s);
+  })
+
+const mkParser = mkClosure(function([_, f]) {
+    return f;
+  })
+
+const runParser = mkClosure(function([_, m]) {
+    return m;
+  })
+
+const applicativeParser = {
+    "pure": mkClosure(function([_, x]) {
+      return setEnv("x", x, mkClosure(function([env, inp]) {
+        return [[env["x"], inp]];
+      }))
+    })
+}
+
+const monadParser = {
+    "pure": applicativeParser["pure"],
+    "bind": mkClosure(function([_, m]) {
+      return setEnv("m", m, mkClosure(function([env1, f]){
+        return setEnv("f", f, setEnv("m", env1["m"], mkClosure(function([env2, inp]){
+          return Array.prototype.concat.apply([], applyClosure(env2["m"], inp).map(([x,rest]) => applyClosure(applyClosure(env2["f"], x), rest)));
+        })))
+      }))
+    })
+  }
+
+const applicativeList = {
+    "pure": mkClosure(function([_, x]) { return [x]; })
+  }
+
+const monadList = {
+    "pure": applicativeList["pure"],
+    "bind": mkClosure(function([_, xs]) {
+      return setEnv("xs", xs, mkClosure(function([env, f]){
+        return Array.prototype.concat.apply([], env["xs"].map(x => applyClosure(f, x)));
+      }))
+    })
+  }
+
+const bind = mkClosure(function([_, inst]) { return inst["bind"]; })
+
+const pure = mkClosure(function([_, inst]) { return inst["pure"]; })
+
+const __dot = mkClosure(function([_, f]) {
+    return setEnv("f", f, mkClosure(function([env, g]) {
+      return setEnv("g", g, setEnv("f", env["f"], mkClosure(function([env, x]) {
+        return applyClosure(env["f"], applyClosure(env["g"], x));
+      })))
+    }))
+  })
+
+const __colon = mkClosure(function([_, x]) {
+    return setEnv("x", x, mkClosure(function([env, xs]) {
+      const ys = xs.slice();
+      ys.unshift(env["x"]);
+      return ys;
+    }))
+  })
+
+const __and = mkClosure(function([_, x]) {
+    return setEnv("x", x, mkClosure(function([env, y]) {
+      return env["x"] && y;
+    }))
+})
 
 function getFunction(e) {
     return e.fun;
