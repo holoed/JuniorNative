@@ -46,7 +46,9 @@ tests =
     it "convert simple function with one free var" $ do
       xs <- process "let f x y = (x, y)"
       unlines xs `shouldBe` drop 1 [i|
-let _f1 (_env, y) = (GetEnv (\"x\", _env), y)
+let _f1 (_env, y) = let anf_1 = y in
+                    let anf_0 = GetEnv (\"x\", _env) in
+                    (anf_0, anf_1)
 let _f0 (_env, x) = let _c0 = MkClosure _f1 in
                     SetEnv (\"x\", x, _c0)
 let f = let _c1 = MkClosure _f0 in _c1
@@ -55,8 +57,10 @@ let f = let _c1 = MkClosure _f0 in _c1
     it "convert simple function with two free var" $ do
       xs <- process "let f x y z = (x, y, z)"
       unlines xs `shouldBe` drop 1 [i|
-let _f2 (_env, z) = 
-    (GetEnv (\"x\", _env), GetEnv (\"y\", _env), z)
+let _f2 (_env, z) = let anf_2 = z in
+                    let anf_1 = GetEnv (\"y\", _env) in
+                    let anf_0 = GetEnv (\"x\", _env) in
+                    (anf_0, anf_1, anf_2)
 let _f1 (_env, y) = let _c0 = MkClosure _f2 in
                     SetEnv ((\"x\", GetEnv (\"x\", _env), SetEnv (\"y\", y, _c0)))
 let _f0 (_env, x) = let _c1 = MkClosure _f1 in

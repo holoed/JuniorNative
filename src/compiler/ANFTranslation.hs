@@ -2,13 +2,14 @@ module ANFTranslation where
 
 import Location ( Loc )
 import TypedAst (TypedExp)
-import Ast ( ExpF(Let, Var, App, VarPat, IfThenElse) )
+import Ast ( ExpF(Let, Var, App, VarPat, IfThenElse, MkTuple) )
 import Control.Monad.State ( evalState, State, MonadState(put, get) )
 import Fixpoint ( Fix(In) )
 import RecursionSchemes ( cataRec )
 import Prelude hiding (lookup)
 import Annotations (Ann(..))
 import Types ( Qual, Type )
+import Control.Monad (foldM)
 
 type ANormalM = State Int
 
@@ -62,13 +63,19 @@ convertProg es = linearizeLets $ evalState (sequence (cataRec alg <$> es)) 0
                             return
                              (In (Ann attr (Let n1p e1'
                              (In (Ann attr (IfThenElse n1v e2' e3'))))))
+          alg (Ann attr (MkTuple xs)) = do
+                    xs' <- sequence xs
+                    ids <- sequence $ getNewId attr <$ [1..length xs']
+                    let b' = In (Ann attr (MkTuple (snd <$> ids)))
+                    let pairs = zip (fst <$> ids) xs'
+                    foldM (\b (n, v) -> return $ In (Ann attr (Let n v b))) b' pairs
           alg x = fmap In (sequenceA x)
 
 converge :: (a -> a -> Bool) -> [a] -> a
 converge p (x:ys@(y:_))
     | p x y     = y
     | otherwise = converge p ys
-converge _ _ = undefined 
+converge _ _ = undefined
 
 linearizeLets :: [TypedExp] -> [TypedExp]
 linearizeLets = converge (==) . iterate (reduce <$>)
