@@ -60,8 +60,7 @@ generateExp = cataRec alg
                      (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <>
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " } }()"
           alg (AppClosure e1 e2) = 
-              let e2' = if "const" `isPrefixOf` e2 then "(function(){ " <> e2 <> " })()" else e2 in
-              "applyClosure("<> mapOp e1 <> "," <> e2' <> ")"
+              "applyClosure("<> mapOp e1 <> "," <> e2 <> ")"
           alg (GetEnv name a) = "getEnv(" <> "\"" <> pack name <> "\"" <> "," <> a <> ")"
           alg (SetEnv name v b) = "setEnv(" <> "\"" <> pack name <> "\"" <> "," <> v <> "," <> b <> ")"
           alg (MkClosure name) = "mkClosure(" <> pack name <> ")"

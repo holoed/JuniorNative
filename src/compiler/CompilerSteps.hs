@@ -27,7 +27,8 @@ import qualified Data.Maybe as Maybe
 import Prelude hiding (lookup)
 import Data.Text (Text)
 import JavascriptGenerator (generate)
-import ClosureConversion (convertProg)
+import qualified ClosureConversion (convertProg)
+import qualified ANFTranslation (convertProg)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -91,4 +92,8 @@ toJs = return . generate
 closureConversion :: [TypedExp] -> CompileM [TypedExp]
 closureConversion es = do 
     (env, _) <- get
-    return $ convertProg (keysSet env) es
+    return $ ClosureConversion.convertProg (keysSet env) es
+
+aNormalisation :: [TypedExp] -> CompileM [TypedExp]
+aNormalisation es = do 
+    return $ ANFTranslation.convertProg es

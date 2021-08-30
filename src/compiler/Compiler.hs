@@ -5,7 +5,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret, toJs, closureConversion )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret, toJs, closureConversion, aNormalisation )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
@@ -40,6 +40,7 @@ backendPrinted = frontEnd >=>
 closed :: String -> CompileM [TypedExp]
 closed = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
+       step "A Normalisation" aNormalisation >=>
        step "closure conversion" closureConversion 
        
 fullInterp :: String -> CompileM Text

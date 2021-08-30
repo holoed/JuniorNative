@@ -60,7 +60,8 @@ executable JuniorNative
                        ConstraintsResolution,
                        MonomorphicRestriction,
                        InterpreterIntrinsics,
-                       JavascriptGenerator
+                       JavascriptGenerator,
+                       ANFTranslation
   build-depends:       base,
                        array,
                        containers,
@@ -126,7 +127,8 @@ executable JuniorService
                        ConstraintsResolution,
                        MonomorphicRestriction,
                        InterpreterIntrinsics,
-                       JavascriptGenerator
+                       JavascriptGenerator,
+                       ANFTranslation
   build-depends:       base,
                        array,
                        containers,
@@ -200,6 +202,7 @@ test-suite tests
                        InterpreterIntrinsics,
                        JavascriptGenerator,
                        JavaScriptRunner,
+                       ANFTranslation,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,

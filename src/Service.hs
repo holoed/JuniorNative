@@ -17,7 +17,7 @@ import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Intrinsics ( env, classEnv )
 import Data.Aeson
     ( ToJSON(toJSON), object, KeyValue((.=)) )
-import Compiler (fullInterp, backendPrinted, frontEndPrinted, fullJS)
+import Compiler (fullInterp, backendPrinted, frontEndPrinted, fullJSClosed)
 import CompilerMonad (CompileM, run)
 import qualified SymbolTable as S
 import qualified InterpreterIntrinsics as Interp (env)
@@ -74,9 +74,9 @@ route = do
          either json json ret
     post "/compileToJs" $ do
          code <- body
-         ret <- liftIO $ compile fullJS (Char8.unpack code)
+         ret <- liftIO $ compile fullJSClosed (Char8.unpack code)
          either json json ret
     get "/libJs" $ do
-         ret <- liftIO $ readFile "src/javascript/baselib.js"
+         ret <- liftIO $ readFile "src/javascript/baseClosedLib.js"
          json (pack ret)
 
