@@ -60,5 +60,9 @@ tests = do
          
    let main = fac 5     
    |] --> "120"    
+
+   it "Arithmetics Tests" $ do
+      "let main = (1 + 1.5) / 3" --> "0.8333333333333334"
+      "let main = 2 * (4.6 - 3.1)" --> "2.999999999999999"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"

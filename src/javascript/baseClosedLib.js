@@ -41,11 +41,29 @@ const numInt = {
     "fromInteger": mkClosure(function([_, x]) { return x; })
   }
 
+  const numDouble = {
+    "+": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] + y; }))}),
+    "*": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] * y; }))}),
+    "-": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] - y; }))}),
+    "fromInteger": mkClosure(function([_, x]) { return x; })
+  }
+  
+  const fractionalDouble = {
+    "+": numDouble["+"],
+    "*": numDouble["*"],
+    "-": numDouble["-"],
+    "/": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] / y; }))}),
+    "fromInteger": numDouble["fromInteger"],
+    "fromRational": mkClosure(function([_, x]) { return x; })
+  }
+
 const __eqeq = mkClosure(function([_, inst]) { return inst["=="]; })
 
 const __lteq = mkClosure(function([_, inst]) { return inst["<="]; })
 
 const fromInteger = mkClosure(function([_, inst]) { return inst["fromInteger"]; })
+
+const fromRational = mkClosure(function([_, inst]) { return inst["fromRational"]; })
 
 const __add = mkClosure(function([_, inst]) { return inst["+"]; });
 
@@ -53,6 +71,7 @@ const __sub = mkClosure(function([_, inst]) { return inst["-"]; });
 
 const __mul = mkClosure(function([_, inst]) { return inst["*"]; });
 
+const __div = mkClosure(function([_, inst]) { return inst["/"]; });
 
 function range_3([env, end]) {
     return Array(end - env["start"] + 1).fill(env["start"]).map((x, y) => applyClosure(env["f"], (x + y)))
