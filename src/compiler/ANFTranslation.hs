@@ -20,16 +20,16 @@ getNewId attr = do
     return (In (Ann attr (VarPat n)), In (Ann attr (Var n)))
 
 convertProg :: [TypedExp] -> [TypedExp]
-convertProg es = evalState (sequence (cataRec alg <$> es)) 0
+convertProg es = linearizeLets $ evalState (sequence (cataRec alg <$> es)) 0
     where alg (Ann attr (App e1 e2)) = do
                 e1' <- e1
                 e2' <- e2
                 case (e1', e2') of
-                 (In (Ann _ (Var _)), In (Ann _ (Var _))) ->  
+                 (In (Ann _ (Var _)), In (Ann _ (Var _))) ->
                      return (In (Ann attr (App e1' e2')))
                  (In (Ann _ (Var _)), _) -> do
                      (n2p, n2v) <- getNewId attr
-                     return 
+                     return
                         (In (Ann attr (Let n2p e2'
                         (In (Ann attr (App e1' n2v))))))
                  (_, In (Ann _ (Var _))) -> do
@@ -37,7 +37,7 @@ convertProg es = evalState (sequence (cataRec alg <$> es)) 0
                      return
                         (In (Ann attr (Let n1p e1'
                         (In (Ann attr (App n1v e2'))))))
-                 (_, _) -> do 
+                 (_, _) -> do
                      (n1p, n1v) <- getNewId attr
                      (n2p, n2v) <- getNewId attr
                      return
@@ -48,18 +48,33 @@ convertProg es = evalState (sequence (cataRec alg <$> es)) 0
                      e1' <- e1
                      e2' <- e2
                      e3' <- e3
-                     case e1' of 
-                        (In (Ann _ (Var _))) -> 
+                     case e1' of
+                        (In (Ann _ (Var _))) ->
                           return $ In (Ann attr (IfThenElse e1' e2' e3'))
                         (In (Ann attr' (Let n v b))) -> do
                           (n1p, n1v) <- getNewId attr'
-                          return 
+                          return
                             (In (Ann attr' (Let n v
                             (In (Ann attr' (Let n1p b
                             (In (Ann attr (IfThenElse n1v e2' e3')))))))))
-                        _ -> do 
+                        _ -> do
                             (n1p, n1v) <- getNewId attr
                             return
                              (In (Ann attr (Let n1p e1'
                              (In (Ann attr (IfThenElse n1v e2' e3'))))))
           alg x = fmap In (sequenceA x)
+
+converge :: (a -> a -> Bool) -> [a] -> a
+converge p (x:ys@(y:_))
+    | p x y     = y
+    | otherwise = converge p ys
+converge _ _ = undefined 
+
+linearizeLets :: [TypedExp] -> [TypedExp]
+linearizeLets = converge (==) . iterate (reduce <$>)
+    where reduce = cataRec alg
+          alg (Ann attr (Let n1 (In (Ann _ (Let n2 v b1))) b2)) =
+               In (Ann attr (Let n2 v
+               (In (Ann attr (Let n1 b1 b2)))))
+          alg x = In x
+
