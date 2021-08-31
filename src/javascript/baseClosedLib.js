@@ -6,6 +6,10 @@ const eqInt = {
     "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__eqeqInt2))})
   }
 
+const eqDouble = {
+    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] == y; }))})
+  }
+
 function __eqeqChar2([env, y]){
     return env["x"] == y;
 }
@@ -33,6 +37,15 @@ function __mulInt2([env, y]){
 function __subInt2([env, y]){
     return env["x"] - y; 
 }
+
+const ordDouble = {
+  ">": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] > y }))}),
+  "<": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] < y }))}),
+  ">=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] >= y }))}),
+  "<=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] <= y }))}),
+  "==": eqDouble["=="]
+}
+
 
 const numInt = {
     "+": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(__plusInt2))}),
@@ -125,6 +138,10 @@ const __eqeq = mkClosure(function([_, inst]) { return inst["=="]; })
 
 const __lteq = mkClosure(function([_, inst]) { return inst["<="]; })
 
+const __gt = mkClosure(function([_, inst])   { return inst[">"]; })
+
+const __gteq = mkClosure(function([_, inst]) { return inst[">="]; })
+
 const fromInteger = mkClosure(function([_, inst]) { return inst["fromInteger"]; })
 
 const fromRational = mkClosure(function([_, inst]) { return inst["fromRational"]; })
@@ -141,7 +158,9 @@ const __div = mkClosure(function([_, inst]) { return inst["/"]; });
 
 const toDouble = mkClosure(function([_, x]) { return x + 0.0; })
 
-const truncate = mkClosure(function([_, instA]) { return mkClosure(function([_, instB]){ return Math.floor; }) });
+const truncate = mkClosure(function([_, instA]) { 
+  return mkClosure(function([_, instB]){ 
+  return mkClosure(function([_, x]) { return Math.floor(x); }); }); });
 
 const sin = mkClosure(function([_, inst]) { return inst["sin"]; })
 
@@ -243,11 +262,56 @@ const __colon = mkClosure(function([_, x]) {
     }))
   })
 
+const split = mkClosure(function ([_, size]) {
+  return setEnv("size", size, mkClosure(function ([env, array]) {
+    let result = []
+    if (env["size"] > 0 && array.length > 0) { 
+      for (let i = 0; i < array.length; i += env["size"]) {
+          let chunk = array.slice(i, i + env["size"])
+          result.push(chunk)
+      }
+    }
+    return result
+  }))
+})
+
 const __and = mkClosure(function([_, x]) {
     return setEnv("x", x, mkClosure(function([env, y]) {
       return env["x"] && y;
     }))
 })
+
+const __or = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return env["x"] || y;
+  }))
+})
+
+const display = mkClosure(function([_, imageData]) {
+  clearPanels();
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.width  = imageData.length;
+  canvas.height = imageData.length; 
+  canvas.style.display = "block";
+  const buffer = ctx.createImageData(imageData.length - 1, imageData.length - 1);
+  var index = 0;
+  for(let y = 0; y < imageData.length; y++){
+      for(let x = 0; x < imageData[y].length; x++){
+          buffer.data[index++] = imageData[y][x][0];
+          buffer.data[index++] = imageData[y][x][1];
+          buffer.data[index++] = imageData[y][x][2];
+          buffer.data[index++] = 255;
+      }
+  }
+  try { 
+    ctx.putImageData(buffer, 0, 0);
+  } catch(e) {
+    console.log(e);
+  }
+  return imageData;
+});
 
 function getFunction(e) {
     return e.fun;
