@@ -41,6 +41,23 @@ const numInt = {
     "fromInteger": mkClosure(function([_, x]) { return x; })
   }
 
+  const fractionalInt = {
+    "+": numInt["+"],
+    "*": numInt["*"],
+    "-": numInt["-"],
+    "/": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return ~~(env["x"]/y); }))}),
+    "fromInteger": numInt["fromInteger"],
+    "fromRational": mkClosure(function([_, x]) { return Math.floor(x); })
+  }
+
+  const integralInt = {
+    "+": numInt["+"],
+    "*": numInt["*"],
+    "-": numInt["-"],
+    "fromInteger": numInt["fromInteger"],
+    "mod": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] % y; }))}),
+  }
+
   const numDouble = {
     "+": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] + y; }))}),
     "*": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] * y; }))}),
@@ -53,6 +70,47 @@ const numInt = {
     "sin": mkClosure(function([_, x]){ return Math.sin(x) }),
     "sqrt": mkClosure(function([_, x]){ return Math.sqrt(x) }),
   }
+
+  const numTuple2 = mkClosure(function([_, instA]) {
+    return mkClosure(function([_, instB]) {
+      const addA = instA["+"];
+      const addB = instB["+"];
+      const subA = instA["-"];
+      const subB = instB["-"];
+      const mulA = instA["*"];
+      return {
+        "fromInteger": mkClosure(function([_, x]) { return [x, x]; }),
+        "+": mkClosure(function([_, [x1, y1]]){ 
+          return setEnv("x1y1", [x1, y1], mkClosure(function([env, [x2, y2]]) { 
+          return [applyClosure(applyClosure(addA, env["x1y1"][0]), x2), 
+                  applyClosure(applyClosure(addB, env["x1y1"][1]), y2)]  })) }),
+        "-": mkClosure(function([_, [x1, y1]]){ 
+          return setEnv("x1y1", [x1, y1], mkClosure(function([env, [x2, y2]]) { 
+          return [applyClosure(applyClosure(subA, env["x1y1"][0]), x2), 
+                  applyClosure(applyClosure(subB, env["x1y1"][1]), y2)]  })) }),
+        "*": mkClosure(function([_, [x1, y1]]){ 
+          return setEnv("x1y1", [x1, y1], mkClosure(function([env, [x2, y2]]) { 
+          
+          let ret1 = applyClosure(mulA, env["x1y1"][0])
+          let ret2 = applyClosure(ret1, x2)
+          let ret3 = applyClosure(subA, ret2)
+          let ret4 = applyClosure(mulA, env["x1y1"][1])
+          let ret5 = applyClosure(ret4, y2)
+          let ret6 = applyClosure(ret3, ret5)
+
+          let ret7 = applyClosure(mulA, env["x1y1"][0])
+          let ret8 = applyClosure(ret7, y2)
+          let ret9 = applyClosure(addA, ret8)
+          let ret10 = applyClosure(mulA, env["x1y1"][1])
+          let ret11 = applyClosure(ret10, x2)
+          let ret12 = applyClosure(ret9, ret11)
+
+          return [ret6, ret12];
+        } ))
+      })
+      }
+    })
+  })
   
   const fractionalDouble = {
     "+": numDouble["+"],
@@ -70,6 +128,8 @@ const __lteq = mkClosure(function([_, inst]) { return inst["<="]; })
 const fromInteger = mkClosure(function([_, inst]) { return inst["fromInteger"]; })
 
 const fromRational = mkClosure(function([_, inst]) { return inst["fromRational"]; })
+
+const __mod = mkClosure(function([_, inst]) { return inst["mod"]; });
 
 const __add = mkClosure(function([_, inst]) { return inst["+"]; });
 

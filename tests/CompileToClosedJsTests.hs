@@ -75,5 +75,16 @@ tests = do
       "let main = cos 1.5" --> "0.0707372016677029"
       "let main = sin 0.5" --> "0.479425538604203"
       "let main = sqrt 4"  --> "2"
+
+   it "Integral tests" $ do
+      "let main = mod 205 54" --> "43"
+
+   it "Complex numbers" $ do 
+      "let main = (2, 3) + (5, 6)" --> "[7,9]"
+      "let main = (3, 9) - (2, 5)" --> "[1,4]"
+      "let main = (7, 3) * (2, 5)" --> "[-1,41]"
+      "let main = (2, 3) + 1" --> "[3,4]"
+      "let main = 1 + (2, 3)" --> "[3,4]"
+      "let main = (2, 3) - 1" --> "[1,2]"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
