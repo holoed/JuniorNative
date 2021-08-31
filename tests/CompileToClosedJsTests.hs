@@ -70,5 +70,10 @@ tests = do
             let f (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
             let main = f (2, 3) (5, 6)
         |] --> "[7,9]"
+
+   it "Floating tests" $ do
+      "let main = cos 1.5" --> "0.0707372016677029"
+      "let main = sin 0.5" --> "0.479425538604203"
+      "let main = sqrt 4"  --> "2"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"

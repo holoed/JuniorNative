@@ -47,6 +47,12 @@ const numInt = {
     "-": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] - y; }))}),
     "fromInteger": mkClosure(function([_, x]) { return x; })
   }
+
+  const floatingDouble = {
+    "cos": mkClosure(function([_, x]){ return Math.cos(x) }),
+    "sin": mkClosure(function([_, x]){ return Math.sin(x) }),
+    "sqrt": mkClosure(function([_, x]){ return Math.sqrt(x) }),
+  }
   
   const fractionalDouble = {
     "+": numDouble["+"],
@@ -72,6 +78,16 @@ const __sub = mkClosure(function([_, inst]) { return inst["-"]; });
 const __mul = mkClosure(function([_, inst]) { return inst["*"]; });
 
 const __div = mkClosure(function([_, inst]) { return inst["/"]; });
+
+const toDouble = mkClosure(function([_, x]) { return x + 0.0; })
+
+const truncate = mkClosure(function([_, instA]) { return mkClosure(function([_, instB]){ return Math.floor; }) });
+
+const sin = mkClosure(function([_, inst]) { return inst["sin"]; })
+
+const cos = mkClosure(function([_, inst]) { return inst["cos"]; })
+
+const sqrt = mkClosure(function([_, inst]) { return inst["sqrt"]; })
 
 function range_3([env, end]) {
     return Array(end - env["start"] + 1).fill(env["start"]).map((x, y) => applyClosure(env["f"], (x + y)))
