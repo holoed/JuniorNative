@@ -1,10 +1,10 @@
 {-# LANGUAGE QuasiQuotes #-}
-module CompileToClosedJsTests where
+module CompileToCloseANFdJsTests where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
-import Compiler ( fullJSClosed )
+import Compiler ( fullJSClosedANF )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
@@ -14,7 +14,7 @@ import JavaScriptRunner (runJS)
 build :: String -> IO String
 build code = do
    let libPath = "src/javascript/baseClosedLib.js"
-   (x, _, _) <- run (fullJSClosed code) (Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullJSClosedANF code) (Interp.env, classEnv) (env, [])
    either (return . show) (runJS libPath . unpack) x
 
 (-->) :: String -> String -> Expectation
@@ -27,7 +27,7 @@ build code = do
 
 tests :: SpecWith ()
 tests = do
-  describe "Compile to Closed JavaScript Tests" $ do
+  describe "Compile to Closed and ANF JavaScript Tests" $ do
 
    it "value" $ "let main = 42" --> "42"
 

@@ -334,5 +334,5 @@ function setEnv(name, value, c) {
 }
 
 function getEnv(name, env) {
-    return env[name];
+    return (env[name])();
 }

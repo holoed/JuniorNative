@@ -40,6 +40,11 @@ backendPrinted = frontEnd >=>
 closed :: String -> CompileM [TypedExp]
 closed = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
+       step "closure conversion" closureConversion 
+
+closedAndANF :: String -> CompileM [TypedExp]
+closedAndANF = frontEnd >=>
+       step "desugar constraints" desugarPredicates >=>
        step "A Normalisation" aNormalisation >=>
        step "closure conversion" closureConversion 
        
@@ -56,5 +61,9 @@ fullJS = frontEnd >=>
 
 fullJSClosed :: String -> CompileM Text
 fullJSClosed = closed >=>
+       step "to javascript" toJs
+
+fullJSClosedANF :: String -> CompileM Text
+fullJSClosedANF = closedAndANF >=>
        step "to javascript" toJs
        
