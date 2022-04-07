@@ -29,6 +29,7 @@ import Data.Text (Text)
 import JavascriptGenerator (generate)
 import qualified ClosureConversion (convertProg)
 import qualified ANFTranslation (convertProg)
+import qualified OptimizeTypeClasses (optimize)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -97,3 +98,7 @@ closureConversion es = do
 aNormalisation :: [TypedExp] -> CompileM [TypedExp]
 aNormalisation es = do 
     return $ ANFTranslation.convertProg es
+
+optimizeTypeClasses :: [TypedExp] -> CompileM [TypedExp]
+optimizeTypeClasses es = do
+    return $ OptimizeTypeClasses.optimize es
