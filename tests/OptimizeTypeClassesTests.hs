@@ -26,4 +26,6 @@ tests :: SpecWith ()
 tests = do
   describe "Optimize resolved Type Classes Known Instances" $ do
 
-   it "value" $ "let main = 2 == 3" --> "const main = function () { const anf_2 = nativeEqInt; const anf_0 = applyClosure(fromInteger,numInt); const anf_1 = 2; const anf_3 = applyClosure(anf_0,anf_1); const anf_6 = applyClosure(nativeEqInt,anf_3); const anf_4 = applyClosure(fromInteger,numInt); const anf_5 = 3; const anf_7 = applyClosure(anf_4,anf_5); return (nativeEqInt ([anf_3,anf_7])) }();"
+   it "native eq" $ "let main = 2 == 3" --> "const main = function () { const anf_2 = nativeEqInt; const anf_0 = applyClosure(fromInteger,numInt); const anf_1 = 2; const anf_3 = applyClosure(anf_0,anf_1); const anf_6 = applyClosure(nativeEqInt,anf_3); const anf_4 = applyClosure(fromInteger,numInt); const anf_5 = 3; const anf_7 = applyClosure(anf_4,anf_5); return (nativeEqInt ([anf_3,anf_7])) }();"
+
+   it "native plus" $ "let main = 2 + 3" --> "const main = function () { const anf_2 = nativeAddInt; const anf_0 = applyClosure(fromInteger,numInt); const anf_1 = 2; const anf_3 = applyClosure(anf_0,anf_1); const anf_6 = applyClosure(nativeAddInt,anf_3); const anf_4 = applyClosure(fromInteger,numInt); const anf_5 = 3; const anf_7 = applyClosure(anf_4,anf_5); return (nativeAddInt ([anf_3,anf_7])) }();"

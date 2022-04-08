@@ -11,6 +11,10 @@ import Data.Map ( insert, empty, member, Map, (!), delete )
 import Debug.Trace (trace)
 import Prelude hiding (lookup)
 import Control.Monad ((>=>))
+import qualified Data.Set as Set 
+
+identifierList :: Set.Set String
+identifierList = Set.fromList ["nativeEqInt", "nativeAddInt"]
 
 type OptimizeM = ReaderT (Map String TypedExp) (State (Map String TypedExp))
 
@@ -22,12 +26,12 @@ optimizeImp es = sequence (cataRec alg <$> es)
             n' <- n
             v' <- v
             case (n', v') of
-             (In (Ann _ (VarPat k)) ,In (Ann _ (Var "nativeEqInt"))) -> do
+             (In (Ann _ (VarPat k)) ,In (Ann _ (Var x))) | Set.member x identifierList -> do
                  state <- get
                  put (insert k v' state)
                  b' <- local (insert k v') b
                  return $ trace (k ++ " to be inlined") $ In (Ann attr (Let n' v' b'))
-             (In (Ann _ (VarPat k)) , In (Ann _ (AppClosure (In (Ann _ (Var "nativeEqInt"))) _))) -> do
+             (In (Ann _ (VarPat k)) , In (Ann _ (AppClosure (In (Ann _ (Var x))) _))) | Set.member x identifierList -> do
                  state <- get
                  put (insert k v' state)
                  b' <- local (insert k v') b
@@ -40,10 +44,12 @@ optimizeImp es = sequence (cataRec alg <$> es)
             e1' <- e1
             e2' <- e2
             case (e1', e2') of
-                (In (Ann _ (AppClosure l@(In (Ann _ (Var "nativeEqInt"))) e3)), _) ->
+                (In (Ann _ (AppClosure l@(In (Ann _ (Var x))) e3)), _) | Set.member x identifierList ->
                     return (In (Ann attr (App l (In (Ann attr (MkTuple [e3,e2']))))))
                 (In (Ann _ (Var "==")), In (Ann _ (Var "eqInt"))) ->
                     return $ trace "Optimized __eqeq" $ In (Ann attr (Var "nativeEqInt"))
+                (In (Ann _ (Var "+")), In (Ann _ (Var "numInt"))) ->
+                    return $ trace "Optimized __add" $ In (Ann attr (Var "nativeAddInt"))
                 (In (Ann _ (Var n1)), _) -> do
                     state <- get
                     if member n1 state
