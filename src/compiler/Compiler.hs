@@ -5,7 +5,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret, toJs, closureConversion, aNormalisation, optimizeTypeClasses )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret, toJs, closureConversion, aNormalisation )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
@@ -65,6 +65,5 @@ fullJSClosed = closed >=>
 
 fullJSClosedANF :: String -> CompileM Text
 fullJSClosedANF = closedAndANF >=>
-       step "Optimize away fully resolved type classes instances" optimizeTypeClasses >=>
        step "to javascript" toJs
        
