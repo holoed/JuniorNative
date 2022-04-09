@@ -8,7 +8,7 @@ import RecursionSchemes (cataRec)
 import Annotations (Ann(Ann))
 import Ast (ExpF(VarPat, AppClosure, Var, Let, MkTuple, App))
 import Data.Map ( insert, empty, member, Map, (!), delete )
-import Debug.Trace (trace)
+-- import Debug.Trace (trace)
 import Prelude hiding (lookup)
 import Control.Monad ((>=>))
 import qualified Data.Set as Set 
@@ -30,15 +30,15 @@ optimizeImp es = sequence (cataRec alg <$> es)
                  state <- get
                  put (insert k v' state)
                  b' <- local (insert k v') b
-                 return $ trace (k ++ " to be inlined") $ In (Ann attr (Let n' v' b'))
+                 return $ In (Ann attr (Let n' v' b'))
              (In (Ann _ (VarPat k)) , In (Ann _ (AppClosure (In (Ann _ (Var x))) _))) | Set.member x identifierList -> do
                  state <- get
                  put (insert k v' state)
                  b' <- local (insert k v') b
-                 return $ trace (k ++ " to be inlined") $ In (Ann attr (Let n' v' b'))
+                 return $ In (Ann attr (Let n' v' b'))
              (In (Ann _ (VarPat k)) , _) -> do
                  b' <- local (insert k v') b
-                 return $ trace (k ++ " in context") $ In (Ann attr (Let n' v' b'))
+                 return $ In (Ann attr (Let n' v' b'))
              (_, _) -> In . Ann attr . Let n' v' <$> b
         alg (Ann attr (AppClosure e1 e2)) = do
             e1' <- e1
@@ -47,17 +47,17 @@ optimizeImp es = sequence (cataRec alg <$> es)
                 (In (Ann _ (AppClosure l@(In (Ann _ (Var x))) e3)), _) | Set.member x identifierList ->
                     return (In (Ann attr (App l (In (Ann attr (MkTuple [e3,e2']))))))
                 (In (Ann _ (Var "==")), In (Ann _ (Var "eqInt"))) ->
-                    return $ trace "Optimized __eqeq" $ In (Ann attr (Var "nativeEqInt"))
+                    return $ In (Ann attr (Var "nativeEqInt"))
                 (In (Ann _ (Var "+")), In (Ann _ (Var "numInt"))) ->
-                    return $ trace "Optimized __add" $ In (Ann attr (Var "nativeAddInt"))
+                    return $ In (Ann attr (Var "nativeAddInt"))
                 (In (Ann _ (Var "fromInteger")), In (Ann _ (Var "numInt"))) ->
-                    return $ trace "Optimized fromInteger" $ In (Ann attr (Var "nativeInt"))
+                    return $ In (Ann attr (Var "nativeInt"))
                 (In (Ann _ (Var n1)), _) -> do
                     state <- get
                     if member n1 state
                     then do
                         put $ delete n1 state
-                        return $ trace ("inlined " ++ n1) $ In (Ann attr (AppClosure (state!n1) e2'))
+                        return $ In (Ann attr (AppClosure (state!n1) e2'))
                     else return $ In (Ann attr (AppClosure e1' e2'))
                 (_, _) ->
                     return $ In (Ann attr (AppClosure e1' e2'))
