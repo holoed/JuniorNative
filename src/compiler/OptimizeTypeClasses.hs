@@ -14,7 +14,7 @@ import Control.Monad ((>=>))
 import qualified Data.Set as Set 
 
 identifierList :: Set.Set String
-identifierList = Set.fromList ["nativeEqInt", "nativeAddInt"]
+identifierList = Set.fromList ["nativeEqInt", "nativeAddInt", "nativeInt"]
 
 type OptimizeM = ReaderT (Map String TypedExp) (State (Map String TypedExp))
 
@@ -50,6 +50,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
                     return $ trace "Optimized __eqeq" $ In (Ann attr (Var "nativeEqInt"))
                 (In (Ann _ (Var "+")), In (Ann _ (Var "numInt"))) ->
                     return $ trace "Optimized __add" $ In (Ann attr (Var "nativeAddInt"))
+                (In (Ann _ (Var "fromInteger")), In (Ann _ (Var "numInt"))) ->
+                    return $ trace "Optimized fromInteger" $ In (Ann attr (Var "nativeInt"))
                 (In (Ann _ (Var n1)), _) -> do
                     state <- get
                     if member n1 state

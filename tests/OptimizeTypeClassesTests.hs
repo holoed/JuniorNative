@@ -30,23 +30,17 @@ tests = do
   describe "Optimize resolved Type Classes Known Instances" $ do
 
    it "native eq" $ "let main = 2 == 3" --> [i|val main :: Bool
-let main = 
-    let anf_0 = AppClosure (fromInteger, numInt) in
-    let anf_1 = 2 in
-    let anf_3 = AppClosure (anf_0, anf_1) in
-    let anf_4 = AppClosure (fromInteger, numInt) in
-    let anf_5 = 3 in
-    let anf_7 = AppClosure (anf_4, anf_5) in
-    nativeEqInt (anf_3, anf_7)
+let main = let anf_1 = 2 in
+           let anf_3 = AppClosure (nativeInt, anf_1) in
+           let anf_5 = 3 in
+           let anf_7 = AppClosure (nativeInt, anf_5) in
+           nativeEqInt (anf_3, anf_7)
 |]
 
    it "native plus" $ "let main = 2 + 3" --> [i|val main :: Int
-let main = 
-    let anf_0 = AppClosure (fromInteger, numInt) in
-    let anf_1 = 2 in
-    let anf_3 = AppClosure (anf_0, anf_1) in
-    let anf_4 = AppClosure (fromInteger, numInt) in
-    let anf_5 = 3 in
-    let anf_7 = AppClosure (anf_4, anf_5) in
-    nativeAddInt (anf_3, anf_7)
+let main = let anf_1 = 2 in
+           let anf_3 = AppClosure (nativeInt, anf_1) in
+           let anf_5 = 3 in
+           let anf_7 = AppClosure (nativeInt, anf_5) in
+           nativeAddInt (anf_3, anf_7)
 |]
