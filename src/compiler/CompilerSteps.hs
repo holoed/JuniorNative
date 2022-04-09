@@ -30,6 +30,7 @@ import JavascriptGenerator (generate)
 import qualified ClosureConversion (convertProg)
 import qualified ANFTranslation (convertProg)
 import qualified OptimizeTypeClasses (optimize)
+import qualified DeadCodeElimination (optimize)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -102,3 +103,7 @@ aNormalisation es = do
 optimizeTypeClasses :: [TypedExp] -> CompileM [TypedExp]
 optimizeTypeClasses es = do
     return $ OptimizeTypeClasses.optimize es
+
+deadCodeElimin :: [TypedExp] -> CompileM [TypedExp]
+deadCodeElimin es = do
+    return $ DeadCodeElimination.optimize es

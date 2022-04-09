@@ -2,7 +2,7 @@ module OptimizeTypeClasses where
 
 import TypedAst (TypedExp, TypedExpF)
 import Fixpoint (Fix(In))
-import Control.Monad.Trans.Reader ( ask, local, ReaderT(runReaderT) )
+import Control.Monad.Trans.Reader ( local, ReaderT(runReaderT) )
 import Control.Monad.State ( evalState, State, MonadState(put, get) )
 import RecursionSchemes (cataRec)
 import Annotations (Ann(Ann))

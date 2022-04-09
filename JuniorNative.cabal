@@ -62,7 +62,8 @@ executable JuniorNative
                        InterpreterIntrinsics,
                        JavascriptGenerator,
                        ANFTranslation,
-                       OptimizeTypeClasses
+                       OptimizeTypeClasses,
+                       DeadCodeElimination
   build-depends:       base,
                        array,
                        containers,
@@ -130,7 +131,8 @@ executable JuniorService
                        InterpreterIntrinsics,
                        JavascriptGenerator,
                        ANFTranslation,
-                       OptimizeTypeClasses
+                       OptimizeTypeClasses,
+                       DeadCodeElimination
   build-depends:       base,
                        array,
                        containers,
@@ -206,6 +208,7 @@ test-suite tests
                        JavaScriptRunner,
                        ANFTranslation,
                        OptimizeTypeClasses,
+                       DeadCodeElimination,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
@@ -225,7 +228,8 @@ test-suite tests
                        ClosureConversionTests,
                        CompileToClosedJsTests,
                        CompileToCloseANFdJsTests,
-                       OptimizeTypeClassesTests
+                       OptimizeTypeClassesTests,
+                       DeadCodeEliminationTests
 
   hs-source-dirs:      tests, src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
   build-tool-depends:  happy:happy, alex:alex
