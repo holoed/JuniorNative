@@ -51,10 +51,14 @@ generateExp = cataRec alg
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "const" e then "" else " return ") <> e <> " }"
           alg (App "nativeAddInt" e) =
               e <> "+" 
+          alg (App "nativeMulInt" e) =
+              e <> "*" 
           alg (App "nativeEqInt" e) =
               e <> "==" 
           alg (App "nativeAddDouble" e) =
               e <> "+" 
+          alg (App "nativeMulDouble" e) =
+              e <> "*" 
           alg (App "nativeEqDouble" e) =
               e <> "==" 
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"

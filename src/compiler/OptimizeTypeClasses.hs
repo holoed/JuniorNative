@@ -14,7 +14,9 @@ import Control.Monad ((>=>))
 import qualified Data.Set as Set 
 
 identifierList :: Set.Set String
-identifierList = Set.fromList ["nativeEqInt", "nativeAddInt", "nativeInt", "nativeEqDouble", "nativeAddDouble", "nativeDouble"]
+identifierList = Set.fromList [
+    "nativeEqInt", "nativeAddInt", "nativeMulInt", "nativeInt", 
+    "nativeEqDouble", "nativeAddDouble", "nativeMulDouble", "nativeDouble"]
 
 type OptimizeM = ReaderT (Map String TypedExp) (State (Map String TypedExp))
 
@@ -54,6 +56,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
                     return $ In (Ann attr (Var "nativeEqInt"))
                 (In (Ann _ (Var "+")), In (Ann _ (Var "numInt"))) ->
                     return $ In (Ann attr (Var "nativeAddInt"))
+                (In (Ann _ (Var "*")), In (Ann _ (Var "numInt"))) ->
+                    return $ In (Ann attr (Var "nativeMulInt"))
                 (In (Ann _ (Var "fromInteger")), In (Ann _ (Var "numInt"))) ->
                     return $ In (Ann attr (Var "nativeInt"))
 
@@ -61,6 +65,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
                     return $ In (Ann attr (Var "nativeEqDouble"))
                 (In (Ann _ (Var "+")), In (Ann _ (Var "numDouble"))) ->
                     return $ In (Ann attr (Var "nativeAddDouble"))
+                (In (Ann _ (Var "*")), In (Ann _ (Var "numDouble"))) ->
+                    return $ In (Ann attr (Var "nativeMulDouble"))
                 (In (Ann _ (Var "fromInteger")), In (Ann _ (Var "numDouble"))) ->
                     return $ In (Ann attr (Var "nativeDouble"))
                 (In (Ann _ (Var n1)), _) -> do
