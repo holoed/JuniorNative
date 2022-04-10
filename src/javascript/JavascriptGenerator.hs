@@ -3,7 +3,7 @@ module JavascriptGenerator where
 
 import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat, MkClosure, AppClosure, GetEnv, SetEnv) )
 import TypedAst ( TypedExp )
-import Data.Text (Text, intercalate, pack, isPrefixOf, replace, dropWhile, dropWhileEnd)
+import Data.Text (Text, intercalate, pack, isPrefixOf, replace)
 import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Annotations (unwrap)
@@ -49,10 +49,14 @@ generateExp = cataRec alg
           alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]"
           alg (TuplePat xs) = pack "[" <> intercalate (pack ",") xs <> pack "]"
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "const" e then "" else " return ") <> e <> " }"
-          alg (App "nativeAddInt" xs) =
-              let xs2 = dropWhile (== '[') xs in
-              let xs3 = dropWhileEnd (== ']') xs2 in
-              replace "," "+" xs3
+          alg (App "nativeAddInt" e) =
+              e <> "+" 
+          alg (App "nativeEqInt" e) =
+              e <> "==" 
+          alg (App "nativeAddDouble" e) =
+              e <> "+" 
+          alg (App "nativeEqDouble" e) =
+              e <> "==" 
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"
           alg (Let s e1 e2) =
             "const " <> s <> " = " <>
@@ -65,6 +69,7 @@ generateExp = cataRec alg
                      (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <>
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " }"
           alg (AppClosure "nativeInt" e2) = e2
+          alg (AppClosure "nativeDouble" e2) = e2
           alg (AppClosure e1 e2) =
               let e2' = if isPrefixOf "if" e2 || isPrefixOf "const" e2 then "(function(){ " <> e2 <> " })()" else e2 in
               "applyClosure("<> mapOp e1 <> "," <> e2' <> ")"

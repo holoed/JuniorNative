@@ -65,7 +65,7 @@ fullJSClosed = closed >=>
 
 fullJSClosedANF :: String -> CompileM Text
 fullJSClosedANF = closedAndANF >=>
-       step "Optimize away fully resolved type classes instances" optimizeTypeClasses >=>
+       step "Optimize resolved instances" optimizeTypeClasses >=>
        step "Dead code elimination" deadCodeElimin >=>
        step "to javascript" toJs
        

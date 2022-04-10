@@ -34,7 +34,7 @@ let main = let anf_1 = 2 in
            let anf_3 = AppClosure (nativeInt, anf_1) in
            let anf_5 = 3 in
            let anf_7 = AppClosure (nativeInt, anf_5) in
-           nativeEqInt (anf_3, anf_7)
+           nativeEqInt anf_3 anf_7
 |]
 
    it "native plus" $ "let main = 2 + 3" --> [i|val main :: Int
@@ -42,5 +42,24 @@ let main = let anf_1 = 2 in
            let anf_3 = AppClosure (nativeInt, anf_1) in
            let anf_5 = 3 in
            let anf_7 = AppClosure (nativeInt, anf_5) in
-           nativeAddInt (anf_3, anf_7)
+           nativeAddInt anf_3 anf_7
+|]
+
+   it "native plus inside a function" $ [i|
+      val f :: Int -> Int
+      let f x = x + 1
+      let main = f 5
+   |] --> [i|val _f0 :: Int -> Int
+let _f0 (_env, x) = let anf_2 = 1 in
+                    let anf_4 = AppClosure (nativeInt, anf_2) in
+                    nativeAddInt x anf_4
+
+val f :: Int -> Int
+let f = let _c0 = MkClosure _f0 in
+        SetEnv ("numInt", numInt, _c0)
+
+val main :: Int
+let main = let anf_6 = 5 in
+           let anf_7 = AppClosure (nativeInt, anf_6) in
+           AppClosure (f, anf_7)
 |]
