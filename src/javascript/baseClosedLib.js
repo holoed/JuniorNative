@@ -336,3 +336,9 @@ function setEnv(name, value, c) {
 function getEnv(name, env) {
     return (env[name])();
 }
+
+const nativeMulInt = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return env["x"] * y;
+  }))
+})
