@@ -63,3 +63,24 @@ let main = let anf_6 = 5 in
            let anf_7 = AppClosure (nativeInt, anf_6) in
            AppClosure (f, anf_7)
 |]
+
+   it "native divide inside a function" $ [i|
+      val f :: Double -> Double
+      let f x = x / 2.5
+      let main = f 5
+   |] --> [i|val _f0 :: Double -> Double
+let _f0 (_env, x) = 
+    let anf_1 = AppClosure (fromRational, fractionalDouble) in
+    let anf_2 = 2.5 in
+    let anf_4 = AppClosure (anf_1, anf_2) in
+    nativeDivDouble x anf_4
+
+val f :: Double -> Double
+let f = let _c0 = MkClosure _f0 in
+        SetEnv (\"fractionalDouble\", fractionalDouble, _c0)
+
+val main :: Double
+let main = let anf_6 = 5 in
+           let anf_7 = AppClosure (nativeDouble, anf_6) in
+           AppClosure (f, anf_7)
+|]

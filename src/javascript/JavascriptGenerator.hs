@@ -53,12 +53,16 @@ generateExp = cataRec alg
               e <> "+" 
           alg (App "nativeMulInt" e) =
               e <> "*" 
+          alg (App "nativeDivInt" e) =
+              e <> "/" 
           alg (App "nativeEqInt" e) =
               e <> "==" 
           alg (App "nativeAddDouble" e) =
               e <> "+" 
           alg (App "nativeMulDouble" e) =
               e <> "*" 
+          alg (App "nativeDivDouble" e) =
+              e <> "/" 
           alg (App "nativeEqDouble" e) =
               e <> "==" 
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"

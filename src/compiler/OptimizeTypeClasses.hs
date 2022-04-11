@@ -15,8 +15,8 @@ import qualified Data.Set as Set
 
 identifierList :: Set.Set String
 identifierList = Set.fromList [
-    "nativeEqInt", "nativeAddInt", "nativeMulInt", "nativeInt", 
-    "nativeEqDouble", "nativeAddDouble", "nativeMulDouble", "nativeDouble"]
+    "nativeEqInt", "nativeAddInt", "nativeMulInt", "nativeDivInt", "nativeInt", 
+    "nativeEqDouble", "nativeAddDouble", "nativeMulDouble", "nativeDivDouble", "nativeDouble"]
 
 type OptimizeM = ReaderT (Map String TypedExp) (State (Map String TypedExp))
 
@@ -46,6 +46,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
             return $ In (Ann attr (Var "numInt"))
         alg (Ann attr (GetEnv "numDouble" _)) = 
             return $ In (Ann attr (Var "numDouble"))
+        alg (Ann attr (GetEnv "fractionalDouble" _)) = 
+            return $ In (Ann attr (Var "fractionalDouble"))
         alg (Ann attr (AppClosure e1 e2)) = do
             e1' <- e1
             e2' <- e2
@@ -58,6 +60,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
                     return $ In (Ann attr (Var "nativeAddInt"))
                 (In (Ann _ (Var "*")), In (Ann _ (Var "numInt"))) ->
                     return $ In (Ann attr (Var "nativeMulInt"))
+                (In (Ann _ (Var "/")), In (Ann _ (Var "fractionalInt"))) ->
+                    return $ In (Ann attr (Var "nativeDivInt"))
                 (In (Ann _ (Var "fromInteger")), In (Ann _ (Var "numInt"))) ->
                     return $ In (Ann attr (Var "nativeInt"))
 
@@ -67,6 +71,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
                     return $ In (Ann attr (Var "nativeAddDouble"))
                 (In (Ann _ (Var "*")), In (Ann _ (Var "numDouble"))) ->
                     return $ In (Ann attr (Var "nativeMulDouble"))
+                (In (Ann _ (Var "/")), In (Ann _ (Var "fractionalDouble"))) ->
+                    return $ In (Ann attr (Var "nativeDivDouble"))
                 (In (Ann _ (Var "fromInteger")), In (Ann _ (Var "numDouble"))) ->
                     return $ In (Ann attr (Var "nativeDouble"))
                 (In (Ann _ (Var n1)), _) -> do
