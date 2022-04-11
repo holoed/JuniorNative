@@ -42,6 +42,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
                  b' <- local (insert k v') b
                  return $ In (Ann attr (Let n' v' b'))
              (_, _) -> In . Ann attr . Let n' v' <$> b
+        alg (Ann attr (GetEnv "eqInt" _)) = 
+            return $ In (Ann attr (Var "eqInt"))
         alg (Ann attr (GetEnv "numInt" _)) = 
             return $ In (Ann attr (Var "numInt"))
         alg (Ann attr (GetEnv "numDouble" _)) = 
