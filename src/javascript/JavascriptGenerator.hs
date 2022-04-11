@@ -8,6 +8,7 @@ import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Annotations (unwrap)
 import Fixpoint ( Fix(In) )
+import Prelude hiding (dropWhile)
 
 generatePrim :: Prim -> Text
 generatePrim (I n) = (pack . show) n
@@ -48,6 +49,26 @@ generateExp = cataRec alg
           alg (MkTuple xs) = pack "[" <> intercalate (pack ",") xs <> pack "]"
           alg (TuplePat xs) = pack "[" <> intercalate (pack ",") xs <> pack "]"
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "const" e then "" else " return ") <> e <> " }"
+          alg (App "nativeAddInt" e) =
+              e <> "+" 
+          alg (App "nativeSubInt" e) =
+              e <> "-" 
+          alg (App "nativeMulInt" e) =
+              e <> "*" 
+          alg (App "nativeDivInt" e) =
+              e <> "/" 
+          alg (App "nativeEqInt" e) =
+              e <> "==" 
+          alg (App "nativeAddDouble" e) =
+              e <> "+" 
+          alg (App "nativeSubDouble" e) =
+              e <> "-" 
+          alg (App "nativeMulDouble" e) =
+              e <> "*" 
+          alg (App "nativeDivDouble" e) =
+              e <> "/" 
+          alg (App "nativeEqDouble" e) =
+              e <> "==" 
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"
           alg (Let s e1 e2) =
             "const " <> s <> " = " <>
@@ -59,7 +80,9 @@ generateExp = cataRec alg
                  "if (" <> p <> ") { " <>
                      (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <>
                      " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " }"
-          alg (AppClosure e1 e2) = 
+          alg (AppClosure "nativeInt" e2) = e2
+          alg (AppClosure "nativeDouble" e2) = e2
+          alg (AppClosure e1 e2) =
               let e2' = if isPrefixOf "if" e2 || isPrefixOf "const" e2 then "(function(){ " <> e2 <> " })()" else e2 in
               "applyClosure("<> mapOp e1 <> "," <> e2' <> ")"
           alg (GetEnv name a) = "getEnv(" <> "\"" <> pack name <> "\"" <> "," <> a <> ")"

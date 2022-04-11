@@ -20,6 +20,8 @@ import qualified JavaScriptRunnerTests
 import qualified ClosureConversionTests
 import qualified CompileToClosedJsTests
 import qualified CompileToCloseANFdJsTests
+import qualified OptimizeTypeClassesTests
+import qualified DeadCodeEliminationTests
 
 main :: IO ()
 main = hspec $ do
@@ -42,4 +44,6 @@ main = hspec $ do
     ClosureConversionTests.tests
     CompileToClosedJsTests.tests
     CompileToCloseANFdJsTests.tests
+    OptimizeTypeClassesTests.tests
+    DeadCodeEliminationTests.tests
     
