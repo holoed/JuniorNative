@@ -51,6 +51,8 @@ generateExp = cataRec alg
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "const" e then "" else " return ") <> e <> " }"
           alg (App "nativeAddInt" e) =
               e <> "+" 
+          alg (App "nativeSubInt" e) =
+              e <> "-" 
           alg (App "nativeMulInt" e) =
               e <> "*" 
           alg (App "nativeDivInt" e) =
@@ -59,6 +61,8 @@ generateExp = cataRec alg
               e <> "==" 
           alg (App "nativeAddDouble" e) =
               e <> "+" 
+          alg (App "nativeSubDouble" e) =
+              e <> "-" 
           alg (App "nativeMulDouble" e) =
               e <> "*" 
           alg (App "nativeDivDouble" e) =
