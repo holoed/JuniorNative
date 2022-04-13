@@ -50,25 +50,27 @@ generateExp = cataRec alg
           alg (TuplePat xs) = pack "[" <> intercalate (pack ",") xs <> pack "]"
           alg (Lam s e) = "function (" <> s <> ") { " <> (if isPrefixOf "if" e || isPrefixOf "const" e then "" else " return ") <> e <> " }"
           alg (App "nativeAddInt" e) =
-              e <> "+" 
+              e <> "+"
           alg (App "nativeSubInt" e) =
-              e <> "-" 
+              e <> "-"
           alg (App "nativeMulInt" e) =
-              e <> "*" 
+              e <> "*"
           alg (App "nativeDivInt" e) =
-              e <> "/" 
+              "div" <> "(" <> e <> ","
           alg (App "nativeEqInt" e) =
-              e <> "==" 
+              e <> "=="
           alg (App "nativeAddDouble" e) =
-              e <> "+" 
+              e <> "+"
           alg (App "nativeSubDouble" e) =
-              e <> "-" 
+              e <> "-"
           alg (App "nativeMulDouble" e) =
-              e <> "*" 
+              e <> "*"
           alg (App "nativeDivDouble" e) =
-              e <> "/" 
+              e <> "/"
           alg (App "nativeEqDouble" e) =
-              e <> "==" 
+              e <> "=="
+          alg (App e1 e2) | "div(" `isPrefixOf` e1 =
+              e1 <> e2 <> ")"
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"
           alg (Let s e1 e2) =
             "const " <> s <> " = " <>

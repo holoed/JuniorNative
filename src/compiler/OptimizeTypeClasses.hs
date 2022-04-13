@@ -46,6 +46,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
             return $ In (Ann attr (Var "eqInt"))
         alg (Ann attr (GetEnv "numInt" _)) = 
             return $ In (Ann attr (Var "numInt"))
+        alg (Ann attr (GetEnv "fractionalInt" _)) = 
+            return $ In (Ann attr (Var "fractionalInt"))
         alg (Ann attr (GetEnv "numDouble" _)) = 
             return $ In (Ann attr (Var "numDouble"))
         alg (Ann attr (GetEnv "fractionalDouble" _)) = 

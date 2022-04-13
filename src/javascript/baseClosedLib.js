@@ -342,3 +342,7 @@ const nativeMulInt = mkClosure(function([_, x]) {
     return env["x"] * y;
   }))
 })
+
+function div(x, y) {
+  return ~~(x / y)
+}

@@ -102,6 +102,25 @@ let main = let anf_6 = 5 in
            AppClosure (f, anf_7)
 |]
 
+   it "native int divide inside a function" $ [i|
+      val f :: Int -> Int
+      let f x = x / 2
+      let main = f 5
+   |] --> [i|val _f0 :: Int -> Int
+let _f0 (_env, x) = let anf_2 = 2 in
+                    let anf_4 = AppClosure (nativeInt, anf_2) in
+                    nativeDivInt x anf_4
+
+val f :: Int -> Int
+let f = let _c0 = MkClosure _f0 in
+        SetEnv (("fractionalInt", fractionalInt, SetEnv ("numInt", numInt, _c0)))
+
+val main :: Int
+let main = let anf_6 = 5 in
+           let anf_7 = AppClosure (nativeInt, anf_6) in
+           AppClosure (f, anf_7)
+|]
+
    it "native eq inside a function" $ [i|
       val f :: Double -> Bool
       let f x = x == 2.5
