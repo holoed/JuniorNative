@@ -69,6 +69,8 @@ generateExp = cataRec alg
               e <> "/"
           alg (App "nativeEqDouble" e) =
               e <> "=="
+          alg (App "nativeGtDouble" e) =
+              e <> ">"
           alg (App e1 e2) | "div(" `isPrefixOf` e1 =
               e1 <> e2 <> ")"
           alg (App e1 e2) = "(" <> mapOp e1 <> " (" <> e2 <> "))"

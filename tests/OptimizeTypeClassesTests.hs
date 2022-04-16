@@ -126,16 +126,32 @@ let main = let anf_6 = 5 in
       let f x = x == 2.5
       let main = f 5
    |] --> [i|val _f0 :: Double -> Bool
-let _f0 (_env, x) = 
-    let anf_0 = AppClosure ((==, GetEnv ("eqDouble", _env))) in
-    let anf_3 = AppClosure (anf_0, x) in
-    let anf_2 = 2.5 in
-    let anf_4 = AppClosure (nativeDouble, anf_2) in
-    AppClosure (anf_3, anf_4)
+let _f0 (_env, x) = let anf_2 = 2.5 in
+                    let anf_4 = AppClosure (nativeDouble, anf_2) in
+                    nativeEqDouble x anf_4
 
 val f :: Double -> Bool
 let f = let _c0 = MkClosure _f0 in
         SetEnv (("eqDouble", eqDouble, SetEnv ("fractionalDouble", fractionalDouble, _c0)))
+
+val main :: Bool
+let main = let anf_6 = 5 in
+           let anf_7 = AppClosure (nativeDouble, anf_6) in
+           AppClosure (f, anf_7)
+|]
+
+   it "native gt inside a function" $ [i|
+      val f :: Double -> Bool
+      let f x = x > 2.5
+      let main = f 5
+   |] --> [i|val _f0 :: Double -> Bool
+let _f0 (_env, x) = let anf_2 = 2.5 in
+                    let anf_4 = AppClosure (nativeDouble, anf_2) in
+                    nativeGtDouble x anf_4
+
+val f :: Double -> Bool
+let f = let _c0 = MkClosure _f0 in
+        SetEnv (("fractionalDouble", fractionalDouble, SetEnv ("ordDouble", ordDouble, _c0)))
 
 val main :: Bool
 let main = let anf_6 = 5 in

@@ -16,7 +16,7 @@ import qualified Data.Set as Set
 identifierList :: Set.Set String
 identifierList = Set.fromList [
     "nativeEqInt", "nativeAddInt", "nativeSubInt", "nativeMulInt", "nativeDivInt", "nativeInt", 
-    "nativeEqDouble", "nativeAddDouble", "nativeSubDouble", "nativeMulDouble", "nativeDivDouble", "nativeDouble"]
+    "nativeEqDouble", "nativeGtDouble", "nativeAddDouble", "nativeSubDouble", "nativeMulDouble", "nativeDivDouble", "nativeDouble"]
 
 type OptimizeM = ReaderT (Map String TypedExp) (State (Map String TypedExp))
 
@@ -44,6 +44,10 @@ optimizeImp es = sequence (cataRec alg <$> es)
              (_, _) -> In . Ann attr . Let n' v' <$> b
         alg (Ann attr (GetEnv "eqInt" _)) = 
             return $ In (Ann attr (Var "eqInt"))
+        alg (Ann attr (GetEnv "eqDouble" _)) = 
+            return $ In (Ann attr (Var "eqDouble"))
+        alg (Ann attr (GetEnv "ordDouble" _)) = 
+            return $ In (Ann attr (Var "ordDouble"))
         alg (Ann attr (GetEnv "numInt" _)) = 
             return $ In (Ann attr (Var "numInt"))
         alg (Ann attr (GetEnv "fractionalInt" _)) = 
@@ -73,6 +77,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
 
                 (In (Ann _ (Var "==")), In (Ann _ (Var "eqDouble"))) ->
                     return $ In (Ann attr (Var "nativeEqDouble"))
+                (In (Ann _ (Var ">")), In (Ann _ (Var "ordDouble"))) ->
+                    return $ In (Ann attr (Var "nativeGtDouble"))
                 (In (Ann _ (Var "+")), In (Ann _ (Var "numDouble"))) ->
                     return $ In (Ann attr (Var "nativeAddDouble"))
                 (In (Ann _ (Var "-")), In (Ann _ (Var "numDouble"))) ->
