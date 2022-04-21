@@ -158,3 +158,27 @@ let main = let anf_6 = 5 in
            let anf_7 = AppClosure (nativeDouble, anf_6) in
            AppClosure (f, anf_7)
 |]
+
+   it "native lt inside a function" $ [i|
+      val f :: Double -> Bool
+      let f x = x > 2.5 || x < 3.5
+      let main = f 5
+   |] --> [i|val _f0 :: Double -> Bool
+let _f0 (_env, x) = let anf_2 = 2.5 in
+                    let anf_4 = AppClosure (nativeDouble, anf_2) in
+                    let anf_5 = nativeGtDouble x anf_4 in
+                    let anf_11 = AppClosure (||, anf_5) in
+                    let anf_8 = 3.5 in
+                    let anf_10 = AppClosure (nativeDouble, anf_8) in
+                    let anf_12 = nativeLtDouble x anf_10 in
+                    AppClosure (anf_11, anf_12)
+
+val f :: Double -> Bool
+let f = let _c0 = MkClosure _f0 in
+        SetEnv (("fractionalDouble", fractionalDouble, SetEnv ("ordDouble", ordDouble, _c0)))
+
+val main :: Bool
+let main = let anf_14 = 5 in
+           let anf_15 = AppClosure (nativeDouble, anf_14) in
+           AppClosure (f, anf_15)
+|]

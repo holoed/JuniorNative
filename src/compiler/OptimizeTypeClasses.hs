@@ -16,7 +16,7 @@ import qualified Data.Set as Set
 identifierList :: Set.Set String
 identifierList = Set.fromList [
     "nativeEqInt", "nativeAddInt", "nativeSubInt", "nativeMulInt", "nativeDivInt", "nativeInt", 
-    "nativeEqDouble", "nativeGtDouble", "nativeAddDouble", "nativeSubDouble", "nativeMulDouble", "nativeDivDouble", "nativeDouble"]
+    "nativeEqDouble", "nativeLtDouble", "nativeGtDouble", "nativeAddDouble", "nativeSubDouble", "nativeMulDouble", "nativeDivDouble", "nativeDouble"]
 
 type OptimizeM = ReaderT (Map String TypedExp) (State (Map String TypedExp))
 
@@ -79,6 +79,8 @@ optimizeImp es = sequence (cataRec alg <$> es)
                     return $ In (Ann attr (Var "nativeEqDouble"))
                 (In (Ann _ (Var ">")), In (Ann _ (Var "ordDouble"))) ->
                     return $ In (Ann attr (Var "nativeGtDouble"))
+                (In (Ann _ (Var "<")), In (Ann _ (Var "ordDouble"))) ->
+                    return $ In (Ann attr (Var "nativeLtDouble"))
                 (In (Ann _ (Var "+")), In (Ann _ (Var "numDouble"))) ->
                     return $ In (Ann attr (Var "nativeAddDouble"))
                 (In (Ann _ (Var "-")), In (Ann _ (Var "numDouble"))) ->
