@@ -35,6 +35,7 @@ optimizeImp es = sequence (cataRec alg <$> es)
             case e2' of
                 (In (Ann _ (Var n))) | not (member k (state!n)) -> return e2'
                 (In (Ann _ (SetEnv _ _ (In (Ann _ (Var n)))))) | not (member k (state!n)) -> return e2'
+                (In (Ann _ (SetEnv _ _ (In (Ann _ (SetEnv _ _ (In (Ann _ (Var n))))))))) | not (member k (state!n)) -> return e2'
                 _ -> return $ In (Ann attr (SetEnv k e1' e2'))
         alg (Ann attr (MkClosure n)) = do
             state <- get
