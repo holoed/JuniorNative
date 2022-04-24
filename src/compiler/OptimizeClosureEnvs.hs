@@ -1,6 +1,6 @@
 module OptimizeClosureEnvs where
 
-import Data.Set ( Set, size, fromList, member )
+import Data.Set ( Set, fromList, member )
 import Data.Map ( Map, empty, insert, (!) )
 import Control.Monad.Trans.Writer ( tell, listen, WriterT(runWriterT) )
 import Control.Monad.State ( runState, State, MonadState(put, get) )
@@ -10,7 +10,6 @@ import Annotations (Ann(Ann))
 import Ast (ExpF(Let, VarPat, GetEnv, Defn, SetEnv, MkClosure, Var))
 import Fixpoint (Fix(In))
 import Control.Monad ((>=>))
-import Debug.Trace (trace)
 
 type OptimizeM = WriterT (Set String) (State (Map String (Set String)))
 
@@ -34,14 +33,14 @@ optimizeImp es = sequence (cataRec alg <$> es)
             e2' <- e2
             state <- get
             case e2' of
-                (In (Ann _ (Var n))) | not (member k (state!n)) -> return (trace ("Removed SetEnv " ++ k ++ " " ++ n) e2')
-                (In (Ann _ (SetEnv _ _ (In (Ann _ (Var n)))))) | not (member k (state!n)) -> return (trace ("Removed SetEnv " ++ k ++ " " ++ n) e2')
+                (In (Ann _ (Var n))) | not (member k (state!n)) -> return e2'
+                (In (Ann _ (SetEnv _ _ (In (Ann _ (Var n)))))) | not (member k (state!n)) -> return e2'
                 _ -> return $ In (Ann attr (SetEnv k e1' e2'))
         alg (Ann attr (MkClosure n)) = do
             state <- get
             tell (state!n)
             return $ In (Ann attr (MkClosure n))
-        alg (Ann attr (Let n v b)) = do
+        alg (Ann _ (Let n v b)) = do
             n' <- n
             (v', ns) <- listen v
             state <- get
@@ -52,4 +51,4 @@ optimizeImp es = sequence (cataRec alg <$> es)
 
 optimize :: [TypedExp] -> [TypedExp]
 optimize es =
-    let ((es', _), ns) = runState (runWriterT ((optimizeImp >=> optimizeImp) es)) empty in es'
+    let ((es', _), _) = runState (runWriterT ((optimizeImp >=> optimizeImp) es)) empty in es'
