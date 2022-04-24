@@ -31,6 +31,7 @@ import qualified ClosureConversion (convertProg)
 import qualified ANFTranslation (convertProg)
 import qualified OptimizeTypeClasses (optimize)
 import qualified DeadCodeElimination (optimize)
+import qualified OptimizeClosureEnvs (optimize)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -107,3 +108,7 @@ optimizeTypeClasses es = do
 deadCodeElimin :: [TypedExp] -> CompileM [TypedExp]
 deadCodeElimin es = do
     return $ DeadCodeElimination.optimize es
+
+optimizeClosureEnvs :: [TypedExp] -> CompileM [TypedExp]
+optimizeClosureEnvs es = do
+    return $ OptimizeClosureEnvs.optimize es
