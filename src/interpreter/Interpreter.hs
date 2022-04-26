@@ -9,7 +9,7 @@ import RecursionSchemes (cataRec)
 import Control.Monad.Fail ()
 import Control.Monad (foldM)
 import Data.List (foldl')
-import Data.Text ( pack  )
+import Data.Text ( Text, pack  )
 import Data.HashMap.Strict (empty)
 import Control.Monad.Except (   MonadError(throwError) )
 import InterpreterMonad ( InterpreterM(runMonad), ask, local, Result(Value, Tuple, Function), Prim(B, S), toInterpPrim, InterpreterEnv, member, (!), union, insertDynamic, insertStatic )
@@ -20,6 +20,11 @@ insertMany (Value (S n)) v env = insertDynamic n v env
 insertMany (Tuple xs) (Tuple ys) env =
   foldl' (\acc (n, v) -> insertMany n v acc) env (zip xs ys)
 insertMany _ _ _ = undefined
+
+extractNamesAndValues :: Result -> Result -> [(Text, Result)]
+extractNamesAndValues (Value (S n)) v = [(n,  v)]
+extractNamesAndValues (Tuple rs) (Tuple vs) = zip rs vs >>= uncurry extractNamesAndValues
+extractNamesAndValues _ _ = []
 
 interpretExp :: InterpreterEnv -> Exp -> Either PString Result
 interpretExp env e = runMonad (cataRec alg e) env
@@ -38,9 +43,10 @@ interpretExp env e = runMonad (cataRec alg e) env
                n  <- e1
                return $ Function (\v -> local (\ctx' -> insertMany n v (ctx `union` ctx')) e2)
           alg (Ann _ (Let e1 e2 e3)) =
-            do (Value (S n)) <- e1
-               v' <- e2
-               local (insertDynamic n v') e3
+            do e1' <- e1
+               e2' <- e2
+               let kvs = extractNamesAndValues e1' e2'
+               local (\ctx -> foldr (uncurry insertDynamic) ctx kvs) e3
           alg (Ann _ (App e1 e2)) =
             do (Function f) <- e1
                x <- e2

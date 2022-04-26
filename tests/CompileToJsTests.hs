@@ -75,10 +75,19 @@ tests = do
    let main = fac 5     
    |] --> "120"
 
-   it "deconstucting tuples" $ [i|
+   it "deconstucting tuples in lambdas" $ [i|
       let f (x, y) = x + y
       let main = f (2, 3)
    |] --> "5"
+
+   it "deconstucting tuples in lets" $ [i|
+      let add (z1, z2) = 
+      let (a, b) = z1 in
+      let (c, d) = z2 in
+      (a + c, b + d)
+      
+      let main = add ((2, 3), (4, 5)) 
+   |] --> "[6,8]"
 
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 

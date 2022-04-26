@@ -93,3 +93,24 @@ let f = let _c1 = MkClosure _f0 in _c1
 let main = 
     AppClosure ((AppClosure (f, numInt), AppClosure ((AppClosure (fromInteger, numInt), 5))))
 |]
+
+    it "tuple pattern in let" $ do
+      xs <- process [i|
+let add (z1, z2) = 
+  let (a, b) = z1 in
+  let (c, d) = z2 in
+  (a + c, b + d)
+  
+let main = add ((2, 3), (4, 5)) |]
+      unlines xs `shouldBe` drop 1 [i|
+let _f2 (_env, (z1, z2)) = let (a, b) = z1 in
+                           let (c, d) = z2 in
+                           (AppClosure ((AppClosure ((AppClosure (((+), GetEnv ("numT8", _env))), a)), c)), AppClosure ((AppClosure ((AppClosure (((+), GetEnv ("numT9", _env))), b)), d)))
+let _f1 (_env, numT9) = let _c0 = MkClosure _f2 in
+                        SetEnv (("numT8", GetEnv ("numT8", _env), SetEnv ("numT9", numT9, _c0)))
+let _f0 (_env, numT8) = let _c1 = MkClosure _f1 in
+                        SetEnv ("numT8", numT8, _c1)
+let add = let _c2 = MkClosure _f0 in _c2
+let main = 
+    AppClosure ((AppClosure ((AppClosure (add, numInt), numInt)), ((AppClosure ((AppClosure (fromInteger, numInt), 2)), AppClosure ((AppClosure (fromInteger, numInt), 3))), (AppClosure ((AppClosure (fromInteger, numInt), 4)), AppClosure ((AppClosure (fromInteger, numInt), 5))))))
+|]
