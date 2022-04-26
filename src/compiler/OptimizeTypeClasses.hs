@@ -8,7 +8,6 @@ import RecursionSchemes (cataRec)
 import Annotations (Ann(Ann))
 import Ast (ExpF(VarPat, AppClosure, Var, Let, App, GetEnv))
 import Data.Map ( insert, empty, member, Map, (!), delete )
--- import Debug.Trace (trace)
 import Prelude hiding (lookup)
 import Control.Monad ((>=>))
 import qualified Data.Set as Set 
