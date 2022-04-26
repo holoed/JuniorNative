@@ -73,13 +73,18 @@ convert = cataRec alg
      alg (Ann _ Defn {}) = undefined
      alg x = fmap In (sequenceA x)
 
+extractNames :: TypedFExp -> [String]
+extractNames (In (Ann _ (VarPat s))) = [s]
+extractNames (In (Ann _ (TuplePat es))) = es >>= extractNames 
+extractNames _ = error "Unsupported"
+
 subst :: Set String -> TypedFExp -> TypedFExp -> TypedFExp
 subst vars env expr = runReader (cataRec alg expr) (env, vars)
    where alg (Ann attr (Let n v b)) = do
             n' <- n
-            let (In (Ann _ (VarPat name))) = n'
+            let names = extractNames n'
             v' <- v
-            b' <- local (second (delete name)) b
+            b' <- local (second (\ctx -> foldr delete ctx names)) b
             return $ In (Ann attr (Let n' v' b'))
          alg (Ann attr (Var name)) = do
             (env', vars') <- ask

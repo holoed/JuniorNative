@@ -236,3 +236,12 @@ tests =
       [i|val f :: Int -> List (List Int)
          let f x = (x:[]):[] |] --> "Int -> List List Int" -- TODO: Fix types printer bug
 
+    it "tuple deconstruction in nested lets" $ do
+      [i|let add (z1, z2) = 
+         let ((a, b), c) = z1 in
+         let ((d, e), f) = z2 in
+         ((a, d), (b, e), (c, f)) |] --> "(((a, b), c), ((d, e), f)) -> ((a, d), (b, e), (c, f))"
+
+
+      
+

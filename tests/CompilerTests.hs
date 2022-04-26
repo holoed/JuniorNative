@@ -171,6 +171,15 @@ tests = do
             let main = f (2, 3) (5, 6)
         |] --> "(7,9)"
 
+   it "deconstucting tuples in lets" $ [i|
+      let add (z1, z2) = 
+      let (a, b) = z1 in
+      let (c, d) = z2 in
+      (a + c, b + d)
+      
+      let main = add ((2, 3), (4, 5)) 
+   |] --> "(6,8)"
+
    it "Nested let with variable capture" $ do
          [i|let f x = x + 1.5
             let g x =

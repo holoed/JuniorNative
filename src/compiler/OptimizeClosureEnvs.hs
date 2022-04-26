@@ -7,11 +7,16 @@ import Control.Monad.State ( runState, State, MonadState(put, get) )
 import RecursionSchemes (cataRec)
 import TypedAst (TypedExp, TypedExpF)
 import Annotations (Ann(Ann))
-import Ast (ExpF(Let, VarPat, GetEnv, Defn, SetEnv, MkClosure, Var))
+import Ast (ExpF(Let, VarPat, GetEnv, Defn, SetEnv, MkClosure, Var, TuplePat))
 import Fixpoint (Fix(In))
 import Control.Monad ((>=>))
 
 type OptimizeM = WriterT (Set String) (State (Map String (Set String)))
+
+extractNames :: TypedExp -> [String]
+extractNames (In (Ann _ (VarPat s))) = [s]
+extractNames (In (Ann _ (TuplePat es))) = es >>= extractNames
+extractNames _ = error "Unsupported"
 
 optimizeImp :: [TypedExp] -> OptimizeM [TypedExp]
 optimizeImp es = sequence (cataRec alg <$> es)
@@ -41,12 +46,12 @@ optimizeImp es = sequence (cataRec alg <$> es)
             state <- get
             tell (state!n)
             return $ In (Ann attr (MkClosure n))
-        alg (Ann _ (Let n v b)) = do
+        alg (Ann attr (Let n v b)) = do
             n' <- n
             (v', ns) <- listen v
             state <- get
-            let (In (Ann attr (VarPat k))) = n'
-            _ <- put (insert k ns state)
+            let ks = extractNames n'
+            _ <- put (foldr (`insert` ns) state ks)
             In . Ann attr . Let n' v' <$> b
         alg x = fmap In (sequenceA x)
 

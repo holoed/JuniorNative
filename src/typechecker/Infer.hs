@@ -27,6 +27,13 @@ getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
 getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = xs >>= getNameAndTypes
 getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
+generateTypeForPattern :: TypedExp -> TypeM Type
+generateTypeForPattern (In (Ann (_, _ :=> t) (VarPat _))) = return t
+generateTypeForPattern (In (Ann (_, _) (TuplePat xs))) = do
+    ts <- sequence (generateTypeForPattern <$> xs)
+    return $ tupleCon ts
+generateTypeForPattern _ = undefined 
+
 valueToType :: Prim -> Type
 valueToType (I _) = intCon
 valueToType (D _) = doubleCon
@@ -106,9 +113,8 @@ alg (Ann (Just l) (VarPat s)) = do
 
 alg (Ann (Just l) (TuplePat ns)) = do
   ns' <- sequence ns
-  let nts = ns' >>= getNameAndTypes
-  let t = tupleCon ((\(_, _ :=> t') -> t') <$> nts)
-  return $ ttuplePat l (fromList [] :=> t) ns'
+  t <- sequence (generateTypeForPattern <$> ns')
+  return $ ttuplePat l (fromList [] :=> tupleCon t) ns'
 
 alg (Ann (Just l) (Defn givenQt n e1)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
