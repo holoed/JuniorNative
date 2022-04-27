@@ -9,8 +9,8 @@ import BuiltIns ( doubleCon, intCon )
 
 env :: Env
 env = toEnv [
-  (".",  Set.fromList [] :=> tyLam (tyLam (TyVar "b" 0) (TyVar "c" 0)) 
-                             (tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) 
+  (".",  Set.fromList [] :=> tyLam (tyLam (TyVar "b" 0) (TyVar "c" 0))
+                             (tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0))
                              (tyLam (TyVar "a" 0) (TyVar "c" 0)))),
   ("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
   ("==", Set.fromList [IsIn "Eq" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
@@ -23,7 +23,7 @@ env = toEnv [
   (">=",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
   ("<=",  Set.fromList [IsIn "Ord" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyCon "Bool"))),
   ("&&",  Set.fromList [] :=> tyLam (TyCon "Bool") (tyLam (TyCon "Bool") (TyCon "Bool"))),
-  ("||",  Set.fromList [] :=> tyLam (TyCon "Bool") (tyLam (TyCon "Bool") (TyCon "Bool"))),                  
+  ("||",  Set.fromList [] :=> tyLam (TyCon "Bool") (tyLam (TyCon "Bool") (TyCon "Bool"))),
   ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
   ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
   ("null", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
@@ -54,11 +54,13 @@ env = toEnv [
   ("range", Set.fromList[] :=> tyLam (tyLam (TyCon "Int") (TyVar "a" 0)) (tyLam (TyCon "Int") (tyLam (TyCon "Int") (TyApp (TyCon "List") (TyVar "a" 0))))),
   ("split", Set.fromList[] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyVar "a" 0))))),
   ("mod", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
-  ("fromList", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))) (TyApp (TyApp (TyCon "Map") (TyVar "a" 0)) (TyVar "b" 0)))
+  ("fromList", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))) (TyApp (TyApp (TyCon "Map") (TyVar "a" 0)) (TyVar "b" 0))),
+  ("Empty", Set.fromList [] :=> TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)),
+  ("Cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0))))
  ]
 
 classEnv :: ClassEnv
-classEnv = ClassEnv { 
+classEnv = ClassEnv {
   classes = Map.fromList [
      ("Eq", ([], [
        Set.fromList [] :=> IsIn "Eq" (TyCon "Bool"),

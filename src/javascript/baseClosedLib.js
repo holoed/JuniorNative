@@ -346,3 +346,39 @@ const nativeMulInt = mkClosure(function([_, x]) {
 function div(x, y) {
   return ~~(x / y)
 }
+
+//************** Type Level Fixed Point **************/
+
+class In {
+  constructor(value) {
+    this.value = value;
+  }
+}
+
+const fixIn = mkClosure(function([_, x]) {
+  return new In(x);
+})
+
+const fixOut = mkClosure(function([_, x]) {
+  return x.value;
+})
+
+class __Cons {
+  constructor(value1, value2) {
+    this.value1 = value1
+    this.value2 = value2
+  }
+}
+
+class __Empty {
+  constructor() {
+  }
+}
+
+const Cons = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return new __Cons(env["x"], y);
+  }))
+})
+
+const Empty = new __Empty();

@@ -89,6 +89,10 @@ tests = do
       let main = add ((2, 3), (4, 5)) 
    |] --> "[6,8]"
 
+   it "Construct fix type value" $[i|
+      let main = fixIn (Cons 5 (fixIn (Cons 4 (fixIn Empty))))
+   |] --> "{\"value\":{\"value1\":5,\"value2\":{\"value\":{\"value1\":4,\"value2\":{\"value\":{}}}}}}"
+
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 
    it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[[5,[]]]"

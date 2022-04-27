@@ -98,3 +98,7 @@ tests = do
    it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[[5,[]]]"
 
    it "Calculator Test 2" $ "tests/jnrs_lib/calculator_with_spaces.jnr" ---> "[[14,[]]]"
+
+   it "Construct fix type value" $[i|
+      let main = fixIn (Cons 5 (fixIn (Cons 4 (fixIn Empty))))
+   |] --> "{\"value\":{\"value1\":5,\"value2\":{\"value\":{\"value1\":4,\"value2\":{\"value\":{}}}}}}"

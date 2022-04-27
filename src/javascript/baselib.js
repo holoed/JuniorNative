@@ -297,3 +297,39 @@ const fromList = xs => {
   xs.forEach(([k,v]) => dict[k] = v);
   return dict;
 }
+
+//************** Type Level Fixed Point **************/
+
+class In {
+  constructor(value) {
+    this.value = value;
+  }
+}
+
+const fixIn = function(x) {
+  return new In(x);
+}
+
+const fixOut = function(x) {
+  return x.value;
+}
+
+class __Cons {
+  constructor(value1, value2) {
+    this.value1 = value1
+    this.value2 = value2
+  }
+}
+
+class __Empty {
+  constructor() {
+  }
+}
+
+const Cons = function(x) {
+  return function(y) {
+    return new __Cons(x, y);
+  }
+}
+
+const Empty = new __Empty();
