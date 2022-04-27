@@ -63,7 +63,7 @@ buildHierchyForAllArgs :: ClassEnv -> [TypedExp] -> Map.Map String TypedExp
 buildHierchyForAllArgs classEnv = foldl (\acc x -> acc `Map.union` buildClassHiearchy classEnv x) Map.empty
 
 parentContains :: String -> [TypedExp] -> Bool
-parentContains n  = 
+parentContains n  =
     isJust . find (\(In (Ann _ (Var k))) -> k == n)
 
 mapCompatibleTypes :: ClassEnv -> [TypedExp] -> [TypedExp] -> [TypedExp] -> [TypedExp]
@@ -75,7 +75,7 @@ mapCompatibleTypes classEnv parent_args child_args resolved_args =
 
 extractNames :: TypedExp -> [String]
 extractNames (In (Ann _ (VarPat s))) = [s]
-extractNames (In (Ann _ (TuplePat xs))) = xs >>= extractNames 
+extractNames (In (Ann _ (TuplePat xs))) = xs >>= extractNames
 extractNames _ = error "Unsupported"
 
 convertBody :: ClassEnv -> Env -> String -> [TypedExp] -> TypedExp -> TypedExp
@@ -87,11 +87,11 @@ convertBody classEnv baseEnv name parent_args = flip runReader baseEnv . cataRec
                  e' <- local (\env2 -> foldr Map.delete env2 ns) e
                  return $ In (Ann (l, qt) (Lam s' e'))
              alg (Ann (l, qt) (Var n)) = do
-                env <- ask 
-                let (psList, _) = mapEnvWithLocal env n qt 
+                env <- ask
+                let (psList, _) = mapEnvWithLocal env n qt
                 let args = if n == name
                     then parent_args
-                    else mapCompatibleTypes classEnv parent_args (getArgs psList) (getNewArgs classEnv psList) 
+                    else mapCompatibleTypes classEnv parent_args (getArgs psList) (getNewArgs classEnv psList)
                 return $ applyArgs args (In (Ann (l, qt) (Var n)))
              alg x = fmap In (sequence x)
 
@@ -117,16 +117,16 @@ compatibleType p (ps :=> p') =
 
 findInstance :: ClassEnv -> Pred -> Maybe ([Pred], Pred)
 findInstance classEnv p@(IsIn name _) =
-    listToMaybe (instances >>= compatibleType p) 
+    listToMaybe (instances >>= compatibleType p)
     where dict = classes classEnv
           (_, instances) = (Map.!) dict name
 
 createExpFromType :: Type -> TypedExp
-createExpFromType ty@(TyApp (TyApp (TyCon "->") tuple) (TyApp (TyCon n) _))  = 
+createExpFromType ty@(TyApp (TyApp (TyCon "->") tuple) (TyApp (TyCon n) _))  =
     let ts = untuple tuple in
     applyArgs (createExpFromType <$> ts) (tvar zeroLoc (Set.fromList [] :=> ty) (toCamel (n ++ "Tuple" ++ show (length ts))))
-createExpFromType t@(TyApp (TyCon n) t') = tvar zeroLoc (Set.fromList [] :=> t) (toCamel (n ++ show t'))
-createExpFromType _ = undefined 
+createExpFromType t@(TyApp (TyCon n) t') = tvar zeroLoc (Set.fromList [] :=> t) (toCamel (filter (/= ' ') (n ++ show t')))
+createExpFromType _ = undefined
 
 getArgs :: [Pred] -> [TypedExp]
 getArgs ps =
@@ -134,13 +134,13 @@ getArgs ps =
        return $ tvar zeroLoc (Set.fromList [] :=> typeForPred p) (varNameForPred p)
 
 resolvePredsToType :: ClassEnv -> [Pred] -> [Type]
-resolvePredsToType classEnv ps = 
+resolvePredsToType classEnv ps =
     do p <- ps
        let inst = findInstance classEnv p
        if isNothing inst then
            return $ buildType [] (typeForPred p)
        else let (ps', p') = fromJust inst in
-            let ts = ps' >>= (\p2 -> if inHnf p2 then [typeForPred p2] 
+            let ts = ps' >>= (\p2 -> if inHnf p2 then [typeForPred p2]
                                      else resolvePredsToType classEnv [p2]) in
             let t = typeForPred p' in
             return $ buildType ts t
@@ -163,4 +163,4 @@ buildType ts t = tyLam (tupleCon ts) t
 varNameForPred :: Pred -> String
 varNameForPred = toCamel . f
     where f :: Pred -> String
-          f (IsIn name t) = name ++ show t
+          f (IsIn name t) = filter (/= ' ') (name ++ show t)

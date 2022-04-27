@@ -301,8 +301,8 @@ const fromList = xs => {
 //************** Type Level Fixed Point **************/
 
 class In {
-  constructor(value) {
-    this.value = value;
+  constructor(value0) {
+    this.value0 = value0;
   }
 }
 
@@ -311,13 +311,13 @@ const fixIn = function(x) {
 }
 
 const fixOut = function(x) {
-  return x.value;
+  return x.value0;
 }
 
 class __Cons {
-  constructor(value1, value2) {
+  constructor(value0, value1) {
+    this.value0 = value0
     this.value1 = value1
-    this.value2 = value2
   }
 }
 
@@ -333,3 +333,27 @@ const Cons = function(x) {
 }
 
 const Empty = new __Empty();
+
+const productAlg = function (v) {
+  if (v instanceof __Empty) {
+      return 1;
+  };
+  if (v instanceof __Cons) {
+      return v.value0 * v.value1 | 0;
+  };
+  throw new Error("Failed pattern match");
+};
+
+const functorListFInt = {
+  "fmap": function (f) {
+      return function (m) {
+          if (m instanceof __Empty) {
+              return Empty;
+          };
+          if (m instanceof __Cons) {
+              return new __Cons(m.value0, f(m.value1));
+          };
+          throw new Error("Failed pattern match");
+      };
+  }
+};

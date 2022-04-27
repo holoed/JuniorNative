@@ -56,7 +56,8 @@ env = toEnv [
   ("mod", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
   ("fromList", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))) (TyApp (TyApp (TyCon "Map") (TyVar "a" 0)) (TyVar "b" 0))),
   ("Empty", Set.fromList [] :=> TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)),
-  ("Cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0))))
+  ("Cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)))),
+  ("productAlg", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyCon "Int")) (TyCon "Int")) (TyCon "Int"))
  ]
 
 classEnv :: ClassEnv
@@ -93,7 +94,8 @@ classEnv = ClassEnv {
      ("Functor", ([], [
        Set.fromList [] :=> IsIn "Functor" (TyCon "List"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "Parser"),
-       Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "Reader") (TyVar "a" 0))
+       Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "Reader") (TyVar "a" 0)),
+       Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "ListF") (TyVar "a" 0))
        ])),
      ("Applicative", (["Functor"], [
        Set.fromList [] :=> IsIn "Applicative" (TyCon "List"),
