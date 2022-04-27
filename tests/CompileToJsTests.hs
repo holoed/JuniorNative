@@ -89,6 +89,18 @@ tests = do
       let main = add ((2, 3), (4, 5)) 
    |] --> "[6,8]"
 
+   it "Construct fix type value" $[i|
+      let main = fixIn (Cons 5 (fixIn (Cons 4 (fixIn Empty))))
+   |] --> "{\"value0\":{\"value0\":5,\"value1\":{\"value0\":{\"value0\":4,\"value1\":{\"value0\":{}}}}}}"
+
+   it "Catamorphism product" $[i|
+      let fix f x = f (fix f) x
+      let cata psi f = psi . fmap f . fixOut
+      let cataRec psi = fix (cata psi)
+      let example = fixIn (Cons 5 (fixIn (Cons 4 (fixIn (Cons 3 (fixIn (Cons 2 (fixIn (Cons 1 (fixIn Empty))))))))))
+      let main = cataRec productAlg example
+   |] --> "120"
+
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 
    it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[[5,[]]]"

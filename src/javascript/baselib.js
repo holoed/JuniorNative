@@ -297,3 +297,63 @@ const fromList = xs => {
   xs.forEach(([k,v]) => dict[k] = v);
   return dict;
 }
+
+//************** Type Level Fixed Point **************/
+
+class In {
+  constructor(value0) {
+    this.value0 = value0;
+  }
+}
+
+const fixIn = function(x) {
+  return new In(x);
+}
+
+const fixOut = function(x) {
+  return x.value0;
+}
+
+class __Cons {
+  constructor(value0, value1) {
+    this.value0 = value0
+    this.value1 = value1
+  }
+}
+
+class __Empty {
+  constructor() {
+  }
+}
+
+const Cons = function(x) {
+  return function(y) {
+    return new __Cons(x, y);
+  }
+}
+
+const Empty = new __Empty();
+
+const productAlg = function (v) {
+  if (v instanceof __Empty) {
+      return 1;
+  };
+  if (v instanceof __Cons) {
+      return v.value0 * v.value1 | 0;
+  };
+  throw new Error("Failed pattern match");
+};
+
+const functorListFInt = {
+  "fmap": function (f) {
+      return function (m) {
+          if (m instanceof __Empty) {
+              return Empty;
+          };
+          if (m instanceof __Cons) {
+              return new __Cons(m.value0, f(m.value1));
+          };
+          throw new Error("Failed pattern match");
+      };
+  }
+};

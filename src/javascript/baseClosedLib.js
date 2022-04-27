@@ -246,6 +246,8 @@ const bind = mkClosure(function([_, inst]) { return inst["bind"]; })
 
 const pure = mkClosure(function([_, inst]) { return inst["pure"]; })
 
+const fmap = mkClosure(function([_, inst]) { return inst["fmap"]; })
+
 const __dot = mkClosure(function([_, f]) {
     return setEnv("f", f, mkClosure(function([env, g]) {
       return setEnv("g", g, setEnv("f", env["f"], mkClosure(function([env, x]) {
@@ -345,4 +347,64 @@ const nativeMulInt = mkClosure(function([_, x]) {
 
 function div(x, y) {
   return ~~(x / y)
+}
+
+//************** Type Level Fixed Point **************/
+
+class In {
+  constructor(value0) {
+    this.value0 = value0;
+  }
+}
+
+const fixIn = mkClosure(function([_, x]) {
+  return new In(x);
+})
+
+const fixOut = mkClosure(function([_, x]) {
+  return x.value0;
+})
+
+class __Cons {
+  constructor(value0, value1) {
+    this.value0 = value0
+    this.value1 = value1
+  }
+}
+
+class __Empty {
+  constructor() {
+  }
+}
+
+const Cons = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return new __Cons(env["x"], y);
+  }))
+})
+
+const Empty = new __Empty();
+
+const productAlg = mkClosure(function ([_, v]) {
+  if (v instanceof __Empty) {
+      return 1;
+  };
+  if (v instanceof __Cons) {
+      return v.value0 * v.value1 | 0;
+  };
+  throw new Error("Failed pattern match");
+});
+
+const functorListFInt = {
+  "fmap": mkClosure(function ([_, f]) {
+      return setEnv("f", f, mkClosure(function ([env, m]) {
+          if (m instanceof __Empty) {
+              return Empty;
+          };
+          if (m instanceof __Cons) {
+              return new __Cons(m.value0, applyClosure(env["f"], m.value1));
+          };
+          throw new Error("Failed pattern match");
+      })); 
+   })
 }
