@@ -98,7 +98,11 @@ tests = do
       let cata psi f = psi . fmap f . fixOut
       let cataRec psi = fix (cata psi)
       let example = In (Cons 5 (In (Cons 4 (In (Cons 3 (In (Cons 2 (In (Cons 1 (In Empty))))))))))
-      let main = cataRec productAlg example
+      let alg v = if isEmpty v then 1  
+            else if isCons v then 
+            let (x, y) = extractCons v in x * y
+            else undefined
+      let main = cataRec alg example
    |] --> "120"
 
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"

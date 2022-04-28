@@ -182,7 +182,7 @@ function range_1([_, f]) {
 
 const range = mkClosure(range_1)
 
-const isEmpty = mkClosure(function([_, xs]) {
+const isEmptyList = mkClosure(function([_, xs]) {
     return xs.length == 0;
   })
 
@@ -383,17 +383,19 @@ const Cons = mkClosure(function([_, x]) {
   }))
 })
 
+const isCons = mkClosure(function([_, v]) {
+  return v instanceof __Cons;
+})
+
+const extractCons =  mkClosure(function([_, v]) {
+  return [v.value0, v.value1];
+})
+
 const Empty = new __Empty();
 
-const productAlg = mkClosure(function ([_, v]) {
-  if (v instanceof __Empty) {
-      return 1;
-  };
-  if (v instanceof __Cons) {
-      return v.value0 * v.value1 | 0;
-  };
-  throw new Error("Failed pattern match");
-});
+const isEmpty = mkClosure(function([_, v]) {
+  return v instanceof __Empty;
+})
 
 const functorListFInt = {
   "fmap": mkClosure(function ([_, f]) {

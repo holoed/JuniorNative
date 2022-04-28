@@ -155,7 +155,7 @@ const __colon = function(x) {
   }
 }
 
-const isEmpty = function(xs) {
+const isEmptyList = function(xs) {
   return xs.length == 0;
 }
 
@@ -334,15 +334,17 @@ const Cons = function(x) {
 
 const Empty = new __Empty();
 
-const productAlg = function (v) {
-  if (v instanceof __Empty) {
-      return 1;
-  };
-  if (v instanceof __Cons) {
-      return v.value0 * v.value1 | 0;
-  };
-  throw new Error("Failed pattern match");
-};
+const isEmpty = function(v) {
+  return v instanceof __Empty; 
+}
+
+const isCons = function(v) {
+  return v instanceof __Cons; 
+}
+
+const extractCons = function(v) {
+  return [v.value0, v.value1];
+}
 
 const functorListFInt = {
   "fmap": function (f) {

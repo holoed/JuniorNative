@@ -35,7 +35,7 @@ mapOp "."  = "__dot"
 mapOp x    = x
 
 mapName :: Text -> Text
-mapName "null" = "isEmpty"
+mapName "null" = "isEmptyList"
 mapName "eval" = "__eval"
 mapName "mod"  = "__mod"
 mapName "()" = "undefined"
