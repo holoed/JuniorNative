@@ -300,14 +300,14 @@ const fromList = xs => {
 
 //************** Type Level Fixed Point **************/
 
-class In {
+class InClass {
   constructor(value0) {
     this.value0 = value0;
   }
 }
 
-const fixIn = function(x) {
-  return new In(x);
+const In = function(x) {
+  return new InClass(x);
 }
 
 const fixOut = function(x) {

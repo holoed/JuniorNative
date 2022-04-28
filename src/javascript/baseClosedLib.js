@@ -351,14 +351,14 @@ function div(x, y) {
 
 //************** Type Level Fixed Point **************/
 
-class In {
+class InClass {
   constructor(value0) {
     this.value0 = value0;
   }
 }
 
-const fixIn = mkClosure(function([_, x]) {
-  return new In(x);
+const In = mkClosure(function([_, x]) {
+  return new InClass(x);
 })
 
 const fixOut = mkClosure(function([_, x]) {

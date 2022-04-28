@@ -5,7 +5,7 @@ let fix f x = f (fix f) x
 
 let cata psi f = psi . fmap f . fixOut
 
-let ana psi f = fixIn . fmap f . psi
+let ana psi f = In . fmap f . psi
 
 let hylo rho psi f = psi . fmap f . rho
 
