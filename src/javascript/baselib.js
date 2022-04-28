@@ -292,7 +292,7 @@ const split = (size) => (array) => {
   return result
 }
 
-const fromList = xs => {
+const fromListToMap = xs => {
   var dict = {};
   xs.forEach(([k,v]) => dict[k] = v);
   return dict;
@@ -346,7 +346,7 @@ const extractCons = function(v) {
   return [v.value0, v.value1];
 }
 
-const functorListFInt = {
+const functorListF = {
   "fmap": function (f) {
       return function (m) {
           if (m instanceof __Empty) {

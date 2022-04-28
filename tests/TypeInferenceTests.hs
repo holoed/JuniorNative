@@ -212,7 +212,7 @@ tests =
       "let main = (\\x -> x + 1):[] <*> 5:[]" --> "List Int"
 
     it "from list to map" $ do
-      "let main = fromList (('a', 2):[])" --> "Map Char Int"
+      "let main = fromListToMap (('a', 2):[])" --> "Map Char Int"
 
     it "value signature" $ do
       [i|val main :: Double

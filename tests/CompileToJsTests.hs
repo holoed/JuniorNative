@@ -52,7 +52,7 @@ tests = do
       "let main = mod 5 3" --> "2"
 
    it "from List to Map" $ do
-      "let main = fromList (('a', 2):[])" --> "{\"a\":2}"
+      "let main = fromListToMap (('a', 2):[])" --> "{\"a\":2}"
 
    it "Fix value level example" $ do [i|
       let fix f x = f (fix f) x
@@ -117,3 +117,4 @@ tests = do
    
    it "Plasma Test" $ "tests/jnrs_lib/plasma_example.jnr" ---> "[[[255,0,0],[255,1,0],[255,2,0],[255,3,0],[255,5,0]],[[255,1,0],[255,2,0],[255,3,0],[255,4,0],[255,5,0]],[[255,2,0],[255,3,0],[255,4,0],[255,5,0],[255,6,0]],[[255,3,0],[255,4,0],[255,5,0],[255,6,0],[255,7,0]],[[255,4,0],[255,4,0],[255,5,0],[255,6,0],[255,7,0]],[[255,5,0]]]"
 
+   it "Duality of Sorts" $ "tests/jnrs_lib/duality_of_sorts.jnr" ---> "[0,1,3,5,6,9]"

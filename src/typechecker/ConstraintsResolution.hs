@@ -1,4 +1,5 @@
 {-# LANGUAGE TupleSections #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 module ConstraintsResolution where
 
 import TypedAst (TypedExp, TypedExpF, tapp, tvar)
@@ -125,6 +126,7 @@ createExpFromType :: Type -> TypedExp
 createExpFromType ty@(TyApp (TyApp (TyCon "->") tuple) (TyApp (TyCon n) _))  =
     let ts = untuple tuple in
     applyArgs (createExpFromType <$> ts) (tvar zeroLoc (Set.fromList [] :=> ty) (toCamel (n ++ "Tuple" ++ show (length ts))))
+createExpFromType t@(TyApp (TyCon n) (TyApp t1 _)) = tvar zeroLoc (Set.fromList [] :=> t) (toCamel (filter (/= ' ') (n ++ show t1)))
 createExpFromType t@(TyApp (TyCon n) t') = tvar zeroLoc (Set.fromList [] :=> t) (toCamel (filter (/= ' ') (n ++ show t')))
 createExpFromType _ = undefined
 

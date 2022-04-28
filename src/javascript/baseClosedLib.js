@@ -46,6 +46,14 @@ const ordDouble = {
   "==": eqDouble["=="]
 }
 
+const ordInt = {
+  ">": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] > y }))}),
+  "<": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] < y }))}),
+  ">=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] >= y }))}),
+  "<=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] <= y }))}),
+  "==": eqInt["=="]
+}
+
 
 const numInt = {
     "+": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(__plusInt2))}),
@@ -397,7 +405,7 @@ const isEmpty = mkClosure(function([_, v]) {
   return v instanceof __Empty;
 })
 
-const functorListFInt = {
+const functorListF = {
   "fmap": mkClosure(function ([_, f]) {
       return setEnv("f", f, mkClosure(function ([env, m]) {
           if (m instanceof __Empty) {

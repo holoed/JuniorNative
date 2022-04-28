@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 module InterpreterIntrinsics where
 
 import Data.HashMap.Strict (fromList, (!), member, HashMap)
@@ -351,6 +352,6 @@ env = (fromList [
               Function(\(List xs) ->
                 return $ List (List <$> chunks n xs)))),
     ("mod", Function(\(Instance m) -> return $ m!"mod")),
-    ("fromList", Function(\(List xs) -> return $ Map (Map.fromList ((\(Tuple [k,v]) -> (k, v)) <$> xs))))
+    ("fromListToMap", Function(\(List xs) -> return $ Map (Map.fromList ((\(Tuple [k,v]) -> (k, v)) <$> xs))))
     ], fromList [])
  

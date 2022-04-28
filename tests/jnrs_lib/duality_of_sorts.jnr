@@ -1,0 +1,38 @@
+let fix f x = f (fix f) x
+ 
+let ana psi f = In . fmap f . psi
+
+let cata psi f = psi . fmap f . fixOut
+
+let anaRec psi = fix (ana psi)
+ 
+let cataRec psi = fix (cata psi)
+  
+let toListAlg v = 
+   if isEmpty v then [] 
+   else if isCons v then 
+   let (x, xs) = extractCons v in x:xs
+   else undefined
+            
+let fromListAlg xs = 
+   if null xs then Empty
+   else Cons (head xs) (tail xs)
+   
+let swap v = if isEmpty v then Empty
+             else let (x, y) = extractCons v in
+             if isEmpty y then Cons x Empty 
+             else let (x2, y2) = extractCons y in
+             if x <= x2 then Cons x (Cons x2 y2)
+             else Cons x2 (Cons x y2)
+
+let sortList = anaRec (cataRec (fmap In . swap))
+
+let fromList xs = anaRec fromListAlg xs
+
+let toList xs = cataRec toListAlg xs
+
+let sort = toList . sortList . fromList 
+
+let example = 3:1:6:9:5:0:[] 
+                      
+let main = sort example  
