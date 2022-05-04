@@ -369,7 +369,7 @@ const In = mkClosure(function([_, x]) {
   return new InClass(x);
 })
 
-const fixOut = mkClosure(function([_, x]) {
+const out = mkClosure(function([_, x]) {
   return x.value0;
 })
 

@@ -2,7 +2,7 @@ let fix f x = f (fix f) x
  
 let ana psi f = In . fmap f . psi
 
-let cata psi f = psi . fmap f . fixOut
+let cata psi f = psi . fmap f . out
 
 let anaRec psi = fix (ana psi)
  

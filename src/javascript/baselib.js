@@ -310,7 +310,7 @@ const In = function(x) {
   return new InClass(x);
 }
 
-const fixOut = function(x) {
+const out = function(x) {
   return x.value0;
 }
 

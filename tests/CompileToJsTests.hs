@@ -95,7 +95,7 @@ tests = do
 
    it "Catamorphism product" $ [i|
       let fix f x = f (fix f) x
-      let cata psi f = psi . fmap f . fixOut
+      let cata psi f = psi . fmap f . out
       let cataRec psi = fix (cata psi)
       let example = In (Cons 5 (In (Cons 4 (In (Cons 3 (In (Cons 2 (In (Cons 1 (In Empty))))))))))
       let alg v = if isEmpty v then 1  
