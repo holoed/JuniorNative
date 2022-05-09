@@ -83,16 +83,16 @@ tests =
       ("++","List a -> List a -> List a"),
       ("filter","(a -> Bool) -> List a -> List a"),
       ("map","(a -> b) -> List a -> List b"),
-      ("mapM","Monad a => (b -> a c) -> List b -> a List c"),
-      ("join","List List a -> List a"),
+      ("mapM","Monad a => (b -> a c) -> List b -> a (List c)"),
+      ("join","List (List a) -> List a"),
       ("mPoint","(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"),
       ("mandelbrot","Integral a => Int -> (Int, Int) -> (a, a, a)"),
       ("reverse","List a -> List a"),
       ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
       ("product","Num a => List a -> a"),
       ("quicksort","Ord a => (b -> a) -> List b -> List b"),
-      ("sequence","Monad a => List a b -> a List b"),
-      ("split","(Eq a, Num a) => a -> List b -> List List b"),
+      ("sequence","Monad a => List (a b) -> a (List b)"),
+      ("split","(Eq a, Num a) => a -> List b -> List (List b)"),
       ("sum","Num a => List a -> a")
      ]
 
@@ -102,11 +102,11 @@ tests =
       ("fix","((a -> b) -> a -> b) -> a -> b"),
       ("cata","Functor a => (a b -> c) -> (Fix a -> b) -> Fix a -> c"),
       ("hylo","Functor a => (b -> a c) -> (a d -> e) -> (c -> d) -> b -> e"),
-      ("para","Functor a => (a (Fix a, b) -> c) -> (Fix a -> b) -> Fix a -> c"),
+      ("para","Functor a => (a ((Fix a, b)) -> c) -> (Fix a -> b) -> Fix a -> c"),
       ("anaRec","Functor a => (b -> a b) -> b -> Fix a"),
       ("cataRec","Functor a => (a b -> b) -> Fix a -> b"),
       ("hyloRec","Functor a => (b -> a b) -> (a c -> c) -> b -> c"),
-      ("paraRec","Functor a => (a (Fix a, b) -> b) -> Fix a -> b")
+      ("paraRec","Functor a => (a ((Fix a, b)) -> b) -> Fix a -> b")
      ]
 
 

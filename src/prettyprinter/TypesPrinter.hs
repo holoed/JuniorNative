@@ -6,7 +6,7 @@ import Data.Semigroup ( Semigroup((<>)) )
 import qualified Data.Set as Set
 import Prelude hiding (Left, Right, (<>))
 import Control.Monad.Writer ( runWriter, MonadWriter(tell, listen), Writer )
-import Operators ( Operator, Associativity(Right, Left), lamOp )
+import Operators ( Operator, Associativity(Right, Left), lamOp, juxtaOp )
 import PrettyPrinterUtils ( bracket )
 import Control.Monad ( foldM )
 
@@ -16,6 +16,9 @@ foldDoc xs = do
                                     return ((acc x' <> text ",") <+>)) (text "(" <>) (init xs)
            last' <- toDoc $ last xs
            return $ x $ last' <> text ")"
+
+takeLast :: [a] -> [a]
+takeLast = take 1 . reverse
 
 toDoc :: Type -> Writer [Operator] Doc
 toDoc (TyCon name) = return $ text name
@@ -28,12 +31,12 @@ toDoc (TyApp (TyApp (TyCon "->") t1) t2) =
     do (x1, l) <- listen $ toDoc t1
        (x2, r) <- listen $ toDoc t2
        tell [lamOp]
-       return (bracket Left lamOp l x1 <+> text "->" <+> bracket Right lamOp r x2)
--- TODO: This wrong, fix it.
+       return (bracket Left lamOp (takeLast l) x1 <+> text "->" <+> bracket Right lamOp (takeLast r) x2)
 toDoc (TyApp t1 t2) =
-    do x1 <- toDoc t1
-       x2 <- toDoc t2
-       return (x1 <+> x2)
+    do (x1, l) <- listen $ toDoc t1
+       (x2, r) <- listen $ toDoc t2
+       tell [juxtaOp]
+       return (bracket Left juxtaOp (takeLast l) x1 <+> bracket Right juxtaOp (takeLast r) x2)
 
 instance Show Type where
   show = pretty 80 . fst . runWriter . toDoc

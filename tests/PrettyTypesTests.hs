@@ -33,3 +33,15 @@ tests =
 
     it "Pretty type with multiple type class constraints" $ do
         prettyQ (fromList [IsIn "Num" (TyVar "T1" 0), IsIn "Ord" (TyVar "T1" 0)] :=> TyVar "T1" 0) --> "(Num a, Ord a) => a"
+
+    it "Pretty type application" $ do
+        prettyQ (fromList [] :=> TyApp (TyApp (TyCon "Map") (TyCon "String")) (TyCon "Int")) --> "Map String Int"
+
+    it "Pretty type application 2" $ do
+        prettyQ (fromList [] :=> TyApp (TyApp (TyCon "Map") (TyCon "String")) (TyApp (TyApp (TyCon "Map") (TyCon "String")) (TyCon "Int"))) --> "Map String (Map String Int)"
+
+    it "Pretty type application combined with arrow" $ do
+        prettyQ (fromList [] :=> tyLam (tyLam (TyCon "Int") (TyCon "Int")) (TyApp (TyCon "List") (TyCon "Int"))) --> "(Int -> Int) -> List Int"
+
+    it "Pretty type application combined with arrow 2" $ do
+        prettyQ (fromList [] :=> tyLam (tyLam (TyCon "Int") (TyApp (TyCon "List") (TyCon "Int"))) (TyApp (TyCon "List") (TyCon "Int"))) --> "(Int -> List Int) -> List Int"
