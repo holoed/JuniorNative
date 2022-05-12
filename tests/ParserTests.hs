@@ -3,14 +3,13 @@ module ParserTests where
 import Parser (parseExpr)
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
 import Annotations (Ann(Ann))
-import Data.Either (Either(Right))
 import Location (Loc (Loc))
 import Fixpoint (Fix(In))
 import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var))
 import Primitives (Prim(I))
-import Types (Type(TyCon), Qual((:=>)))
+import Types (Type(TyCon, TyApp), Qual((:=>)))
 import Data.Set (fromList)
-import Data.Data (Fixity(Infix))
+import qualified Operators (Fixity (Infix), Associativity(Right))
 
 tests :: SpecWith ()
 tests = do
@@ -34,7 +33,7 @@ tests = do
    it "Let binding with type signature 2" $
      parseExpr "val x :: List Int\r\nlet xs = 42:[]" `shouldBe` 
        Right [In (Ann (Just (Loc 3 2 1)) 
-         (Defn (Just List Int) [In (Ann (Just (Loc 2 2 5)) (VarPat "xs"))] 
-           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",12, Infix Right) 
+         (Defn (Just (fromList [] :=> TyApp (TyCon "List") (TyCon "Int"))) [In (Ann (Just (Loc 2 2 5)) (VarPat "xs"))] 
+           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",12, Operators.Infix Operators.Right) 
            (In (Ann (Just (Loc 2 2 10)) (Lit (I 42)))) 
            (In (Ann (Just (Loc 2 2 13)) (Var "[]"))))))))]
