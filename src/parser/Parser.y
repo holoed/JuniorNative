@@ -17,6 +17,7 @@ import Data.Set
 import Data.Char (isLower)
 
 import Control.Monad.Except
+import ParserUtils (fromExprToQualType)
 
 }
 
@@ -85,8 +86,8 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : val Pats '::' QualType
-       let Pats '=' Expr           { defn (mkLoc $5) (Just $4) $6 $8 }
+Decl : val Pats '::' Expr
+       let Pats '=' Expr           { defn (mkLoc $5) (Just(fromExprToQualType $4)) $6 $8 }
      | let Pats '=' Expr           { defn (mkLoc $1) Nothing $2 $4 }
 
 Pred : VAR Type                    { IsIn (snd $1) $2 }
