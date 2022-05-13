@@ -3,7 +3,7 @@ module ParserTests where
 import Parser (parseExpr)
 import Test.Hspec (SpecWith, shouldBe, describe, it)
 import Annotations (Ann(Ann))
-import Location (Loc (Loc))
+import Location (Loc (Loc), PString (PStr))
 import Fixpoint (Fix(In))
 import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var))
 import Primitives (Prim(I))
@@ -59,7 +59,5 @@ tests = do
        Right [(In (Ann (Just (Loc 3 2 1)) 
          (Defn (Just (fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0))) [(In (Ann (Just (Loc 1 2 5)) (VarPat "f"))),(In (Ann (Just (Loc 1 2 7)) (VarPat "x")))] (In (Ann (Just (Loc 1 2 11)) (Var "x"))))))]
   
-  -- it "Let binding with invalid type signature" $
-  --    parseExpr "val f :: \\x -> x\r\nlet f x = x" `shouldBe` 
-  --      Right [(In (Ann (Just (Loc 3 2 1)) 
-  --        (Defn (Just (fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0))) [(In (Ann (Just (Loc 1 2 5)) (VarPat "f"))),(In (Ann (Just (Loc 1 2 7)) (VarPat "x")))] (In (Ann (Just (Loc 1 2 11)) (Var "x"))))))]
+  it "Let binding with invalid type signature" $
+     parseExpr "val f :: \\x -> x\r\nlet f x = x" `shouldBe` Left(PStr ("Invalid type signature at ", Just (Loc 1 1 10)))

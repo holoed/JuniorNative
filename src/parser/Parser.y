@@ -87,7 +87,7 @@ Decls : Expr                       { [$1] }
       | Decl Decls                 { $1 : $2 }
 
 Decl : val Pats '::' Expr
-       let Pats '=' Expr           { defn (mkLoc $5) (Just(fromExprToQualType $4)) $6 $8 }
+       let Pats '=' Expr           {% fromExprToQualType $4 >>= (\sig -> return $ defn (mkLoc $5) (Just sig) $6 $8) }
      | let Pats '=' Expr           { defn (mkLoc $1) Nothing $2 $4 }
 
 Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
