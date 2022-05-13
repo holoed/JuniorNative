@@ -3,13 +3,13 @@ module Location where
 data Loc = Loc !Int  -- token len
                !Int  -- line number
                !Int  -- column number 
-               deriving (Eq, Ord, Show)
+               deriving (Eq, Ord)
 
 zeroLoc :: Loc
 zeroLoc = Loc 0 0 0
 
--- instance Show Loc where 
---     show (Loc s l c) = "size " ++ show s ++ "line " ++ show l ++ " column " ++ show c
+instance Show Loc where 
+    show (Loc _ l c) = "line " ++ show l ++ " column " ++ show c
 
 instance Semigroup PString where
  (PStr (x, p1)) <> (PStr (y, _)) = PStr (x ++ y, p1) 

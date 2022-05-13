@@ -27,27 +27,27 @@ import qualified ParserTests
 
 main :: IO ()
 main = hspec $ do
-    -- PrettyPrinterTests.tests
-    -- AlphaRenameTests.tests
-    -- TypeInferenceTests.tests
-    -- AnnotationsTests.tests
-    -- FreeVariablesTests.tests
-    -- DependencyAnalysisTests.tests 
-    -- ModuleTypeInferenceTests.tests 
-    -- SymbolTableTests.tests
-    -- PrettyTypesTests.tests
-    -- ModulePrinterTests.tests
-    -- InterpreterTests.tests
-    -- ConstraintsResolutionTests.tests 
-    -- CompilerTests.tests
-    -- MandelbrotTests.tests
-    -- CompileToJsTests.tests 
-    -- JavaScriptRunnerTests.tests
-    -- ClosureConversionTests.tests
-    -- CompileToClosedJsTests.tests
-    -- CompileToCloseANFdJsTests.tests
-    -- OptimizeTypeClassesTests.tests
-    -- DeadCodeEliminationTests.tests
-    -- OptimizeClosureEnvsTests.tests
+    PrettyPrinterTests.tests
+    AlphaRenameTests.tests
+    TypeInferenceTests.tests
+    AnnotationsTests.tests
+    FreeVariablesTests.tests
+    DependencyAnalysisTests.tests 
+    ModuleTypeInferenceTests.tests 
+    SymbolTableTests.tests
+    PrettyTypesTests.tests
+    ModulePrinterTests.tests
+    InterpreterTests.tests
+    ConstraintsResolutionTests.tests 
+    CompilerTests.tests
+    MandelbrotTests.tests
+    CompileToJsTests.tests 
+    JavaScriptRunnerTests.tests
+    ClosureConversionTests.tests
+    CompileToClosedJsTests.tests
+    CompileToCloseANFdJsTests.tests
+    OptimizeTypeClassesTests.tests
+    DeadCodeEliminationTests.tests
+    OptimizeClosureEnvsTests.tests
     ParserTests.tests
     
