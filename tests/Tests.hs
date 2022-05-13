@@ -23,6 +23,7 @@ import qualified CompileToCloseANFdJsTests
 import qualified OptimizeTypeClassesTests
 import qualified DeadCodeEliminationTests
 import qualified OptimizeClosureEnvsTests
+import qualified ParserTests
 
 main :: IO ()
 main = hspec $ do
@@ -48,4 +49,5 @@ main = hspec $ do
     OptimizeTypeClassesTests.tests
     DeadCodeEliminationTests.tests
     OptimizeClosureEnvsTests.tests
+    ParserTests.tests
     

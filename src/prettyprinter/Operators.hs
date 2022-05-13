@@ -64,5 +64,8 @@ orOp = ("||", 7, Infix Right)
 lamOp :: ([Char], Integer, Fixity)
 lamOp    = ("->", 6, Infix Right)
 
+classOp :: ([Char], Integer, Fixity)
+classOp  = ("=>", 1, Infix Right)
+
 minOp :: ([Char], Integer, Fixity)
 minOp    = ("<minimum-precedence-operator>", 0, Infix NonAssoc)

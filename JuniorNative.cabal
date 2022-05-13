@@ -98,6 +98,7 @@ executable JuniorService
                        Lexer,
                        Monads,
                        Parser,
+                       ParserUtils,
                        PrettyPrinter,
                        PrettyPrinterUtils,
                        AlphaRename,
@@ -174,6 +175,7 @@ test-suite tests
                        Lexer,
                        Monads,
                        Parser,
+                       ParserUtils,
                        PrettyPrinter,
                        PrettyPrinterUtils,
                        AlphaRename,
@@ -233,7 +235,8 @@ test-suite tests
                        CompileToCloseANFdJsTests,
                        OptimizeTypeClassesTests,
                        DeadCodeEliminationTests,
-                       OptimizeClosureEnvsTests
+                       OptimizeClosureEnvsTests,
+                       ParserTests
 
   hs-source-dirs:      tests, src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
   build-tool-depends:  happy:happy, alex:alex

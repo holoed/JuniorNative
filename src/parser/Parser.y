@@ -17,6 +17,7 @@ import Data.Set
 import Data.Char (isLower)
 
 import Control.Monad.Except
+import ParserUtils (fromExprToQualType, fromExprToType)
 
 }
 
@@ -85,34 +86,15 @@ Decls : Expr                       { [$1] }
       | Decl                       { [$1] }   
       | Decl Decls                 { $1 : $2 }
 
-Decl : val Pats '::' QualType
-       let Pats '=' Expr           { defn (mkLoc $5) (Just $4) $6 $8 }
+Decl : val Pats '::' Expr
+       let Pats '=' Expr           {% fromExprToQualType $4 >>= (\sig -> return $ defn (mkLoc $5) (Just sig) $6 $8) }
      | let Pats '=' Expr           { defn (mkLoc $1) Nothing $2 $4 }
-
-Pred : VAR Type                    { IsIn (snd $1) $2 }
-Preds : Pred                       { [$1] }
-      | Pred ',' Preds             { $1 : $3 }
-PredList : '(' Preds ')'           { fromList $2 }
-
-Types : Type                       { [$1]    }
-      | Type ',' Types             { $1 : $3 }  
-
-Type : VAR                         { let name = (snd $1) in 
-                                        if (isLower (head name)) 
-                                        then TyVar name 0
-                                        else TyCon name }
-     | Type '->' Type              { tyLam $1 $3 } 
-     | Type Type                   { TyApp $1 $2 }
-     | '(' Type ')'                { $2 }
-     | '(' Types ')'               { tupleCon $2 }        
-
-QualType : Type                    { fromList [] :=> $1 }
-         | Pred  '=>' Type         { fromList [$1] :=> $3 }
-         | PredList '=>' Type      { $1 :=> $3 }
 
 Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
      | '\\' Pats '->' Expr         { lam (mkLoc $1) $2 $4 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
+     | Expr '=>' Expr              { infixApp (mkLoc $2) classOp $1 $3 }
+     | Expr '->' Expr              { infixApp (mkLoc $2) lamOp $1 $3 }
      | Form                        { $1 }
 
 Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
