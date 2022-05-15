@@ -48,6 +48,15 @@ tests = do
       "let main = 1 + (2, 3)" --> "[3,4]"
       "let main = (2, 3) - 1" --> "[1,2]"
 
+   it "List syntax" $ do
+      "let main = []" --> "[]"
+      "let main = [1]" --> "[1]"
+      "let main = [1,2,3]" --> "[1,2,3]"
+      "let main = [1,2,3,4]" --> "[1,2,3,4]"
+      "let main = [\'h\', \'e\']" --> "[\"h\",\"e\"]"
+      "let main = [1 + 2, 3 * 4]" --> "[3,12]"
+      "let main = [[1,2],[3,5]]" --> "[[1,2],[3,5]]"
+
    it "Integral instances" $ do
       "let main = mod 5 3" --> "2"
 

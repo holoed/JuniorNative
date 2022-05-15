@@ -7,7 +7,7 @@ module PAst where
 
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim )
-import Operators ( Operator )
+import Operators ( Operator, Fixity (Infix), Associativity(Right) )
 import Annotations ( Ann(..) )
 import Location (Loc)
 import Types ( Qual, Type )
@@ -56,6 +56,10 @@ ifThenElse l p e1 e2 = In (Ann (Just l) (IfThenElse p e1 e2))
 
 mkTuple :: Loc -> [SynExp] -> SynExp
 mkTuple l xs = In (Ann (Just l) (MkTuple xs))
+
+mkList :: Loc -> [SynExp] -> SynExp
+mkList l xs = foldr f (In (Ann (Just l) (Var "[]"))) xs
+    where f e1 e2 = In (Ann (Just l) (InfixApp (":",12, Infix (Operators.Right)) e1 e2))
 
 defn :: Loc -> Maybe (Qual Type) -> [SynExp] -> SynExp -> SynExp
 defn l qt ps v = In (Ann (Just l) (Defn qt ps v))

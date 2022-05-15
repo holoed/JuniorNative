@@ -87,6 +87,15 @@ tests = do
       "let main = 1 + (2, 3)" --> "[3,4]"
       "let main = (2, 3) - 1" --> "[1,2]"
 
+   it "List syntax" $ do
+      "let main = []" --> "[]"
+      "let main = [1]" --> "[1]"
+      "let main = [1,2,3]" --> "[1,2,3]"
+      "let main = [1,2,3,4]" --> "[1,2,3,4]"
+      "let main = [\'h\', \'e\']" --> "[\"h\",\"e\"]"
+      "let main = [1 + 2, 3 * 4]" --> "[3,12]"
+      "let main = [[1,2],[3,5]]" --> "[[1,2],[3,5]]"
+
    it "Construct fix type value" $ [i|
       let main = In (Cons 5 (In (Cons 4 (In Empty))))
    |] --> "{\"value0\":{\"value0\":5,\"value1\":{\"value0\":{\"value0\":4,\"value1\":{\"value0\":{}}}}}}"

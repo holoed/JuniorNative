@@ -84,6 +84,8 @@ tokens :-
   [\<]                          {\p s -> TokenLt (p, s)  }
   \(                            {\p s -> TokenLParen (p, s) }
   \)                            {\p s -> TokenRParen (p, s) }
+  \[                            {\p s -> TokenLBracket (p, s) }
+  \]                            {\p s -> TokenRBracket (p, s) }
   ","                           {\_ _ -> TokenComma }
   "."                           {\p s -> TokenDot (p, s) }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
@@ -125,6 +127,8 @@ data Token
   | TokenLt (AlexPosn, String)
   | TokenLParen (AlexPosn, String)
   | TokenRParen (AlexPosn, String)
+  | TokenLBracket (AlexPosn, String)
+  | TokenRBracket (AlexPosn, String)
   | TokenComma
   | TokenDot (AlexPosn, String)
   | TokenUnit (AlexPosn, String)

@@ -18,6 +18,18 @@ tests = do
    it "Literals" $
      parseExpr "42" `shouldBe`  Right [In (Ann (Just (Loc 2 1 1)) (Lit (I 42)))]
 
+   it "List syntax 0" $
+     parseExpr "[]" `shouldBe`  Right [In (Ann (Just (Loc 2 1 1)) (Var "[]"))]
+
+   it "List syntax 1" $
+     parseExpr "1:[]" `shouldBe` Right [(In (Ann (Just (Loc 1 1 2)) (InfixApp (":",12, Operators.Infix Operators.Right) (In (Ann (Just (Loc 1 1 1)) (Lit (I 1)))) (In (Ann (Just (Loc 2 1 3)) (Var "[]"))))))]
+
+   it "List syntax 2" $
+     parseExpr "[1]" `shouldBe`  Right [(In (Ann (Just (Loc 1 1 1)) (InfixApp (":",12, Operators.Infix Operators.Right) (In (Ann (Just (Loc 1 1 2)) (Lit (I 1)))) (In (Ann (Just (Loc 1 1 1)) (Var "[]"))))))]
+
+   it "List syntax 3" $
+     parseExpr "[1, 2]" `shouldBe` Right [(In (Ann (Just (Loc 1 1 1)) (InfixApp (":",12, Operators.Infix Operators.Right) (In (Ann (Just (Loc 1 1 2)) (Lit (I 1)))) (In (Ann (Just (Loc 1 1 1)) (InfixApp (":",12, Operators.Infix Operators.Right) (In (Ann (Just (Loc 1 1 5)) (Lit (I 2)))) (In (Ann (Just (Loc 1 1 1)) (Var "[]")))))))))]
+
    it "Let binding" $
      parseExpr "let x = 42" `shouldBe` 
        Right [In (Ann (Just (Loc 3 1 1)) 

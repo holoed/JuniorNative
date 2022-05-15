@@ -64,6 +64,8 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     ','   { TokenComma }
     '('   { TokenLParen $$ }
     ')'   { TokenRParen $$ }
+    '['   { TokenLBracket $$ }
+    ']'   { TokenRBracket $$ }
     '.'   { TokenDot $$ }
     '[]'  { TokenEmpty $$ }
     '()'  { TokenUnit $$ }
@@ -119,6 +121,7 @@ Fact : Fact Atom                   { infixApp (mkLoc (alexStartPos, " ")) juxtaO
 
 Atom : '(' Expr ')'                { $2 }
      | '(' Exprs ')'               { mkTuple (mkLoc $1) $2 }
+     | '[' Exprs ']'               { mkList (mkLoc $1) $2 }
      | NUM                         { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
      | STRING                      { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
      | CHAR                        { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
