@@ -323,6 +323,14 @@ const display = mkClosure(function([_, imageData]) {
   return imageData;
 });
 
+const renderPlot = mkClosure(function([_, z1]) {
+  clearPanels();
+  plotChart = document.getElementById("plotlyChart");
+  plotChart.style.display = "block"
+  Plotly.newPlot("plotlyChart", [{z: z1, type: 'surface'}]);
+  return json;
+});
+
 function getFunction(e) {
     return e.fun;
 }
