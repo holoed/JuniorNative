@@ -430,7 +430,7 @@ const functorListF = {
 }
 
 const httpGet = mkClosure(function([_, url]) {
-  return fetch("http://localhost:8081/fetch", {
+  return fetch("/fetch", {
     method: "POST",
     headers: {
       'Content-Type': 'application/json'
