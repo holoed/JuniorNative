@@ -129,6 +129,8 @@ const __div = function(inst) { return inst["/"]; }
 
 const __eqeq = function(inst) { return inst["=="]; }
 
+const __lt = function(inst)   { return inst["<"]; }
+
 const __gt = function(inst)   { return inst[">"]; }
 
 const __gteq = function(inst) { return inst[">="]; }

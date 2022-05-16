@@ -144,6 +144,8 @@ const numInt = {
 
 const __eqeq = mkClosure(function([_, inst]) { return inst["=="]; })
 
+const __lt = mkClosure(function([_, inst])   { return inst["<"]; })
+
 const __lteq = mkClosure(function([_, inst]) { return inst["<="]; })
 
 const __gt = mkClosure(function([_, inst])   { return inst[">"]; })

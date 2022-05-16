@@ -65,6 +65,12 @@ tests = do
       "let main = (1 + 1.5) / 3" --> "0.8333333333333334"
       "let main = 2 * (4.6 - 3.1)" --> "2.999999999999999"
 
+   it "Comparisons operators" $ do
+      "let main = 2 < 3" --> "true"
+      "let main = 2 > 3" --> "false"
+      "let main = 2 >= 2" --> "true"
+      "let main = 4 <= 3" --> "false"
+
    it "Lambda many tuples pattern" $ do
         [i|
             let f (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)

@@ -40,6 +40,12 @@ tests = do
       let main = f 5
    |] --> "6"
 
+   it "Comparisons operators" $ do
+      "let main = 2 < 3" --> "true"
+      "let main = 2 > 3" --> "false"
+      "let main = 2 >= 2" --> "true"
+      "let main = 4 <= 3" --> "false"
+
    it "Complex numbers" $ do 
       "let main = (2, 3) + (5, 6)" --> "[7,9]"
       "let main = (3, 9) - (2, 5)" --> "[1,4]"
