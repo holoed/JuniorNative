@@ -428,3 +428,30 @@ const functorListF = {
       })); 
    })
 }
+
+const httpGet = mkClosure(function([_, url]) {
+  return fetch("http://localhost:8081/fetch", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      'url': url
+    })
+   }).then(response => response.text())
+})
+
+const functorAsync = {
+  "fmap": mkClosure(function ([_, f]) {
+      return setEnv("f", f, mkClosure(function ([_, m]) {
+          return new Promise((resolve, reject) => {
+             m.then(x => resolve(applyClosure(f, x))).catch(r => reject(x))
+          })
+      })); 
+   })
+}
+
+const trace = mkClosure(function([_, x]){
+  console.log(x)
+  return x;
+})

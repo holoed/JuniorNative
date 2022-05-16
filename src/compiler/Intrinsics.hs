@@ -61,7 +61,9 @@ env = toEnv [
   ("undefined", Set.fromList [] :=> TyVar "a" 0),
   ("isEmpty", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
   ("isCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
-  ("extractCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)))
+  ("extractCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))),
+  ("httpGet", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "Async") (TyCon "String"))),
+  ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0))
  ]
 
 classEnv :: ClassEnv
@@ -96,6 +98,7 @@ classEnv = ClassEnv {
         Set.fromList [] :=> IsIn "Integral" (TyCon "Int")
       ])),
      ("Functor", ([], [
+       Set.fromList [] :=> IsIn "Functor" (TyCon "Async"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "List"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "Reader") (TyVar "a" 0)),
