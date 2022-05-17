@@ -474,11 +474,11 @@ const monadAsync = {
 }
 
 const JsonValue = mkClosure(function([_, x]){
-   return x;
+   return JSON.parse(`"${x.join("")}"`);
 })
 
 const JsonNode = mkClosure(function([_, xs]){
-  return xs;
+  return xs.map(([k, v]) => JSON.parse(`{ "${k.join("")}":${JSON.stringify(v)} }`));
 })
 
 const functorParser = {
