@@ -5,7 +5,7 @@ import qualified Data.Map as Map
 import Types ( Type(..), Qual((:=>)), Pred(IsIn), tyLam )
 import Environment ( Env, toEnv )
 import ContextReduction (ClassEnv(..))
-import BuiltIns ( doubleCon, intCon )
+import BuiltIns ( doubleCon, intCon, tupleCon )
 
 env :: Env
 env = toEnv [
@@ -64,7 +64,9 @@ env = toEnv [
   ("extractCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))),
   ("httpGet", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "Async") (TyCon "String"))),
   ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
-  ("mkAsync", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "a" 0)))
+  ("mkAsync", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "a" 0))),
+  ("JsonNode", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyApp (TyCon "List") (TyCon "Char"), TyCon "Json"])) (TyCon "Json")),
+  ("JsonValue", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyCon "Json"))
  ]
 
 classEnv :: ClassEnv

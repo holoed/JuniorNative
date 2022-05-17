@@ -472,3 +472,21 @@ const monadAsync = {
     }))
   })
 }
+
+const JsonValue = mkClosure(function([_, x]){
+   return x;
+})
+
+const JsonNode = mkClosure(function([_, xs]){
+  return xs;
+})
+
+const functorParser = {
+  "fmap": mkClosure(function ([_, f]) {
+    return setEnv("f", f, mkClosure(function([env1, m]){
+      return setEnv("m", m, setEnv("f", env1["f"], mkClosure(function([env2, inp]){
+        return applyClosure(env2["m"], inp).map(([x,rest]) => [applyClosure(env2["f"], x), rest]);
+      })))
+    }))
+  })
+}
