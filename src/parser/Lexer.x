@@ -37,7 +37,11 @@ $hexit       = [$digit A-F a-f]
 
 $alpha = [a-zA-Z]
 $eol   = [\n]
-@string = \" ($printable # \")* \"
+$whitechar = [ \t\n\r\f\v]
+@gap     = \\ $whitechar+ \\
+$charesc = [abfnrtv\\\"\'\&]
+@escape  = \\ ($charesc)
+@string = \" ($printable # [\"\\] | " " | @escape | @gap)* \"
 @char = \' ($printable # \') \'
 
 tokens :-

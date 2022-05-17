@@ -64,7 +64,8 @@ executable JuniorNative
                        ANFTranslation,
                        OptimizeTypeClasses,
                        DeadCodeElimination,
-                       OptimizeClosureEnvs
+                       OptimizeClosureEnvs,
+                       ParserUtils
   build-depends:       base,
                        array,
                        containers,
@@ -135,7 +136,8 @@ executable JuniorService
                        ANFTranslation,
                        OptimizeTypeClasses,
                        DeadCodeElimination,
-                       OptimizeClosureEnvs
+                       OptimizeClosureEnvs,
+                       ParserUtils
   build-depends:       base,
                        array,
                        containers,
@@ -214,6 +216,7 @@ test-suite tests
                        OptimizeTypeClasses,
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
+                       ParserUtils,
                        AlphaRenameTests,
                        AnnotationsTests,
                        FreeVariablesTests,
