@@ -7,6 +7,9 @@ runJS libPath code = do
   lib <- readFile libPath
   let js = lib  ++ "\r\n\r\n" ++ 
            code ++ "\r\n\r\n" ++ 
+           "if (main instanceof Promise) {" ++
+           "main.then(x => console.log(JSON.stringify(x))) " ++
+           "} else " ++  
            "console.log(JSON.stringify(main));"
  -- putStrLn js
   ret <- readProcess "node" ["-"] js

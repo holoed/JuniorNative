@@ -120,12 +120,11 @@ tests = do
       let main = cataRec alg example
    |] --> "120"
 
-   -- TODO: Add support for Promises in tests (runJS)
-   -- it "Async support" $ [i|
-   --    val main :: Async Int 
-   --    let main = bind (pure 3) (\\x -> 
-   --         bind (pure 2) (\\y -> pure (x + y)))    
-   -- |] --> "5"
+   it "Async support" $ [i|
+      val main :: Async Int 
+      let main = bind (pure 3) (\\x -> 
+           bind (pure 2) (\\y -> pure (x + y)))    
+   |] --> "5"
 
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 
