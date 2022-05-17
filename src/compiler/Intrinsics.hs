@@ -63,7 +63,8 @@ env = toEnv [
   ("isCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
   ("extractCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))),
   ("httpGet", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "Async") (TyCon "String"))),
-  ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0))
+  ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
+  ("mkAsync", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "a" 0)))
  ]
 
 classEnv :: ClassEnv
@@ -105,11 +106,13 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "ListF") (TyVar "a" 0))
        ])),
      ("Applicative", (["Functor"], [
+       Set.fromList [] :=> IsIn "Applicative" (TyCon "Async"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "List"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Applicative" (TyApp (TyCon "Reader") (TyVar "a" 0))
        ])),
      ("Monad", (["Applicative"], [
+       Set.fromList [] :=> IsIn "Monad" (TyCon "Async"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "List"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Monad" (TyApp (TyCon "Reader") (TyVar "a" 0))

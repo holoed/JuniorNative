@@ -361,3 +361,35 @@ const functorListF = {
       };
   }
 };
+
+const functorAsync = {
+  "fmap": function(f) {
+      return function(m) {
+          return new Promise((resolve, reject) => {
+             m.then(x => resolve(f(x))).catch(r => reject(x))
+          })
+      }; 
+   }
+}
+
+const trace = function(x){
+  console.log(x)
+  return x;
+}
+
+const mkAsync = function(x){
+  return Promise.resolve(x);
+}
+
+const applicativeAsync = {
+  "pure": mkAsync
+}
+
+const monadAsync = {
+  "pure": applicativeAsync["pure"],
+  "bind": function(m) {
+    return function(f){
+      return m.then(x => f(x))
+    }
+  }
+}

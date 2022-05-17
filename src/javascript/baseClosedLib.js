@@ -443,9 +443,9 @@ const httpGet = mkClosure(function([_, url]) {
 
 const functorAsync = {
   "fmap": mkClosure(function ([_, f]) {
-      return setEnv("f", f, mkClosure(function ([_, m]) {
+      return setEnv("f", f, mkClosure(function ([env, m]) {
           return new Promise((resolve, reject) => {
-             m.then(x => resolve(applyClosure(f, x))).catch(r => reject(x))
+             m.then(x => resolve(applyClosure(env["f"], x))).catch(r => reject(x))
           })
       })); 
    })
@@ -455,3 +455,20 @@ const trace = mkClosure(function([_, x]){
   console.log(x)
   return x;
 })
+
+const mkAsync = mkClosure(function([_, x]){
+  return Promise.resolve(x);
+})
+
+const applicativeAsync = {
+  "pure": mkAsync
+}
+
+const monadAsync = {
+  "pure": applicativeAsync["pure"],
+  "bind": mkClosure(function([_, m]) {
+    return setEnv("m", m, mkClosure(function([env, f]){
+      return env["m"].then(x => applyClosure(f, x))
+    }))
+  })
+}
