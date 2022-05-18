@@ -69,6 +69,7 @@ tokens :-
   "=>"                          {\p s -> TokenFatArrow (p, s) }
   "<*>"                         {\p s -> TokenLtStarGt (p, s) }
   "=="                          {\p s -> TokenEql (p, s) }
+  "/="                          {\p s -> TokenNotEql (p, s) }
   ">="                          {\p s -> TokenGtEql (p, s) }
   "<="                          {\p s -> TokenLtEql (p, s) }
   \=                            {\p s -> TokenEq (p, s) }
@@ -121,6 +122,7 @@ data Token
   | TokenOr (AlexPosn, String)
   | TokenEq (AlexPosn, String)
   | TokenEql (AlexPosn, String)
+  | TokenNotEql (AlexPosn, String)
   | TokenGtEql (AlexPosn, String)
   | TokenLtEql (AlexPosn, String)
   | TokenAdd (AlexPosn, String)

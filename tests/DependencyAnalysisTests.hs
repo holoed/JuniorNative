@@ -10,7 +10,7 @@ import Test.Hspec ( it, describe, shouldBe, SpecWith )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 
 globals :: Set [Char]
-globals = fromList ["+", "-", "/", "*", "++", "==", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
+globals = fromList ["+", "-", "/", "*", "++", "==", "/=", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
 
 tests :: SpecWith ()
 tests = do

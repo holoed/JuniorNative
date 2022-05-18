@@ -162,7 +162,8 @@ eqBool = Instance (fromList [
 
 eqInt :: Result
 eqInt = Instance (fromList [
-       ("==", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x == y)))))
+       ("==", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x == y))))),
+       ("/=", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (B (x /= y)))))
        ])
 
 eqDouble :: Result
@@ -294,6 +295,7 @@ env = (fromList [
     ("*", binOp "*"),
     ("/", binOp "/"),
     ("==", binOp "=="),
+    ("/=", binOp "/="),
     ("[]", List []),
     ("()", Value U),
     (":", Function(\x -> return $ Function (\(List xs) -> return $ List (x:xs) ))),

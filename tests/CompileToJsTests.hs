@@ -40,6 +40,12 @@ tests = do
       let main = f 5
    |] --> "6"
 
+   it "Eq instances" $ do
+      "let main = 2 == 3" --> "false"
+      "let main = 2 /= 3" --> "true"
+      "let main = 2 == 2" --> "true"
+      "let main = 2 /= 2" --> "false"
+
    it "Comparisons operators" $ do
       "let main = 2 < 3" --> "true"
       "let main = 2 > 3" --> "false"

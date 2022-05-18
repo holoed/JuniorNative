@@ -21,6 +21,7 @@ import Prelude hiding (lookup)
 env :: InterpreterEnv
 env = (fromList [
     ("==", Function(\(Value x) -> return $ Function (\(Value y) -> return $ Value (B (x == y))))),
+    ("/=", Function(\(Value x) -> return $ Function (\(Value y) -> return $ Value (B (x /= y))))),
     ("*", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x * y))))),
     ("-", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x - y))))),
     ("+", Function(\(Value (I x)) -> return $ Function (\(Value (I y)) -> return $ Value (I (x + y))))),

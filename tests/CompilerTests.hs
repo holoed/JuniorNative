@@ -117,6 +117,7 @@ tests = do
       "let main = True == False" --> "False"
       "let main = \"Hello\" == \"World\"" --> "False"
       "let main = \'h\' == \'x\'" --> "False"
+      "let main = 2 /= 3" --> "True"
 
    it "Num instances" $ do 
       "let main = 2 + 5" --> "7"

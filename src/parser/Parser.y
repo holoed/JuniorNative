@@ -50,6 +50,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     '<*>' { TokenLtStarGt $$ }
     '='   { TokenEq $$ }
     '=='  { TokenEql $$ }
+    '/='  { TokenNotEql $$ }
     '>='  { TokenGtEql $$ }
     '<='  { TokenLtEql $$ }
     '&&'  { TokenAnd $$ }
@@ -76,7 +77,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 -- Operators
 %right '||'
 %right '&&'
-%nonassoc '>' '<' '==' '>=' '<='
+%nonassoc '>' '<' '==' '/=' '>=' '<='
 %left '<*>'
 %right '++' ':'
 %left '+' '-'
@@ -106,6 +107,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '&&' Form              { infixApp (mkLoc $2) andOp $1 $3 }
      | Form '||' Form              { infixApp (mkLoc $2) orOp $1 $3 }
      | Form '==' Form              { infixApp (mkLoc $2) eqeqOp $1 $3 }
+     | Form '/=' Form              { infixApp (mkLoc $2) noteqOp $1 $3 }
      | Form '>=' Form              { infixApp (mkLoc $2) gteqOp $1 $3 }
      | Form '<=' Form              { infixApp (mkLoc $2) lteqOp $1 $3 }
      | Form '>' Form               { infixApp (mkLoc $2) gtOp $1 $3 }

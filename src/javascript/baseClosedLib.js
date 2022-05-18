@@ -2,12 +2,18 @@ function __eqeqInt2([env, y]){
     return env["x"] == y;
 }
 
+function __noteqInt2([env, y]){
+  return env["x"] != y;
+}
+
 const eqInt = {
-    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__eqeqInt2))})
+    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__eqeqInt2))}),
+    "/=": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__noteqInt2))})
   }
 
 const eqDouble = {
-    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] == y; }))})
+    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] == y; }))}),
+    "/=": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] != y; }))})
   }
 
 function __eqeqChar2([env, y]){
@@ -23,7 +29,8 @@ const ordChar = {
     "<": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] < y }))}),
     ">=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] >= y }))}),
     "<=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] <= y }))}),
-    "==": eqChar["=="]
+    "==": eqChar["=="],
+    "/=": eqChar["/="]
   }
 
 function __plusInt2([env, y]){
@@ -43,7 +50,8 @@ const ordDouble = {
   "<": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] < y }))}),
   ">=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] >= y }))}),
   "<=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] <= y }))}),
-  "==": eqDouble["=="]
+  "==": eqDouble["=="],
+  "/=": eqDouble["/="]
 }
 
 const ordInt = {
@@ -51,7 +59,8 @@ const ordInt = {
   "<": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] < y }))}),
   ">=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] >= y }))}),
   "<=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] <= y }))}),
-  "==": eqInt["=="]
+  "==": eqInt["=="],
+  "/=": eqInt["/="]
 }
 
 
@@ -143,6 +152,8 @@ const numInt = {
   }
 
 const __eqeq = mkClosure(function([_, inst]) { return inst["=="]; })
+
+const __noteq = mkClosure(function([_, inst]) { return inst["/="]; })
 
 const __lt = mkClosure(function([_, inst])   { return inst["<"]; })
 

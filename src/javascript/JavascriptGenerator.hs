@@ -22,6 +22,7 @@ mapOp :: Text -> Text
 mapOp "+" = "__add"
 mapOp "*" = "__mul"
 mapOp "==" = "__eqeq"
+mapOp "/=" = "__noteq"
 mapOp "||" = "__or"
 mapOp "&&" = "__and"
 mapOp "-"  = "__sub"

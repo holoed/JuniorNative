@@ -3,24 +3,36 @@
 const eqInt = {
   "==": function(x) { return function(y) { 
       return x == y; 
+  }},
+  "/=": function(x) { return function(y) { 
+    return x != y; 
   }}
 }
 
 const eqDouble = {
   "==": function(x) { return function(y) { 
       return x == y; 
+  }},
+  "/=": function(x) { return function(y) { 
+    return x != y; 
   }}
 }
 
 const eqChar = {
   "==": function(x) { return function(y) { 
       return x == y; 
+  }},
+  "/=": function(x) { return function(y) { 
+    return x != y; 
   }}
 }
 
 const eqBool = {
   "==": function(x) { return function(y) { 
       return x == y; 
+  }},
+  "/=": function(x) { return function(y) { 
+    return x != y; 
   }}
 }
 
@@ -29,7 +41,8 @@ const ordInt = {
   "<": function(x) { return function(y) { return x < y }},
   ">=": function(x) { return function(y) { return x >= y }},
   "<=": function(x) { return function(y) { return x <= y }},
-  "==": eqInt["=="]
+  "==": eqInt["=="],
+  "/=": eqInt["/="]
 }
 
 const ordDouble = {
@@ -37,7 +50,8 @@ const ordDouble = {
   "<": function(x) { return function(y) { return x < y }},
   ">=": function(x) { return function(y) { return x >= y }},
   "<=": function(x) { return function(y) { return x <= y }},
-  "==": eqDouble["=="]
+  "==": eqDouble["=="],
+  "/=": eqDouble["/="]
 }
 
 const ordChar = {
@@ -45,7 +59,8 @@ const ordChar = {
   "<": function(x) { return function(y) { return x < y }},
   ">=": function(x) { return function(y) { return x >= y }},
   "<=": function(x) { return function(y) { return x <= y }},
-  "==": eqChar["=="]
+  "==": eqChar["=="],
+  "/=": eqChar["/="]
 }
 
 const numInt = {
@@ -128,6 +143,8 @@ const __sub = function(inst) { return inst["-"]; }
 const __div = function(inst) { return inst["/"]; }
 
 const __eqeq = function(inst) { return inst["=="]; }
+
+const __noteq = function(inst) { return inst["/="]; }
 
 const __lt = function(inst)   { return inst["<"]; }
 
