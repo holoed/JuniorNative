@@ -20,8 +20,13 @@ function __eqeqChar2([env, y]){
     return env["x"] == y;
 }
 
+function __noteqChar2([env, y]){
+  return env["x"] != y;
+}
+
 const eqChar = {
-    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__eqeqChar2))})
+    "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__eqeqChar2))}),
+    "/=": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(__noteqChar2))})
   }
 
 const ordChar = {

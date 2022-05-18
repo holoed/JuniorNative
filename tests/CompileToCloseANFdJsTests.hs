@@ -70,6 +70,9 @@ tests = do
       "let main = 2 /= 3" --> "true"
       "let main = 2 == 2" --> "true"
       "let main = 2 /= 2" --> "false"
+      "let main = 'a' /= 'b'" --> "true"
+      "let main = 'a' == 'b'" --> "false"
+
 
    it "Comparisons operators" $ do
       "let main = 2 < 3" --> "true"
