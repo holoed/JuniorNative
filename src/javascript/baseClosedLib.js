@@ -178,6 +178,14 @@ const cos = mkClosure(function([_, inst]) { return inst["cos"]; })
 
 const sqrt = mkClosure(function([_, inst]) { return inst["sqrt"]; })
 
+const fst = mkClosure(function([_1, [x,_2]]){
+  return x;
+})
+
+const snd = mkClosure(function([_1, [_2,y]]){
+  return y;
+})
+
 function range_3([env, end]) {
     return Array(end - env["start"] + 1).fill(env["start"]).map((x, y) => applyClosure(env["f"], (x + y)))
 }
@@ -478,7 +486,8 @@ const JsonValue = mkClosure(function([_, x]){
 })
 
 const JsonNode = mkClosure(function([_, xs]){
-  return xs.map(([k, v]) => JSON.parse(`{ "${k.join("")}":${JSON.stringify(v)} }`));
+  return xs.map(([k, v]) => JSON.parse(`{ "${k.join("")}":${JSON.stringify(v)} }`))
+           .reduce((x, y) => Object.assign(x, y))
 })
 
 const functorParser = {
