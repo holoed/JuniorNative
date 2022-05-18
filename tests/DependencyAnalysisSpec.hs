@@ -1,19 +1,19 @@
 {-# LANGUAGE QuasiQuotes #-}
-module DependencyAnalysisTests where
+module DependencyAnalysisSpec where
 
 import Parser (parseExpr)
 import DependencyAnalysis ( deps, chunks )
 import SynExpToExp ( toExp )
 import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)
-import Test.Hspec ( it, describe, shouldBe, SpecWith )
+import Test.Hspec ( it, describe, shouldBe, Spec )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 
 globals :: Set [Char]
 globals = fromList ["+", "-", "/", "*", "++", "==", "/=", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
 
-tests :: SpecWith ()
-tests = do
+spec :: Spec
+spec = do
   describe "Build dependencies" $ do
 
    let build code = deps globals $ toExp <$> either (error . show) id (parseExpr code)

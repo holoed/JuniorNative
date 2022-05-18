@@ -1,7 +1,7 @@
-module ParserTests where
+module ParserSpec where
 
 import Parser (parseExpr)
-import Test.Hspec (SpecWith, shouldBe, describe, it)
+import Test.Hspec (Spec, shouldBe, describe, it)
 import Annotations (Ann(Ann))
 import Location (Loc (Loc), PString (PStr))
 import Fixpoint (Fix(In))
@@ -11,8 +11,8 @@ import Types (Type(TyCon, TyApp, TyVar), Qual((:=>)), Pred (IsIn), tyLam)
 import Data.Set (fromList)
 import qualified Operators (Fixity (Infix), Associativity(Right))
 
-tests :: SpecWith ()
-tests = do
+spec :: Spec
+spec = do
   describe "Parser Tests" $ do
 
    it "Literals" $

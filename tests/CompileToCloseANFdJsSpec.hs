@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module CompileToCloseANFdJsTests where
+module CompileToCloseANFdJsSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullJSClosedANF )
 import CompilerMonad ( run )
@@ -25,8 +25,8 @@ build code = do
                 contents <- hGetContents handle
                 contents --> y
 
-tests :: SpecWith ()
-tests = do
+spec :: Spec
+spec = do
   describe "Compile to Closed and ANF JavaScript Tests" $ do
 
    it "value" $ "let main = 42" --> "42"

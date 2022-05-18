@@ -1,5 +1,5 @@
 {-# LANGUAGE QuasiQuotes #-}
-module OptimizeClosureEnvsTests where
+module OptimizeClosureEnvsSpec where
 
 import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
 import Compiler ( closedAndANF, step )
@@ -26,8 +26,8 @@ build code = do
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
-tests :: SpecWith ()
-tests = do
+spec :: SpecWith ()
+spec = do
   describe "Optimize away not used setEnvs" $ do
 
    it "Remove unused SetEnv numInt" $ [i|

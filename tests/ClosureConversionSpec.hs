@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module ClosureConversionTests where
+module ClosureConversionSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( describe, it, shouldBe, SpecWith )
+import Test.Hspec ( describe, it, shouldBe, Spec )
 import Compiler (closed)
 import Intrinsics (classEnv, env)
 import InterpreterMonad (empty)
@@ -25,8 +25,8 @@ trim :: String -> String
 trim = f . f
   where f = reverse . dropWhile isSpace
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Closure Conversion Tests" $ do
 
     it "convert lit bool" $ do

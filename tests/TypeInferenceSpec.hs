@@ -1,11 +1,11 @@
 {-# LANGUAGE QuasiQuotes #-}
-module TypeInferenceTests where
+module TypeInferenceSpec where
 
 import Data.String.Interpolate ( i )
 import Fixpoint (Fix(..))
 import Annotations (Ann(..))
 import Location ( PString(..) )
-import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation )
 import Types ( Type(..), Qual(..), tyLam )
 import SynExpToExp ( toExp )
 import Infer (infer)
@@ -51,8 +51,8 @@ extractResults = getKey . fromList . filter (\(n, _) -> not $ containsScheme n e
 (-->) :: String -> String -> Expectation
 (-->) x y = either (\(PStr (txt, _)) -> txt) extractResults (typeOf x) `shouldBe` y
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Type Inference Tests" $ do
 
     it "Integral instances" $ do

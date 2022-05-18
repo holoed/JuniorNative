@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
-module ModulePrinterTests where
+module ModulePrinterSpec where
 
-import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
 import Compiler ( frontEndPrinted )
 import CompilerMonad ( run )
 import Intrinsics ( env, classEnv )
@@ -17,8 +17,8 @@ build code = do
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Pretty Types Tests" $ do
 
     it "Pretty one binding" $ do

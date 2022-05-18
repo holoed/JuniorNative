@@ -1,5 +1,5 @@
 {-# LANGUAGE QuasiQuotes #-}
-module DeadCodeEliminationTests where
+module DeadCodeEliminationSpec where
 
 import CompilerMonad ( run, CompileM )
 import Data.Text (Text, unpack)
@@ -9,7 +9,7 @@ import Intrinsics (env, classEnv)
 import Control.Monad ((>=>))
 import CompilerSteps (prettyPrintModule, deadCodeElimin)
 import qualified InterpreterIntrinsics as Interp (env)
-import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
 
 compile :: String -> CompileM Text
 compile = frontEnd >=>
@@ -24,8 +24,8 @@ build code = do
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
-tests :: SpecWith ()
-tests = do
+spec :: Spec
+spec = do
   describe "Dead Code Elimination Tests" $ do
 
    it "eliminate unused let" $ "let main = let x = 42 in 3" --> [i|val main :: Int

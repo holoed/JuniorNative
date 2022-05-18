@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module ModuleTypeInferenceTests where
+module ModuleTypeInferenceSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( SpecWith, describe, it, shouldBe, Expectation )
+import Test.Hspec ( Spec, describe, it, shouldBe, Expectation )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Intrinsics ( env, classEnv )
 import Location ( PString, getName )
@@ -30,8 +30,8 @@ typeOfModule code = do
                 contents <- hGetContents handle
                 contents --> y
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Module Type Inference Tests" $ do
 
     it "Simple bindings" $

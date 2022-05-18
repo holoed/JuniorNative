@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module CompilerTests where
+module CompilerSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullInterp )
 import CompilerMonad ( run )
@@ -23,8 +23,8 @@ build code = do
                 contents <- hGetContents handle
                 contents --> y
 
-tests :: SpecWith ()
-tests = do
+spec :: Spec
+spec = do
   describe "Compiler Tests" $ do
 
    it "value" $ do

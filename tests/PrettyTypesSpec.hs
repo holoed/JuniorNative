@@ -1,6 +1,6 @@
-module PrettyTypesTests where
+module PrettyTypesSpec where
 
-import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
 import PrettyTypes (prettyQ)
 import Types (Type(..), Qual(..), Pred(..), tyLam)
 import TypesPrinter ()
@@ -9,8 +9,8 @@ import Data.Set (fromList)
 (-->) :: Qual Type -> String -> Expectation
 (-->) qt s = show qt `shouldBe` s
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Pretty Types Tests" $ do
 
     it "Pretty a bool" $ do

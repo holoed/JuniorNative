@@ -1,6 +1,6 @@
-module AlphaRenameTests where
+module AlphaRenameSpec where
 
-import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import Test.Hspec ( describe, it, shouldBe, Expectation, Spec )
 import AlphaRename ( rename )
 import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
@@ -12,8 +12,8 @@ rn s = either show (prettyPrint . (fromExp . rename . toExp . head)) (parseExpr 
 (-->) :: String -> String -> Expectation
 (-->) x y = rn x `shouldBe` y
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Alpha Rename Tests" $ do
 
      it "Rename identity" $

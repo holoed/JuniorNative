@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
-module PrettyPrinterTests where
+module PrettyPrinterSpec where
 
-import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation )
 import SynExpToExp ( toExp, fromExp )
 import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
@@ -18,8 +18,8 @@ trim = f . f
             `shouldBe`
                       intercalate "\n" (map trim y)
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Pretty Printer Tests" $ do
 
     it "Print a lit" $ do

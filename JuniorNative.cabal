@@ -161,10 +161,10 @@ executable JuniorService
   build-tool-depends:  happy:happy, alex:alex
   default-language:    Haskell2010
 
-test-suite tests
+test-suite spec
   ghc-options:         -Wall -fno-warn-orphans
   type:                exitcode-stdio-1.0
-  main-is:             Tests.hs
+  main-is:             Spec.hs
   other-modules:       StringUtils,
                        Location,
                        Ast,
@@ -217,32 +217,32 @@ test-suite tests
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        ParserUtils,
-                       AlphaRenameTests,
-                       AnnotationsTests,
-                       FreeVariablesTests,
-                       TypeInferenceTests,
-                       PrettyPrinterTests,
-                       DependencyAnalysisTests,
-                       ModuleTypeInferenceTests,
-                       SymbolTableTests,
-                       PrettyTypesTests,
-                       ModulePrinterTests,
-                       InterpreterTests,
-                       ConstraintsResolutionTests,
-                       CompilerTests,
-                       MandelbrotTests,
-                       CompileToJsTests,
-                       JavaScriptRunnerTests,
-                       ClosureConversionTests,
-                       CompileToClosedJsTests,
-                       CompileToCloseANFdJsTests,
-                       OptimizeTypeClassesTests,
-                       DeadCodeEliminationTests,
-                       OptimizeClosureEnvsTests,
-                       ParserTests
+                       AlphaRenameSpec,
+                       AnnotationsSpec,
+                       FreeVariablesSpec,
+                       TypeInferenceSpec,
+                       PrettyPrinterSpec,
+                       DependencyAnalysisSpec,
+                       ModuleTypeInferenceSpec,
+                       SymbolTableSpec,
+                       PrettyTypesSpec,
+                       ModulePrinterSpec,
+                       InterpreterSpec,
+                       ConstraintsResolutionSpec,
+                       CompilerSpec,
+                       MandelbrotSpec,
+                       CompileToJsSpec,
+                       JavaScriptRunnerSpec,
+                       ClosureConversionSpec,
+                       CompileToClosedJsSpec,
+                       CompileToCloseANFdJsSpec,
+                       OptimizeTypeClassesSpec,
+                       DeadCodeEliminationSpec,
+                       OptimizeClosureEnvsSpec,
+                       ParserSpec
 
   hs-source-dirs:      tests, src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
-  build-tool-depends:  happy:happy, alex:alex
+  build-tool-depends:  happy:happy, alex:alex, hspec-discover:hspec-discover 
   build-depends:       base,
                        array,
                        containers,

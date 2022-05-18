@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
-module OptimizeTypeClassesTests where
+module OptimizeTypeClassesSpec where
 
-import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
 import Compiler ( closedAndANF, step )
 import CompilerMonad ( run, CompileM )
 import Intrinsics (env, classEnv)
@@ -25,8 +25,8 @@ build code = do
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
-tests :: SpecWith ()
-tests = do
+spec :: Spec
+spec = do
   describe "Optimize resolved Type Classes Known Instances" $ do
 
    it "native eq" $ "let main = 2 == 3" --> [i|val main :: Bool

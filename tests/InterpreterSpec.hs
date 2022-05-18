@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
-module InterpreterTests where
+module InterpreterSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation)
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation)
 import Interpreter (interpretModule)
 import InterpreterMonad (Result(..), InterpreterEnv, Prim(..), showResult, member, lookup)
 import Parser (parseExpr)
@@ -46,8 +46,8 @@ run code = do ast <- parseExpr code
 (-->) :: String -> String -> Expectation
 (-->) code v  = either show (unpack . showResult . List) (run code) `shouldBe` v
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Interpreter tests" $ do
 
     it "Literal" $ do

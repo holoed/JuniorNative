@@ -1,11 +1,11 @@
-module JavaScriptRunnerTests where
+module JavaScriptRunnerSpec where
 
 import System.Process ( readProcess ) 
-import Test.Hspec ( describe, it, shouldBe, SpecWith)
+import Test.Hspec ( describe, it, shouldBe, Spec)
 import JavaScriptRunner ( runJS )
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Run JS test" $ do
 
     it "Run simple js and return a result" $ do

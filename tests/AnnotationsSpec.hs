@@ -1,14 +1,14 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
-module AnnotationsTests where
+module AnnotationsSpec where
 
-import Test.Hspec ( describe, it, shouldBe, SpecWith )
+import Test.Hspec ( describe, it, shouldBe, Spec )
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim(I) )
 import Ast ( ExpF(Lit) )
 import Annotations ( Ann(Ann), unwrap, wrap, mapAnn )
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Annotations Tests" $ do
 
     it "Annotate a literal" $

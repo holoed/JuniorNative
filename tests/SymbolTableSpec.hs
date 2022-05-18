@@ -1,10 +1,10 @@
-module SymbolTableTests where
+module SymbolTableSpec where
 
 import SymbolTable (Symbol)
 import CompilerMonad (run)
 import Compiler (frontEndPrinted)
 import Intrinsics ( env, classEnv )
-import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation )
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation )
 import InterpreterMonad (empty) 
 
 compile :: String -> IO [Symbol]
@@ -16,8 +16,8 @@ compile code = do
 (-->) x y = do ret <- compile x
                show <$> ret `shouldBe` y
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Symbol Table Tests" $ do
 
       it "value binding" $  "let x = 42" --> [

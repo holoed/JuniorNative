@@ -1,6 +1,6 @@
-module FreeVariablesTests where
+module FreeVariablesSpec where
 
-import Test.Hspec ( describe, it, shouldBe, SpecWith, Expectation)
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation)
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann), mapAnn )
 import Primitives ( Prim(I) )
@@ -13,8 +13,8 @@ import SynExpToExp (toExp)
 (-->) :: String -> Fix (Ann (Set String) ExpF) -> Expectation
 (-->) s v  = (mapAnn snd <$> either (error . show) (freeVars empty . toExp <$>) (parseExpr s)) `shouldBe` [v]
 
-tests :: SpecWith ()
-tests =
+spec :: Spec
+spec =
   describe "Free Variables Tests" $ do
 
     it "Free vars of a literal" $
