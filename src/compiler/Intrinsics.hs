@@ -53,7 +53,7 @@ env = toEnv [
   ("ord", Set.fromList [] :=> tyLam (TyCon "Char") (TyCon "Int")),
   ("display", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyApp (TyApp (TyCon "Tuple") (TyCon "Int")) (TyCon "Int")) (TyCon "Int")))) (TyApp (TyApp (TyCon "Map") (TyCon "String")) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyApp (TyApp (TyCon "Tuple") (TyCon "Int")) (TyCon "Int")) (TyCon "Int")))))),
   ("renderPlot", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Double"))) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Double")))),
-  ("renderTimeSeries", Set.fromList [] :=> tyLam (tupleCon [(TyApp (TyCon "List") (TyCon "Int")), (TyApp (TyCon "List") (TyCon "Double"))]) (tupleCon [(TyApp (TyCon "List") (TyCon "Int")), (TyApp (TyCon "List") (TyCon "Double"))])),
+  ("renderTimeSeries", Set.fromList [] :=> tyLam (tupleCon [(TyApp (TyCon "List") (TyCon "String")), (TyApp (TyCon "List") (TyCon "Double"))]) (tupleCon [(TyApp (TyCon "List") (TyCon "String")), (TyApp (TyCon "List") (TyCon "Double"))])),
   ("range", Set.fromList[] :=> tyLam (tyLam (TyCon "Int") (TyVar "a" 0)) (tyLam (TyCon "Int") (tyLam (TyCon "Int") (TyApp (TyCon "List") (TyVar "a" 0))))),
   ("split", Set.fromList[] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyVar "a" 0))))),
   ("mod", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
@@ -68,7 +68,8 @@ env = toEnv [
   ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
   ("mkAsync", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "a" 0))),
   ("JsonNode", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyApp (TyCon "List") (TyCon "Char"), TyCon "Json"])) (TyCon "Json")),
-  ("JsonValue", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyCon "Json"))
+  ("JsonValue", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyCon "Json")),
+  ("timeStampToDate", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "String"))
  ]
 
 classEnv :: ClassEnv

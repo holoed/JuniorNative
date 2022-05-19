@@ -365,6 +365,11 @@ const renderTimeSeries = mkClosure(function([_, [xs, ys]]) {
   return json;
 });
 
+const timeStampToDate = mkClosure(function([_, x]){
+  var date = new Date(x*1000);
+  return date.toISOString();
+})
+
 function getFunction(e) {
     return e.fun;
 }
@@ -459,6 +464,14 @@ const functorListF = {
           throw new Error("Failed pattern match");
       })); 
    })
+}
+
+const functorList = {
+  "fmap": mkClosure(function ([_, f]) {
+    return setEnv("f", f, mkClosure(function ([env, m]) {
+      return m.map(x => applyClosure(env["f"], x))
+    }))
+  })
 }
 
 const httpGet = mkClosure(function([_, url]) {
