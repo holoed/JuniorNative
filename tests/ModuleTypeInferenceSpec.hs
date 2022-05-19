@@ -2,7 +2,7 @@
 module ModuleTypeInferenceSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( Spec, describe, it, shouldBe, Expectation )
+import Test.Hspec ( Spec, describe, it, shouldBe, Expectation, parallel )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Intrinsics ( env, classEnv )
 import Location ( PString, getName )
@@ -31,7 +31,7 @@ typeOfModule code = do
                 contents --> y
 
 spec :: Spec
-spec =
+spec = parallel $
   describe "Module Type Inference Tests" $ do
 
     it "Simple bindings" $

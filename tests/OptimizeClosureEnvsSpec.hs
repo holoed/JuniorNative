@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 module OptimizeClosureEnvsSpec where
 
-import Test.Hspec (SpecWith, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 import Compiler ( closedAndANF, step )
 import CompilerMonad ( run, CompileM )
 import Intrinsics (env, classEnv)
@@ -26,8 +26,8 @@ build code = do
 (-->) :: String -> String -> Expectation
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
-spec :: SpecWith ()
-spec = do
+spec :: Spec
+spec = parallel $ do
   describe "Optimize away not used setEnvs" $ do
 
    it "Remove unused SetEnv numInt" $ [i|

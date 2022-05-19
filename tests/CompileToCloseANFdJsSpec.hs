@@ -2,7 +2,7 @@
 module CompileToCloseANFdJsSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullJSClosedANF )
 import CompilerMonad ( run )
@@ -26,7 +26,7 @@ build code = do
                 contents --> y
 
 spec :: Spec
-spec = do
+spec = parallel $ do
   describe "Compile to Closed and ANF JavaScript Tests" $ do
 
    it "value" $ "let main = 42" --> "42"

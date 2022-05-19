@@ -1,6 +1,6 @@
 module MandelbrotSpec where
 
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullInterp )
 import CompilerMonad ( run )
@@ -19,7 +19,7 @@ build code = do
                 build contents >>= (`shouldBe` y)
 
 spec :: Spec
-spec = do
+spec = parallel $ do
   describe "Mandelbrot Tests" $ do
 
    it "Haskell vs Junior" $ 

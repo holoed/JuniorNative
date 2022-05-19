@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 module PrettyPrinterSpec where
 
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation )
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel )
 import SynExpToExp ( toExp, fromExp )
 import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
@@ -19,7 +19,7 @@ trim = f . f
                       intercalate "\n" (map trim y)
 
 spec :: Spec
-spec =
+spec = parallel $
   describe "Pretty Printer Tests" $ do
 
     it "Print a lit" $ do

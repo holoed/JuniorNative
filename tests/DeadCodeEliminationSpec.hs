@@ -9,7 +9,7 @@ import Intrinsics (env, classEnv)
 import Control.Monad ((>=>))
 import CompilerSteps (prettyPrintModule, deadCodeElimin)
 import qualified InterpreterIntrinsics as Interp (env)
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 
 compile :: String -> CompileM Text
 compile = frontEnd >=>
@@ -25,7 +25,7 @@ build code = do
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
 spec :: Spec
-spec = do
+spec = parallel $ do
   describe "Dead Code Elimination Tests" $ do
 
    it "eliminate unused let" $ "let main = let x = 42 in 3" --> [i|val main :: Int

@@ -1,6 +1,6 @@
 module AlphaRenameSpec where
 
-import Test.Hspec ( describe, it, shouldBe, Expectation, Spec )
+import Test.Hspec ( describe, it, shouldBe, Expectation, Spec, parallel )
 import AlphaRename ( rename )
 import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
@@ -13,7 +13,7 @@ rn s = either show (prettyPrint . (fromExp . rename . toExp . head)) (parseExpr 
 (-->) x y = rn x `shouldBe` y
 
 spec :: Spec
-spec =
+spec = parallel $
   describe "Alpha Rename Tests" $ do
 
      it "Rename identity" $

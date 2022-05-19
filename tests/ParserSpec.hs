@@ -1,7 +1,7 @@
 module ParserSpec where
 
 import Parser (parseExpr)
-import Test.Hspec (Spec, shouldBe, describe, it)
+import Test.Hspec (Spec, shouldBe, describe, it, parallel)
 import Annotations (Ann(Ann))
 import Location (Loc (Loc), PString (PStr))
 import Fixpoint (Fix(In))
@@ -12,7 +12,7 @@ import Data.Set (fromList)
 import qualified Operators (Fixity (Infix), Associativity(Right))
 
 spec :: Spec
-spec = do
+spec = parallel $ do
   describe "Parser Tests" $ do
 
    it "Literals" $

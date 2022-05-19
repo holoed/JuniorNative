@@ -3,7 +3,7 @@
 module InterpreterSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation)
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel)
 import Interpreter (interpretModule)
 import InterpreterMonad (Result(..), InterpreterEnv, Prim(..), showResult, member, lookup)
 import Parser (parseExpr)
@@ -47,7 +47,7 @@ run code = do ast <- parseExpr code
 (-->) code v  = either show (unpack . showResult . List) (run code) `shouldBe` v
 
 spec :: Spec
-spec =
+spec = parallel $
   describe "Interpreter tests" $ do
 
     it "Literal" $ do

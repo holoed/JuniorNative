@@ -2,7 +2,7 @@
 module ClosureConversionSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( describe, it, shouldBe, Spec )
+import Test.Hspec ( describe, it, shouldBe, Spec, parallel )
 import Compiler (closed)
 import Intrinsics (classEnv, env)
 import InterpreterMonad (empty)
@@ -26,7 +26,7 @@ trim = f . f
   where f = reverse . dropWhile isSpace
 
 spec :: Spec
-spec =
+spec = parallel $
   describe "Closure Conversion Tests" $ do
 
     it "convert lit bool" $ do

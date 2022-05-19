@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 module OptimizeTypeClassesSpec where
 
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 import Compiler ( closedAndANF, step )
 import CompilerMonad ( run, CompileM )
 import Intrinsics (env, classEnv)
@@ -26,7 +26,7 @@ build code = do
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
 spec :: Spec
-spec = do
+spec = parallel $ do
   describe "Optimize resolved Type Classes Known Instances" $ do
 
    it "native eq" $ "let main = 2 == 3" --> [i|val main :: Bool

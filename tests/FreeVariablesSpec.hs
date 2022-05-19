@@ -1,6 +1,6 @@
 module FreeVariablesSpec where
 
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation)
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel)
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann), mapAnn )
 import Primitives ( Prim(I) )
@@ -14,7 +14,7 @@ import SynExpToExp (toExp)
 (-->) s v  = (mapAnn snd <$> either (error . show) (freeVars empty . toExp <$>) (parseExpr s)) `shouldBe` [v]
 
 spec :: Spec
-spec =
+spec = parallel $
   describe "Free Variables Tests" $ do
 
     it "Free vars of a literal" $

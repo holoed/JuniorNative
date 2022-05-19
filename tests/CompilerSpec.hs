@@ -2,7 +2,7 @@
 module CompilerSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation)
+import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullInterp )
 import CompilerMonad ( run )
@@ -24,7 +24,7 @@ build code = do
                 contents --> y
 
 spec :: Spec
-spec = do
+spec = parallel $ do 
   describe "Compiler Tests" $ do
 
    it "value" $ do

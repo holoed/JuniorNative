@@ -6,14 +6,14 @@ import DependencyAnalysis ( deps, chunks )
 import SynExpToExp ( toExp )
 import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)
-import Test.Hspec ( it, describe, shouldBe, Spec )
+import Test.Hspec ( it, describe, shouldBe, Spec, parallel )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 
 globals :: Set [Char]
 globals = fromList ["+", "-", "/", "*", "++", "==", "/=", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
 
 spec :: Spec
-spec = do
+spec = parallel $ do
   describe "Build dependencies" $ do
 
    let build code = deps globals $ toExp <$> either (error . show) id (parseExpr code)

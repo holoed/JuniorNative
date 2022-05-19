@@ -4,7 +4,7 @@ import SymbolTable (Symbol)
 import CompilerMonad (run)
 import Compiler (frontEndPrinted)
 import Intrinsics ( env, classEnv )
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation )
+import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel )
 import InterpreterMonad (empty) 
 
 compile :: String -> IO [Symbol]
@@ -17,7 +17,7 @@ compile code = do
                show <$> ret `shouldBe` y
 
 spec :: Spec
-spec =
+spec = parallel $
   describe "Symbol Table Tests" $ do
 
       it "value binding" $  "let x = 42" --> [

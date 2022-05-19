@@ -4,7 +4,7 @@ module ConstraintsResolutionSpec where
 import Annotations (mapAnn)
 import Types ( Pred(IsIn), Type(TyApp, TyVar, TyCon) ) 
 import ConstraintsResolution (typeForPred, toCamel, varNameForPred, getNewArgs)
-import Test.Hspec ( it, describe, shouldBe, Spec, Expectation )
+import Test.Hspec ( it, describe, shouldBe, Spec, Expectation, parallel )
 import TypesPrinter () 
 import Intrinsics ( classEnv, env )
 import Data.String.Interpolate ( i )
@@ -25,8 +25,7 @@ build code = do
 (-->) s1 s2 = build s1 >>= (`shouldBe` s2)
 
 spec :: Spec
-spec = do
-
+spec = parallel $ do
   describe "Constraints Resolution Tests" $ do
 
    it "Type for a Predicate" $ do
