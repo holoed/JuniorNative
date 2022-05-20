@@ -368,7 +368,8 @@ const renderTimeSeries = mkClosure(function([_, [xs, ys]]) {
   clearPanels();
   plotChart = document.getElementById("plotlyChart");
   plotChart.style.display = "block"
-  Plotly.newPlot("plotlyChart", [{x: xs, y: ys, type: 'scatter'}]);
+  const ys1 = ys.map(x => x == 0 ? null : x)
+  Plotly.newPlot("plotlyChart", [{x: xs, y: ys1, type: 'scatter'}]);
   return json;
 });
 
