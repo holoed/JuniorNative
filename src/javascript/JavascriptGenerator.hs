@@ -33,6 +33,7 @@ mapOp ">="  = "__gteq"
 mapOp "<="  = "__lteq"
 mapOp ":"  = "__colon"
 mapOp "."  = "__dot"
+mapOp "<*>" = "__liftA2"
 mapOp x    = x
 
 mapName :: Text -> Text

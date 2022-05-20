@@ -126,6 +126,23 @@ spec = parallel $ do
             else undefined
       let main = cataRec alg example
    |] --> "120"
+
+   it "Maybe basics" $ do 
+      "let main = Just 2" --> "{\"value\":2}"
+      "let main = Nothing" --> "{}"
+      [i|let f x = Just (x + 1)
+         let main = f 5|] --> "{\"value\":6}"
+
+   it "applicative operator" $ do
+      "let main = [(\\x -> x + 1)] <*> [5]" --> "[6]"
+
+   it "Maybe classes" $ do 
+      "let main = fmap (\\x -> x * x) (Just 3)" --> "{\"value\":9}"
+      [i|let f m n = bind m (\\x -> 
+                     bind n (\\y ->
+                     pure (x + y)))
+         let main = f (Just 3) (Just 4)|] --> "{\"value\":7}"
+      "let main = Just (\\x -> x * x) <*> Just 5" --> "{\"value\":25}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 

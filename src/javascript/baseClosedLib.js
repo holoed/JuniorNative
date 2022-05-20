@@ -156,6 +156,8 @@ const numInt = {
     "fromRational": mkClosure(function([_, x]) { return x; })
   }
 
+const __liftA2 = mkClosure(function([_, inst]) { return inst["<*>"]; }) 
+
 const __eqeq = mkClosure(function([_, inst]) { return inst["=="]; })
 
 const __noteq = mkClosure(function([_, inst]) { return inst["/="]; })
@@ -264,7 +266,12 @@ const monadParser = {
   }
 
 const applicativeList = {
-    "pure": mkClosure(function([_, x]) { return [x]; })
+    "pure": mkClosure(function([_, x]) { return [x]; }),
+    "<*>":  mkClosure(function([_, mf]) {
+      return setEnv("mf", mf, mkClosure(function([env, mx]){
+          return Array.prototype.concat.apply([], env["mf"].map(f => mx.map(x => applyClosure(f, x))))
+        }))
+      })
   }
 
 const monadList = {
@@ -533,6 +540,67 @@ const functorParser = {
       return setEnv("m", m, setEnv("f", env1["f"], mkClosure(function([env2, inp]){
         return applyClosure(env2["m"], inp).map(([x,rest]) => [applyClosure(env2["f"], x), rest]);
       })))
+    }))
+  })
+}
+
+class __Just {
+  constructor(value) {
+    this.value = value
+  }
+}
+
+class __Nothing {
+  constructor() {
+  }
+}
+
+const Just = mkClosure(function([_, x]) {
+    return new __Just(x);
+})
+
+const Nothing = new __Nothing();
+
+const functorMaybe = {
+  "fmap": mkClosure(function ([_, f]) {
+      return setEnv("f", f, mkClosure(function ([env, m]) {
+          if (m instanceof __Empty) {
+              return Empty;
+          };
+          if (m instanceof __Just) {
+              return new __Just(applyClosure(env["f"], m.value));
+          };
+          throw new Error("Failed pattern match");
+      })); 
+   })
+}
+
+const applicativeMaybe = {
+  "pure": mkClosure(function([_, x]) { return new __Just(x); }),
+  "<*>":  mkClosure(function([_, mf]) {
+    return setEnv("mf", mf, mkClosure(function([env, mx]){
+        if (env["mf"] instanceof __Empty || mx instanceof __Empty) {
+          return Empty;
+        };
+        if (env["mf"] instanceof __Just || mx instanceof __Just) {
+           return new __Just(applyClosure(env["mf"].value, mx.value));
+        };
+        throw new Error("Failed pattern match");
+      }))
+    })
+}
+
+const monadMaybe = {
+  "pure": applicativeMaybe["pure"],
+  "bind": mkClosure(function([_, m]) {
+    return setEnv("m", m, mkClosure(function([env, f]){
+        if (env["m"] instanceof __Empty) {
+            return Empty;
+        };
+        if (env["m"] instanceof __Just) {
+            return applyClosure(f, m.value);
+        };
+        throw new Error("Failed pattern match");
     }))
   })
 }

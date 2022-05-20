@@ -69,7 +69,9 @@ env = toEnv [
   ("mkAsync", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "a" 0))),
   ("JsonNode", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyApp (TyCon "List") (TyCon "Char"), TyCon "Json"])) (TyCon "Json")),
   ("JsonValue", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyCon "Json")),
-  ("timeStampToDate", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "String"))
+  ("timeStampToDate", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "String")),
+  ("Just", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Maybe") (TyVar "a" 0))),
+  ("Nothing", Set.fromList [] :=> TyApp (TyCon "Maybe") (TyVar "a" 0))
  ]
 
 classEnv :: ClassEnv
@@ -104,6 +106,7 @@ classEnv = ClassEnv {
         Set.fromList [] :=> IsIn "Integral" (TyCon "Int")
       ])),
      ("Functor", ([], [
+       Set.fromList [] :=> IsIn "Functor" (TyCon "Maybe"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "Async"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "List"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "Parser"),
@@ -111,12 +114,14 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "ListF") (TyVar "a" 0))
        ])),
      ("Applicative", (["Functor"], [
+       Set.fromList [] :=> IsIn "Applicative" (TyCon "Maybe"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "Async"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "List"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Applicative" (TyApp (TyCon "Reader") (TyVar "a" 0))
        ])),
      ("Monad", (["Applicative"], [
+       Set.fromList [] :=> IsIn "Monad" (TyCon "Maybe"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "Async"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "List"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "Parser"),
