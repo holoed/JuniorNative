@@ -71,7 +71,13 @@ env = toEnv [
   ("JsonValue", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyCon "Json")),
   ("timeStampToDate", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "String")),
   ("Just", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Maybe") (TyVar "a" 0))),
-  ("Nothing", Set.fromList [] :=> TyApp (TyCon "Maybe") (TyVar "a" 0))
+  ("Nothing", Set.fromList [] :=> TyApp (TyCon "Maybe") (TyVar "a" 0)),
+  ("parseJson", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "Maybe") (TyCon "Json"))),
+  ("getJsonValue", Set.fromList [] :=> tyLam (TyCon "String") (tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Json")))),
+  ("getJsonList", Set.fromList [] :=> tyLam (TyCon "String") (tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyApp (TyCon "List") (TyCon "Json"))))),
+  ("jsonToInt", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Int"))),
+  ("jsonToDouble", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Double"))),
+  ("maybeToList", Set.fromList [] :=> tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))
  ]
 
 classEnv :: ClassEnv

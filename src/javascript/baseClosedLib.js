@@ -564,8 +564,8 @@ const Nothing = new __Nothing();
 const functorMaybe = {
   "fmap": mkClosure(function ([_, f]) {
       return setEnv("f", f, mkClosure(function ([env, m]) {
-          if (m instanceof __Empty) {
-              return Empty;
+          if (m instanceof __Nothing) {
+              return Nothing;
           };
           if (m instanceof __Just) {
               return new __Just(applyClosure(env["f"], m.value));
@@ -579,8 +579,8 @@ const applicativeMaybe = {
   "pure": mkClosure(function([_, x]) { return new __Just(x); }),
   "<*>":  mkClosure(function([_, mf]) {
     return setEnv("mf", mf, mkClosure(function([env, mx]){
-        if (env["mf"] instanceof __Empty || mx instanceof __Empty) {
-          return Empty;
+        if (env["mf"] instanceof __Nothing || mx instanceof __Nothing) {
+          return Nothing;
         };
         if (env["mf"] instanceof __Just || mx instanceof __Just) {
            return new __Just(applyClosure(env["mf"].value, mx.value));
@@ -594,8 +594,8 @@ const monadMaybe = {
   "pure": applicativeMaybe["pure"],
   "bind": mkClosure(function([_, m]) {
     return setEnv("m", m, mkClosure(function([env, f]){
-        if (env["m"] instanceof __Empty) {
-            return Empty;
+        if (env["m"] instanceof __Nothing) {
+            return Nothing;
         };
         if (env["m"] instanceof __Just) {
             return applyClosure(f, m.value);
@@ -604,3 +604,54 @@ const monadMaybe = {
     }))
   })
 }
+
+const parseJson = mkClosure(function([_, s]){
+  try {
+    return applyClosure(Just, JSON.parse(s));
+  } catch (e) {
+    console.log(`Error while parsing JSON ${e}`)
+    return Nothing;
+  }
+})
+
+const getJsonValue = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]){
+    const z = y[env["x"]];
+    if (z) { return applyClosure(Just, z) }
+    else { return Nothing; }
+  }))
+})
+
+const getJsonList = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]){
+    const z = y[env["x"]];
+    if (z && Array.isArray(z)) { return applyClosure(Just, z) }
+    else { return Nothing; }
+  }))
+})
+
+const jsonToInt = mkClosure(function([_, x]){
+  if (Number.isInteger(x)) {
+    return applyClosure(Just, x);
+  } else { return Nothing; }
+})
+
+const jsonToDouble = mkClosure(function([_, x]){
+  if (x == null) {
+    return applyClosure(Just, 0);
+  }
+  try {
+    const v = Number.parseFloat(x);
+    return applyClosure(Just, v);
+  } catch(e) { return Nothing; }
+})
+
+const maybeToList = mkClosure(function([_, x]){
+  if (x instanceof __Nothing) {
+    return [];
+  };
+  if (x instanceof __Just) {
+    return [x.value];
+  };
+  throw new Error("Failed pattern match");
+})
