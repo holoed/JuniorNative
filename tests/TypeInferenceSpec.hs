@@ -242,6 +242,10 @@ spec = parallel $
          let ((d, e), f) = z2 in
          ((a, d), (b, e), (c, f)) |] --> "(((a, b), c), ((d, e), f)) -> ((a, d), (b, e), (c, f))"
 
+    it "13-type-checker-unification-bug" $ do
+      [i|val f :: (a -> b) -> Maybe (List a) -> Maybe (List b)
+         let f = fmap . fmap|] --> "(a -> b) -> Maybe (List a) -> Maybe (List b)"
+
 
       
 
