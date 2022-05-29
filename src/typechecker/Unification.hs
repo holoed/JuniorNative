@@ -8,9 +8,11 @@ import TypesPrinter ()
 import Substitutions ( extend, substitute )
 import Monads ( get, throwError )
 import InferMonad ( TypeM, updateSubs )
+--import Debug.Trace (trace)
 
 mgu :: Loc -> Type -> Type -> TypeM ()
 mgu l a b =
+  --trace ("{" ++ show a ++ "} == {" ++ show b ++ "}") $ 
   do
     (subs, _) <- get
     case (substitute subs a, substitute subs b) of
