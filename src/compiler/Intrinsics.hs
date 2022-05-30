@@ -77,7 +77,8 @@ env = toEnv [
   ("getJsonList", Set.fromList [] :=> tyLam (TyCon "String") (tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyApp (TyCon "List") (TyCon "Json"))))),
   ("jsonToInt", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Int"))),
   ("jsonToDouble", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Double"))),
-  ("maybeToList", Set.fromList [] :=> tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))
+  ("maybeToList", Set.fromList [] :=> tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
+  ("traverse", Set.fromList [IsIn "Traversable" (TyVar "t" 1), IsIn "Applicative" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyApp (TyVar "f" 1) (TyVar "b" 0))) (tyLam (TyApp (TyVar "t" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1)(TyApp (TyVar "t" 1) (TyVar "b" 0)))))
  ]
 
 classEnv :: ClassEnv
@@ -132,6 +133,14 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Monad" (TyCon "List"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Monad" (TyApp (TyCon "Reader") (TyVar "a" 0))
+      ])),
+      ("Foldable", ([], [
+       Set.fromList [] :=> IsIn "Foldable" (TyCon "Maybe"),
+       Set.fromList [] :=> IsIn "Foldable" (TyCon "List")
+      ])),
+      ("Traversable", (["Functor", "Foldable"], [
+       Set.fromList [] :=> IsIn "Traversable" (TyCon "Maybe"),
+       Set.fromList [] :=> IsIn "Traversable" (TyCon "List")
       ]))
    ],
   defaults = [intCon, doubleCon]

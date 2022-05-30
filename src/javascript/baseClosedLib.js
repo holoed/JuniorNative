@@ -265,7 +265,16 @@ const monadParser = {
     })
   }
 
+const functorList = {
+   "fmap": mkClosure(function ([_, f]) {
+     return setEnv("f", f, mkClosure(function ([env, m]) {
+       return m.map(x => applyClosure(env["f"], x))
+     }))
+   })
+}
+
 const applicativeList = {
+    "fmap": functorList["fmap"],
     "pure": mkClosure(function([_, x]) { return [x]; }),
     "<*>":  mkClosure(function([_, mf]) {
       return setEnv("mf", mf, mkClosure(function([env, mx]){
@@ -474,14 +483,6 @@ const functorListF = {
    })
 }
 
-const functorList = {
-  "fmap": mkClosure(function ([_, f]) {
-    return setEnv("f", f, mkClosure(function ([env, m]) {
-      return m.map(x => applyClosure(env["f"], x))
-    }))
-  })
-}
-
 const httpGet = mkClosure(function([_, url]) {
   return fetch("/fetch", {
     method: "POST",
@@ -577,6 +578,7 @@ const functorMaybe = {
 }
 
 const applicativeMaybe = {
+  "fmap": functorMaybe["fmap"],
   "pure": mkClosure(function([_, x]) { return new __Just(x); }),
   "<*>":  mkClosure(function([_, mf]) {
     return setEnv("mf", mf, mkClosure(function([env, mx]){
@@ -655,4 +657,27 @@ const maybeToList = mkClosure(function([_, x]){
     return [x.value];
   };
   throw new Error("Failed pattern match");
+})
+
+const traversableMaybe = {
+  "fmap": functorMaybe["fmap"],
+  "traverse": mkClosure(function([_, inst]){
+    return setEnv("inst", inst, mkClosure(function([env, f]) {
+    return setEnv("inst", env["inst"], setEnv("f", f, mkClosure(function([env2, xs]){
+        if (xs instanceof __Nothing) {
+            return env2["inst"]["pure"](Nothing);
+        };
+        if (xs instanceof __Just) {
+            return applyClosure(applyClosure(env2["inst"]["fmap"], Just), applyClosure(env2["f"], xs.value));
+        };
+        throw new Error("Failed pattern match");
+    })))
+  }))
+  })
+}
+
+const traverse = mkClosure(function([_, inst]) { 
+  return setEnv("inst", inst, mkClosure(function([env, inst2]) {
+    return applyClosure(inst2["traverse"], env["inst"])
+  }))
 })

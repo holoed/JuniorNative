@@ -149,6 +149,9 @@ spec = parallel $ do
          let f = fmap . fmap
          
          let main = f (\\x -> x * 3) (Just [1,2,3])  |] --> "{\"value\":[3,6,9]}"
+
+   it "Traversable example" $ do
+      "let main = traverse (\\x -> [x * 2, x * 3]) (Just 5)" --> "[{\"value\":10},{\"value\":15}]"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 
