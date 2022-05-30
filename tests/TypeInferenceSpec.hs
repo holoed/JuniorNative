@@ -137,7 +137,7 @@ spec = parallel $
       "let fib n = if n == 0 then 0 else if n == 1 then 1 else fib (n - 1) + fib (n - 2) " --> "(Eq a, Num a, Num b) => a -> b"
 
     it "type of functions 6" $
-      "let foldr f z xs = if null xs then z else f (head xs) (foldr f z (tail xs))" --> "(a -> b -> b) -> b -> List a -> b"
+      "let foldright f z xs = if null xs then z else f (head xs) (foldright f z (tail xs))" --> "(a -> b -> b) -> b -> List a -> b"
 
     it "type of functions 7" $
       [i|let f x = x

@@ -57,13 +57,13 @@ spec = parallel $ do
    |] --> "43"
 
    it "higher order recursive function" $ [i|
-      let foldr f v xs =
+      let foldright f v xs =
       if (null xs) then v
-      else f (head xs) (foldr f v (tail xs))
+      else f (head xs) (foldright f v (tail xs))
       
       let xs = 1:2:3:4:5:[]
 
-      let main = foldr (*) 1 xs 
+      let main = foldright (*) 1 xs 
    |] --> "120"
 
    it "higher order recursive function 2" $ [i|
@@ -77,11 +77,11 @@ spec = parallel $ do
    |] --> "120"
 
    it "Predicates Resolution 1" $ [i|
-   let foldr f v xs =
+   let foldright f v xs =
       if (null xs) then v
-      else f (head xs) (foldr f v (tail xs))
+      else f (head xs) (foldright f v (tail xs))
 
-   let (++) xs ys = foldr (:) ys xs 
+   let (++) xs ys = foldright (:) ys xs 
 
    let main = pure 42 ++ []
    |] --> "[42]"
@@ -91,15 +91,15 @@ spec = parallel $ do
        if (null xs) then v
        else foldl f (f v (head xs)) (tail xs)
 
-   let foldr f v xs =
+   let foldright f v xs =
        if (null xs) then v
-       else f (head xs) (foldr f v (tail xs))
+       else f (head xs) (foldright f v (tail xs))
 
    let mapM f as = 
        let k a r = bind (f a) (\\x ->
                    bind r     (\\xs -> 
                    pure (x:xs))) in   
-       foldr k (pure []) as
+       foldright k (pure []) as
       
    let main = mapM (\\x -> x:[]) (1:2:3:4:[])
    |] --> "[[1,2,3,4]]"
@@ -145,13 +145,13 @@ spec = parallel $ do
       "let main = [[1,2],[3,5]]" --> "[[1,2],[3,5]]"
 
    it "Quicksort example" $
-      [i|let foldr f v xs =
+      [i|let foldright f v xs =
             if (null xs) then v
-            else f (head xs) (foldr f v (tail xs))
+            else f (head xs) (foldright f v (tail xs))
 
-         let (++) xs ys = foldr (:) ys xs
+         let (++) xs ys = foldright (:) ys xs
             
-         let filter p = foldr (\\x xs -> if (p x) then x : xs else xs) []
+         let filter p = foldright (\\x xs -> if (p x) then x : xs else xs) []
                   
          let singleton x = x : []
                   

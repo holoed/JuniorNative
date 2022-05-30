@@ -45,13 +45,13 @@ spec = parallel $
                                              ("y","(Int, Bool)")]
 
     it "Many nodes" $ [i|       
-                      let foldr f v xs = 
+                      let foldright f v xs = 
                          if (null xs) then v 
-                         else f (head xs) (foldr f v (tail xs)) 
+                         else f (head xs) (foldright f v (tail xs)) 
 
-                      let concat xs ys = foldr (\\x xs -> x : xs) ys xs
+                      let concat xs ys = foldright (\\x xs -> x : xs) ys xs
                      
-                      let filter p = foldr (\\x -> \\xs -> if (p x) then x : xs else xs) []
+                      let filter p = foldright (\\x -> \\xs -> if (p x) then x : xs else xs) []
                     
                       let singleton x = x : []
 
@@ -64,7 +64,7 @@ spec = parallel $
                         concat (concat (quicksort f lessThan) (singleton pivot)) (quicksort f greaterThan)
                       |] -->
                        [
-                          ("foldr","(a -> b -> b) -> b -> List a -> b"),
+                          ("foldright","(a -> b -> b) -> b -> List a -> b"),
                           ("singleton","a -> List a"),
                           ("concat","List a -> List a -> List a"),
                           ("filter","(a -> Bool) -> List a -> List a"),
@@ -72,7 +72,7 @@ spec = parallel $
                        ]
 
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [
-      ("foldr","(a -> b -> b) -> b -> List a -> b"),
+      ("foldright","(a -> b -> b) -> b -> List a -> b"),
       ("cadd","(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"),
       ("cmul","Num a => (a, a) -> (a, a) -> (a, a)"),
       ("foldl","(a -> b -> a) -> a -> List b -> a"),
