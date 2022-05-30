@@ -78,7 +78,8 @@ env = toEnv [
   ("jsonToInt", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Int"))),
   ("jsonToDouble", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Double"))),
   ("maybeToList", Set.fromList [] :=> tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))),
-  ("traverse", Set.fromList [IsIn "Traversable" (TyVar "t" 1), IsIn "Applicative" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyApp (TyVar "f" 1) (TyVar "b" 0))) (tyLam (TyApp (TyVar "t" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1)(TyApp (TyVar "t" 1) (TyVar "b" 0)))))
+  ("traverse", Set.fromList [IsIn "Traversable" (TyVar "t" 1), IsIn "Applicative" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyApp (TyVar "f" 1) (TyVar "b" 0))) (tyLam (TyApp (TyVar "t" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1)(TyApp (TyVar "t" 1) (TyVar "b" 0))))),
+  ("foldr", Set.fromList [IsIn "Foldable" (TyVar "t" 1)] :=> tyLam (tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyVar "b" 0))) (tyLam (TyVar "b" 0) (tyLam (TyApp (TyVar "t" 1) (TyVar "a" 0)) (TyVar "b" 0))))
  ]
 
 classEnv :: ClassEnv

@@ -58,13 +58,13 @@ spec = parallel $ do
                    let z = x + y |] --> [[("x", []), ("y", [])], [("z", ["x", "y"])]]
 
     it "Many nodes" $ [i|       
-                      let foldr f v xs = 
+                      let foldright f v xs = 
                          if (null xs) then v 
-                         else f (head xs) (foldr f v (tail xs)) 
+                         else f (head xs) (foldright f v (tail xs)) 
 
-                      let concat xs ys = foldr (\\x xs -> x : xs) ys
+                      let concat xs ys = foldright (\\x xs -> x : xs) ys
                      
-                      let filter p = foldr (\\x -> \\xs -> if (p x) then x : xs else xs) []
+                      let filter p = foldright (\\x -> \\xs -> if (p x) then x : xs else xs) []
                     
                       let singleton x = x : []
 
@@ -74,18 +74,18 @@ spec = parallel $ do
                         let greaterThan = filter (\\x -> f x > f (head xs)) (tail xs) in
                         concat (concat (quicksort f lessThan) (singleton (head xs))) (quicksort f greaterThan)
                       |] --> [
-                        [("foldr",[]),("singleton",[])],
-                        [("concat",["foldr"]),("filter",["foldr"])],
+                        [("foldright",[]),("singleton",[])],
+                        [("concat",["foldright"]),("filter",["foldright"])],
                         [("quicksort",["concat","filter","singleton"])]
                         ]
                        
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [          
-          [("foldr",[]),("cadd",[]),("cmul",[]),("foldl",[]),("norm",[]),("posToCoord",[]),("singleton",[]),("range",[])],
-          [("++",["foldr"]),("filter",["foldr"]),("map",["foldr"])],
+          [("foldright",[]),("cadd",[]),("cmul",[]),("foldl",[]),("norm",[]),("posToCoord",[]),("singleton",[]),("range",[])],
+          [("++",["foldright"]),("filter",["foldright"]),("map",["foldright"])],
           [("join",["foldl"]),("reverse",["foldl"]),("product",["foldl"]),("sum",["foldl"])],
           [("mPoint",["cadd","cmul","norm"])],
           [("mandelbrot",["cos","mPoint","toDouble","truncate"])],
-          [("mapM",["bind","foldr","pure"])],
+          [("mapM",["bind","foldright","pure"])],
           [("partition",["reverse"])],
           [("quicksort",["filter","singleton"])],
           [("sequence",["mapM"])],
