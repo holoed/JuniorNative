@@ -676,6 +676,32 @@ const traversableMaybe = {
   })
 }
 
+function cons_f(inst, g, x, ys){
+  const fmap = inst["fmap"]
+  const ap = inst["<*>"]
+  const liftA2 = mkClosure(function([_, f]){
+    return setEnv("f", f, mkClosure(function([env, x]){ 
+      return setEnv("f", env["f"], setEnv("x", x, mkClosure(function([_, y]){
+      return applyClosure(applyClosure(ap, applyClosure(applyClosure(fmap, env["f"]), x)), y)
+    })))
+  }))
+  })
+  return applyClosure(applyClosure(applyClosure(liftA2, __colon), applyClosure(g, x)), ys)
+}
+
+const traversableList = {
+  "fmap": functorList["fmap"],
+  "traverse": mkClosure(function([_, inst]){
+    return setEnv("inst", inst, mkClosure(function([env, f]) {
+    return setEnv("inst", env["inst"], setEnv("f", f, mkClosure(function([env2, xs]){
+      return xs.reduceRight(function(acc, cur){
+        return cons_f(env2["inst"], f, cur, acc);
+      }, applyClosure(env2["inst"]["pure"], []));
+    })))
+  }))
+  })
+}
+
 const traverse = mkClosure(function([_, inst]) { 
   return setEnv("inst", inst, mkClosure(function([env, inst2]) {
     return applyClosure(inst2["traverse"], env["inst"])
