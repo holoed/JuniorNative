@@ -132,6 +132,12 @@ spec = parallel $ do
            bind (pure 2) (\\y -> pure (x + y)))    
    |] --> "5"
 
+   it "List and Maybe combined" $ do
+      [i|val f :: (a -> b) -> Maybe (List a) -> Maybe (List b)
+         let f = fmap . fmap
+         
+         let main = f (\\x -> x * 3) (Just [1,2,3])  |] --> "{\"value\":[3,6,9]}"
+
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 
    it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[[5,[]]]"

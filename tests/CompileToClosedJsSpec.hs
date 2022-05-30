@@ -101,6 +101,12 @@ spec = parallel $ do
       "let main = [\'h\', \'e\']" --> "[\"h\",\"e\"]"
       "let main = [1 + 2, 3 * 4]" --> "[3,12]"
       "let main = [[1,2],[3,5]]" --> "[[1,2],[3,5]]"
+
+   it "List and Maybe combined" $ do
+      [i|val f :: (a -> b) -> Maybe (List a) -> Maybe (List b)
+         let f = fmap . fmap
+         
+         let main = f (\\x -> x * 3) (Just [1,2,3])  |] --> "{\"value\":[3,6,9]}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 

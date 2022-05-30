@@ -410,3 +410,65 @@ const monadAsync = {
     }
   }
 }
+
+class __Just {
+  constructor(value) {
+    this.value = value
+  }
+}
+
+class __Nothing {
+  constructor() {
+  }
+}
+
+const Just = function (x) {
+    return new __Just(x);
+}
+
+const Nothing = new __Nothing();
+
+const functorMaybe = {
+  "fmap": function(f) {
+      return function(m) {
+          if (m instanceof __Nothing) {
+              return Nothing;
+          };
+          if (m instanceof __Just) {
+              return new __Just(f(m.value));
+          };
+          throw new Error("Failed pattern match");
+      }; 
+   }
+}
+
+const applicativeMaybe = {
+  "pure": function(x) { return new __Just(x); },
+  "<*>":  function(mf) {
+    return function(mx){
+        if (mf instanceof __Nothing || mx instanceof __Nothing) {
+          return Nothing;
+        };
+        if (mf instanceof __Just || mx instanceof __Just) {
+           return new __Just((mf.value(mx.value)));
+        };
+        throw new Error("Failed pattern match");
+      }
+    }
+}
+
+const monadMaybe = {
+  "pure": applicativeMaybe["pure"],
+  "bind": function(m) {
+    return function(f){
+        if (m instanceof __Nothing) {
+            return Nothing;
+        };
+        if (m instanceof __Just) {
+            return f(m.value);
+        };
+        throw new Error("Failed pattern match");
+    }
+  }
+}
+
