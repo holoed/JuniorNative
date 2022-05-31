@@ -1,3 +1,5 @@
+const id = mkClosure(function([_, x]){ return x })
+
 function __eqeqInt2([env, y]){
     return env["x"] == y;
 }

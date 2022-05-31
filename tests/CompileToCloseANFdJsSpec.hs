@@ -40,6 +40,8 @@ spec = parallel $ do
       let main = f 5
    |] --> "6"
 
+   it "identity" $ "let main = id 4" --> "4"
+
    it "factorial example" $ [i|
      let fac n = if n == 0 then 1 else n * fac (n - 1)
      let main = fac 5
