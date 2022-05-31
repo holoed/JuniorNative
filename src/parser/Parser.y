@@ -48,6 +48,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     '\\'  { TokenLambda $$ }
     '->'  { TokenArrow $$ }
     '<*>' { TokenLtStarGt $$ }
+    '>=>' { TokenGtEqGt $$ }
     '='   { TokenEq $$ }
     '=='  { TokenEql $$ }
     '/='  { TokenNotEql $$ }
@@ -83,6 +84,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 %left '+' '-'
 %left '*' '/'
 %right '.'
+%right '>=>'
 %%
 
 Decls : Expr                       { [$1] }
@@ -116,6 +118,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form ':' Form               { infixApp (mkLoc $2) consOp $1 $3 }
      | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
      | Form '<*>' Form             { infixApp (mkLoc $2) ltStarGtOp $1 $3}
+     | Form '>=>' Form             { infixApp (mkLoc $2) gtEqGtOp $1 $3}
      | Fact                        { $1 }
 
 Fact : Fact Atom                   { infixApp (mkLoc (alexStartPos, " ")) juxtaOp $1 $2 }
@@ -140,6 +143,7 @@ Atom : '(' Expr ')'                { $2 }
      | '(' ':' ')'                 { var (mkLoc $2) ":" }
      | '(' '.' ')'                 { var (mkLoc $2) "." }
      | '(' '<*>' ')'               { var (mkLoc $2) "<*>" }
+     | '(' '>=>' ')'               { var (mkLoc $2) ">=>" }
 
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }

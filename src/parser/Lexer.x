@@ -68,6 +68,7 @@ tokens :-
   "->"                          {\p s -> TokenArrow (p, s) }
   "=>"                          {\p s -> TokenFatArrow (p, s) }
   "<*>"                         {\p s -> TokenLtStarGt (p, s) }
+  ">=>"                         {\p s -> TokenGtEqGt (p, s) }
   "=="                          {\p s -> TokenEql (p, s) }
   "/="                          {\p s -> TokenNotEql (p, s) }
   ">="                          {\p s -> TokenGtEql (p, s) }
@@ -114,6 +115,7 @@ data Token
   | TokenArrow (AlexPosn, String)
   | TokenFatArrow (AlexPosn, String)
   | TokenLtStarGt (AlexPosn, String)
+  | TokenGtEqGt (AlexPosn, String)
   | TokenConcat (AlexPosn, String)
   | TokenEmpty (AlexPosn, String)
   | TokenCons (AlexPosn, String)

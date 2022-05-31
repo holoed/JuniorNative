@@ -156,6 +156,11 @@ spec = parallel $ do
       "let main = traverse (\\x -> [x * 2, x * 3]) (Just 5)" --> "[{\"value\":10},{\"value\":15}]"
       "let main = traverse Just [1,2,3,4]" --> "{\"value\":[1,2,3,4]}"
       "let main = traverse (\\x -> x) (fmap mkAsync (Just 42))" --> "{\"value\":42}"
+
+   it "left to right Kleisli arrows composition" $ do
+      [i|let f x = [x + 1, x + 2, x + 3]
+         let g x = [x - 2, x - 3, x - 4]
+         let main = (f >=> g) 4|] --> "[3,2,1,4,3,2,5,4,3]"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 

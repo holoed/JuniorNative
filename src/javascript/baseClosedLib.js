@@ -738,3 +738,14 @@ const foldableList = {
 }
 
 const foldr = mkClosure(function([_, inst]) { return inst["foldr"]; })
+
+const __lrKleisli = mkClosure(function([_, inst]){
+  return setEnv("inst", inst, mkClosure(function([env, f]){
+    return setEnv("inst", env["inst"], setEnv("f", f, mkClosure(function([env2, g]){
+      return setEnv("inst", env2["inst"], setEnv("f", env2["f"], setEnv("g", g, mkClosure(function([env3, x]){
+      const bind = env3["inst"]["bind"]
+      return applyClosure(applyClosure(bind, applyClosure(env3["f"], x)), env3["g"])
+    }))))
+  })))
+ }))
+})

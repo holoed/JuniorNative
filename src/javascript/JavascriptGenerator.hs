@@ -34,6 +34,7 @@ mapOp "<="  = "__lteq"
 mapOp ":"  = "__colon"
 mapOp "."  = "__dot"
 mapOp "<*>" = "__liftA2"
+mapOp ">=>" = "__lrKleisli"
 mapOp x    = x
 
 mapName :: Text -> Text

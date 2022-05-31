@@ -64,8 +64,11 @@ andOp = ("&&", 8, Infix Right)
 orOp :: ([Char], Integer, Fixity)
 orOp = ("||", 7, Infix Right)  
 
+gtEqGtOp :: ([Char], Integer, Fixity)
+gtEqGtOp = (">=>", 6, Infix Right)
+
 lamOp :: ([Char], Integer, Fixity)
-lamOp    = ("->", 6, Infix Right)
+lamOp    = ("->", 5, Infix Right)
 
 classOp :: ([Char], Integer, Fixity)
 classOp  = ("=>", 1, Infix Right)
