@@ -374,12 +374,14 @@ const renderPlot = mkClosure(function([_, z1]) {
 });
 
 const renderTimeSeries = mkClosure(function([_, [xs, ys]]) {
-  clearPanels();
-  plotChart = document.getElementById("plotlyChart");
-  plotChart.style.display = "block"
-  const ys1 = ys.map(x => x == 0 ? null : x)
-  Plotly.newPlot("plotlyChart", [{x: xs, y: ys1, type: 'scatter'}]);
-  return json;
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    plotChart = document.getElementById("plotlyChart");
+    plotChart.style.display = "block"
+    const ys1 = ys.map(x => x == 0 ? null : x)
+    Plotly.newPlot("plotlyChart", [{x: xs, y: ys1, type: 'scatter'}]);
+    resolve({});
+  });
 });
 
 const timeStampToDate = mkClosure(function([_, x]){
@@ -505,6 +507,17 @@ const functorAsync = {
    })
 }
 
+const traversableAsync = {
+  "fmap": functorAsync["fmap"],
+  "traverse": mkClosure(function([_, inst]){
+    return setEnv("inst", inst, mkClosure(function([env, f]) {
+    return setEnv("inst", env["inst"], setEnv("f", f, mkClosure(function([env2, xs]){
+        return xs.then(x => applyClosure(applyClosure(env2["inst"]["fmap"], mkAsync), applyClosure(env2["f"], x)));
+    })))
+  }))
+  })
+}
+
 const trace = mkClosure(function([_, x]){
   console.log(x)
   return x;
@@ -515,6 +528,7 @@ const mkAsync = mkClosure(function([_, x]){
 })
 
 const applicativeAsync = {
+  "fmap": functorAsync["fmap"],
   "pure": mkAsync
 }
 
