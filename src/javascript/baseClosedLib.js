@@ -375,13 +375,13 @@ const renderPlot = mkClosure(function([_, z1]) {
   return json;
 });
 
-const renderTimeSeries = mkClosure(function([_, [xs, ys]]) {
+const renderTimeSeries = mkClosure(function([_, [s, xs, ys]]) {
   return new Promise((resolve, reject) => {
     clearPanels();
     plotChart = document.getElementById("plotlyChart");
     plotChart.style.display = "block"
     const ys1 = ys.map(x => x == 0 ? null : x)
-    Plotly.newPlot("plotlyChart", [{x: xs, y: ys1, type: 'scatter'}]);
+    Plotly.newPlot("plotlyChart", [{x: xs, y: ys1, name: s, type: 'scatter'}], {showlegend: true});
     resolve({});
   });
 });
@@ -647,6 +647,12 @@ const getJsonList = mkClosure(function([_, x]) {
     if (z && Array.isArray(z)) { return applyClosure(Just, z) }
     else { return Nothing; }
   }))
+})
+
+const jsonToString = mkClosure(function([_, x]){
+  if (typeof x === 'string' || x instanceof String) {
+    return applyClosure(Just, x);
+  } else { return Nothing; }
 })
 
 const jsonToInt = mkClosure(function([_, x]){
