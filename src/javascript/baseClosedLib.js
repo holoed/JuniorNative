@@ -758,3 +758,14 @@ const __lrKleisli = mkClosure(function([_, inst]){
   })))
  }))
 })
+
+
+const semigroupString = {
+  "<>" : mkClosure(function([_, xs]){
+    return setEnv("xs", xs, mkClosure(function([env, ys]){
+      return env["xs"] + ys;
+    }))
+  })
+}
+
+const mappend = mkClosure(function([_, inst]) { return inst["<>"]; })

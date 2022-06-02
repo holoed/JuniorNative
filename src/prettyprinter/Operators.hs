@@ -31,6 +31,9 @@ plusOp   = ("+", 14, Infix Left)
 subOp :: ([Char], Integer, Fixity)
 subOp    = ("-", 14, Infix Left)
 
+ltGtOp :: ([Char], Integer, Fixity)
+ltGtOp = ("<>", 14, Infix Right)
+
 plusplusOp :: ([Char], Integer, Fixity)
 plusplusOp = ("++", 12, Infix Right) 
 

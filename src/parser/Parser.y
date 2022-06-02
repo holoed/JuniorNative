@@ -48,6 +48,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     '\\'  { TokenLambda $$ }
     '->'  { TokenArrow $$ }
     '<*>' { TokenLtStarGt $$ }
+    '<>' { TokenLtGt $$ }
     '>=>' { TokenGtEqGt $$ }
     '='   { TokenEq $$ }
     '=='  { TokenEql $$ }
@@ -80,7 +81,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 %right '&&'
 %nonassoc '>' '<' '==' '/=' '>=' '<='
 %left '<*>'
-%right '++' ':'
+%right '++' ':' '<>'
 %left '+' '-'
 %left '*' '/'
 %right '.'
@@ -118,6 +119,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form ':' Form               { infixApp (mkLoc $2) consOp $1 $3 }
      | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
      | Form '<*>' Form             { infixApp (mkLoc $2) ltStarGtOp $1 $3}
+     | Form '<>' Form              { infixApp (mkLoc $2) ltGtOp $1 $3}
      | Form '>=>' Form             { infixApp (mkLoc $2) gtEqGtOp $1 $3}
      | Fact                        { $1 }
 
@@ -143,6 +145,7 @@ Atom : '(' Expr ')'                { $2 }
      | '(' ':' ')'                 { var (mkLoc $2) ":" }
      | '(' '.' ')'                 { var (mkLoc $2) "." }
      | '(' '<*>' ')'               { var (mkLoc $2) "<*>" }
+     | '(' '<>' ')'               { var (mkLoc $2) "<>" }
      | '(' '>=>' ')'               { var (mkLoc $2) ">=>" }
 
 Exprs : Expr                       { [$1] }
