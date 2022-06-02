@@ -106,6 +106,7 @@ const numInt = {
     "cos": mkClosure(function([_, x]){ return Math.cos(x) }),
     "sin": mkClosure(function([_, x]){ return Math.sin(x) }),
     "sqrt": mkClosure(function([_, x]){ return Math.sqrt(x) }),
+    "log": mkClosure(function([_, x]){ return Math.log(x) })
   }
 
   const numTuple2 = mkClosure(function([_, instA]) {
@@ -195,6 +196,8 @@ const truncate = mkClosure(function([_, instA]) {
 const sin = mkClosure(function([_, inst]) { return inst["sin"]; })
 
 const cos = mkClosure(function([_, inst]) { return inst["cos"]; })
+
+const log = mkClosure(function([_, inst]) { return inst["log"]; })
 
 const sqrt = mkClosure(function([_, inst]) { return inst["sqrt"]; })
 

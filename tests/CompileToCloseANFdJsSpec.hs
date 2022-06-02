@@ -92,6 +92,7 @@ spec = parallel $ do
       "let main = cos 1.5" --> "0.0707372016677029"
       "let main = sin 0.5" --> "0.479425538604203"
       "let main = sqrt 4"  --> "2"
+      "let main = log 10" --> "2.302585092994046"
 
    it "Integral tests" $ do
       "let main = mod 205 54" --> "43"
