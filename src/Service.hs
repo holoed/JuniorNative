@@ -22,6 +22,8 @@ import CompilerMonad (CompileM, run)
 import qualified SymbolTable as S
 import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (Text, pack)
+import qualified Environment
+import Data.Bifunctor (second)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -79,4 +81,6 @@ route = do
     get "/libJs" $ do
          ret <- liftIO $ readFile "src/javascript/baseClosedLib.js"
          json (pack ret)
+    get "/libTypes" $
+         json $ second show <$> Environment.fromEnv env
 
