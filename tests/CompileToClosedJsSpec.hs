@@ -14,7 +14,7 @@ import JavaScriptRunner (runJS)
 build :: String -> IO String
 build code = do
    let libPath = "src/javascript/baseClosedLib.js"
-   (x, _, _) <- run (fullJSClosed code) (Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullJSClosed code) ("main", Interp.env, classEnv) (env, [])
    either (return . show) (runJS libPath . unpack) x
 
 (-->) :: String -> String -> Expectation

@@ -51,7 +51,7 @@ dependencyAnalysis es = do
 
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
 typeInference bss = do
-    (_, classEnv) <- ask
+    (_, _, classEnv) <- ask
     (env, symbols) <- get
     let g (_, env') (n, e) = (\e2@(In (Ann (_, t) _)) -> ([e2], toEnv [(n, t)])) . snd <$> (infer classEnv env' . liftN) e
     let f env' (n, e) = env' >>= flip g (n, e)
@@ -75,13 +75,13 @@ prettyPrintModule es = return $ typedModuleToString es
 
 desugarPredicates :: [TypedExp] -> CompileM [TypedExp]
 desugarPredicates es = do
-    (_, classEnv) <- ask
+    (_, _, classEnv) <- ask
     (env, _) <- get
     return $ convertPreds classEnv env <$> es
 
 interpret :: [TypedExp] -> CompileM [Result]
 interpret es = do
-   (env, _) <- ask
+   (_, env, _) <- ask
    case interpretModule env (mapAnn fst <$> es) of
        Left err -> throwError err
        Right v -> 
@@ -94,8 +94,9 @@ toJs = return . generate
 
 closureConversion :: [TypedExp] -> CompileM [TypedExp]
 closureConversion es = do 
+    (name, _, _) <- ask
     (env, _) <- get
-    return $ ClosureConversion.convertProg (keysSet env) es
+    return $ ClosureConversion.convertProg name (keysSet env) es
 
 aNormalisation :: [TypedExp] -> CompileM [TypedExp]
 aNormalisation es = do 

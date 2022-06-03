@@ -19,7 +19,7 @@ compile = closedAndANF >=>
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (compile code) (Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (compile code) ("", Interp.env, classEnv) (env, [])
    either (return . show) (return . unpack) x
 
 (-->) :: String -> String -> Expectation
