@@ -239,7 +239,8 @@ test-suite spec
                        OptimizeTypeClassesSpec,
                        DeadCodeEliminationSpec,
                        OptimizeClosureEnvsSpec,
-                       ParserSpec
+                       ParserSpec,
+                       MultiScriptCompileSpec
 
   hs-source-dirs:      tests, src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
   build-tool-depends:  happy:happy, alex:alex, hspec-discover:hspec-discover 
