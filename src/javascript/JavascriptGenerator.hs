@@ -43,6 +43,7 @@ mapName "null" = "isEmptyList"
 mapName "eval" = "__eval"
 mapName "mod"  = "__mod"
 mapName "()" = "undefined"
+mapName "." = "__dot"
 mapName x      = replace "'" "Quoted" x
 
 generateExp :: Fix ExpF -> Text

@@ -13,8 +13,10 @@ import JavaScriptRunner (runJS)
 
 build :: String -> IO String
 build code = do
+   handle <- openFile "src/prelude/prelude.jnr" ReadMode 
+   contents <- hGetContents handle
    let libPath = "src/javascript/baselib.js"
-   (x, _, _) <- run (fullJS code) ("main", Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullJS (contents <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [])
    either (return . show) (runJS libPath . unpack) x
 
 (-->) :: String -> String -> Expectation

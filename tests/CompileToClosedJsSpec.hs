@@ -13,8 +13,10 @@ import JavaScriptRunner (runJS)
 
 build :: String -> IO String
 build code = do
+   handle <- openFile "src/prelude/prelude.jnr" ReadMode 
+   contents <- hGetContents handle
    let libPath = "src/javascript/baseClosedLib.js"
-   (x, _, _) <- run (fullJSClosed code) ("main", Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullJSClosed (contents <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [])
    either (return . show) (runJS libPath . unpack) x
 
 (-->) :: String -> String -> Expectation
@@ -103,10 +105,7 @@ spec = parallel $ do
       "let main = [[1,2],[3,5]]" --> "[[1,2],[3,5]]"
 
    it "List and Maybe combined" $ do
-      [i|val f :: (a -> b) -> Maybe (List a) -> Maybe (List b)
-         let f = fmap . fmap
-         
-         let main = f (\\x -> x * 3) (Just [1,2,3])  |] --> "{\"value\":[3,6,9]}"
+      "let main = (fmap . fmap) (\\x -> x * 3) (Just [1,2,3])" --> "{\"value\":[3,6,9]}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 

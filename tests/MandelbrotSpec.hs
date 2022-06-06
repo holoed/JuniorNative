@@ -10,7 +10,9 @@ import Data.Text (unpack)
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (fullInterp code) ("main", Interp.env, classEnv) (env, [])
+   handle <- openFile "src/prelude/prelude.jnr" ReadMode 
+   contents <- hGetContents handle
+   (x, _, _) <- run (fullInterp (contents <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [])
    return $ either show unpack x
 
 (--->) :: FilePath -> String -> Expectation 

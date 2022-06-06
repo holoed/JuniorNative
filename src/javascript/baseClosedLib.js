@@ -293,14 +293,6 @@ const pure = mkClosure(function([_, inst]) { return inst["pure"]; })
 
 const fmap = mkClosure(function([_, inst]) { return inst["fmap"]; })
 
-const __dot = mkClosure(function([_, f]) {
-    return setEnv("f", f, mkClosure(function([env, g]) {
-      return setEnv("g", g, setEnv("f", env["f"], mkClosure(function([env, x]) {
-        return applyClosure(env["f"], applyClosure(env["g"], x));
-      })))
-    }))
-  })
-
 const __colon = mkClosure(function([_, x]) {
     return setEnv("x", x, mkClosure(function([env, xs]) {
       const ys = xs.slice();

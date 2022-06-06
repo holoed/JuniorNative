@@ -8,3 +8,6 @@ let fst (x, y) = x
 
 val snd :: (a, b) -> b
 let snd (x, y) = y
+
+val (.) :: (b -> c) -> (a -> b) -> a -> c
+let (.) f g = \x -> f (g x)

@@ -2,7 +2,7 @@
 module ConstraintsResolutionSpec where
 
 import Annotations (mapAnn)
-import Types ( Pred(IsIn), Type(TyApp, TyVar, TyCon) ) 
+import Types ( Pred(IsIn), Type(TyApp, TyVar, TyCon), tyLam, Qual ((:=>)) ) 
 import ConstraintsResolution (typeForPred, toCamel, varNameForPred, getNewArgs)
 import Test.Hspec ( it, describe, shouldBe, Spec, Expectation, parallel )
 import TypesPrinter () 
@@ -15,10 +15,20 @@ import Data.Text (unpack)
 import BuiltIns (tupleCon)
 import SynExpToExp ( fromExp )
 import PrettyPrinter ( prettyPrint )
+import qualified Data.Set as Set
+import Environment (Env, concatEnvs, toEnv)
+
+env' :: Env
+env' = concatEnvs env $ toEnv [
+  (".",  Set.fromList [] :=> tyLam (tyLam (TyVar "b" 0) (TyVar "c" 0))
+                             (tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0))
+                             (tyLam (TyVar "a" 0) (TyVar "c" 0)))),
+  ("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0))
+ ]
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (backendPrinted code) ("main", empty, classEnv) (env, [])
+   (x, _, _) <- run (backendPrinted code) ("main", empty, classEnv) (env', [])
    return $ either show unpack x
 
 (-->) :: String -> String -> Expectation

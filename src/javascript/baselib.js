@@ -186,14 +186,6 @@ const tail = function(xs) {
   return xs.slice(1);
 }
 
-const __dot = function(f) {
-  return function(g) {
-    return function(x) {
-      return f(g(x));
-    }
-  }
-}
-
 const toDouble = function(x) {
   return x + 0.0;
 }

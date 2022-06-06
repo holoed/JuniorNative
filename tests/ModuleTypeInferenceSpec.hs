@@ -18,6 +18,9 @@ import qualified Data.Set as Set
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
+  (".",  Set.fromList [] :=> tyLam (tyLam (TyVar "b" 0) (TyVar "c" 0))
+                             (tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0))
+                             (tyLam (TyVar "a" 0) (TyVar "c" 0)))),
   ("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
   ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
   ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0))
