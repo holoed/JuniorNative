@@ -25,6 +25,7 @@ import Data.Text (Text, pack)
 import qualified Environment
 import Data.Bifunctor (second)
 import Junior (prelude)
+import PrettyTypes (prettyQ)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -86,5 +87,5 @@ route = do
          json (pack baseJs <> pack "\r\n\r\n" <> preludeJs)
     get "/libTypes" $ do
          (_, preludeEnv) <- liftIO $ prelude
-         json $ second show <$> Environment.fromEnv preludeEnv
+         json $ second (show . prettyQ) <$> Environment.fromEnv preludeEnv
 
