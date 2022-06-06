@@ -22,6 +22,7 @@ import Data.List (intercalate)
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
+  ("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
   ("concat", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("filter", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyCon "Bool")) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0)))

@@ -1,0 +1,4 @@
+-- Junior Prelude 
+
+val id :: a -> a
+let id x = x

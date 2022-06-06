@@ -4,21 +4,21 @@ module CompileToCloseANFdJsSpec where
 import Data.String.Interpolate ( i )
 import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
-import Compiler ( fullJSClosedANF )
-import CompilerMonad ( run )
-import Intrinsics (env, classEnv)
-import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack)
 import JavaScriptRunner (runJS)
+import Data.Text ( pack, Text )
+import Junior (prelude, buildAll)
 
-build :: String -> IO String
-build code = do
+exec :: Text -> IO String
+exec = do
    let libPath = "src/javascript/baseClosedLib.js"
-   (x, _, _) <- run (fullJSClosedANF code) ("main", Interp.env, classEnv) (env, [])
-   either (return . show) (runJS libPath . unpack) x
+   runJS libPath . unpack
 
 (-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) s1 s2 = do lib <- prelude
+                 (Right (js, _)) <- buildAll lib [("main", pack s1)] 
+                 ret <- exec js
+                 ret `shouldBe` s2
 
 (--->) :: FilePath -> String -> Expectation
 (--->) x y = do handle <- openFile x ReadMode
