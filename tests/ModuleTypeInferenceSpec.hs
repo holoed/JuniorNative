@@ -12,13 +12,23 @@ import qualified SymbolTable as S
 import Data.List (nub)
 import PrettyTypes (prettyQ)
 import InterpreterMonad (empty) 
+import Environment (Env, concatEnvs, toEnv)
+import Types ( Type(..), Qual(..), tyLam )
+import qualified Data.Set as Set
+
+env' :: Env
+env' = concatEnvs env $ toEnv [
+  ("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
+  ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
+  ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0))
+ ]
 
 extractNames :: [S.Symbol] -> [(String, String)]
 extractNames ss = (\s -> (getName $ S.name s, show $ prettyQ $ S.ty s)) <$> filter S.top ss
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
-   (x, (_, ss), _) <- run (frontEndPrinted code) (empty, classEnv) (env, [])
+   (x, (_, ss), _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env', [])
    return (nub . extractNames . const ss <$> x)
 
 (-->) :: String -> [(String, String)] -> Expectation

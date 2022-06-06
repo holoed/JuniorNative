@@ -17,10 +17,10 @@ import TypedAst (TypedExp)
 import Data.Bifunctor (second)
 
 type TypedFExp = FreeVarsExp (Qual Type)
-type ClosureM = RWS (Set String) [TypedFExp] (Int, Int)
+type ClosureM = RWS (Set String) [TypedFExp] (String, Int, Int)
 
-convertProg :: Set String -> [TypedExp] -> [TypedExp]
-convertProg existing defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> newDefs ++ origDefs
+convertProg :: String -> Set String -> [TypedExp] -> [TypedExp]
+convertProg ns existing defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> newDefs ++ origDefs
   where
     topLevelNames = fromList . map (\(In (Ann _ (Defn _ (In (Ann _ (VarPat name))) _))) -> name) $ defs
     globals = topLevelNames `union` existing
@@ -28,22 +28,22 @@ convertProg existing defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> newDefs 
        (\(In (Ann (_, qt) (Defn _ (In (Ann (_, qt2) (VarPat n))) b))) ->
           do b' <- convertBody globals b
              return $ In (Ann (qt, fromList []) (Defn Nothing (In (Ann (qt2, fromList []) (VarPat n))) b'))) <$> defs)
-    (origDefs, _, newDefs) = runRWS newDefsM globals (0, 0)
+    (origDefs, _, newDefs) = runRWS newDefsM globals (ns, 0, 0)
 
 convertBody :: Set String -> Fix (Ann (a, Qual Type) ExpF) -> ClosureM TypedFExp
 convertBody globals = convert . freeVars globals . mapAnn snd
 
 freshFunc :: ClosureM String
 freshFunc = do
-  (f, c) <- get
-  put (f+1, c)
-  return $ "_f" ++ show f
+  (ns, f, c) <- get
+  put (ns, f+1, c)
+  return $ ns ++ "_f" ++ show f
 
 freshClos :: ClosureM String
 freshClos = do
-  (f, c) <- get
-  put (f, c+1)
-  return $ "_c" ++ show c
+  (ns, f, c) <- get
+  put (ns, f, c+1)
+  return $ ns ++ "_c" ++ show c
 
 setEnv :: (Qual Type, Set String) -> String -> TypedFExp -> TypedFExp
 setEnv attr name x = In (Ann attr (SetEnv name (In (Ann attr (Var name))) x))

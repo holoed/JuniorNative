@@ -1,5 +1,3 @@
-const id = mkClosure(function([_, x]){ return x })
-
 function __eqeqInt2([env, y]){
     return env["x"] == y;
 }
@@ -200,14 +198,6 @@ const cos = mkClosure(function([_, inst]) { return inst["cos"]; })
 const log = mkClosure(function([_, inst]) { return inst["log"]; })
 
 const sqrt = mkClosure(function([_, inst]) { return inst["sqrt"]; })
-
-const fst = mkClosure(function([_1, [x,_2]]){
-  return x;
-})
-
-const snd = mkClosure(function([_1, [_2,y]]){
-  return y;
-})
 
 function range_3([env, end]) {
     return Array(end - env["start"] + 1).fill(env["start"]).map((x, y) => applyClosure(env["f"], (x + y)))

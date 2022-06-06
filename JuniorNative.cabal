@@ -65,7 +65,8 @@ executable JuniorNative
                        OptimizeTypeClasses,
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
-                       ParserUtils
+                       ParserUtils,
+                       Junior
   build-depends:       base,
                        array,
                        containers,
@@ -77,7 +78,8 @@ executable JuniorNative
                        mainland-pretty,
                        parallel,
                        deepseq,
-                       timeit
+                       timeit,
+                       filepath
   hs-source-dirs:      src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
   build-tool-depends:  happy:happy, alex:alex
   default-language:    Haskell2010
@@ -137,7 +139,8 @@ executable JuniorService
                        OptimizeTypeClasses,
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
-                       ParserUtils
+                       ParserUtils,
+                       Junior
   build-depends:       base,
                        array,
                        containers,
@@ -156,7 +159,8 @@ executable JuniorService
                        bytestring,
                        parallel,
                        deepseq,
-                       timeit
+                       timeit,
+                       filepath
   hs-source-dirs:      src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
   build-tool-depends:  happy:happy, alex:alex
   default-language:    Haskell2010
@@ -217,6 +221,7 @@ test-suite spec
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        ParserUtils,
+                       Junior,
                        AlphaRenameSpec,
                        AnnotationsSpec,
                        FreeVariablesSpec,
@@ -239,7 +244,9 @@ test-suite spec
                        OptimizeTypeClassesSpec,
                        DeadCodeEliminationSpec,
                        OptimizeClosureEnvsSpec,
-                       ParserSpec
+                       ParserSpec,
+                       MultiScriptCompileSpec,
+                       PreludeSpec
 
   hs-source-dirs:      tests, src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
   build-tool-depends:  happy:happy, alex:alex, hspec-discover:hspec-discover 
@@ -259,5 +266,6 @@ test-suite spec
                        deepseq,
                        timeit,
                        process,
-                       directory
+                       directory,
+                       filepath
   default-language:    Haskell2010

@@ -1,0 +1,10 @@
+-- Junior Prelude 
+
+val id :: a -> a
+let id x = x
+
+val fst :: (a, b) -> a
+let fst (x, y) = x
+
+val snd :: (a, b) -> b
+let snd (x, y) = y
