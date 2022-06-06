@@ -23,3 +23,9 @@ spec = parallel $ do
   describe "Prelude tests" $ do
 
    it "identity" $ [("main", "let main = id 5")] --> "5"
+   
+   it "fst" $ [("main", "let main = fst (4, False)")] --> "4"
+
+   it "snd" $ [("main", "let main = snd (2, True)")] --> "true"
+
+

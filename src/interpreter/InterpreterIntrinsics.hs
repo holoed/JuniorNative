@@ -339,8 +339,6 @@ env = (fromList [
        let (Function f) = m!"cos" in f x))),
     ("sqrt", Function(\(Instance m) -> return $ Function (\x ->
        let (Function f) = m!"sqrt" in f x))),
-    ("fst", Function(\(Tuple [x,_]) -> return x)),
-    ("snd", Function(\(Tuple [_,y]) -> return y)),
     ("mkParser", Function return),
     ("runParser", Function return),
     ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s)))),

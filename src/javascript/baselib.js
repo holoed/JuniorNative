@@ -206,14 +206,6 @@ const cos = function(inst) { return inst["cos"]; }
 
 const sqrt = function(inst) { return inst["sqrt"]; }
 
-const fst = function([x,y]){
-  return x;
-}
-
-const snd = function([x,y]){
-  return y;
-}
-
 const display = function(imageData) {
   clearPanels();
   const canvas = document.getElementById('canvas');
