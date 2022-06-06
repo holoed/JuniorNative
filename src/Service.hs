@@ -14,7 +14,7 @@ import Web.Scotty         (ScottyM, scotty)
 import Web.Scotty.Trans ( body, json, post, get, middleware )
 import Network.Wai.Middleware.RequestLogger ( logStdout )
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
-import Intrinsics ( env, classEnv )
+import Intrinsics (classEnv )
 import Data.Aeson
     ( ToJSON(toJSON), object, KeyValue((.=)) )
 import Compiler (fullInterp, backendPrinted, frontEndPrinted, fullJSClosedANF)
@@ -24,6 +24,7 @@ import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (Text, pack)
 import qualified Environment
 import Data.Bifunctor (second)
+import Junior (prelude)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -49,12 +50,13 @@ main = do
 
 compile :: (String -> CompileM Text) -> String -> IO (Either PString (Text, [S.Symbol ]))
 compile strategy code = do
+   (_, preludeEnv) <- prelude
    let tableWidth = 49
    let line = replicate tableWidth '-'
    putStrLn ("+" ++ line ++ "+")
    putStrLn $ padR tableWidth "| Junior Compilation " ++ " |"
    putStrLn ("|" ++ line ++ "|")
-   (x, (_, ss), z) <- run (strategy code) ("main", Interp.env, classEnv ) (env, [])
+   (x, (_, ss), z) <- run (strategy code) ("main", Interp.env, classEnv ) (preludeEnv, [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
    return $ (, ss) <$> x
@@ -79,8 +81,10 @@ route = do
          ret <- liftIO $ compile fullJSClosedANF (Char8.unpack code)
          either json json ret
     get "/libJs" $ do
-         ret <- liftIO $ readFile "src/javascript/baseClosedLib.js"
-         json (pack ret)
-    get "/libTypes" $
-         json $ second show <$> Environment.fromEnv env
+         baseJs <- liftIO $ readFile "src/javascript/baseClosedLib.js"
+         (preludeJs, _) <- liftIO $ prelude
+         json (pack baseJs <> pack "\r\n\r\n" <> preludeJs)
+    get "/libTypes" $ do
+         (_, preludeEnv) <- liftIO $ prelude
+         json $ second show <$> Environment.fromEnv preludeEnv
 
