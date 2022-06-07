@@ -21,4 +21,15 @@ let maybeToList = foldr (:) []
 val listToMaybe :: List a -> Maybe a
 let listToMaybe = foldr (const . Just) Nothing
 
+val foldr1 :: Foldable t => (a -> a -> a) -> t a -> a
+let foldr1 f xs = 
+   let mf x m = Just (foldr f x m) in
+   fromMaybeLazy (error "foldr1: empty structure") (foldr mf Nothing xs) 
+
+val sum :: (Foldable t, Num a) => t a -> a
+let sum = foldr (+) 0
+
+val product :: (Foldable t, Num a) => t a -> a
+let product = foldr (*) 1
+
 

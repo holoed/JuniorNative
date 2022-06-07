@@ -763,3 +763,29 @@ const semigroupString = {
 }
 
 const mappend = mkClosure(function([_, inst]) { return inst["<>"]; })
+
+const fromMaybe = mkClosure(function([_, x]){
+  return setEnv("x", x, mkClosure(function([env, mx]){
+    if (mx instanceof __Nothing) {
+      return env["x"];
+    };
+    if (mx instanceof __Just) {
+      return mx.value;
+    };
+  }))
+})
+
+const fromMaybeLazy = mkClosure(function([_, x]){
+  return setEnv("x", x, mkClosure(function([env, mx]){
+    if (mx instanceof __Nothing) {
+      return applyClosure(env["x"], null);
+    };
+    if (mx instanceof __Just) {
+      return mx.value;
+    };
+  }))
+})
+
+const error = mkClosure(function([_, x]){
+  return mkClosure(function([_, _2]){ throw x; });
+})

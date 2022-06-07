@@ -36,4 +36,13 @@ spec = parallel $ do
        [("main", "let main = listToMaybe [5]")] --> "{\"value\":5}"
        [("main", "let main = listToMaybe []")] --> "{}"
 
+   it "foldr1" $ do 
+       [("main", "let main = foldr1 (*) [1,2,3,4,5]")] --> "120"
+       [("main", "let main = foldr1 (*) (Just 5)")] --> "5"
+
+   it "sum" $ do 
+       [("main", "let main = sum [1,2,3,4,5]")] --> "15"
+       [("main", "let main = sum (Just 5)")] --> "5"
+       [("main", "let main = sum Nothing")] --> "0"
+
 
