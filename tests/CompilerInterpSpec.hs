@@ -83,13 +83,13 @@ spec = parallel $ do
    |] --> "120"
 
    it "higher order recursive function 2" $ [i|
-      let foldl f v xs =
+      let foldleft f v xs =
           if (null xs) then v
-          else foldl f (f v (head xs)) (tail xs)
+          else foldleft f (f v (head xs)) (tail xs)
       
       let xs = 1:2:3:4:5:[]
 
-      let main = foldl (*) 1 xs 
+      let main = foldleft (*) 1 xs 
    |] --> "120"
 
    it "Predicates Resolution 1" $ [i|
@@ -103,9 +103,9 @@ spec = parallel $ do
    |] --> "[42]"
 
    it "Predicates Resolution 2" $ [i|
-   let foldl f v xs =
+   let foldleft f v xs =
        if (null xs) then v
-       else foldl f (f v (head xs)) (tail xs)
+       else foldleft f (f v (head xs)) (tail xs)
 
    let foldright f v xs =
        if (null xs) then v

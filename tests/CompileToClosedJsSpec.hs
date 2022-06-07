@@ -53,14 +53,9 @@ spec = parallel $ do
       let facRec = fix fac
       let main = facRec 5|] --> "120"
 
-   it "factorial with lists" $ [i|
-   let foldl f v xs =
-      if (null xs) then v
-      else foldl f (f v (head xs)) (tail xs)
-      
-   let fac n = foldl (*) 1 (range (\\x-> x) 1 n)    
-         
-   let main = fac 5     
+   it "factorial with lists" $ [i|      
+      let fac n = foldl (*) 1 (range (\\x-> x) 1 n)       
+      let main = fac 5     
    |] --> "120"    
 
    it "Arithmetics Tests" $ do

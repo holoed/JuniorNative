@@ -4,11 +4,12 @@ module InterpreterIntrinsics where
 
 import Data.HashMap.Strict (fromList, (!), member, HashMap)
 import InterpreterMonad (InterpreterEnv, Result(..), Prim(..))
-import Control.Monad (join)
+import Control.Monad (join, foldM)
 import Data.Text (unpack, dropAround)
 import Data.Char ( ord )
 import Data.List (unfoldr)
 import qualified Data.Map as Map (fromList)
+import Data.Foldable (foldrM)
 
 floatingDouble :: Result
 floatingDouble = Instance (fromList [
@@ -108,6 +109,20 @@ monadList = Instance (fromList [
                     let (Function g) = f in
                     (List . join) . ((\(List zs) -> zs) <$>) <$> sequence (g <$> xs)
                )))
+       ])
+
+foldableList :: Result
+foldableList = Instance (fromList [
+        ("foldl", Function(\(Function f) -> 
+                    return $ Function (\b -> 
+                    return $ Function (\(List xs) ->
+                    foldM (\x y -> do (Function g) <- f x
+                                      g y) b xs)))),
+        ("foldr", Function(\(Function f) -> 
+                    return $ Function (\b -> 
+                    return $ Function (\(List xs) ->
+                    foldrM (\x y -> do (Function g) <- f x
+                                       g y) b xs))))
        ])
 
 fractionalDouble :: Result
@@ -280,6 +295,7 @@ env = (fromList [
     ("functorList", functorList),
     ("applicativeList", applicativeList),
     ("monadList", monadList),
+    ("foldableList", foldableList),
     ("fromInteger", Function(\(Instance num) -> return $ Function (\x ->
        if not $ member "fromInteger" num then error "fromInteger not found" else
        let (Function f) = num!"fromInteger" in f x))),
@@ -352,6 +368,8 @@ env = (fromList [
               Function(\(List xs) ->
                 return $ List (List <$> chunks n xs)))),
     ("mod", Function(\(Instance m) -> return $ m!"mod")),
-    ("fromListToMap", Function(\(List xs) -> return $ Map (Map.fromList ((\(Tuple [k,v]) -> (k, v)) <$> xs))))
+    ("fromListToMap", Function(\(List xs) -> return $ Map (Map.fromList ((\(Tuple [k,v]) -> (k, v)) <$> xs)))),
+    ("foldr", Function(\(Instance m) -> return $ m!"foldr")),
+    ("foldl", Function(\(Instance m) -> return $ m!"foldl"))
     ], fromList [])
  

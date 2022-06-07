@@ -113,38 +113,27 @@ let f eqT8 eqT9 x y =
 
    it "Regression Test" $
     [i|
-let foldl f v xs =
-  if (null xs) then v
-  else foldl f (f v (head xs)) (tail xs)
-
 let reverse xs = foldl (\\xs x -> x : xs) [] xs
 
 let partition n xs =
     let partition' n acc xs =
       if (n == 0 || null xs) then (reverse acc, xs)
           else partition' (n - 1) ((head xs) : acc) (tail xs) in
-    partition' n [] xs|] --> [i|val foldl :: (a -> b -> a) -> a -> List b -> a
-let foldl f v xs = if null xs then v
-    else foldl f (f v (head xs)) (tail xs)
-
-val reverse :: List a -> List a
-let reverse xs = ((foldl (\\xs x ->
-                          x : xs)) []) xs
+    partition' n [] xs|] --> [i|val reverse :: Foldable a -> a b -> List b
+let reverse foldabletT6 xs = 
+    foldl foldabletT6 (\\xs x ->
+                       x : xs) [] xs
 
 val partition :: Eq a -> Num a -> a -> List b -> (List b, List b)
 let partition eqT44 numT44 n xs = 
     let partition' n acc xs = 
                 if (eqT44 == n) (fromInteger numT44 0) || null xs
-                    then (reverse acc, xs)
+                    then (reverse foldableList acc, xs)
                     else ((partition' ((numT44 - n) (fromInteger numT44 1))) (head xs : acc)) (tail xs) in
     partition' n [] xs
 |]
 
-   it "Regression Test - Variable f shadowing top level decl f" $ [i|
-let foldl f v xs =
-        if (null xs) then v
-        else foldl f (f v (head xs)) (tail xs)
-        
+   it "Regression Test - Variable f shadowing top level decl f" $ [i|        
 let map f xs = 
         if (null xs) then []
         else (f (head xs)) : map f (tail xs)
@@ -167,10 +156,6 @@ let const x v = x
 val f :: Num a -> a -> a
 let f numT2 x = \n    (numT2 + x) (fromInteger numT2 1)
 
-val foldl :: (a -> b -> a) -> a -> List b -> a
-let foldl f v xs = if null xs then v
-    else foldl f (f v (head xs)) (tail xs)
-
 val map :: (a -> b) -> List a -> List b
 let map f xs = if null xs then []
     else f (head xs) : map f (tail xs)
@@ -181,5 +166,5 @@ let xs =
 
 val main :: Int
 let main = 
-    foldl compose (f numInt) (map (const (f numInt)) xs) (fromInteger numInt 5)
+    foldl foldableList compose (f numInt) (map (const (f numInt)) xs) (fromInteger numInt 5)
 |]

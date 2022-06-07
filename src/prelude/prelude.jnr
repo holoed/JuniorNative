@@ -12,6 +12,9 @@ let fst (x, y) = x
 val snd :: (a, b) -> b
 let snd (x, y) = y
 
+val flip :: (a -> b -> c) -> b -> a -> c
+let flip f x y = f y x
+
 val (.) :: (b -> c) -> (a -> b) -> a -> c
 let (.) f g = \x -> f (g x)
 

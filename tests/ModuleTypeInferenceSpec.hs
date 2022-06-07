@@ -85,29 +85,27 @@ spec = parallel $
                        ]
 
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [
-      ("foldright","(a -> b -> b) -> b -> List a -> b"),
-      ("cadd","(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"),
-      ("cmul","Num a => (a, a) -> (a, a) -> (a, a)"),
-      ("foldl","(a -> b -> a) -> a -> List b -> a"),
-      ("norm","Num a => (a, a) -> a"),
-      ("posToCoord","Fractional a => a -> a -> (a, a)"),
-      ("singleton","a -> List a"),
-      ("range","(Num a, Ord a) => (a -> b) -> a -> a -> List b"),
-      ("++","List a -> List a -> List a"),
-      ("filter","(a -> Bool) -> List a -> List a"),
-      ("map","(a -> b) -> List a -> List b"),
-      ("mapM","Monad a => (b -> a c) -> List b -> a (List c)"),
-      ("join","List (List a) -> List a"),
-      ("mPoint","(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"),
-      ("mandelbrot","Integral a => Int -> (Int, Int) -> (a, a, a)"),
-      ("reverse","List a -> List a"),
-      ("partition","(Eq a, Num a) => a -> List b -> (List b, List b)"),
-      ("product","Num a => List a -> a"),
-      ("quicksort","Ord a => (b -> a) -> List b -> List b"),
-      ("sequence","Monad a => List (a b) -> a (List b)"),
-      ("split","(Eq a, Num a) => a -> List b -> List (List b)"),
-      ("sum","Num a => List a -> a")
-     ]
+      ("++", "Foldable a => a b -> List b -> List b"), 
+      ("cadd", "(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"), 
+      ("cmul", "Num a => (a, a) -> (a, a) -> (a, a)"), 
+      ("filter", "Foldable a => (b -> Bool) -> a b -> List b"), 
+      ("norm", "Num a => (a, a) -> a"), 
+      ("map", "Foldable a => (b -> c) -> a b -> List c"), 
+      ("mapM", "(Foldable a, Monad b) => (c -> b d) -> a c -> b (List d)"), 
+      ("reverse", "Foldable a => a b -> List b"), 
+      ("posToCoord", "Fractional a => a -> a -> (a, a)"), 
+      ("product", "(Foldable a, Num b) => a b -> b"), 
+      ("singleton", "a -> List a"), 
+      ("range", "(Num a, Ord a) => (a -> b) -> a -> a -> List b"), 
+      ("sum", "(Foldable a, Num b) => a b -> b"), 
+      ("join", "Foldable a => a (List b) -> List b"), 
+      ("mPoint", "(Eq a, Num a, Num b, Ord b) => a -> (b, b) -> (b, b) -> a"), 
+      ("mandelbrot", "Integral a => Int -> (Int, Int) -> (a, a, a)"), 
+      ("partition", "(Eq a, Num a) => a -> List b -> (List b, List b)"), 
+      ("quicksort", "Ord a => (b -> a) -> List b -> List b"), 
+      ("sequence", "(Foldable a, Monad b) => a (b c) -> b (List c)"), 
+      ("split", "(Eq a, Num a) => a -> List b -> List (List b)")
+     ]     
 
     it "Recursion schemes" $ "tests/jnrs_lib/RecursionSchemes.jnr" ---> [
       (".","(a -> b) -> (c -> a) -> c -> b"),

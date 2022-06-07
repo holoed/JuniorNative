@@ -721,6 +721,16 @@ const foldableList = {
                }, env2["v"]);
              })))
     }))
+  }),
+  "foldl": mkClosure(function([_, f]){
+    return setEnv("f", f, mkClosure(function([env, v]){
+      return setEnv("f", env["f"],
+             setEnv("v", v, mkClosure(function([env2, xs]){
+               return xs.reduce(function(acc, cur){
+                 return applyClosure(applyClosure(env2["f"], acc), cur);
+               }, env2["v"]);
+             })))
+    }))
   })
 }
 
@@ -741,6 +751,7 @@ const foldableMaybe = {
 }
 
 const foldr = mkClosure(function([_, inst]) { return inst["foldr"]; })
+const foldl = mkClosure(function([_, inst]) { return inst["foldl"]; })
 
 const __lrKleisli = mkClosure(function([_, inst]){
   return setEnv("inst", inst, mkClosure(function([env, f]){

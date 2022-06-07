@@ -28,17 +28,9 @@ let f x = x
 
     it "Pretty many binding" $ do
         [i|
-let foldl f v xs =
-  if (null xs) then v
-  else foldl f (f v (head xs)) (tail xs)
-
 let foldr f v xs =
   if (null xs) then v
-  else f (head xs) (foldr f v (tail xs))|] --> [i|val foldl :: (a -> b -> a) -> a -> List b -> a
-let foldl f v xs = if null xs then v
-    else foldl f (f v (head xs)) (tail xs)
-
-val foldr :: (a -> b -> b) -> b -> List a -> b
+  else f (head xs) (foldr f v (tail xs))|] --> [i|val foldr :: (a -> b -> b) -> b -> List a -> b
 let foldr f v xs = if null xs then v
     else f (head xs) (foldr f v (tail xs))
 |]

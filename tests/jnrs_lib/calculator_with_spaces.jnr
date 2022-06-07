@@ -45,10 +45,6 @@ let string s =
            
 
 let symb cs = token (string cs)
-
-let foldl f v xs =
-  if (null xs) then v
-  else foldl f (f v (head xs)) (tail xs)
   
 let foldl1 f xs = foldl f (head xs) (tail xs)
 

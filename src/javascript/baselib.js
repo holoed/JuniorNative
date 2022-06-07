@@ -480,8 +480,19 @@ const foldableList = {
                }, v);
              }
     }
+  },
+  "foldl": function(f){
+    return function(v){
+      return function(xs){
+               return xs.reduce(function(acc, cur){
+                 return f(acc)(cur);
+               }, v);
+             }
+    }
   }
 }
 
 const foldr = function(inst) { return inst["foldr"]; }
+
+const foldl = function(inst) { return inst["foldl"]; }
 

@@ -80,15 +80,15 @@ spec = parallel $ do
                         ]
                        
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [          
-          [("foldright",[]),("cadd",[]),("cmul",[]),("foldl",[]),("norm",[]),("posToCoord",[]),("singleton",[]),("range",[])],
-          [("++",["foldright"]),("filter",["foldright"]),("map",["foldright"])],
-          [("join",["foldl"]),("reverse",["foldl"]),("product",["foldl"]),("sum",["foldl"])],
-          [("mPoint",["cadd","cmul","norm"])],
-          [("mandelbrot",["cos","mPoint","toDouble","truncate"])],
-          [("mapM",["bind","foldright","pure"])],
-          [("partition",["reverse"])],
-          [("quicksort",["filter","singleton"])],
-          [("sequence",["mapM"])],
-          [("split",["fst","partition","reverse","snd"])]
+          [("cadd", []), ("cmul", []), ("norm", []), ("posToCoord", []), ("singleton", []), ("range", [])], 
+          [("++", ["foldr"]), ("filter", ["foldr"]), ("map", ["foldr"])], 
+          [("join", ["foldl"]), ("reverse", ["foldl"]), ("product", ["foldl"]), ("sum", ["foldl"])], 
+          [("mPoint", ["cadd", "cmul", "norm"])], 
+          [("mandelbrot", ["cos", "mPoint", "toDouble", "truncate"])], 
+          [("mapM", ["bind", "foldr", "pure"])], 
+          [("partition", ["reverse"])], 
+          [("quicksort", ["filter", "singleton"])], 
+          [("sequence", ["mapM"])], 
+          [("split", ["fst", "partition", "reverse", "snd"])]
         ]
 
