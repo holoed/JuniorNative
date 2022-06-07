@@ -45,4 +45,20 @@ spec = parallel $ do
        [("main", "let main = sum (Just 5)")] --> "5"
        [("main", "let main = sum Nothing")] --> "0"
 
+   it "product" $ do 
+       [("main", "let main = product [1,2,3,4,5]")] --> "120"
+       [("main", "let main = product (Just 5)")] --> "5"
+       [("main", "let main = product Nothing")] --> "1"
+
+   it "flattem" $ do
+       [("main", "let main = flatten [[1,2],[3,4]]")] --> "[1,2,3,4]"
+       [("main", "let main = flatten (Just (Just 4))")] --> "{\"value\":4}"
+
+   it "sequenceA" $ do
+       [("main", "let main = sequenceA [Just 'a', Just 'b']")] --> "{\"value\":[\"a\",\"b\"]}"
+       [("main", "let main = sequenceA (Just [1,2,3,4])")] --> "[{\"value\":1},{\"value\":2},{\"value\":3},{\"value\":4}]"
+
+   it "liftA3" $ do
+       [("main", "let main = liftA3 (\\x y z -> (x, y, z)) (Just 1) (Just 'a') (Just False)")] --> "{\"value\":[1,\"a\",false]}"
+
 

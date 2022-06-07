@@ -32,4 +32,13 @@ let sum = foldr (+) 0
 val product :: (Foldable t, Num a) => t a -> a
 let product = foldr (*) 1
 
+val flatten :: Monad m => m (m a) -> m a
+let flatten xs = bind xs id  
+
+val sequenceA :: (Applicative f, Traversable t) => t (f a) -> f (t a)
+let sequenceA = traverse id
+
+val liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
+let liftA3 f m n o = (pure f) <*> m <*> n <*> o
+
 
