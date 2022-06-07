@@ -158,6 +158,10 @@ spec = parallel $ do
       "let main = traverse Just [1,2,3,4]" --> "{\"value\":[1,2,3,4]}"
       "let main = traverse (\\x -> x) (fmap mkAsync (Just 42))" --> "{\"value\":42}"
 
+   it "Foldable example" $ do
+      "let main = foldr (+) 0 [1,2,3,4,5]" --> "15"
+      "let main = foldr (:) [] [1,2,3,4,5]" --> "[1,2,3,4,5]"
+
    it "left to right Kleisli arrows composition" $ do
       [i|let f x = [x + 1, x + 2, x + 3]
          let g x = [x - 2, x - 3, x - 4]

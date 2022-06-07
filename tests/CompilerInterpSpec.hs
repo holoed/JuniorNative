@@ -1,5 +1,5 @@
 {-# LANGUAGE QuasiQuotes #-}
-module CompilerSpec where
+module CompilerInterpSpec where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
@@ -10,11 +10,25 @@ import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack)
 
+interpPrelude :: String
+interpPrelude = [i|
+val id :: a -> a
+let id x = x
+
+val fst :: (a, b) -> a
+let fst (x, y) = x
+
+val snd :: (a, b) -> b
+let snd (x, y) = y
+
+val (.) :: (b -> c) -> (a -> b) -> a -> c
+let (.) f g = \\x -> f (g x)
+|]
+
+
 build :: String -> IO String
 build code = do
-   handle <- openFile "src/prelude/prelude.jnr" ReadMode 
-   contents <- hGetContents handle
-   (x, _, _) <- run (fullInterp (contents <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullInterp (interpPrelude <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [])
    return $ either show unpack x
 
 (-->) :: String -> String -> Expectation

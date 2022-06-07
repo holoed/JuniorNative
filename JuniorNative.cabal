@@ -234,7 +234,7 @@ test-suite spec
                        ModulePrinterSpec,
                        InterpreterSpec,
                        ConstraintsResolutionSpec,
-                       CompilerSpec,
+                       CompilerInterpSpec,
                        MandelbrotSpec,
                        CompileToJsSpec,
                        JavaScriptRunnerSpec,

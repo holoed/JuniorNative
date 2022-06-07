@@ -456,3 +456,32 @@ const monadMaybe = {
   }
 }
 
+const foldableMaybe = {
+  "foldr": function(f){
+    return function(v){
+      return function(xs){
+              if (xs instanceof __Nothing) {
+                return v;
+              };
+              if (xs instanceof __Just) {
+                return f(xs.value)(v);
+              };
+             }
+    }
+  }
+}
+
+const foldableList = {
+  "foldr": function(f){
+    return function(v){
+      return function(xs){
+               return xs.reduceRight(function(acc, cur){
+                 return f(cur)(acc);
+               }, v);
+             }
+    }
+  }
+}
+
+const foldr = function(inst) { return inst["foldr"]; }
+

@@ -1,5 +1,8 @@
 -- Junior Prelude 
 
+val const :: a -> b -> a
+let const x y = x
+
 val id :: a -> a
 let id x = x
 
@@ -11,3 +14,11 @@ let snd (x, y) = y
 
 val (.) :: (b -> c) -> (a -> b) -> a -> c
 let (.) f g = \x -> f (g x)
+
+val maybeToList :: Maybe a -> List a
+let maybeToList = foldr (:) [] 
+
+val listToMaybe :: List a -> Maybe a
+let listToMaybe = foldr (const . Just) Nothing
+
+

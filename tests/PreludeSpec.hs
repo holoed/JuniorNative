@@ -28,4 +28,12 @@ spec = parallel $ do
 
    it "snd" $ [("main", "let main = snd (2, True)")] --> "true"
 
+   it "maybeToList" $ do
+       [("main", "let main = maybeToList (Just 5)")] --> "[5]"
+       [("main", "let main = maybeToList Nothing")] --> "[]"
+
+   it "listToMaybe" $ do
+       [("main", "let main = listToMaybe [5]")] --> "{\"value\":5}"
+       [("main", "let main = listToMaybe []")] --> "{}"
+
 

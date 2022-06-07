@@ -1,5 +1,7 @@
+{-# LANGUAGE QuasiQuotes #-}
 module MandelbrotSpec where
 
+import Data.String.Interpolate ( i )
 import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullInterp )
@@ -8,11 +10,15 @@ import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack)
 
+interpPrelude :: String
+interpPrelude = [i|
+val (.) :: (b -> c) -> (a -> b) -> a -> c
+let (.) f g = \\x -> f (g x)
+|]
+
 build :: String -> IO String
 build code = do
-   handle <- openFile "src/prelude/prelude.jnr" ReadMode 
-   contents <- hGetContents handle
-   (x, _, _) <- run (fullInterp (contents <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (fullInterp (interpPrelude <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [])
    return $ either show unpack x
 
 (--->) :: FilePath -> String -> Expectation 

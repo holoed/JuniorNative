@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 module InterpreterSpec where
 
 import Data.String.Interpolate ( i )

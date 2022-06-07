@@ -406,6 +406,12 @@ const nativeMulInt = mkClosure(function([_, x]) {
   }))
 })
 
+const nativeAddInt = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return env["x"] + y;
+  }))
+})
+
 function div(x, y) {
   return ~~(x / y)
 }
@@ -656,16 +662,6 @@ const jsonToDouble = mkClosure(function([_, x]){
   } catch(e) { return Nothing; }
 })
 
-const maybeToList = mkClosure(function([_, x]){
-  if (x instanceof __Nothing) {
-    return [];
-  };
-  if (x instanceof __Just) {
-    return [x.value];
-  };
-  throw new Error("Failed pattern match");
-})
-
 const traversableMaybe = {
   "fmap": functorMaybe["fmap"],
   "traverse": mkClosure(function([_, inst]){
@@ -723,6 +719,22 @@ const foldableList = {
                return xs.reduceRight(function(acc, cur){
                  return applyClosure(applyClosure(env2["f"], cur), acc);
                }, env2["v"]);
+             })))
+    }))
+  })
+}
+
+const foldableMaybe = {
+  "foldr": mkClosure(function([_, f]){
+    return setEnv("f", f, mkClosure(function([env, v]){
+      return setEnv("f", env["f"],
+             setEnv("v", v, mkClosure(function([env2, xs]){
+              if (xs instanceof __Nothing) {
+                return env2["v"];
+              };
+              if (xs instanceof __Just) {
+                return applyClosure(applyClosure(env2["f"], xs.value), env2["v"]);
+              };
              })))
     }))
   })
