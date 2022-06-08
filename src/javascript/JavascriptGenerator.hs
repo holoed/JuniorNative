@@ -36,6 +36,7 @@ mapOp "."  = "__dot"
 mapOp "<*>" = "__liftA2"
 mapOp ">=>" = "__lrKleisli"
 mapOp "<>" = "mappend"
+mapOp "++" = "__plusplus"
 mapOp x    = x
 
 mapName :: Text -> Text
@@ -46,6 +47,7 @@ mapName "const" = "__const"
 mapName "()" = "undefined"
 mapName "." = "__dot"
 mapName ":" = "__colon"
+mapName "++" = "__plusplus"
 mapName x      = replace "'" "Quoted" x
 
 generateExp :: Fix ExpF -> Text

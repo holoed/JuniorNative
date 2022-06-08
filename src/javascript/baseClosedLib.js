@@ -364,13 +364,15 @@ const renderPlot = mkClosure(function([_, z1]) {
   });
 });
 
-const renderTimeSeries = mkClosure(function([_, [s, xs, ys]]) {
+const renderTimeSeries = mkClosure(function([_, vs]) {
   return new Promise((resolve, reject) => {
     clearPanels();
     plotChart = document.getElementById("plotlyChart");
     plotChart.style.display = "block"
-    const ys1 = ys.map(x => x == 0 ? null : x)
-    Plotly.newPlot("plotlyChart", [{x: xs, y: ys1, name: s, type: 'scatter'}], {showlegend: true});
+    Plotly.newPlot("plotlyChart", vs.map(([s, xs, ys]) => {
+      const ys1 = ys.map(x => x == 0 ? null : x)
+      return {x: xs, y: ys1, name: s, type: 'scatter'}
+    }), {showlegend: true});
     resolve({});
   });
 });
@@ -526,7 +528,12 @@ const mkAsync = mkClosure(function([_, x]){
 
 const applicativeAsync = {
   "fmap": functorAsync["fmap"],
-  "pure": mkAsync
+  "pure": mkAsync,
+  "<*>":  mkClosure(function([_, mf]) {
+    return setEnv("mf", mf, mkClosure(function([env, mx]){
+        return env["mf"].then(f => mx.then(x => applyClosure(f, x)))
+      }))
+    })
 }
 
 const monadAsync = {
