@@ -18,6 +18,12 @@ let flip f x y = f y x
 val (.) :: (b -> c) -> (a -> b) -> a -> c
 let (.) f g = \x -> f (g x)
 
+val min :: Ord a => a -> a -> a
+let min x y = if x > y then y else x
+
+val max :: Ord a => a -> a -> a
+let max x y = if x > y then x else y
+
 val maybeToList :: Maybe a -> List a
 let maybeToList = foldr (:) [] 
 

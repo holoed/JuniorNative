@@ -63,3 +63,9 @@ spec = parallel $ do
 
    it "foldl" $ do 
        [("main", "let main = foldl (flip (:)) [] [1,2,3,4,5]")] --> "[5,4,3,2,1]"
+
+   it "min and max" $ do 
+       [("main", "let main = min 3 4")] --> "3"
+       [("main", "let main = max 3 4")] --> "4"
+       [("main", "let main = max 'a' 'c'")] --> "\"c\""
+       [("main", "let main = min 'a' 'c'")] --> "\"a\""
