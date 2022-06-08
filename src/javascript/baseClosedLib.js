@@ -327,37 +327,41 @@ const __or = mkClosure(function([_, x]) {
 })
 
 const display = mkClosure(function([_, imageData]) {
-  clearPanels();
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.width  = imageData.length;
-  canvas.height = imageData.length; 
-  canvas.style.display = "block";
-  const buffer = ctx.createImageData(imageData.length - 1, imageData.length - 1);
-  var index = 0;
-  for(let y = 0; y < imageData.length; y++){
-      for(let x = 0; x < imageData[y].length; x++){
-          buffer.data[index++] = imageData[y][x][0];
-          buffer.data[index++] = imageData[y][x][1];
-          buffer.data[index++] = imageData[y][x][2];
-          buffer.data[index++] = 255;
-      }
-  }
-  try { 
-    ctx.putImageData(buffer, 0, 0);
-  } catch(e) {
-    console.log(e);
-  }
-  return imageData;
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width  = imageData.length;
+    canvas.height = imageData.length; 
+    canvas.style.display = "block";
+    const buffer = ctx.createImageData(imageData.length - 1, imageData.length - 1);
+    var index = 0;
+    for(let y = 0; y < imageData.length; y++){
+        for(let x = 0; x < imageData[y].length; x++){
+            buffer.data[index++] = imageData[y][x][0];
+            buffer.data[index++] = imageData[y][x][1];
+            buffer.data[index++] = imageData[y][x][2];
+            buffer.data[index++] = 255;
+        }
+    }
+    try { 
+      ctx.putImageData(buffer, 0, 0);
+    } catch(e) {
+      console.log(e);
+    }
+    resolve({});
+  })
 });
 
 const renderPlot = mkClosure(function([_, z1]) {
-  clearPanels();
-  plotChart = document.getElementById("plotlyChart");
-  plotChart.style.display = "block"
-  Plotly.newPlot("plotlyChart", [{z: z1, type: 'surface'}]);
-  return json;
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    plotChart = document.getElementById("plotlyChart");
+    plotChart.style.display = "block"
+    Plotly.newPlot("plotlyChart", [{z: z1, type: 'surface'}]);
+    resolve({});
+  });
 });
 
 const renderTimeSeries = mkClosure(function([_, [s, xs, ys]]) {
