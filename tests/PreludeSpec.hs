@@ -3,9 +3,10 @@
 module PreludeSpec where
 
 import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
-import Data.Text ( unpack, Text )
+import Data.Text ( pack, unpack, Text )
 import JavaScriptRunner (runJS)
 import Junior (prelude, buildAll)
+import Data.String.Interpolate ( i )
 
 exec :: Text -> IO String
 exec = do
@@ -69,3 +70,10 @@ spec = parallel $ do
        [("main", "let main = max 3 4")] --> "4"
        [("main", "let main = max 'a' 'c'")] --> "\"c\""
        [("main", "let main = min 'a' 'c'")] --> "\"a\""
+
+   it "fix" $ do
+       [("main", pack [i|
+            let facRec f n = if n == 0 then 1 else n * f (n - 1)
+            let fac = fix (facRec)
+            let main = fac 5
+       |])] --> "120"

@@ -1,13 +1,3 @@
-let fix f x = f (fix f) x
- 
-let ana psi f = In . fmap f . psi
-
-let cata psi f = psi . fmap f . out
-
-let anaRec psi = fix (ana psi)
- 
-let cataRec psi = fix (cata psi)
-  
 let toListAlg v = 
    if isEmpty v then [] 
    else if isCons v then 

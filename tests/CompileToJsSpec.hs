@@ -78,7 +78,6 @@ spec = parallel $ do
       "let main = fromListToMap (('a', 2):[])" --> "{\"a\":2}"
 
    it "Fix value level example" $ do [i|
-      let fix f x = f (fix f) x
       let fac f n = if n == 0 then 1 else n * f (n - 1)
       let facRec = fix fac
       let main = facRec 5|] --> "120"
@@ -112,9 +111,6 @@ spec = parallel $ do
    |] --> "{\"value0\":{\"value0\":5,\"value1\":{\"value0\":{\"value0\":4,\"value1\":{\"value0\":{}}}}}}"
 
    it "Catamorphism product" $ [i|
-      let fix f x = f (fix f) x
-      let cata psi f = psi . fmap f . out
-      let cataRec psi = fix (cata psi)
       let example = In (Cons 5 (In (Cons 4 (In (Cons 3 (In (Cons 2 (In (Cons 1 (In Empty))))))))))
       let alg v = if isEmpty v then 1  
             else if isCons v then 
