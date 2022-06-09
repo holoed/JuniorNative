@@ -10,13 +10,15 @@ let char x = sat (\y -> x == y)
               
 let digit = sat (\x -> '0' <= x && x <= '9')
    
-let or p q = mkParser(\inp -> let ret = runParser p inp in
+let mplus p q = mkParser(\inp -> let ret = runParser p inp in
                               if null ret then runParser q inp
                               else ret)
  
-let many p = or ((>>=) p (\x ->
-             (>>=) (many p) (\xs ->
-             pure (x:xs)))) (pure [])
+val delay :: (Unit -> Parser a) -> Parser a
+let delay p = mkParser (\inp -> runParser(p())(inp))
+
+val many :: Parser a -> Parser (List a) 
+let many p = mplus (pure (:) <*> p <*> delay (\v -> many p)) (pure [])  
  
 let many1 p = (>>=) p (\x ->
               (>>=) (many p) (\xs ->
@@ -44,8 +46,8 @@ let nat = (>>=) (many1 digit) (pure . eval)
 let negate x = 0 - x
 
 let int = 
-	let op = or ((>>=) (char '-') (\v -> pure negate)) 
-                (pure (\x -> x)) in
+	let op = mplus ((>>=) (char '-') (\v -> pure negate)) 
+                 (pure (\x -> x)) in
     (>>=) op (\f -> 
     (>>=) nat (\n -> pure (f n)))
 
@@ -53,7 +55,7 @@ let ints = bracket (char '[')
                    (sepby1 int (char ','))
                    (char ']')
 
-let main = runParser ints (toCharList "[1,2,-5,-3,7]")     
+let main = runParser ints (toCharList "[1,2,-5,-3,7]")       
   
                                        
   

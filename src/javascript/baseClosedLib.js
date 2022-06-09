@@ -241,12 +241,33 @@ const runParser = mkClosure(function([_, m]) {
     return m;
   })
 
+const functorParser = {
+  "fmap": mkClosure(function ([_, f]) {
+    return setEnv("f", f, mkClosure(function([env1, m]){
+      return setEnv("m", m, setEnv("f", env1["f"], mkClosure(function([env2, inp]){
+        return applyClosure(env2["m"], inp).map(([x,rest]) => [applyClosure(env2["f"], x), rest]);
+      })))
+    }))
+  })
+}
+
 const applicativeParser = {
+    "fmap" : functorParser["fmap"],
     "pure": mkClosure(function([_, x]) {
       return setEnv("x", x, mkClosure(function([env, inp]) {
         return [[env["x"], inp]];
       }))
-    })
+    }),
+    // data Parser a = String -> [(a, String)]
+    "<*>":  mkClosure(function([_, mf]) {
+      return setEnv("mf", mf, mkClosure(function([env, mx]){
+        return setEnv("mf", env["mf"], setEnv("mx", mx, mkClosure(function([env2, inp]){
+          return Array.prototype.concat.apply([],
+                 applyClosure(env2["mf"], inp).map(([f, rest]) => 
+                 applyClosure(applyClosure(applyClosure(functorParser["fmap"], f), env2["mx"]), rest)   ))
+        })))
+        }))
+      })
 }
 
 const monadParser = {
@@ -553,16 +574,6 @@ const JsonNode = mkClosure(function([_, xs]){
   return xs.map(([k, v]) => JSON.parse(`{ "${k.join("")}":${JSON.stringify(v)} }`))
            .reduce((x, y) => Object.assign(x, y))
 })
-
-const functorParser = {
-  "fmap": mkClosure(function ([_, f]) {
-    return setEnv("f", f, mkClosure(function([env1, m]){
-      return setEnv("m", m, setEnv("f", env1["f"], mkClosure(function([env2, inp]){
-        return applyClosure(env2["m"], inp).map(([x,rest]) => [applyClosure(env2["f"], x), rest]);
-      })))
-    }))
-  })
-}
 
 class __Just {
   constructor(value) {

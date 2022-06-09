@@ -236,12 +236,33 @@ const toCharList = function(s) {
   return Array.from(s);
 }
 
-const applicativeParser = {
-  "pure": function(x) {
-    return function(inp) {
-      return [[x, inp]];
+const functorParser = {
+  "fmap": function(f) {
+    return function(m){
+      return function(inp){
+        return m(inp).map(([x,rest]) => [f(x), rest]);
+      }
     }
   }
+}
+
+const applicativeParser = {
+    "fmap" : functorParser["fmap"],
+    "pure": function(x) {
+      return function(inp) {
+        return [[x, inp]];
+      }
+    },
+    // data Parser a = String -> [(a, String)]
+    "<*>":  function(mf) {
+      return function(mx){
+        return function(inp){
+          return Array.prototype.concat.apply([],
+                 mf(inp).map(([f, rest]) => 
+                 functorParser["fmap"](f)(mx)(rest)))
+        }
+        }
+      }
 }
 
 const monadParser = {
@@ -495,4 +516,6 @@ const foldableList = {
 const foldr = function(inst) { return inst["foldr"]; }
 
 const foldl = function(inst) { return inst["foldl"]; }
+
+const __liftA2 = function(inst) { return inst["<*>"]; }
 
