@@ -5,8 +5,8 @@ let or p q = mkParser(\inp -> let ret = runParser p inp in
                               if null ret then runParser q inp
                               else ret)
  
-let many p = or (bind p (\x ->
-             bind (many p) (\xs ->
+let many p = or ((>>=) p (\x ->
+             (>>=) (many p) (\xs ->
              pure (x:xs)))) (pure [])
    
 let main = runParser (many item) (toCharList "Hello")    

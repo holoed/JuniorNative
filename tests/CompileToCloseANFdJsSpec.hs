@@ -132,8 +132,8 @@ spec = parallel $ do
 
    it "Maybe classes" $ do 
       "let main = fmap (\\x -> x * x) (Just 3)" --> "{\"value\":9}"
-      [i|let f m n = bind m (\\x -> 
-                     bind n (\\y ->
+      [i|let f m n = (>>=) m (\\x -> 
+                     (>>=) n (\\y ->
                      pure (x + y)))
          let main = f (Just 3) (Just 4)|] --> "{\"value\":7}"
       "let main = Just (\\x -> x * x) <*> Just 5" --> "{\"value\":25}"

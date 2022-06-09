@@ -246,7 +246,7 @@ const applicativeParser = {
 
 const monadParser = {
   "pure": applicativeParser["pure"],
-  "bind": function(m) {
+  ">>=": function(m) {
     return function(f){
       return function(inp){
         return Array.prototype.concat.apply([], m(inp).map(([x,rest]) => f(x)(rest)));
@@ -265,14 +265,14 @@ const applicativeList = {
 
 const monadList = {
   "pure": applicativeList["pure"],
-  "bind": function(xs) {
+  ">>=": function(xs) {
     return function(f){
       return Array.prototype.concat.apply([], xs.map(x => f(x)));
     }
   }
 }
 
-const bind = function(inst) { return inst["bind"]; }
+const __bind = function(inst) { return inst[">>="]; }
 
 const pure = function(inst) { return inst["pure"]; }
 
@@ -388,7 +388,7 @@ const applicativeAsync = {
 
 const monadAsync = {
   "pure": applicativeAsync["pure"],
-  "bind": function(m) {
+  ">>=": function(m) {
     return function(f){
       return m.then(x => f(x))
     }
@@ -443,7 +443,7 @@ const applicativeMaybe = {
 
 const monadMaybe = {
   "pure": applicativeMaybe["pure"],
-  "bind": function(m) {
+  ">>=": function(m) {
     return function(f){
         if (m instanceof __Nothing) {
             return Nothing;

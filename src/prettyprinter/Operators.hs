@@ -70,6 +70,9 @@ orOp = ("||", 7, Infix Right)
 gtEqGtOp :: ([Char], Integer, Fixity)
 gtEqGtOp = (">=>", 6, Infix Right)
 
+gtGtEqOp :: ([Char], Integer, Fixity)
+gtGtEqOp = (">>=", 6, Infix Left)
+
 lamOp :: ([Char], Integer, Fixity)
 lamOp    = ("->", 5, Infix Right)
 

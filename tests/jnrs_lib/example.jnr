@@ -1,6 +1,6 @@
 let mapM f as = 
-  let k a r = bind (f a) (\x ->
-              bind r     (\xs -> 
+  let k a r = (>>=) (f a) (\x ->
+              (>>=) r     (\xs -> 
               pure (x:xs))) in   
   foldr k (pure []) as
   

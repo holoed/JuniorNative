@@ -70,6 +70,7 @@ tokens :-
   "<*>"                         {\p s -> TokenLtStarGt (p, s) }
   "<>"                          {\p s -> TokenLtGt (p, s) }
   ">=>"                         {\p s -> TokenGtEqGt (p, s) }
+  ">>="                         {\p s -> TokenGtGtEq (p, s) }
   "=="                          {\p s -> TokenEql (p, s) }
   "/="                          {\p s -> TokenNotEql (p, s) }
   ">="                          {\p s -> TokenGtEql (p, s) }
@@ -118,6 +119,7 @@ data Token
   | TokenLtStarGt (AlexPosn, String)
   | TokenLtGt (AlexPosn, String)
   | TokenGtEqGt (AlexPosn, String)
+  | TokenGtGtEq (AlexPosn, String)
   | TokenConcat (AlexPosn, String)
   | TokenEmpty (AlexPosn, String)
   | TokenCons (AlexPosn, String)

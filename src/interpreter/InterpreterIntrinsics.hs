@@ -76,7 +76,7 @@ flattenList x = x
 monadParser :: Result
 monadParser = Instance (fromList [
        ("pure", let (Instance dict) = applicativeParser in dict!"pure"),
-        ("bind", Function(\(Function mx) -> return $
+        (">>=", Function(\(Function mx) -> return $
                  Function(\(Function f) -> return $
                  Function(\inp -> flattenList .
                                   List <$> (sequence =<< sequence =<<
@@ -104,7 +104,7 @@ applicativeList = Instance (fromList [
 monadList :: Result
 monadList = Instance (fromList [
        ("pure", let (Instance dict) = applicativeList in dict!"pure"),
-        ("bind", Function (\list -> return $ Function(\f ->
+        (">>=", Function (\list -> return $ Function(\f ->
                     let (List xs) = list in
                     let (Function g) = f in
                     (List . join) . ((\(List zs) -> zs) <$>) <$> sequence (g <$> xs)
@@ -338,10 +338,10 @@ env = (fromList [
               let (Function ap) = f!"<*>" in
                     do (Function g) <- ap x
                        g y )))),
-    ("bind", Function(\(Instance m) -> return $
+    (">>=", Function(\(Instance m) -> return $
              Function(\x -> return $
              Function(\y ->
-              let (Function bind) = m!"bind" in
+              let (Function bind) = m!">>=" in
                     do (Function g) <- bind x
                        g y )))),
     ("toDouble", Function (\(Value (I n)) ->

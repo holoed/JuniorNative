@@ -3,7 +3,7 @@ let zero = mkParser (\inp -> [])
 let item = mkParser (\inp -> if (null inp) then []
                              else (head inp, tail inp) : [])
                              
-let sat p = bind item (\x ->
+let sat p = (>>=) item (\x ->
               if p x then pure x else zero)
               
 let char x = sat (\y -> x == y)
@@ -14,40 +14,40 @@ let or p q = mkParser(\inp -> let ret = runParser p inp in
                               if null ret then runParser q inp
                               else ret)
  
-let many p = or (bind p (\x ->
-             bind (many p) (\xs ->
+let many p = or ((>>=) p (\x ->
+             (>>=) (many p) (\xs ->
              pure (x:xs)))) (pure [])
  
-let many1 p = bind p (\x ->
-              bind (many p) (\xs ->
+let many1 p = (>>=) p (\x ->
+              (>>=) (many p) (\xs ->
               pure (x:xs)))
   
 let sepby1 p sep = 
-      bind p (\x ->
-      bind (many (bind sep (\v ->
-                  bind p (\y ->
+      (>>=) p (\x ->
+      (>>=) (many ((>>=) sep (\v ->
+                  (>>=) p (\y ->
                   pure y)))) (\xs -> pure (x:xs)))
                   
-let bracket open p close = bind open (\v1 ->
-                           bind p    (\x  ->
-                           bind close(\v2 ->
+let bracket open p close = (>>=) open (\v1 ->
+                           (>>=) p    (\x  ->
+                           (>>=) close(\v2 ->
                            pure x)))
   
 let foldl1 f xs = foldl f (head xs) (tail xs)
 
 let eval xs = 
   let op m n = 10*m + n in 
-  foldl1 op (bind xs (\x -> pure (ord x - ord '0'))) 
+  foldl1 op ((>>=) xs (\x -> pure (ord x - ord '0'))) 
 
-let nat = bind (many1 digit) (pure . eval)
+let nat = (>>=) (many1 digit) (pure . eval)
 
 let negate x = 0 - x
 
 let int = 
-	let op = or (bind (char '-') (\v -> pure negate)) 
+	let op = or ((>>=) (char '-') (\v -> pure negate)) 
                 (pure (\x -> x)) in
-    bind op (\f -> 
-    bind nat (\n -> pure (f n)))
+    (>>=) op (\f -> 
+    (>>=) nat (\n -> pure (f n)))
 
 let ints = bracket (char '[')
                    (sepby1 int (char ','))

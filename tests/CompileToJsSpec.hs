@@ -121,8 +121,8 @@ spec = parallel $ do
 
    it "Async support" $ [i|
       val main :: Async Int 
-      let main = bind (pure 3) (\\x -> 
-           bind (pure 2) (\\y -> pure (x + y)))    
+      let main = (>>=) (pure 3) (\\x -> 
+                 (>>=) (pure 2) (\\y -> pure (x + y)))    
    |] --> "5"
 
    it "List and Maybe combined" $ do

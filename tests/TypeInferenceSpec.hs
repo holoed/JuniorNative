@@ -200,7 +200,7 @@ spec = parallel $
       "fmap cos (pure 5)" --> "(Applicative a, Floating b) => a b"
 
     it "HOG Test 3" $
-      "bind (0:[]) pure" --> "Num a => List a"
+      "(>>=) (0:[]) pure" --> "Num a => List a"
 
     it "HOG Test 4" $
       "runReader (pure 5)" --> "Num a => b -> a"

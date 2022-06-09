@@ -112,8 +112,8 @@ spec = parallel $ do
        else f (head xs) (foldright f v (tail xs))
 
    let mapM f as = 
-       let k a r = bind (f a) (\\x ->
-                   bind r     (\\xs -> 
+       let k a r = (>>=) (f a) (\\x ->
+                   (>>=) r     (\\xs -> 
                    pure (x:xs))) in   
        foldright k (pure []) as
       

@@ -85,7 +85,7 @@ spec = parallel $ do
           [("join", ["foldl"]), ("reverse", ["foldl"]), ("product", ["foldl"]), ("sum", ["foldl"])], 
           [("mPoint", ["cadd", "cmul", "norm"])], 
           [("mandelbrot", ["cos", "mPoint", "toDouble", "truncate"])], 
-          [("mapM", ["bind", "foldr", "pure"])], 
+          [("mapM", [">>=", "foldr", "pure"])], 
           [("partition", ["reverse"])], 
           [("quicksort", ["filter", "singleton"])], 
           [("sequence", ["mapM"])], 

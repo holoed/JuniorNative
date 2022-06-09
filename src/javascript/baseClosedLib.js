@@ -251,7 +251,7 @@ const applicativeParser = {
 
 const monadParser = {
     "pure": applicativeParser["pure"],
-    "bind": mkClosure(function([_, m]) {
+    ">>=": mkClosure(function([_, m]) {
       return setEnv("m", m, mkClosure(function([env1, f]){
         return setEnv("f", f, setEnv("m", env1["m"], mkClosure(function([env2, inp]){
           return Array.prototype.concat.apply([], applyClosure(env2["m"], inp).map(([x,rest]) => applyClosure(applyClosure(env2["f"], x), rest)));
@@ -280,14 +280,14 @@ const applicativeList = {
 
 const monadList = {
     "pure": applicativeList["pure"],
-    "bind": mkClosure(function([_, xs]) {
+    ">>=": mkClosure(function([_, xs]) {
       return setEnv("xs", xs, mkClosure(function([env, f]){
         return Array.prototype.concat.apply([], env["xs"].map(x => applyClosure(f, x)));
       }))
     })
   }
 
-const bind = mkClosure(function([_, inst]) { return inst["bind"]; })
+const __bind = mkClosure(function([_, inst]) { return inst[">>="]; })
 
 const pure = mkClosure(function([_, inst]) { return inst["pure"]; })
 
@@ -538,7 +538,7 @@ const applicativeAsync = {
 
 const monadAsync = {
   "pure": applicativeAsync["pure"],
-  "bind": mkClosure(function([_, m]) {
+  ">>=": mkClosure(function([_, m]) {
     return setEnv("m", m, mkClosure(function([env, f]){
       return env["m"].then(x => applyClosure(f, x))
     }))
@@ -613,7 +613,7 @@ const applicativeMaybe = {
 
 const monadMaybe = {
   "pure": applicativeMaybe["pure"],
-  "bind": mkClosure(function([_, m]) {
+  ">>=": mkClosure(function([_, m]) {
     return setEnv("m", m, mkClosure(function([env, f]){
         if (env["m"] instanceof __Nothing) {
             return Nothing;
@@ -768,7 +768,7 @@ const __lrKleisli = mkClosure(function([_, inst]){
   return setEnv("inst", inst, mkClosure(function([env, f]){
     return setEnv("inst", env["inst"], setEnv("f", f, mkClosure(function([env2, g]){
       return setEnv("inst", env2["inst"], setEnv("f", env2["f"], setEnv("g", g, mkClosure(function([env3, x]){
-      const bind = env3["inst"]["bind"]
+      const bind = env3["inst"][">>="]
       return applyClosure(applyClosure(bind, applyClosure(env3["f"], x)), env3["g"])
     }))))
   })))
