@@ -775,18 +775,6 @@ const foldableMaybe = {
 const foldr = mkClosure(function([_, inst]) { return inst["foldr"]; })
 const foldl = mkClosure(function([_, inst]) { return inst["foldl"]; })
 
-const __lrKleisli = mkClosure(function([_, inst]){
-  return setEnv("inst", inst, mkClosure(function([env, f]){
-    return setEnv("inst", env["inst"], setEnv("f", f, mkClosure(function([env2, g]){
-      return setEnv("inst", env2["inst"], setEnv("f", env2["f"], setEnv("g", g, mkClosure(function([env3, x]){
-      const bind = env3["inst"][">>="]
-      return applyClosure(applyClosure(bind, applyClosure(env3["f"], x)), env3["g"])
-    }))))
-  })))
- }))
-})
-
-
 const semigroupString = {
   "<>" : mkClosure(function([_, xs]){
     return setEnv("xs", xs, mkClosure(function([env, ys]){

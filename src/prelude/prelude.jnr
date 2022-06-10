@@ -50,6 +50,9 @@ let sequenceA = traverse id
 val liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
 let liftA3 f m n o = (pure f) <*> m <*> n <*> o
 
+val (>=>) :: Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
+let (>=>) f g = \x -> f x >>= g
+
 val fix :: ((a -> b) -> a -> b) -> a -> b
 let fix f x = f (fix f) x
   
@@ -64,5 +67,6 @@ let anaRec psi = fix (ana psi)
  
 val cataRec :: Functor f => (f a -> a) -> Fix f -> a
 let cataRec psi = fix (cata psi)
+
 
 

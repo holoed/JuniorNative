@@ -49,6 +49,7 @@ mapName "()" = "undefined"
 mapName "." = "__dot"
 mapName ":" = "__colon"
 mapName "++" = "__plusplus"
+mapName ">=>" = "__lrKleisli"
 mapName x      = replace "'" "Quoted" x
 
 generateExp :: Fix ExpF -> Text

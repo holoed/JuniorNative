@@ -158,6 +158,7 @@ Exprs : Expr                       { [$1] }
 Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
      | '(' '++' ')'                { varPat (mkLoc $2) "++" }
      | '(' '.' ')'                 { varPat (mkLoc $2) "." }
+     | '(' '>=>' ')'               { varPat (mkLoc $2) ">=>" }
      | VAR                         { varPat (mkLoc $1) (snd $1) }
                        
 
