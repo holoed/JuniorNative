@@ -439,6 +439,12 @@ const nativeAddInt = mkClosure(function([_, x]) {
   }))
 })
 
+const nativeSubInt = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return env["x"] - y;
+  }))
+})
+
 function div(x, y) {
   return ~~(x / y)
 }
