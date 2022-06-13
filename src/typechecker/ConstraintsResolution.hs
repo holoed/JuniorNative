@@ -18,7 +18,7 @@ import Substitutions ( substitute, substitutePredicate, mappings )
 import Data.Either (fromRight)
 import ContextReduction ( ClassEnv, classes, inHnf )
 import Data.Maybe (isJust, isNothing, listToMaybe, fromJust)
-import BuiltIns (tupleCon, untuple)
+import BuiltIns (tupleCon)
 import Data.List ( find )
 import Control.Monad.Reader (Reader, runReader, ask, local)
 
@@ -123,9 +123,10 @@ findInstance classEnv p@(IsIn name _) =
           (_, instances) = (Map.!) dict name
 
 createExpFromType :: Type -> TypedExp
-createExpFromType ty@(TyApp (TyApp (TyCon "->") tuple) (TyApp (TyCon n) _))  =
-    let ts = untuple tuple in
-    applyArgs (createExpFromType <$> ts) (tvar zeroLoc (Set.fromList [] :=> ty) (toCamel (n ++ "Tuple" ++ show (length ts))))
+createExpFromType ty@(TyApp (TyApp (TyCon "->") (TyApp (TyApp (TyCon "Tuple") t1) t2)) (TyApp (TyCon n) _))  =
+    applyArgs (createExpFromType <$> [t1, t2]) (tvar zeroLoc (Set.fromList [] :=> ty) (toCamel (n ++ "Tuple2")))
+createExpFromType ty@(TyApp (TyApp (TyCon "->") t1) (TyApp (TyCon n) (TyApp t2 _)))  =
+    applyArgs (createExpFromType <$> [t1]) (tvar zeroLoc (Set.fromList [] :=> ty) (toCamel (n ++ show t2)))
 createExpFromType t@(TyApp (TyCon n) (TyApp t1 _)) = tvar zeroLoc (Set.fromList [] :=> t) (toCamel (filter (/= ' ') (n ++ show t1)))
 createExpFromType t@(TyApp (TyCon n) t') = tvar zeroLoc (Set.fromList [] :=> t) (toCamel (filter (/= ' ') (n ++ show t')))
 createExpFromType _ = undefined

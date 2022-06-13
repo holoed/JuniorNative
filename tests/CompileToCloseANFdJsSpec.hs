@@ -169,6 +169,11 @@ spec = parallel $ do
 
    it "bug missing - native div double" $ do
        "let main = (fmap . fmap) ((/) 1)  (Just [1,2,3])" --> "{\"value\":[1,0.5,0.3333333333333333]}"
+
+   it "Show instances" $ do
+      "let main = show 5" --> "\"5\""
+      "let main = show [1,2,3,4,5]" --> "[\"1\",\"2\",\"3\",\"4\",\"5\"]"
+      "let main = show [[2,3],[4,5]]" --> "[[\"2\",\"3\"],[\"4\",\"5\"]]"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 

@@ -168,3 +168,9 @@ val main :: Int
 let main = 
     foldl foldableList compose (f numInt) (map (const (f numInt)) xs) (fromInteger numInt 5)
 |]
+
+   it "Bug show list instance resolution" $
+       "let x = show [5]" --> [i|val x :: String
+let x = 
+    show (showList showInt) (fromInteger numInt 5 : [])
+|]

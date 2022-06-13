@@ -822,3 +822,19 @@ const fromMaybeLazy = mkClosure(function([_, x]){
 const error = mkClosure(function([_, x]){
   return mkClosure(function([_, _2]){ throw x; });
 })
+
+const showInt = {
+  "show" : mkClosure(function([_, x]) {
+    return `${x}`
+  })
+}
+
+const showList = mkClosure(function([_, inst]) {
+  return {
+    "show" : mkClosure(function([_, xs]){
+      return xs.map(x => applyClosure(inst["show"], x))
+    })
+  }
+})
+
+const show = mkClosure(function([_, inst]) { return inst["show"]})

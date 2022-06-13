@@ -80,7 +80,8 @@ env = toEnv [
   ("<>", Set.fromList [IsIn "Semigroup" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
   ("fromMaybe", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyVar "a" 0))),
   ("fromMaybeLazy", Set.fromList [] :=> tyLam (tyLam (TyCon "Unit") (TyVar "a" 0)) (tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyVar "a" 0))),
-  ("error", Set.fromList [] :=> tyLam (TyCon "String") (tyLam (TyCon "Unit") (TyVar "a" 0)))
+  ("error", Set.fromList [] :=> tyLam (TyCon "String") (tyLam (TyCon "Unit") (TyVar "a" 0))),
+  ("show", Set.fromList [IsIn "Show" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyCon "String"))
  ]
 
 classEnv :: ClassEnv
@@ -147,6 +148,10 @@ classEnv = ClassEnv {
       ])),
       ("Semigroup", ([], [
         Set.fromList [] :=> IsIn "Semigroup" (TyCon "String")
+      ])),
+      ("Show", ([], [
+        Set.fromList [] :=> IsIn "Show" (TyCon "Int"),
+        Set.fromList [IsIn "Show" (TyVar "a" 0)] :=> IsIn "Show" (TyApp (TyCon "List") (TyVar "a" 0))
       ]))
    ],
   defaults = [intCon, doubleCon]
