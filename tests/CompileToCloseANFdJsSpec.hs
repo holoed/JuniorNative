@@ -160,6 +160,15 @@ spec = parallel $ do
 
    it "Semigroup append" $ do
       [i|let main = foldr (<>) "" ["Hello", " ", "World"]|] --> "\"Hello World\""
+
+   it "bug missing - native sub int" $ do
+       "let main = (fmap . fmap) ((-) 0)  (Just [1,2,3])" --> "{\"value\":[-1,-2,-3]}"
+
+   it "bug missing - native sub int" $ do
+       "let main = (fmap . fmap) ((+) 1)  (Just [1,2,3])" --> "{\"value\":[2,3,4]}"
+
+   it "bug missing - native div double" $ do
+       "let main = (fmap . fmap) ((/) 1)  (Just [1,2,3])" --> "{\"value\":[1,0.5,0.3333333333333333]}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],[]]]"
 

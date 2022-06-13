@@ -78,5 +78,3 @@ spec = parallel $ do
             let main = fac 5
        |])] --> "120"
 
-   it "native sub int" $ do
-        [("main", "let main = (fmap . fmap) ((-) 0)  (Just [1,2,3])")] --> "{\"value\":[-1,-2,-3]}"
