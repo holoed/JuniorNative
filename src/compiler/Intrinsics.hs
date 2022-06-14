@@ -50,6 +50,7 @@ env = toEnv [
   ("display", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyApp (TyApp (TyCon "Tuple") (TyCon "Int")) (TyCon "Int")) (TyCon "Int")))) (TyApp (TyCon "Async") (TyCon "Unit"))),
   ("renderPlot", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Double"))) (TyApp (TyCon "Async") (TyCon "Unit"))),
   ("renderTimeSeries", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyCon "String", (TyApp (TyCon "List") (TyCon "String")), (TyApp (TyCon "List") (TyCon "Double"))])) (TyApp (TyCon "Async") (TyCon "Unit"))),
+  ("renderDataGrid", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Async") (TyCon "Unit"))),
   ("range", Set.fromList[] :=> tyLam (tyLam (TyCon "Int") (TyVar "a" 0)) (tyLam (TyCon "Int") (tyLam (TyCon "Int") (TyApp (TyCon "List") (TyVar "a" 0))))),
   ("split", Set.fromList[] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyApp (TyCon "List") (TyVar "a" 0))))),
   ("mod", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "a" 0) (TyVar "a" 0))),
@@ -74,6 +75,8 @@ env = toEnv [
   ("jsonToInt", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Int"))),
   ("jsonToDouble", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "Double"))),
   ("jsonToString", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "Maybe") (TyCon "String"))),
+  ("stringToJson", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "Json")),
+  ("intToJson", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "Json")),
   ("traverse", Set.fromList [IsIn "Traversable" (TyVar "t" 1), IsIn "Applicative" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyApp (TyVar "f" 1) (TyVar "b" 0))) (tyLam (TyApp (TyVar "t" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1)(TyApp (TyVar "t" 1) (TyVar "b" 0))))),
   ("foldr", Set.fromList [IsIn "Foldable" (TyVar "t" 1)] :=> tyLam (tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyVar "b" 0))) (tyLam (TyVar "b" 0) (tyLam (TyApp (TyVar "t" 1) (TyVar "a" 0)) (TyVar "b" 0)))),
   ("foldl", Set.fromList [IsIn "Foldable" (TyVar "t" 1)] :=> tyLam (tyLam (TyVar "b" 0) (tyLam (TyVar "a" 0) (TyVar "b" 0))) (tyLam (TyVar "b" 0) (tyLam (TyApp (TyVar "t" 1) (TyVar "a" 0)) (TyVar "b" 0)))),
@@ -81,7 +84,9 @@ env = toEnv [
   ("fromMaybe", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyVar "a" 0))),
   ("fromMaybeLazy", Set.fromList [] :=> tyLam (tyLam (TyCon "Unit") (TyVar "a" 0)) (tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyVar "a" 0))),
   ("error", Set.fromList [] :=> tyLam (TyCon "String") (tyLam (TyCon "Unit") (TyVar "a" 0))),
-  ("show", Set.fromList [IsIn "Show" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyCon "String"))
+  ("show", Set.fromList [IsIn "Show" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyCon "String")),
+  ("mapToJson", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Map") (TyCon "String")) (TyCon "Json")) (TyCon "Json")),
+  ("listToJson", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Json")) (TyCon "Json"))
  ]
 
 classEnv :: ClassEnv

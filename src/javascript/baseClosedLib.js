@@ -398,6 +398,16 @@ const renderTimeSeries = mkClosure(function([_, vs]) {
   });
 });
 
+const renderDataGrid = mkClosure(function([_, gridOptions]) {
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    document.getElementById("myGrid").style.display = "block"
+    const gridDiv = document.querySelector('#myGrid');
+    new agGrid.Grid(gridDiv, gridOptions);
+    resolve({});
+  });
+});
+
 const timeStampToDate = mkClosure(function([_, x]){
   var date = new Date(x*1000);
   return date.toISOString();
@@ -696,6 +706,14 @@ const jsonToDouble = mkClosure(function([_, x]){
   } catch(e) { return Nothing; }
 })
 
+const stringToJson = mkClosure(function([_, x]){
+  return x;
+})
+
+const intToJson = mkClosure(function([_, x]){
+  return x;
+})
+
 const traversableMaybe = {
   "fmap": functorMaybe["fmap"],
   "traverse": mkClosure(function([_, inst]){
@@ -838,3 +856,15 @@ const showList = mkClosure(function([_, inst]) {
 })
 
 const show = mkClosure(function([_, inst]) { return inst["show"]})
+
+const fromListToMap = mkClosure(function([_, xs]){
+  return Object.fromEntries(xs);
+})
+
+const mapToJson = mkClosure(function([_, xs]){
+  return xs;
+})
+
+const listToJson = mkClosure(function([_, xs]){
+  return xs;
+})
