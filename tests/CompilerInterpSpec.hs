@@ -283,16 +283,16 @@ spec = parallel $ do
       let main = (\\x -> x + x):(\\x -> x * x):[] <*> 5:6:[]
       |] --> "[10,12,25,36]"
 
-   it "Parser Test 1" $ "tests/jnrs_lib/parser_example1.jnr" ---> "[(['H','e'],['l','l','o'])]"
+   it "Parser Test 1" $ "tests/jnrs_lib/parser_example1.jnr" ---> "[(['H','e'],\"llo\")]"
 
-   it "Parser Test 2" $ "tests/jnrs_lib/parser_example2.jnr" ---> "[(['H','e','l','l','o'],[])]"
+   it "Parser Test 2" $ "tests/jnrs_lib/parser_example2.jnr" ---> "[(['H','e','l','l','o'],\"\")]"
 
   -- TODO: Add Applicative Parser <*> to Interpreter Intrinsics
   -- it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[([1,2,-5,-3,7],[])]"
 
-   it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[(5,[])]"
+   it "Calculator Test" $ "tests/jnrs_lib/calculator.jnr" ---> "[(5,\"\")]"
 
-   it "Calculator Test 2" $ "tests/jnrs_lib/calculator_with_spaces.jnr" ---> "[(14,[])]"
+   it "Calculator Test 2" $ "tests/jnrs_lib/calculator_with_spaces.jnr" ---> "[(14,\"\")]"
 
    it "Colors Test" $ "tests/jnrs_lib/color_conversion.jnr" ---> "([(255,0,0),(0,255,0),(0,0,255)],[(127,127,127),(127,0,0),(255,127,127)])"
    

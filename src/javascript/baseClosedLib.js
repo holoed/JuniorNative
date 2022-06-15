@@ -880,3 +880,19 @@ const mapToJson = mkClosure(function([_, xs]){
 const listToJson = mkClosure(function([_, xs]){
   return xs;
 })
+
+const nullStr = mkClosure(function([_, xs]){
+  return xs.length == 0;
+})
+
+const headStr = mkClosure(function([_, xs]){
+  return xs[0];
+})
+
+const tailStr = mkClosure(function([_, xs]){
+  return xs.slice(1);
+})
+
+const charToStr = mkClosure(function([_, x]){
+  return `${x}`
+})

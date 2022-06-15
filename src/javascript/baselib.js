@@ -519,3 +519,19 @@ const foldl = function(inst) { return inst["foldl"]; }
 
 const __liftA2 = function(inst) { return inst["<*>"]; }
 
+const nullStr = function(xs){
+  return xs.length == 0;
+}
+
+const headStr = function(xs){
+  return xs[0];
+}
+
+const tailStr = function(xs){
+  return xs.slice(1);
+}
+
+const charToStr = function(x){
+  return `${x}`
+}
+

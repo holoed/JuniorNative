@@ -1,7 +1,7 @@
 let zero = mkParser (\inp -> [])
 
-let item = mkParser (\inp -> if (null inp) then []
-                             else (head inp, tail inp) : [])
+let item = mkParser (\inp -> if (nullStr inp) then []
+                             else (headStr inp, tailStr inp) : [])
                              
 let sat p = (>>=) item (\x ->
               if p x then pure x else zero)
@@ -93,6 +93,6 @@ let expr =
   let term = chainl1 factor (mulop ()) in
   chainl1 term (addop ()) 
 
-let main = runParser expr (toCharList "(3 + 4) * (6 - 2) / 2")    
+let main = runParser expr "(3 + 4) * (6 - 2) / 2"  
                                         
    

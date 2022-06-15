@@ -5,7 +5,7 @@ module InterpreterIntrinsics where
 import Data.HashMap.Strict (fromList, (!), member, HashMap)
 import InterpreterMonad (InterpreterEnv, Result(..), Prim(..))
 import Control.Monad (join, foldM)
-import Data.Text (unpack, dropAround)
+import qualified Data.Text as Text (unpack, dropAround, null, head, tail)
 import Data.Char ( ord )
 import Data.List (unfoldr)
 import qualified Data.Map as Map (fromList)
@@ -318,6 +318,9 @@ env = (fromList [
     ("head", Function(\(List xs) -> return $ head xs)),
     ("tail", Function(\(List xs) -> return $ List (tail xs))),
     ("null", Function(\(List xs) -> return $ Value (B $ null xs))),
+    ("headStr", Function(\(Value (S xs)) -> return $ Value (C $ Text.head xs))),
+    ("tailStr", Function(\(Value (S xs)) -> return $ Value (S $ Text.tail xs))),
+    ("nullStr", Function(\(Value (S xs)) -> return $ Value (B $ Text.null xs))),
     ("&&", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x && y))))),
     ("||", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x || y))))),
     (".", Function(\(Function f) -> return $
@@ -357,7 +360,7 @@ env = (fromList [
        let (Function f) = m!"sqrt" in f x))),
     ("mkParser", Function return),
     ("runParser", Function return),
-    ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (unpack . dropAround ('\"'==) $ s)))),
+    ("toCharList", Function(\(Value (S s)) -> return $ List (Value . C <$> (Text.unpack . Text.dropAround ('\"'==) $ s)))),
     ("ord", Function(\(Value (C c)) -> return $ Value (I (ord c)))),
     ("display", Function(\r -> return $ Map (Map.fromList [(Value (S "image"), r)]))),
     ("range", Function(\(Function f) -> return $

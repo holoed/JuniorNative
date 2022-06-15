@@ -1,7 +1,7 @@
 let zero = mkParser (\inp -> [])
 
-let item = mkParser (\inp -> if (null inp) then []
-                             else (head inp, tail inp) : [])
+let item = mkParser (\inp -> if (nullStr inp) then []
+                             else (headStr inp, tailStr inp) : [])
                              
 let sat p = (>>=) item (\x ->
               if p x then pure x else zero)
@@ -55,7 +55,7 @@ let ints = bracket (char '[')
                    (sepby1 int (char ','))
                    (char ']')
 
-let main = runParser ints (toCharList "[1,2,-5,-3,7]")       
+let main = runParser ints "[1,2,-5,-3,7]"       
   
                                        
   

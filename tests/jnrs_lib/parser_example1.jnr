@@ -1,8 +1,8 @@
 
 let zero = mkParser (\inp -> [])
 
-let item = mkParser (\inp -> if (null inp) then []
-                             else (head inp, tail inp) : [])
+let item = mkParser (\inp -> if (nullStr inp) then []
+                             else (headStr inp, tailStr inp) : [])
    
 let sat p = (>>=) item (\x ->
               if p x then pure x else zero)
@@ -15,5 +15,5 @@ let string xs =
        (>>=) (string (tail xs)) (\ys ->
        pure (y:ys)))
  
-let main = runParser ((string . toCharList) "He") (toCharList "Hello")  
+let main = runParser ((string . toCharList) "He") "Hello" 
                                            
