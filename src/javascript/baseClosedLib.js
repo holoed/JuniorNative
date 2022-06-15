@@ -614,6 +614,18 @@ const Just = mkClosure(function([_, x]) {
 
 const Nothing = new __Nothing();
 
+const isJust = mkClosure(function([_, m]) {
+  return m instanceof __Just
+})
+
+const fromJust = mkClosure(function([_, m]){
+  if (m instanceof __Just) {
+    return m.value;
+  } else {
+    throw "Maybe is empty"
+  }
+})
+
 const functorMaybe = {
   "fmap": mkClosure(function ([_, f]) {
       return setEnv("f", f, mkClosure(function ([env, m]) {

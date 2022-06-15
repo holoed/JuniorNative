@@ -62,6 +62,9 @@ spec = parallel $ do
    it "liftA3" $ do
        [("main", "let main = liftA3 (\\x y z -> (x, y, z)) (Just 1) (Just 'a') (Just False)")] --> "{\"value\":[1,\"a\",false]}"
 
+   it "foldKliesli" $ do 
+       [("main", "let main = (foldKliesli [\\x -> [x + 1, x - 1], \\x -> [x * 2.0, x / 2.0]]) 5")] --> "[12,3,8,2]"
+
    it "foldl" $ do 
        [("main", "let main = foldl (flip (:)) [] [1,2,3,4,5]")] --> "[5,4,3,2,1]"
 
