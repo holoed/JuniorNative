@@ -589,11 +589,11 @@ const monadAsync = {
 }
 
 const JsonValue = mkClosure(function([_, x]){
-   return JSON.parse(`"${x.join("")}"`);
+   return x;
 })
 
 const JsonNode = mkClosure(function([_, xs]){
-  return xs.map(([k, v]) => JSON.parse(`{ "${k.join("")}":${JSON.stringify(v)} }`))
+  return xs.map(([k, v]) => JSON.parse(`{ "${k}":${JSON.stringify(v)} }`))
            .reduce((x, y) => Object.assign(x, y))
 })
 
