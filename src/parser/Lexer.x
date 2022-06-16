@@ -54,6 +54,7 @@ tokens :-
   "--".*                         ;
 
   -- Syntax
+  data                          {\p s -> TokenData (p, s) }
   val                           {\p s -> TokenVal (p, s) }
   let                           {\p s -> TokenLet (p, s) }
   True                          {\p s -> TokenTrue (p, s) }
@@ -84,6 +85,7 @@ tokens :-
   "++"                          {\p s -> TokenConcat (p, s) }
   "&&"                          {\p s -> TokenAnd (p, s) }
   "||"                          {\p s -> TokenOr (p, s) }
+  [\|]                          {\p s -> TokenVBar (p, s) }
   [\+]                          {\p s -> TokenAdd (p, s) }
   [\-]                          {\p s -> TokenSub (p, s) }
   [\*]                          {\p s -> TokenMul (p, s) }
@@ -101,7 +103,8 @@ tokens :-
 {
 
 data Token
-  = TokenVal (AlexPosn, String)
+  = TokenData (AlexPosn, String)
+  | TokenVal (AlexPosn, String)
   | TokenLet (AlexPosn, String)
   | TokenIf (AlexPosn, String)
   | TokenThen (AlexPosn, String)
@@ -144,6 +147,7 @@ data Token
   | TokenComma
   | TokenDot (AlexPosn, String)
   | TokenUnit (AlexPosn, String)
+  | TokenVBar (AlexPosn, String)
   | TokenEOF
   deriving (Eq,Show)
 

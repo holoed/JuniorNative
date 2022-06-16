@@ -5,7 +5,7 @@ import Test.Hspec (Spec, shouldBe, describe, it, parallel)
 import Annotations (Ann(Ann))
 import Location (Loc (Loc), PString (PStr))
 import Fixpoint (Fix(In))
-import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var))
+import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl))
 import Primitives (Prim(I))
 import Types (Type(TyCon, TyApp, TyVar), Qual((:=>)), Pred (IsIn), tyLam)
 import Data.Set (fromList)
@@ -73,3 +73,6 @@ spec = parallel $ do
   
   it "Let binding with invalid type signature" $
      parseExpr "val f :: \\x -> x\r\nlet f x = x" `shouldBe` Left(PStr ("Invalid type signature at ", Just (Loc 1 1 10)))
+
+  it "data definition" $
+     parseExpr "data Maybe a = Nothing | Just a" `shouldBe` Right [In (Ann (Just (Loc 4 1 1)) (TypeDecl (TyApp (TyCon "Maybe") (TyVar "a" 0)) [TyCon "Nothing", (TyApp (TyCon "Just") (TyVar "a" 0))]))]

@@ -16,6 +16,7 @@ import BuiltIns
 import Data.Set
 import Data.Char (isLower)
 
+import Control.Monad (mapM)
 import Control.Monad.Except
 import ParserUtils (fromExprToQualType, fromExprToType)
 
@@ -33,6 +34,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 
 -- Token Names
 %token
+    data  { TokenData $$ }
     val   { TokenVal $$ }
     let   { TokenLet $$ }
     true  { TokenTrue $$ }
@@ -76,6 +78,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     ':'   { TokenCons $$ }
     '::'  { TokenColonColon $$ }
     '=>'  { TokenFatArrow $$ }
+    '|'   { TokenVBar $$ }
 
 -- Operators
 %right '||'
@@ -90,9 +93,19 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 %left '>>='
 %%
 
-Decls : Expr                       { [$1] }
-      | Decl                       { [$1] }   
-      | Decl Decls                 { $1 : $2 }
+TopDecls : TopDecl                 { [$1] }
+         | TopDecl TopDecls        { $1 : $2 }
+
+TopDecl : Decls                    { $1 }   
+
+Decls : Decl                       { $1 }
+      | Expr                       { $1 }
+      | data Expr '=' Constrs      {% fromExprToType $2 >>= (\ty ->
+                                      (mapM fromExprToType $4) >>= (\tys -> 
+                                      return (typeDecl (mkLoc $1) ty tys))) }
+
+Constrs : Expr                     { [$1] }
+        | Expr '|' Constrs         { $1 : $3 }
 
 Decl : val Pats '::' Expr
        let Pats '=' Expr           {% fromExprToQualType $4 >>= (\sig -> return $ defn (mkLoc $5) (Just sig) $6 $8) }
