@@ -72,8 +72,8 @@ cmul :: (Double, Double) -> (Double, Double) -> (Double, Double)
 cmul (re1, im1) (re2, im2) = (re1 * re2 - im1 * im2, re1 * im2 + im1 * re2)
 
 mPoint :: Int-> (Double , Double) -> (Double, Double) -> Int
-mPoint i c z =
-  if i == 65 || norm z > 4.0 then i else mPoint (i + 1) c (cadd (cmul z z) c)
+mPoint i' c z =
+  if i' == 65 || norm z > 4.0 then i' else mPoint (i' + 1) c (cadd (cmul z z) c)
 
 toDouble :: Int -> Double
 toDouble = fromIntegral  
@@ -83,7 +83,7 @@ mandelbrot s (x, y) =
   let x' = 4.0 * toDouble y / toDouble s - 2.5 in
   let y' = 4.0 * toDouble x / toDouble s - 2.0 in
   let i' = mPoint 0 (x', y') (0.0, 0.0) in
-  let f i = 128 + truncate (128.0 * cos (toDouble i * 0.3)) in
+  let f i'' = 128 + truncate (128.0 * cos (toDouble i'' * 0.3)) in
   (f i', f (i' + 16), f (i' + 32))
 
 render :: (Int -> (Int, Int) -> (Int, Int, Int)) -> Int -> [[(Int, Int, Int)]]

@@ -84,6 +84,25 @@ spec = parallel $
                           ("quicksort","Ord a => (b -> a) -> List b -> List b")
                        ]
 
+    it "Custom ADT" $
+           [i| data Foo = Bar
+               let x = Bar |] --> [("x","Foo")]
+
+    it "Custom ADT 2" $
+           [i| data Foo = Bar | Fuzz
+               let x = Bar
+               let y = Fuzz
+               let z = (x, y) |] --> [("x","Foo"), ("y","Foo"), ("z","(Foo, Foo)")]
+
+    it "Custom ADT with concrete types" $
+           [i| data Pair = I Int | D Double
+               let f = I
+               let g = D |] --> [("f","Int -> Pair"), ("g","Double -> Pair")]
+
+    it "Custom ADT with one type variable" $
+           [i| data Option a = Some a | None
+               let x = Some 5 |] --> [("x","Option Int")]
+
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [
       ("++", "Foldable a => a b -> List b -> List b"), 
       ("cadd", "(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"), 

@@ -4,7 +4,7 @@ module CompilerSteps where
 import Fixpoint ( Fix(..) )
 import Annotations (mapAnn, Ann(Ann) )
 import TypedAst (TypedExp)
-import Ast (Exp, ExpF(..), TypeDecl)
+import Ast (Exp, ExpF(..))
 import PAst (SynExp)
 import CompilerMonad (CompileM)
 import Parser ( parseExpr )
@@ -32,7 +32,7 @@ import qualified ANFTranslation (convertProg)
 import qualified OptimizeTypeClasses (optimize)
 import qualified DeadCodeElimination (optimize)
 import qualified OptimizeClosureEnvs (optimize)
-import SynExpToTypeDecl (toTypeDecl)
+import SynExpToTypeDecl (toTypeDecl, fromTypeDeclToEnv)
 import Data.Maybe (maybeToList)
 
 parse :: String -> CompileM [SynExp]
@@ -41,8 +41,13 @@ parse code =
        Left s -> throwError s
        Right v -> return v
 
-fromSynExpToDataDecl :: [SynExp] -> CompileM [TypeDecl]
-fromSynExpToDataDecl es = return $ es >>= toTypeDecl 
+fromSynExpToDataDecl :: [SynExp] -> CompileM [SynExp]
+fromSynExpToDataDecl es = do
+    let typeDecls = es >>= toTypeDecl 
+    (env, symbols) <- get
+    let env' = foldr concatEnvs env $ fromTypeDeclToEnv <$> typeDecls
+    put (env', symbols)
+    return $ es
 
 fromSynExpToExp :: [SynExp] -> CompileM [Exp]
 fromSynExpToExp es = return $ es >>= (maybeToList . toExp)
@@ -51,7 +56,9 @@ dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
 dependencyAnalysis es = do
     (env, _) <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
-    let dict = Map.fromList ((\e@(In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) -> (s, e)) <$> es)
+    let dict = Map.fromList ((\e -> case e of
+         (In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) -> (s, e)
+         _ -> error "Not a definition.") <$> es)
     return $ ((\n -> (n, (Map.!) dict n)) <$>) <$> ns
 
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
