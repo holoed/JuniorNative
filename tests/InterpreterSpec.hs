@@ -38,7 +38,7 @@ extractName _ = Nothing
 
 run :: String -> Either PString [Result]
 run code = do ast <- parseExpr code
-              env' <- interpretModule env (toExp <$> ast)
+              env' <- interpretModule env (ast >>= (maybeToList . toExp))
               return $ getItem ast env'
     where getItem ast xs = maybeToList $
            if member "it" xs then lookup "it" xs

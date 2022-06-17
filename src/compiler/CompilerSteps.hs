@@ -4,7 +4,7 @@ module CompilerSteps where
 import Fixpoint ( Fix(..) )
 import Annotations (mapAnn, Ann(Ann) )
 import TypedAst (TypedExp)
-import Ast (Exp, ExpF(..))
+import Ast (Exp, ExpF(..), TypeDecl)
 import PAst (SynExp)
 import CompilerMonad (CompileM)
 import Parser ( parseExpr )
@@ -32,6 +32,8 @@ import qualified ANFTranslation (convertProg)
 import qualified OptimizeTypeClasses (optimize)
 import qualified DeadCodeElimination (optimize)
 import qualified OptimizeClosureEnvs (optimize)
+import SynExpToTypeDecl (toTypeDecl)
+import Data.Maybe (maybeToList)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -39,8 +41,11 @@ parse code =
        Left s -> throwError s
        Right v -> return v
 
+fromSynExpToDataDecl :: [SynExp] -> CompileM [TypeDecl]
+fromSynExpToDataDecl es = return $ es >>= toTypeDecl 
+
 fromSynExpToExp :: [SynExp] -> CompileM [Exp]
-fromSynExpToExp es = return $ toExp <$> es
+fromSynExpToExp es = return $ es >>= (maybeToList . toExp)
 
 dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
 dependencyAnalysis es = do

@@ -7,13 +7,14 @@ import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
 import Data.List (intercalate)
 import Data.Char (isSpace)
+import Data.Maybe (fromJust)
 
 trim :: String -> String
 trim = f . f
   where f = reverse . dropWhile isSpace
 
 (-->) :: [String] -> [String] -> Expectation
-(-->) x y = either show (intercalate "\n" . map (trim . prettyPrint . fromExp . toExp))
+(-->) x y = either show (intercalate "\n" . map (trim . prettyPrint . fromExp . (fromJust . toExp)))
                       (parseExpr (intercalate "\n" x))
             `shouldBe`
                       intercalate "\n" (map trim y)

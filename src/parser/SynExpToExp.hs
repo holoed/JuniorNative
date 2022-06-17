@@ -10,33 +10,34 @@ import RecursionSchemes ( cataRec )
 import Location (Loc, zeroLoc)
 import Data.Maybe ( fromMaybe )
 import TypesPrinter () 
+import Control.Applicative (Applicative(liftA2))
 
 getLoc :: Maybe Loc -> Loc
 getLoc = fromMaybe zeroLoc
 
-toExp :: PAst.SynExp -> Ast.Exp
+toExp :: PAst.SynExp -> Maybe Ast.Exp
 toExp = cataRec alg
-    where alg (Ann (Just l) (PAst.Defn qt [s] e1)) =
-              Ast.defn l qt s e1 
+    where alg (Ann (Just l) (PAst.Defn qt [s] e1)) = 
+               pure (Ast.defn l qt) <*> s <*> e1
           alg (Ann (Just l) (PAst.Defn qt (s:ss) e1)) =
-              Ast.defn l qt s (foldr (Ast.lam l) e1 ss) 
-          alg (Ann (Just l) (PAst.Lit x)) = Ast.lit l x
-          alg (Ann (Just l) (PAst.Var s)) = Ast.var l s
-          alg (Ann (Just l) (PAst.VarPat s)) = Ast.varPat l s
-          alg (Ann (Just l) (PAst.MkTuple es)) = Ast.mkTuple l es
-          alg (Ann (Just l) (PAst.TuplePat es)) = Ast.tuplePat l es
-          alg (Ann Nothing (PAst.App e1 e2)) = Ast.app e1 e2
-          alg (Ann _ (PAst.InfixApp (" ",_,_) e1 e2)) = Ast.app e1 e2
+               pure (Ast.defn l qt) <*> s <*> (foldr (liftA2 (Ast.lam l)) e1 ss) 
+          alg (Ann (Just l) (PAst.Lit x)) = pure $ Ast.lit l x
+          alg (Ann (Just l) (PAst.Var s)) = pure $ Ast.var l s
+          alg (Ann (Just l) (PAst.VarPat s)) = pure $ Ast.varPat l s
+          alg (Ann (Just l) (PAst.MkTuple es)) = Ast.mkTuple l <$> (sequence es)
+          alg (Ann (Just l) (PAst.TuplePat es)) = Ast.tuplePat l <$> (sequence es)
+          alg (Ann Nothing (PAst.App e1 e2)) = pure Ast.app <*> e1 <*> e2
+          alg (Ann _ (PAst.InfixApp (" ",_,_) e1 e2)) = pure Ast.app <*> e1 <*> e2
           alg (Ann (Just l) (PAst.InfixApp (op, _, _) e1 e2)) =
-              Ast.app (Ast.app (Ast.var l op) e1) e2
+              pure (\x y -> Ast.app (Ast.app (Ast.var l op) x) y) <*> e1 <*> e2
           alg (Ann (Just l) (PAst.Lam ss e)) =
-              foldr (Ast.lam l) e ss
+              pure (foldr (Ast.lam l)) <*> e <*> (sequence ss)
           alg (Ann (Just l) (PAst.Let [s] e1 e2)) =
-              Ast.leT l s e1 e2
+              pure (Ast.leT l) <*> s <*> e1 <*> e2
           alg (Ann (Just l) (PAst.Let (s:ss) e1 e2)) =
-              Ast.leT l s (foldr (Ast.lam l) e1 ss) e2
-          alg (Ann (Just l) (PAst.IfThenElse p e1 e2)) = Ast.ifThenElse l p e1 e2
-          alg x = error ("toExp error: " ++ show x)
+              pure (Ast.leT l) <*> s <*> (pure (foldr (Ast.lam l)) <*> e1 <*> (sequence ss)) <*> e2
+          alg (Ann (Just l) (PAst.IfThenElse p e1 e2)) = pure (Ast.ifThenElse l) <*> p <*> e1 <*> e2
+          alg _ = Nothing
 
 
 fromExp :: Ast.Exp -> PAst.SynExp

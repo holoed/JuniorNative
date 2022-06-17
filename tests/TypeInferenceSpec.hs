@@ -19,6 +19,7 @@ import PAst ( SynExp, SynExpF(VarPat, Defn) )
 import Data.Bifunctor (second)
 import Data.Map (toList, fromList, (!), member)
 import Data.List (intercalate)
+import Data.Maybe (fromJust)
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
@@ -38,7 +39,7 @@ extractName (In (Ann _ (Defn _ (In (Ann _ (VarPat n)):_) _))) = n
 extractName _ = "it"
 
 typeOf :: String -> Either PString [(String, String)]
-typeOf s = parseExpr s >>= typ . ((\e -> [(extractName e, toExp e)]) <$>) >>=
+typeOf s = parseExpr s >>= typ . ((\e -> [(extractName e, (fromJust . toExp) e)]) <$>) >>=
            (\(_, env4) -> Right $ second (show . prettyQ) <$> fromEnv env4 )
     where
       g (_, env3) (n, e) = (\e2@(In (Ann (_, t) _)) -> ([e2], toEnv [(n, t)])) . snd <$> (infer classEnv env3 . liftN) e
