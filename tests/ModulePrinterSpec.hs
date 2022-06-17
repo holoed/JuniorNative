@@ -11,7 +11,7 @@ import Data.Text (unpack)
 
 build :: String -> IO String
 build code = do
-   (Right x, _, _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env, [])
+   (Right x, _, _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env, [], [])
    return (unpack x)
 
 (-->) :: String -> String -> Expectation

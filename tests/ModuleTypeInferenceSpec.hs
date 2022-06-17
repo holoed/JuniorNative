@@ -31,7 +31,7 @@ extractNames ss = (\s -> (getName $ S.name s, show $ prettyQ $ S.ty s)) <$> filt
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
-   (x, (_, ss), _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env', [])
+   (x, (_, ss, _), _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env', [], [])
    return (nub . extractNames . const ss <$> x)
 
 (-->) :: String -> [(String, String)] -> Expectation

@@ -18,7 +18,7 @@ compile = frontEnd >=>
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (compile code) ("main", Interp.env, classEnv) (env, [])
+   (x, _, _) <- run (compile code) ("main", Interp.env, classEnv) (env, [], [])
    either (return . show) (return . unpack) x
 
 (-->) :: String -> String -> Expectation
