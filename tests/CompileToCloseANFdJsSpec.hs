@@ -174,6 +174,22 @@ spec = parallel $ do
       "let main = show 5" --> "\"5\""
       "let main = show [1,2,3,4,5]" --> "[\"1\",\"2\",\"3\",\"4\",\"5\"]"
       "let main = show [[2,3],[4,5]]" --> "[[\"2\",\"3\"],[\"4\",\"5\"]]"
+
+   it "Custom ADT 1" $ do
+      [i|data Foo = Bar | Fuzz 
+         let main = Bar |] --> "{}"
+
+   it "Custom ADT 2" $ do
+      [i|data Value = I Int | D Double 
+         let main = [I 42, D 2.5] |] --> "[{\"value\":42},{\"value\":2.5}]"
+
+   it "Custom ADT 3" $ do
+      [i|data Option a = None | Some a 
+         let main = Some "Hello" |] --> "{\"value\":\"Hello\"}"
+      [i|data Option a = None | Some a 
+         let main = None |] --> "{}"
+      [i|data Option a = None | Some a 
+         let main = Some [1,2,3] |] --> "{\"value\":[1,2,3]}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 

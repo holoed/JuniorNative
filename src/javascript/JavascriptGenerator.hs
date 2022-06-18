@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 module JavascriptGenerator where
 
-import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat, MkClosure, AppClosure, GetEnv, SetEnv) )
+import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat, MkClosure, AppClosure, GetEnv, SetEnv), TypeDecl (TypeDecl) )
 import TypedAst ( TypedExp )
 import Data.Text (Text, intercalate, pack, isPrefixOf, replace)
 import RecursionSchemes ( cataRec )
@@ -9,7 +10,9 @@ import Primitives ( Prim(..) )
 import Annotations (unwrap)
 import Fixpoint ( Fix(In) )
 import Prelude hiding (dropWhile)
-
+import Data.String.Interpolate ( i )
+import Types (Type (TyCon, TyApp))
+ 
 generatePrim :: Prim -> Text
 generatePrim (I n) = (pack . show) n
 generatePrim (D x) = (pack . show) x
@@ -119,3 +122,33 @@ generateDecl = generateLet . unwrap
 
 generate :: [TypedExp] -> Text
 generate es = intercalate "\n" (generateDecl <$> es)
+
+concatJs :: Text -> Text -> Text
+concatJs x y = x <> "\r\n\r\n" <> y
+
+generateData :: [TypeDecl] -> Text
+generateData = foldr concatJs "" . (generateJsForDataDecl <$>)
+
+generateJsForDataDecl :: TypeDecl -> Text
+generateJsForDataDecl (TypeDecl t ts) = 
+    foldr concatJs "" (generateJsForConstr t <$> ts)
+
+generateJsForConstr :: Type -> Type -> Text
+generateJsForConstr t1 (TyCon n) = pack [i|
+    class __#{n} {
+      constructor() {}
+    }
+
+    const #{n} = new __#{n}();
+|]
+generateJsForConstr t1 (TyApp (TyCon n) _) = pack [i|
+    class __#{n} {
+      constructor(value) {
+        this.value = value;
+      }
+    }
+
+    const #{n} = mkClosure(function([_, x]) {
+        return new __#{n}(x);
+    })
+|]

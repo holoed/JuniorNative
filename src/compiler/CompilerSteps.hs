@@ -26,7 +26,7 @@ import InterpreterMonad (Result, member, lookup)
 import qualified Data.Maybe as Maybe
 import Prelude hiding (lookup)
 import Data.Text (Text)
-import JavascriptGenerator (generate)
+import JavascriptGenerator (generate, generateData)
 import qualified ClosureConversion (convertProg)
 import qualified ANFTranslation (convertProg)
 import qualified OptimizeTypeClasses (optimize)
@@ -102,7 +102,11 @@ interpret es = do
            else Maybe.maybeToList $ lookup "main" v
 
 toJs :: [TypedExp] -> CompileM Text
-toJs = return . generate
+toJs xs = do
+    (_, _, dataDecls) <- get
+    let dataJs = generateData dataDecls
+    let js = generate xs
+    return (dataJs <> "\r\n" <> js)
 
 closureConversion :: [TypedExp] -> CompileM [TypedExp]
 closureConversion es = do 
