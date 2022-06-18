@@ -123,25 +123,22 @@ generateDecl = generateLet . unwrap
 generate :: [TypedExp] -> Text
 generate es = intercalate "\n" (generateDecl <$> es)
 
-concatJs :: Text -> Text -> Text
-concatJs x y = x <> "\r\n\r\n" <> y
-
 generateData :: [TypeDecl] -> Text
-generateData = foldr concatJs "" . (generateJsForDataDecl <$>)
+generateData = foldr (<>) "" . (generateJsForDataDecl <$>)
 
 generateJsForDataDecl :: TypeDecl -> Text
 generateJsForDataDecl (TypeDecl t ts) = 
-    foldr concatJs "" (generateJsForConstr t <$> ts)
+    foldr (<>) "" (generateJsForConstr t <$> ts)
 
 generateJsForConstr :: Type -> Type -> Text
-generateJsForConstr t1 (TyCon n) = pack [i|
+generateJsForConstr _ (TyCon n) = pack [i|
     class __#{n} {
       constructor() {}
     }
 
     const #{n} = new __#{n}();
 |]
-generateJsForConstr t1 (TyApp (TyCon n) _) = pack [i|
+generateJsForConstr _ (TyApp (TyCon n) _) = pack [i|
     class __#{n} {
       constructor(value) {
         this.value = value;
@@ -152,3 +149,4 @@ generateJsForConstr t1 (TyApp (TyCon n) _) = pack [i|
         return new __#{n}(x);
     })
 |]
+generateJsForConstr _ _ = error "Unknown constructor shape, unable to generate JS"
