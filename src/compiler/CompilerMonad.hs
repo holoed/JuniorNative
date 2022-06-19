@@ -9,9 +9,9 @@ import SymbolTable ( Symbol )
 import InterpreterMonad (InterpreterEnv)
 import Ast (TypeDecl)
 
-type CompilerState = (Env, [Symbol], [TypeDecl]) 
+type CompilerState = (ClassEnv, Env, [Symbol], [TypeDecl]) 
 
-type CompileM = E.ExceptT PString (S.RWST (String, InterpreterEnv, ClassEnv) [String] CompilerState IO)
+type CompileM = E.ExceptT PString (S.RWST (String, InterpreterEnv) [String] CompilerState IO)
 
-run :: CompileM a -> (String, InterpreterEnv, ClassEnv) -> CompilerState -> IO (Either PString a, CompilerState, [String])
+run :: CompileM a -> (String, InterpreterEnv) -> CompilerState -> IO (Either PString a, CompilerState, [String])
 run m  = S.runRWST (E.runExceptT m)

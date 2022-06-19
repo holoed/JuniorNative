@@ -54,6 +54,7 @@ tokens :-
   "--".*                         ;
 
   -- Syntax
+  deriving                      {\p s -> TokenDeriving (p, s) }
   data                          {\p s -> TokenData (p, s) }
   val                           {\p s -> TokenVal (p, s) }
   let                           {\p s -> TokenLet (p, s) }
@@ -103,7 +104,8 @@ tokens :-
 {
 
 data Token
-  = TokenData (AlexPosn, String)
+  = TokenDeriving (AlexPosn, String)
+  | TokenData (AlexPosn, String)
   | TokenVal (AlexPosn, String)
   | TokenLet (AlexPosn, String)
   | TokenIf (AlexPosn, String)

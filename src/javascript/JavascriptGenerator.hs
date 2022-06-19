@@ -12,6 +12,7 @@ import Fixpoint ( Fix(In) )
 import Prelude hiding (dropWhile)
 import Data.String.Interpolate ( i )
 import Types (Type (TyCon, TyApp))
+import DeriveJs ( derive )
  
 generatePrim :: Prim -> Text
 generatePrim (I n) = (pack . show) n
@@ -127,8 +128,8 @@ generateData :: [TypeDecl] -> Text
 generateData = foldr (<>) "" . (generateJsForDataDecl <$>)
 
 generateJsForDataDecl :: TypeDecl -> Text
-generateJsForDataDecl (TypeDecl t ts) = 
-    foldr (<>) "" (generateJsForConstr t <$> ts)
+generateJsForDataDecl (TypeDecl t ts ds) = 
+    foldr (<>) "" (generateJsForConstr t <$> ts) <> foldr (<>) "" (derive t ts <$> ds)
 
 generateJsForConstr :: Type -> Type -> Text
 generateJsForConstr _ (TyCon n) = pack [i|
@@ -180,7 +181,33 @@ generateJsForConstr _ (TyApp (TyApp (TyCon n) _)_) = pack [i|
     })
 
     const extract#{n} = mkClosure(function ([_, x]){
-        return [x.value1. x.value2];
+        return [x.value1, x.value2];
+    })
+|]
+generateJsForConstr _ (TyApp (TyApp (TyApp (TyCon n) _)_)_) = pack [i|
+    class __#{n} {
+      constructor(value1, value2, value3) {
+        this.value1 = value1;
+        this.value2 = value2;
+        this.value3 = value3;
+      }
+    }
+
+    const #{n} = mkClosure(function([_, x]) {
+        return setEnv("x", x, mkClosure(function([env, y]){
+            return setEnv("x", env["x"], setEnv("y", y, mkClosure(function([env2, z]){
+                return new __#{n}(env2["x"], env2["y"], z);
+            })))
+        })) 
+    })
+
+    const is#{n} = mkClosure(function([_, x]) {
+        return x instanceof __#{n};
+    })
+
+    const extract#{n} = mkClosure(function ([_, x]){
+        return [x.value1, x.value2, x.value3];
     })
 |]
 generateJsForConstr _ _ = error "Unknown constructor shape, unable to generate JS"
+

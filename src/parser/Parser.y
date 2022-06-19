@@ -34,6 +34,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 
 -- Token Names
 %token
+    deriving { TokenDeriving $$ }
     data  { TokenData $$ }
     val   { TokenVal $$ }
     let   { TokenLet $$ }
@@ -100,9 +101,12 @@ TopDecl : Decls                    { $1 }
 
 Decls : Decl                       { $1 }
       | Expr                       { $1 }
-      | data Expr '=' Constrs      {% fromExprToType $2 >>= (\ty ->
-                                      (mapM fromExprToType $4) >>= (\tys -> 
-                                      return (typeDecl (mkLoc $1) ty tys))) }
+      | data Expr '=' Constrs deriving VAR {% fromExprToType $2 >>= (\ty ->
+                                               (mapM fromExprToType $4) >>= (\tys -> 
+                                               return (typeDecl (mkLoc $1) ty tys [snd $6]))) }
+      | data Expr '=' Constrs {% fromExprToType $2 >>= (\ty ->
+                                   (mapM fromExprToType $4) >>= (\tys -> 
+                                   return (typeDecl (mkLoc $1) ty tys []))) }
 
 Constrs : Expr                     { [$1] }
         | Expr '|' Constrs         { $1 : $3 }

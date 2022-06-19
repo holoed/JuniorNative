@@ -11,7 +11,7 @@ import Location (Loc)
 import Types ( Qual, Type )
 import TypesPrinter ()
 
-data TypeDecl = TypeDecl Type [Type]
+data TypeDecl = TypeDecl Type [Type] [String]
 
 data ExpF a = Lit Prim
             | Var String

@@ -18,7 +18,7 @@ let (.) f g = \\x -> f (g x)
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (fullInterp (interpPrelude <> "\r\n\r\n" <> code)) ("main", Interp.env, classEnv) (env, [], [])
+   (x, _, _) <- run (fullInterp (interpPrelude <> "\r\n\r\n" <> code)) ("main", Interp.env) (classEnv, env, [], [])
    return $ either show unpack x
 
 (--->) :: FilePath -> String -> Expectation 

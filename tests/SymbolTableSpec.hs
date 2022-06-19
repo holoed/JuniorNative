@@ -9,7 +9,7 @@ import InterpreterMonad (empty)
 
 compile :: String -> IO [Symbol]
 compile code = do
-   (_, (_, ss, _), _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env, [], [])
+   (_, (_, _, ss, _), _) <- run (frontEndPrinted code) ("main", empty) (classEnv, env, [], [])
    return ss
 
 (-->) :: String -> [String] -> Expectation 

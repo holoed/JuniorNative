@@ -218,6 +218,26 @@ spec = parallel $ do
 
          let main = two
       |] --> "{\"value0\":{\"value1\":2,\"value2\":{\"value0\":{\"value1\":1,\"value2\":{\"value0\":{}}}}}}"
+
+   it "Custom ADT with 3 parameters" $ do
+      [i|
+         data Tree a = Leaf | Node (Tree a) a (Tree a) 
+
+         let zero = Leaf
+
+         let one = Node Leaf 1 (Node zero 2 zero) 
+
+         let two = Node one 12 one
+
+         let main = two
+      |] -->  "{\"value1\":{\"value1\":{},\"value2\":1,\"value3\":{\"value1\":{},\"value2\":2,\"value3\":{}}},\"value2\":12,\"value3\":{\"value1\":{},\"value2\":1,\"value3\":{\"value1\":{},\"value2\":2,\"value3\":{}}}}"
+   
+   it "Derive Functor for one parameter data types" $ do
+      [i|
+         data Option a = None | Some a deriving Functor
+
+         let main = fmap ((+) 1) (Some 42)
+      |] --> "{\"value\":43}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 

@@ -16,7 +16,7 @@ import Control.Monad ( foldM )
 
 build :: Either PString (Text, Env) -> (String, Text) -> IO (Either PString (Text, Env))
 build (Right (js, env1)) (ns, code) = do
-   (x, (env2, _, _), _) <- run (fullJSClosedANF (unpack code)) (ns, Interp.env, classEnv) (env1, [], [])
+   (x, (_, env2, _, _), _) <- run (fullJSClosedANF (unpack code)) (ns, Interp.env) (classEnv, env1, [], [])
    return $ (\js2 -> (js <> pack "\r\n" <> js2, env2)) <$> x
 build (Left x) _ = return $ Left x
 

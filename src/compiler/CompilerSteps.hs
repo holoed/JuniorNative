@@ -32,7 +32,7 @@ import qualified ANFTranslation (convertProg)
 import qualified OptimizeTypeClasses (optimize)
 import qualified DeadCodeElimination (optimize)
 import qualified OptimizeClosureEnvs (optimize)
-import SynExpToTypeDecl (toTypeDecl, fromTypeDeclToEnv)
+import SynExpToTypeDecl (toTypeDecl, fromTypeDeclToEnv, fromTypeDeclToClassEnv)
 import Data.Maybe (maybeToList)
 
 parse :: String -> CompileM [SynExp]
@@ -44,9 +44,10 @@ parse code =
 fromSynExpToDataDecl :: [SynExp] -> CompileM [SynExp]
 fromSynExpToDataDecl es = do
     let typeDecls' = es >>= toTypeDecl 
-    (env, symbols, typeDecls) <- get
+    (classEnv, env, symbols, typeDecls) <- get
     let env' = foldr concatEnvs env $ fromTypeDeclToEnv <$> typeDecls'
-    put (env', symbols, typeDecls <> typeDecls')
+    let classEnv' = foldr fromTypeDeclToClassEnv classEnv typeDecls'
+    put (classEnv', env', symbols, typeDecls <> typeDecls')
     return $ es
 
 fromSynExpToExp :: [SynExp] -> CompileM [Exp]
@@ -54,7 +55,7 @@ fromSynExpToExp es = return $ es >>= (maybeToList . toExp)
 
 dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
 dependencyAnalysis es = do
-    (env, _, _) <- get
+    (_, env, _, _) <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
     let dict = Map.fromList ((\e -> case e of
          (In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) -> (s, e)
@@ -63,8 +64,7 @@ dependencyAnalysis es = do
 
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
 typeInference bss = do
-    (_, _, classEnv) <- ask
-    (env, symbols, typeDecls) <- get
+    (classEnv, env, symbols, typeDecls) <- get
     let g (_, env') (n, e) = (\e2@(In (Ann (_, t) _)) -> ([e2], toEnv [(n, t)])) . snd <$> (infer classEnv env' . liftN) e
     let f env' (n, e) = env' >>= flip g (n, e)
     let k ev1 ev2 = (\(e1, x) (e2, y) -> (e1 ++ e2, concatEnvs x y)) <$> ev1 <*> ev2
@@ -73,13 +73,13 @@ typeInference bss = do
     case ret of
         Left err -> throwError err
         Right v -> do
-             put (snd v, symbols, typeDecls)
+             put (classEnv, snd v, symbols, typeDecls)
              return $ fst v
 
 buildSymbolTable :: [TypedExp] -> CompileM [TypedExp]
 buildSymbolTable es = 
-    do (env, _, typeDecls) <- get
-       put (env, build (prettifyTypes <$> es), typeDecls)
+    do (classEnv, env, _, typeDecls) <- get
+       put (classEnv, env, build (prettifyTypes <$> es), typeDecls)
        return es
 
 prettyPrintModule :: [TypedExp] -> CompileM Text
@@ -87,13 +87,12 @@ prettyPrintModule es = return $ typedModuleToString es
 
 desugarPredicates :: [TypedExp] -> CompileM [TypedExp]
 desugarPredicates es = do
-    (_, _, classEnv) <- ask
-    (env, _, _) <- get
+    (classEnv, env, _, _) <- get
     return $ convertPreds classEnv env <$> es
 
 interpret :: [TypedExp] -> CompileM [Result]
 interpret es = do
-   (_, env, _) <- ask
+   (_, env) <- ask
    case interpretModule env (mapAnn fst <$> es) of
        Left err -> throwError err
        Right v -> 
@@ -103,15 +102,15 @@ interpret es = do
 
 toJs :: [TypedExp] -> CompileM Text
 toJs xs = do
-    (_, _, dataDecls) <- get
+    (_, _, _, dataDecls) <- get
     let dataJs = generateData dataDecls
     let js = generate xs
     return (dataJs <> "\r\n" <> js)
 
 closureConversion :: [TypedExp] -> CompileM [TypedExp]
 closureConversion es = do 
-    (name, _, _) <- ask
-    (env, _, _) <- get
+    (name, _) <- ask
+    (_, env, _, _) <- get
     return $ ClosureConversion.convertProg name (keysSet env) es
 
 aNormalisation :: [TypedExp] -> CompileM [TypedExp]
