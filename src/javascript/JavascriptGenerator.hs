@@ -97,9 +97,9 @@ generateExp = cataRec alg
             (if e2 == "()" then "" else
                 (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then "; " else "; return ") <> e2)
           alg (IfThenElse p e1 e2) =
-                 "if (" <> p <> ") { " <>
+                 "function () { if (" <> p <> ") { " <>
                      (if isPrefixOf "if" e1 || isPrefixOf "const" e1 then e1 else "return " <> e1)  <>
-                     " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " }"
+                     " } else { " <> (if isPrefixOf "if" e2 || isPrefixOf "const" e2 then e2 else "return " <> e2) <> " } }()"
           alg (AppClosure "nativeInt" e2) = e2
           alg (AppClosure "nativeDouble" e2) = e2
           alg (AppClosure e1 e2) =

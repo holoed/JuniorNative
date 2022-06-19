@@ -42,6 +42,9 @@ spec = parallel $ do
 
    it "identity" $ "let main = id 4" --> "4"
 
+   it "bug fix - If then else should be an embeddable expression" $ 
+    [i|let main = (if (1 < 2) then 2 else 3) * 2|] --> "4"
+
    it "factorial example" $ [i|
      let fac n = if n == 0 then 1 else n * fac (n - 1)
      let main = fac 5
