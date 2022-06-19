@@ -42,4 +42,7 @@ fromTypeDeclToClassEnv :: Ast.TypeDecl -> ClassEnv -> ClassEnv
 fromTypeDeclToClassEnv (Ast.TypeDecl (TyApp (TyCon n) _) _ [name]) classEnv =
     let classes' = classes classEnv in
     ClassEnv { classes = update (\(xs, ys) -> Just (xs, ys <> [Set.fromList [] :=> IsIn name (TyCon n)])) name classes', defaults = defaults classEnv  }
+fromTypeDeclToClassEnv (Ast.TypeDecl (TyApp (TyApp (TyCon n) t) _) _ [name]) classEnv =
+    let classes' = classes classEnv in
+    ClassEnv { classes = update (\(xs, ys) -> Just (xs, ys <> [Set.fromList [] :=> IsIn name (TyApp (TyCon n) t)])) name classes', defaults = defaults classEnv  }
 fromTypeDeclToClassEnv _ x = x
