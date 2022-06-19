@@ -20,6 +20,9 @@ toDefns (TyCon n1) t = [(n1, Set.fromList [] :=> t),
 toDefns (TyApp (TyCon n1) t1) t = [(n1,Set.fromList [] :=> tyLam t1 t), 
                                    ("is" <> n1, Set.fromList [] :=> tyLam t (TyCon "Bool")),
                                    ("extract" <> n1, Set.fromList [] :=> tyLam t t1)]
+toDefns (TyApp (TyApp (TyCon n1) t1) t2) t = [(n1,Set.fromList [] :=> tyLam t1 (tyLam t2 t)), 
+                                              ("is" <> n1, Set.fromList [] :=> tyLam t (TyCon "Bool")),
+                                              ("extract" <> n1, Set.fromList [] :=> tyLam t (TyApp (TyApp (TyCon "Tuple") t1) t2))]
 toDefns _ _ = error "Unknown data type declaration"
 
 fromTypeDeclToEnv :: Ast.TypeDecl -> Env 

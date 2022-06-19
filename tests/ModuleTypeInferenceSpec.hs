@@ -127,6 +127,19 @@ spec = parallel $
            [i| data Option a = Some a | None
                let f = extractSome  |] --> [("f","Option a -> a")]
 
+    it "Custom ADT with two type variables - extract match" $
+           [i|
+            data L a b = E | C a b 
+
+            let zero = In E
+
+            let one = In (C 1 zero)
+
+            let two = In (C 2 one)
+
+            let main = two
+          |] -->  [("zero","Fix (L a)"),("one","Fix (L Int)"),("two","Fix (L Int)"),("main","Fix (L Int)")]
+
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [
       ("++", "Foldable a => a b -> List b -> List b"), 
       ("cadd", "(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"), 

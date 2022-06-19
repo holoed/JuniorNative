@@ -205,6 +205,19 @@ spec = parallel $ do
          let main = (isI (I 42), isI (D 2.4))|] --> "[true,false]"
       [i|data Value = I Int | D Double
          let main = (isD (I 42), isD (D 1.5))|] --> "[false,true]"
+
+   it "Custom ADT with 2 parameters" $ do
+      [i|
+         data L a b = E | C a b 
+
+         let zero = In E
+
+         let one = In (C 1 zero)
+
+         let two = In (C 2 one)
+
+         let main = two
+      |] --> "{\"value0\":{\"value1\":2,\"value2\":{\"value0\":{\"value1\":1,\"value2\":{\"value0\":{}}}}}}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 

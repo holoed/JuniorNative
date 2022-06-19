@@ -161,4 +161,26 @@ generateJsForConstr _ (TyApp (TyCon n) _) = pack [i|
         return x.value;
     })
 |]
+generateJsForConstr _ (TyApp (TyApp (TyCon n) _)_) = pack [i|
+    class __#{n} {
+      constructor(value1, value2) {
+        this.value1 = value1;
+        this.value2 = value2;
+      }
+    }
+
+    const #{n} = mkClosure(function([_, x]) {
+        return setEnv("x", x, mkClosure(function([env, y]){
+            return new __#{n}(env["x"], y);
+        })) 
+    })
+
+    const is#{n} = mkClosure(function([_, x]) {
+        return x instanceof __#{n};
+    })
+
+    const extract#{n} = mkClosure(function ([_, x]){
+        return [x.value1. x.value2];
+    })
+|]
 generateJsForConstr _ _ = error "Unknown constructor shape, unable to generate JS"
