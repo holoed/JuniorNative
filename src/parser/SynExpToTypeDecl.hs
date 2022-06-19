@@ -11,7 +11,7 @@ import qualified Data.Set as Set
 import Types ( Qual((:=>)), Type (TyCon, TyApp), tyLam ) 
 
 toTypeDecl :: PAst.SynExp -> [Ast.TypeDecl]
-toTypeDecl (In (Ann _ (PAst.TypeDecl t ts)))= [Ast.TypeDecl t ts]
+toTypeDecl (In (Ann _ (PAst.TypeDecl t ts ds)))= [Ast.TypeDecl t ts ds]
 toTypeDecl _ = []
 
 toDefns :: Type -> Type -> [(String, Qual Type)]
@@ -33,6 +33,6 @@ toDefns (TyApp (TyApp (TyApp (TyCon n1) t1) t2) t3) t =
 toDefns _ _ = error "Unknown data type declaration"
 
 fromTypeDeclToEnv :: Ast.TypeDecl -> Env 
-fromTypeDeclToEnv (Ast.TypeDecl t ts) =  
+fromTypeDeclToEnv (Ast.TypeDecl t ts _) =  
     toEnv $ ts >>= (`toDefns` t) 
 

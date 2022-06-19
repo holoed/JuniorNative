@@ -24,7 +24,7 @@ data SynExpF a = Lit Prim
                | Let [a] a a
                | IfThenElse a a a 
                | Defn (Maybe (Qual Type)) [a] a 
-               | TypeDecl Type [Type] deriving (Show, Eq, Functor, Traversable, Foldable)
+               | TypeDecl Type [Type] [String] deriving (Show, Eq, Functor, Traversable, Foldable)
 
 type SynExp = Fix (Ann (Maybe Loc) SynExpF)
 
@@ -65,5 +65,5 @@ mkList l xs = foldr f (In (Ann (Just l) (Var "[]"))) xs
 defn :: Loc -> Maybe (Qual Type) -> [SynExp] -> SynExp -> SynExp
 defn l qt ps v = In (Ann (Just l) (Defn qt ps v))
 
-typeDecl :: Loc -> Type -> [Type] -> SynExp
-typeDecl l t ts = In (Ann (Just l) (TypeDecl t ts))
+typeDecl :: Loc -> Type -> [Type] -> [String] -> SynExp
+typeDecl l t ts ds = In (Ann (Just l) (TypeDecl t ts ds))

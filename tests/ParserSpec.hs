@@ -75,4 +75,13 @@ spec = parallel $ do
      parseExpr "val f :: \\x -> x\r\nlet f x = x" `shouldBe` Left(PStr ("Invalid type signature at ", Just (Loc 1 1 10)))
 
   it "data definition" $
-     parseExpr "data Maybe a = Nothing | Just a" `shouldBe` Right [In (Ann (Just (Loc 4 1 1)) (TypeDecl (TyApp (TyCon "Maybe") (TyVar "a" 0)) [TyCon "Nothing", (TyApp (TyCon "Just") (TyVar "a" 0))]))]
+     parseExpr "data Maybe a = Nothing | Just a" `shouldBe` Right [In (Ann (Just (Loc 4 1 1)) (TypeDecl (TyApp (TyCon "Maybe") (TyVar "a" 0)) [TyCon "Nothing", (TyApp (TyCon "Just") (TyVar "a" 0))] []))]
+
+  it "data definition 2" $
+     parseExpr "data Tree a = Leaf | Node (Tree a) a (Tree a)" `shouldBe` 
+       Right [In (Ann (Just (Loc 4 1 1)) (TypeDecl (TyApp (TyCon "Tree") (TyVar "a" 0)) [
+        TyCon "Leaf", 
+        (TyApp (TyApp (TyApp (TyCon "Node") (TyApp (TyCon "Tree") (TyVar "a" 0))) (TyVar "a" 0)) (TyApp (TyCon "Tree") (TyVar "a" 0)))] []))]
+
+  it "data definition with deriving" $
+     parseExpr "data Maybe a = Nothing | Just a deriving Functor" `shouldBe` Right [In (Ann (Just (Loc 4 1 1)) (TypeDecl (TyApp (TyCon "Maybe") (TyVar "a" 0)) [TyCon "Nothing", (TyApp (TyCon "Just") (TyVar "a" 0))] ["Functor"]))]   

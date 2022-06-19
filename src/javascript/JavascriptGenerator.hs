@@ -12,6 +12,7 @@ import Fixpoint ( Fix(In) )
 import Prelude hiding (dropWhile)
 import Data.String.Interpolate ( i )
 import Types (Type (TyCon, TyApp))
+import DeriveJs ( derive )
  
 generatePrim :: Prim -> Text
 generatePrim (I n) = (pack . show) n
@@ -127,8 +128,8 @@ generateData :: [TypeDecl] -> Text
 generateData = foldr (<>) "" . (generateJsForDataDecl <$>)
 
 generateJsForDataDecl :: TypeDecl -> Text
-generateJsForDataDecl (TypeDecl t ts) = 
-    foldr (<>) "" (generateJsForConstr t <$> ts)
+generateJsForDataDecl (TypeDecl t ts ds) = 
+    foldr (<>) "" (generateJsForConstr t <$> ts) <> foldr (<>) "" (derive t ts <$> ds)
 
 generateJsForConstr :: Type -> Type -> Text
 generateJsForConstr _ (TyCon n) = pack [i|
@@ -209,3 +210,4 @@ generateJsForConstr _ (TyApp (TyApp (TyApp (TyCon n) _)_)_) = pack [i|
     })
 |]
 generateJsForConstr _ _ = error "Unknown constructor shape, unable to generate JS"
+
