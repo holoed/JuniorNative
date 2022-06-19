@@ -5,9 +5,10 @@ import AlphaRename ( rename )
 import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
 import SynExpToExp (fromExp, toExp)
+import Data.Maybe (fromJust)
 
 rn :: String -> String
-rn s = either show (prettyPrint . (fromExp . rename . toExp . head)) (parseExpr s)
+rn s = either show (prettyPrint . (fromExp . rename . (fromJust . toExp) . head)) (parseExpr s)
 
 (-->) :: String -> String -> Expectation
 (-->) x y = rn x `shouldBe` y

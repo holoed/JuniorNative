@@ -19,11 +19,12 @@ import SynExpToExp (toExp)
 import Data.Functor ((<&>))
 import Intrinsics ( env, classEnv )
 import Annotations (Ann(..))
+import Data.Maybe (fromJust)
 
 process :: String -> IO ()
 process input = do
   let ast = parseExpr input
-  let ty = ast >>= (infer classEnv env . liftN . toExp . head)
+  let ty = ast >>= (infer classEnv env . liftN . (fromJust . toExp) . head)
   putStrLn (either show prettyPrint (ast <&> head))
   putStrLn (either show (show . (\(In (Ann (_, qt) _)) -> prettyQ qt) . snd) ty)
 

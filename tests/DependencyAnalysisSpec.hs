@@ -8,6 +8,7 @@ import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)
 import Test.Hspec ( it, describe, shouldBe, Spec, parallel )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
+import Data.Maybe (fromJust)
 
 globals :: Set [Char]
 globals = fromList ["+", "-", "/", "*", "++", "==", "/=", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
@@ -16,7 +17,7 @@ spec :: Spec
 spec = parallel $ do
   describe "Build dependencies" $ do
 
-   let build code = deps globals $ toExp <$> either (error . show) id (parseExpr code)
+   let build code = deps globals $ (fromJust . toExp) <$> either (error . show) id (parseExpr code)
    let (-->) x y = build x `shouldBe` y
 
    it "No deps" $ "let x = 42" --> [("x", [])]
@@ -36,7 +37,7 @@ spec = parallel $ do
 
   describe "Build chunks" $ do
 
-    let build code = chunks globals $ toExp <$> either (error . show) id (parseExpr code)
+    let build code = chunks globals $ (fromJust . toExp) <$> either (error . show) id (parseExpr code)
     let (-->) x y = build x `shouldBe` y
     let (--->) x y = do handle <- openFile x ReadMode
                         contents <- hGetContents handle

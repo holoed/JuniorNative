@@ -28,7 +28,7 @@ env' = concatEnvs env $ toEnv [
 
 build :: String -> IO String
 build code = do
-   (x, _, _) <- run (backendPrinted code) ("main", empty, classEnv) (env', [])
+   (x, _, _) <- run (backendPrinted code) ("main", empty, classEnv) (env', [], [])
    return $ either show unpack x
 
 (-->) :: String -> String -> Expectation

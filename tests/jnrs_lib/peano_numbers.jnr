@@ -1,0 +1,21 @@
+data Nat = Z | S Nat
+
+let one = S Z
+let two = S (S Z)
+let three = S (S (S Z))
+
+let add x y = 
+  if (isZ x) then y else
+  let x' = extractS x in S (add x' y)
+
+let mul x y =
+  if (isZ y) then Z
+  else if (isS x && isZ(extractS x)) then x
+  else add x (mul x (extractS y))
+
+let toInt x = 
+  if (isZ x) then 0
+  else toInt (extractS x) + 1
+
+let main = toInt (mul (add two three) two)
+

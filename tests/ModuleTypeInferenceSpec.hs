@@ -31,7 +31,7 @@ extractNames ss = (\s -> (getName $ S.name s, show $ prettyQ $ S.ty s)) <$> filt
 
 typeOfModule :: String -> IO (Either PString [(String, String)])
 typeOfModule code = do
-   (x, (_, ss), _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env', [])
+   (x, (_, ss, _), _) <- run (frontEndPrinted code) ("main", empty, classEnv) (env', [], [])
    return (nub . extractNames . const ss <$> x)
 
 (-->) :: String -> [(String, String)] -> Expectation
@@ -84,6 +84,49 @@ spec = parallel $
                           ("quicksort","Ord a => (b -> a) -> List b -> List b")
                        ]
 
+    it "Custom ADT" $
+           [i| data Foo = Bar
+               let x = Bar |] --> [("x","Foo")]
+
+    it "Custom ADT match" $
+           [i| data Foo = Bar
+               let f = isBar |] --> [("f","Foo -> Bool")]
+
+    it "Custom ADT 2" $
+           [i| data Foo = Bar | Fuzz
+               let x = Bar
+               let y = Fuzz
+               let z = (x, y) |] --> [("x","Foo"), ("y","Foo"), ("z","(Foo, Foo)")]
+      
+    it "Custom ADT 2 match" $
+           [i| data Foo = Bar | Fuzz
+               let f = (isBar, isFuzz) |] --> [("f","(Foo -> Bool, Foo -> Bool)")]
+
+    it "Custom ADT with concrete types" $
+           [i| data Pair = I Int | D Double
+               let f = I
+               let g = D |] --> [("f","Int -> Pair"), ("g","Double -> Pair")]
+
+    it "Custom ADT with concrete types is match" $
+           [i| data Pair = I Int | D Double
+               let f = (isI, isD) |] --> [("f","(Pair -> Bool, Pair -> Bool)")]
+
+    it "Custom ADT with concrete types extract" $
+           [i| data Pair = I Int | D Double
+               let f = (extractI, extractD) |] --> [("f","(Pair -> Int, Pair -> Double)")]
+
+    it "Custom ADT with one type variable" $
+           [i| data Option a = Some a | None
+               let x = Some 5 |] --> [("x","Option Int")]
+
+    it "Custom ADT with one type variable - is match" $
+           [i| data Option a = Some a | None
+               let f = (isSome, isNone)  |] --> [("f","(Option a -> Bool, Option b -> Bool)")]
+
+    it "Custom ADT with one type variable - extract match" $
+           [i| data Option a = Some a | None
+               let f = extractSome  |] --> [("f","Option a -> a")]
+
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [
       ("++", "Foldable a => a b -> List b -> List b"), 
       ("cadd", "(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"), 
@@ -118,6 +161,16 @@ spec = parallel $
       ("cataRec","Functor a => (a b -> b) -> Fix a -> b"),
       ("hyloRec","Functor a => (b -> a b) -> (a c -> c) -> b -> c"),
       ("paraRec","Functor a => (a ((Fix a, b)) -> b) -> Fix a -> b")
+     ]
+
+    it "Custom ADT - Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> [
+      ("add", "Nat -> Nat -> Nat"), 
+      ("three", "Nat"),
+      ("toInt", "Num a => Nat -> a"), 
+      ("two", "Nat"), 
+      ("one", "Nat"),
+      ("mul", "Nat -> Nat -> Nat"), 
+      ("main", "Int")
      ]
 
 

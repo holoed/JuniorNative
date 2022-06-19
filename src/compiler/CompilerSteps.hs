@@ -26,12 +26,14 @@ import InterpreterMonad (Result, member, lookup)
 import qualified Data.Maybe as Maybe
 import Prelude hiding (lookup)
 import Data.Text (Text)
-import JavascriptGenerator (generate)
+import JavascriptGenerator (generate, generateData)
 import qualified ClosureConversion (convertProg)
 import qualified ANFTranslation (convertProg)
 import qualified OptimizeTypeClasses (optimize)
 import qualified DeadCodeElimination (optimize)
 import qualified OptimizeClosureEnvs (optimize)
+import SynExpToTypeDecl (toTypeDecl, fromTypeDeclToEnv)
+import Data.Maybe (maybeToList)
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -39,20 +41,30 @@ parse code =
        Left s -> throwError s
        Right v -> return v
 
+fromSynExpToDataDecl :: [SynExp] -> CompileM [SynExp]
+fromSynExpToDataDecl es = do
+    let typeDecls' = es >>= toTypeDecl 
+    (env, symbols, typeDecls) <- get
+    let env' = foldr concatEnvs env $ fromTypeDeclToEnv <$> typeDecls'
+    put (env', symbols, typeDecls <> typeDecls')
+    return $ es
+
 fromSynExpToExp :: [SynExp] -> CompileM [Exp]
-fromSynExpToExp es = return $ toExp <$> es
+fromSynExpToExp es = return $ es >>= (maybeToList . toExp)
 
 dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
 dependencyAnalysis es = do
-    (env, _) <- get
+    (env, _, _) <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
-    let dict = Map.fromList ((\e@(In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) -> (s, e)) <$> es)
+    let dict = Map.fromList ((\e -> case e of
+         (In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) -> (s, e)
+         _ -> error "Not a definition.") <$> es)
     return $ ((\n -> (n, (Map.!) dict n)) <$>) <$> ns
 
 typeInference :: [[(String, Exp)]] -> CompileM [TypedExp]
 typeInference bss = do
     (_, _, classEnv) <- ask
-    (env, symbols) <- get
+    (env, symbols, typeDecls) <- get
     let g (_, env') (n, e) = (\e2@(In (Ann (_, t) _)) -> ([e2], toEnv [(n, t)])) . snd <$> (infer classEnv env' . liftN) e
     let f env' (n, e) = env' >>= flip g (n, e)
     let k ev1 ev2 = (\(e1, x) (e2, y) -> (e1 ++ e2, concatEnvs x y)) <$> ev1 <*> ev2
@@ -61,13 +73,13 @@ typeInference bss = do
     case ret of
         Left err -> throwError err
         Right v -> do
-             put (snd v, symbols)
+             put (snd v, symbols, typeDecls)
              return $ fst v
 
 buildSymbolTable :: [TypedExp] -> CompileM [TypedExp]
 buildSymbolTable es = 
-    do (env, _) <- get
-       put (env, build (prettifyTypes <$> es))
+    do (env, _, typeDecls) <- get
+       put (env, build (prettifyTypes <$> es), typeDecls)
        return es
 
 prettyPrintModule :: [TypedExp] -> CompileM Text
@@ -76,7 +88,7 @@ prettyPrintModule es = return $ typedModuleToString es
 desugarPredicates :: [TypedExp] -> CompileM [TypedExp]
 desugarPredicates es = do
     (_, _, classEnv) <- ask
-    (env, _) <- get
+    (env, _, _) <- get
     return $ convertPreds classEnv env <$> es
 
 interpret :: [TypedExp] -> CompileM [Result]
@@ -90,12 +102,16 @@ interpret es = do
            else Maybe.maybeToList $ lookup "main" v
 
 toJs :: [TypedExp] -> CompileM Text
-toJs = return . generate
+toJs xs = do
+    (_, _, dataDecls) <- get
+    let dataJs = generateData dataDecls
+    let js = generate xs
+    return (dataJs <> "\r\n" <> js)
 
 closureConversion :: [TypedExp] -> CompileM [TypedExp]
 closureConversion es = do 
     (name, _, _) <- ask
-    (env, _) <- get
+    (env, _, _) <- get
     return $ ClosureConversion.convertProg name (keysSet env) es
 
 aNormalisation :: [TypedExp] -> CompileM [TypedExp]

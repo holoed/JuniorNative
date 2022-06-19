@@ -15,7 +15,7 @@ import Data.Char (isSpace)
 
 process :: String -> IO [String]
 process code = do
-    (ret, _, _) <- run (closed code) ("", empty, classEnv) (env, [])
+    (ret, _, _) <- run (closed code) ("", empty, classEnv) (env, [], [])
     return $ either (error . show) (toString <$>) ret
 
 toString :: TypedExp -> String

@@ -9,9 +9,10 @@ import FreeVariables ( freeVars )
 import Data.Set (Set(), empty, fromList )
 import Parser (parseExpr)
 import SynExpToExp (toExp)
+import Data.Maybe (fromJust)
 
 (-->) :: String -> Fix (Ann (Set String) ExpF) -> Expectation
-(-->) s v  = (mapAnn snd <$> either (error . show) (freeVars empty . toExp <$>) (parseExpr s)) `shouldBe` [v]
+(-->) s v  = (mapAnn snd <$> either (error . show) (freeVars empty . (fromJust . toExp) <$>) (parseExpr s)) `shouldBe` [v]
 
 spec :: Spec
 spec = parallel $

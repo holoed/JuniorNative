@@ -7,8 +7,9 @@ import qualified Control.Monad.Trans.Except as E
 import qualified Control.Monad.Trans.RWS.Lazy as S
 import SymbolTable ( Symbol )
 import InterpreterMonad (InterpreterEnv)
+import Ast (TypeDecl)
 
-type CompilerState = (Env, [Symbol]) 
+type CompilerState = (Env, [Symbol], [TypeDecl]) 
 
 type CompileM = E.ExceptT PString (S.RWST (String, InterpreterEnv, ClassEnv) [String] CompilerState IO)
 

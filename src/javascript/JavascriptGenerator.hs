@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 module JavascriptGenerator where
 
-import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat, MkClosure, AppClosure, GetEnv, SetEnv) )
+import Ast ( ExpF(Lit, Var, VarPat, Lam, App, Let, Defn, IfThenElse, MkTuple, TuplePat, MkClosure, AppClosure, GetEnv, SetEnv), TypeDecl (TypeDecl) )
 import TypedAst ( TypedExp )
 import Data.Text (Text, intercalate, pack, isPrefixOf, replace)
 import RecursionSchemes ( cataRec )
@@ -9,7 +10,9 @@ import Primitives ( Prim(..) )
 import Annotations (unwrap)
 import Fixpoint ( Fix(In) )
 import Prelude hiding (dropWhile)
-
+import Data.String.Interpolate ( i )
+import Types (Type (TyCon, TyApp))
+ 
 generatePrim :: Prim -> Text
 generatePrim (I n) = (pack . show) n
 generatePrim (D x) = (pack . show) x
@@ -119,3 +122,43 @@ generateDecl = generateLet . unwrap
 
 generate :: [TypedExp] -> Text
 generate es = intercalate "\n" (generateDecl <$> es)
+
+generateData :: [TypeDecl] -> Text
+generateData = foldr (<>) "" . (generateJsForDataDecl <$>)
+
+generateJsForDataDecl :: TypeDecl -> Text
+generateJsForDataDecl (TypeDecl t ts) = 
+    foldr (<>) "" (generateJsForConstr t <$> ts)
+
+generateJsForConstr :: Type -> Type -> Text
+generateJsForConstr _ (TyCon n) = pack [i|
+    class __#{n} {
+      constructor() {}
+    }
+
+    const #{n} = new __#{n}();
+
+    const is#{n} = mkClosure(function([_, x]) {
+        return x instanceof __#{n};
+    })
+|]
+generateJsForConstr _ (TyApp (TyCon n) _) = pack [i|
+    class __#{n} {
+      constructor(value) {
+        this.value = value;
+      }
+    }
+
+    const #{n} = mkClosure(function([_, x]) {
+        return new __#{n}(x);
+    })
+
+    const is#{n} = mkClosure(function([_, x]) {
+        return x instanceof __#{n};
+    })
+
+    const extract#{n} = mkClosure(function ([_, x]){
+        return x.value;
+    })
+|]
+generateJsForConstr _ _ = error "Unknown constructor shape, unable to generate JS"
