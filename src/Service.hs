@@ -57,7 +57,7 @@ compile strategy code = do
    putStrLn ("+" ++ line ++ "+")
    putStrLn $ padR tableWidth "| Junior Compilation " ++ " |"
    putStrLn ("|" ++ line ++ "|")
-   (x, (_, ss, _), z) <- run (strategy code) ("main", Interp.env, classEnv ) (preludeEnv, [], [])
+   (x, (_, _, ss, _), z) <- run (strategy code) ("main", Interp.env) (classEnv, preludeEnv, [], [])
    mapM_ (\s -> putStrLn $ padR tableWidth ("| " ++ s) ++ " |") (intersperse (drop 2 line) z)
    putStrLn ("+" ++ line ++ "+")
    return $ (, ss) <$> x

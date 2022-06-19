@@ -8,7 +8,9 @@ import Fixpoint ( Fix(In) )
 import TypesPrinter () 
 import Environment (Env, toEnv)
 import qualified Data.Set as Set
-import Types ( Qual((:=>)), Type (TyCon, TyApp), tyLam ) 
+import Types ( Qual((:=>)), Type (TyCon, TyApp), tyLam, Pred (IsIn) ) 
+import ContextReduction (ClassEnv (ClassEnv, classes, defaults))
+import Data.Map (Map, update)
 
 toTypeDecl :: PAst.SynExp -> [Ast.TypeDecl]
 toTypeDecl (In (Ann _ (PAst.TypeDecl t ts ds)))= [Ast.TypeDecl t ts ds]
@@ -36,3 +38,8 @@ fromTypeDeclToEnv :: Ast.TypeDecl -> Env
 fromTypeDeclToEnv (Ast.TypeDecl t ts _) =  
     toEnv $ ts >>= (`toDefns` t) 
 
+fromTypeDeclToClassEnv :: Ast.TypeDecl -> ClassEnv -> ClassEnv
+fromTypeDeclToClassEnv (Ast.TypeDecl (TyApp (TyCon n) _) _ [name]) classEnv =
+    let classes' = classes classEnv in
+    ClassEnv { classes = update (\(xs, ys) -> Just (xs, ys <> [Set.fromList [] :=> IsIn name (TyCon n)])) name classes', defaults = defaults classEnv  }
+fromTypeDeclToClassEnv _ x = x
