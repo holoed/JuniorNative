@@ -190,6 +190,18 @@ spec = parallel $ do
          let main = None |] --> "{}"
       [i|data Option a = None | Some a 
          let main = Some [1,2,3] |] --> "{\"value\":[1,2,3]}"
+
+   it "Custom ADT is match" $ do
+      [i|data Foo = Bar | Fuzz
+         let main = isBar Bar|] --> "true"
+      [i|data Foo = Bar | Fuzz
+         let main = isFuzz Bar|] --> "false"
+
+   it "Custom ADT is match 2" $ do
+      [i|data Value = I Int | D Double
+         let main = (isI (I 42), isI (D 2.4))|] --> "[true,false]"
+      [i|data Value = I Int | D Double
+         let main = (isD (I 42), isD (D 1.5))|] --> "[false,true]"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 
@@ -204,3 +216,5 @@ spec = parallel $ do
    it "Calculator Test 2" $ "tests/jnrs_lib/calculator_with_spaces.jnr" ---> "[[14,\"\"]]"
 
    it "Duality of Sorts" $ "tests/jnrs_lib/duality_of_sorts.jnr" ---> "[0,1,3,5,6,9]"
+
+   it "Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> "10"
