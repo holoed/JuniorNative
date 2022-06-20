@@ -81,3 +81,6 @@ spec = parallel $ do
             let main = fac 5
        |])] --> "120"
 
+   it "fmap operator" $ do
+       [("main", "let main = ((+) 1) <$> [1,2,3,4]")] --> "[2,3,4,5]"
+

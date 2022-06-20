@@ -38,6 +38,7 @@ mapOp "<="  = "__lteq"
 mapOp ":"  = "__colon"
 mapOp "."  = "__dot"
 mapOp "<*>" = "__liftA2"
+mapOp "<$>" = "__fmap"
 mapOp ">=>" = "__lrKleisli"
 mapOp ">>=" = "__bind"
 mapOp "<>" = "mappend"
@@ -54,6 +55,7 @@ mapName "." = "__dot"
 mapName ":" = "__colon"
 mapName "++" = "__plusplus"
 mapName ">=>" = "__lrKleisli"
+mapName "<$>" = "__fmap"
 mapName x      = replace "'" "Quoted" x
 
 generateExp :: Fix ExpF -> Text

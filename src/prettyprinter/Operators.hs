@@ -17,67 +17,70 @@ juxtaOp :: ([Char], Integer, Fixity)
 juxtaOp  = (" ", 20, Infix Left)
 
 dotOp :: ([Char], Integer, Fixity)
-dotOp = (".", 16, Infix Right)
+dotOp = (".", 9, Infix Right)
 
 mulOp :: ([Char], Integer, Fixity)
-mulOp    = ("*", 15, Infix Left)
+mulOp    = ("*", 7, Infix Left)
 
 divOp :: ([Char], Integer, Fixity)
-divOp    = ("/", 15, Infix Left)
+divOp    = ("/", 7, Infix Left)
 
 plusOp :: ([Char], Integer, Fixity)
-plusOp   = ("+", 14, Infix Left)
+plusOp   = ("+", 6, Infix Left)
 
 subOp :: ([Char], Integer, Fixity)
-subOp    = ("-", 14, Infix Left)
+subOp    = ("-", 6, Infix Left)
 
 ltGtOp :: ([Char], Integer, Fixity)
-ltGtOp = ("<>", 14, Infix Right)
+ltGtOp = ("<>", 6, Infix Right)
 
 plusplusOp :: ([Char], Integer, Fixity)
-plusplusOp = ("++", 12, Infix Right) 
+plusplusOp = ("++", 5, Infix Right) 
 
 ltStarGtOp :: ([Char], Integer, Fixity)
-ltStarGtOp = ("<*>", 11, Infix Left)
+ltStarGtOp = ("<*>", 4, Infix Left)
+
+ltDollarGtOp :: ([Char], Integer, Fixity)
+ltDollarGtOp = ("<$>", 4, Infix Left)
 
 consOp :: ([Char], Integer, Fixity)
-consOp = (":", 12, Infix Right) 
+consOp = (":", 5, Infix Right) 
 
 eqeqOp :: ([Char], Integer, Fixity)
-eqeqOp   = ("==", 11, Infix NonAssoc) 
+eqeqOp   = ("==", 4, Infix NonAssoc) 
 
 noteqOp :: ([Char], Integer, Fixity)
-noteqOp   = ("/=", 11, Infix NonAssoc) 
+noteqOp   = ("/=", 4, Infix NonAssoc) 
 
 gteqOp :: ([Char], Integer, Fixity)
-gteqOp   = (">=", 10, Infix NonAssoc) 
+gteqOp   = (">=", 4, Infix NonAssoc) 
 
 lteqOp :: ([Char], Integer, Fixity)
-lteqOp   = ("<=", 9, Infix NonAssoc) 
+lteqOp   = ("<=", 4, Infix NonAssoc) 
 
 gtOp :: ([Char], Integer, Fixity)
-gtOp     = (">", 10, Infix NonAssoc)
+gtOp     = (">", 4, Infix NonAssoc)
 
 ltOp :: ([Char], Integer, Fixity)
-ltOp     = ("<",  9, Infix NonAssoc)
+ltOp     = ("<",  4, Infix NonAssoc)
 
 andOp :: ([Char], Integer, Fixity)
-andOp = ("&&", 8, Infix Right)
+andOp = ("&&", 3, Infix Right)
 
 orOp :: ([Char], Integer, Fixity)
-orOp = ("||", 7, Infix Right)  
+orOp = ("||", 2, Infix Right)  
 
 gtEqGtOp :: ([Char], Integer, Fixity)
-gtEqGtOp = (">=>", 6, Infix Right)
+gtEqGtOp = (">=>", 1, Infix Right)
 
 gtGtEqOp :: ([Char], Integer, Fixity)
-gtGtEqOp = (">>=", 6, Infix Left)
+gtGtEqOp = (">>=", 1, Infix Left)
 
 lamOp :: ([Char], Integer, Fixity)
-lamOp    = ("->", 5, Infix Right)
+lamOp    = ("->", -1, Infix Right)
 
 classOp :: ([Char], Integer, Fixity)
-classOp  = ("=>", 1, Infix Right)
+classOp  = ("=>", -2, Infix Right)
 
 minOp :: ([Char], Integer, Fixity)
-minOp    = ("<minimum-precedence-operator>", 0, Infix NonAssoc)
+minOp    = ("<minimum-precedence-operator>", -99, Infix NonAssoc)

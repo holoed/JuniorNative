@@ -22,7 +22,7 @@ spec = parallel $ do
      parseExpr "[]" `shouldBe`  Right [In (Ann (Just (Loc 2 1 1)) (Var "[]"))]
 
    it "List syntax 1" $
-     parseExpr "1:[]" `shouldBe` Right [(In (Ann (Just (Loc 1 1 2)) (InfixApp (":",12, Operators.Infix Operators.Right) (In (Ann (Just (Loc 1 1 1)) (Lit (I 1)))) (In (Ann (Just (Loc 2 1 3)) (Var "[]"))))))]
+     parseExpr "1:[]" `shouldBe` Right [(In (Ann (Just (Loc 1 1 2)) (InfixApp (":",5, Operators.Infix Operators.Right) (In (Ann (Just (Loc 1 1 1)) (Lit (I 1)))) (In (Ann (Just (Loc 2 1 3)) (Var "[]"))))))]
 
    it "List syntax 2" $
      parseExpr "[1]" `shouldBe`  Right [(In (Ann (Just (Loc 1 1 1)) (InfixApp (":",12, Operators.Infix Operators.Right) (In (Ann (Just (Loc 1 1 2)) (Lit (I 1)))) (In (Ann (Just (Loc 1 1 1)) (Var "[]"))))))]
@@ -46,7 +46,7 @@ spec = parallel $ do
      parseExpr "val x :: List Int\r\nlet xs = 42:[]" `shouldBe` 
        Right [In (Ann (Just (Loc 3 2 1)) 
          (Defn (Just (fromList [] :=> TyApp (TyCon "List") (TyCon "Int"))) [In (Ann (Just (Loc 2 2 5)) (VarPat "xs"))] 
-           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",12, Operators.Infix Operators.Right) 
+           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",5, Operators.Infix Operators.Right) 
            (In (Ann (Just (Loc 2 2 10)) (Lit (I 42)))) 
            (In (Ann (Just (Loc 2 2 13)) (Var "[]"))))))))]
 
@@ -54,7 +54,7 @@ spec = parallel $ do
      parseExpr "val x :: Num a => List a\r\nlet xs = 42:[]" `shouldBe` 
        Right [In (Ann (Just (Loc 3 2 1)) 
          (Defn (Just (fromList [IsIn "Num" (TyVar "a" 0)] :=> TyApp (TyCon "List") (TyVar "a" 0))) [In (Ann (Just (Loc 2 2 5)) (VarPat "xs"))] 
-           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",12, Operators.Infix Operators.Right) 
+           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",5, Operators.Infix Operators.Right) 
            (In (Ann (Just (Loc 2 2 10)) (Lit (I 42)))) 
            (In (Ann (Just (Loc 2 2 13)) (Var "[]"))))))))]
 
@@ -62,7 +62,7 @@ spec = parallel $ do
      parseExpr "val x :: (Eq a, Num a) => List a\r\nlet xs = 42:[]" `shouldBe` 
        Right [In (Ann (Just (Loc 3 2 1)) 
          (Defn (Just (fromList [IsIn "Eq" (TyVar "a" 0), IsIn "Num" (TyVar "a" 0)] :=> TyApp (TyCon "List") (TyVar "a" 0))) [In (Ann (Just (Loc 2 2 5)) (VarPat "xs"))] 
-           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",12, Operators.Infix Operators.Right) 
+           (In (Ann (Just (Loc 1 2 12)) (InfixApp (":",5, Operators.Infix Operators.Right) 
            (In (Ann (Just (Loc 2 2 10)) (Lit (I 42)))) 
            (In (Ann (Just (Loc 2 2 13)) (Var "[]"))))))))]
 

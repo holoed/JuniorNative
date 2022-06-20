@@ -51,6 +51,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     '\\'  { TokenLambda $$ }
     '->'  { TokenArrow $$ }
     '<*>' { TokenLtStarGt $$ }
+    '<$>' { TokenLtDollarGt $$ }
     '<>' { TokenLtGt $$ }
     '>=>' { TokenGtEqGt $$ }
     '>>=' { TokenGtGtEq $$ }
@@ -139,6 +140,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form ':' Form               { infixApp (mkLoc $2) consOp $1 $3 }
      | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
      | Form '<*>' Form             { infixApp (mkLoc $2) ltStarGtOp $1 $3}
+     | Form '<$>' Form             { infixApp (mkLoc $2) ltDollarGtOp $1 $3}
      | Form '<>' Form              { infixApp (mkLoc $2) ltGtOp $1 $3}
      | Form '>=>' Form             { infixApp (mkLoc $2) gtEqGtOp $1 $3}
      | Form '>>=' Form             { infixApp (mkLoc $2) gtGtEqOp $1 $3}
@@ -166,6 +168,7 @@ Atom : '(' Expr ')'                { $2 }
      | '(' ':' ')'                 { var (mkLoc $2) ":" }
      | '(' '.' ')'                 { var (mkLoc $2) "." }
      | '(' '<*>' ')'               { var (mkLoc $2) "<*>" }
+     | '(' '<$>' ')'               { var (mkLoc $2) "<$>" }
      | '(' '<>' ')'                { var (mkLoc $2) "<>" }
      | '(' '>=>' ')'               { var (mkLoc $2) ">=>" }
      | '(' '>>=' ')'               { var (mkLoc $2) ">>=" }
@@ -177,6 +180,7 @@ Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
      | '(' '++' ')'                { varPat (mkLoc $2) "++" }
      | '(' '.' ')'                 { varPat (mkLoc $2) "." }
      | '(' '>=>' ')'               { varPat (mkLoc $2) ">=>" }
+     | '(' '<$>' ')'               { varPat (mkLoc $2) "<$>" }
      | VAR                         { varPat (mkLoc $1) (snd $1) }
                        
 

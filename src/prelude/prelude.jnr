@@ -53,6 +53,9 @@ let liftA3 f m n o = (pure f) <*> m <*> n <*> o
 val (>=>) :: Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
 let (>=>) f g = \x -> f x >>= g
 
+val (<$>) :: Functor f => (a -> b) -> f a -> f b
+let (<$>) = fmap  
+
 val foldKliesli :: (Foldable t, Monad m) => t (a -> m a) -> a -> m a
 let foldKliesli = foldr1 (>=>)
 
