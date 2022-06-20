@@ -106,19 +106,6 @@ spec = parallel $ do
       let main = add ((2, 3), (4, 5)) 
    |] --> "[6,8]"
 
-   it "Construct fix type value" $ [i|
-      let main = In (Cons 5 (In (Cons 4 (In Empty))))
-   |] --> "{\"value0\":{\"value0\":5,\"value1\":{\"value0\":{\"value0\":4,\"value1\":{\"value0\":{}}}}}}"
-
-   it "Catamorphism product" $ [i|
-      let example = In (Cons 5 (In (Cons 4 (In (Cons 3 (In (Cons 2 (In (Cons 1 (In Empty))))))))))
-      let alg v = if isEmpty v then 1  
-            else if isCons v then 
-            let (x, y) = extractCons v in x * y
-            else undefined
-      let main = cataRec alg example
-   |] --> "120"
-
    it "Async support" $ [i|
       val main :: Async Int 
       let main = (>>=) (pure 3) (\\x -> 
@@ -143,4 +130,4 @@ spec = parallel $ do
    
    it "Plasma Test" $ "tests/jnrs_lib/plasma_example.jnr" ---> "[[[255,0,0],[255,1,0],[255,2,0],[255,3,0],[255,5,0]],[[255,1,0],[255,2,0],[255,3,0],[255,4,0],[255,5,0]],[[255,2,0],[255,3,0],[255,4,0],[255,5,0],[255,6,0]],[[255,3,0],[255,4,0],[255,5,0],[255,6,0],[255,7,0]],[[255,4,0],[255,4,0],[255,5,0],[255,6,0],[255,7,0]],[[255,5,0]]]"
 
-   it "Duality of Sorts" $ "tests/jnrs_lib/duality_of_sorts.jnr" ---> "[0,1,3,5,6,9]"
+   -- it "Duality of Sorts" $ "tests/jnrs_lib/duality_of_sorts.jnr" ---> "[0,1,3,5,6,9]"

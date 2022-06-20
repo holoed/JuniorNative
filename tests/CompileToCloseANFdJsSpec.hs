@@ -112,10 +112,12 @@ spec = parallel $ do
       "let main = [[1,2],[3,5]]" --> "[[1,2],[3,5]]"
 
    it "Construct fix type value" $ [i|
+      data ListF a b = Empty | Cons a b deriving Functor 
       let main = In (Cons 5 (In (Cons 4 (In Empty))))
-   |] --> "{\"value0\":{\"value0\":5,\"value1\":{\"value0\":{\"value0\":4,\"value1\":{\"value0\":{}}}}}}"
+   |] --> "{\"value0\":{\"value1\":5,\"value2\":{\"value0\":{\"value1\":4,\"value2\":{\"value0\":{}}}}}}"
 
    it "Catamorphism product" $ [i|
+      data ListF a b = Empty | Cons a b deriving Functor
       let example = In (Cons 5 (In (Cons 4 (In (Cons 3 (In (Cons 2 (In (Cons 1 (In Empty))))))))))
       let alg v = if isEmpty v then 1  
             else if isCons v then 

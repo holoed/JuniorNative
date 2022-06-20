@@ -481,52 +481,6 @@ const out = mkClosure(function([_, x]) {
   return x.value0;
 })
 
-class __Cons {
-  constructor(value0, value1) {
-    this.value0 = value0
-    this.value1 = value1
-  }
-}
-
-class __Empty {
-  constructor() {
-  }
-}
-
-const Cons = mkClosure(function([_, x]) {
-  return setEnv("x", x, mkClosure(function([env, y]) {
-    return new __Cons(env["x"], y);
-  }))
-})
-
-const isCons = mkClosure(function([_, v]) {
-  return v instanceof __Cons;
-})
-
-const extractCons =  mkClosure(function([_, v]) {
-  return [v.value0, v.value1];
-})
-
-const Empty = new __Empty();
-
-const isEmpty = mkClosure(function([_, v]) {
-  return v instanceof __Empty;
-})
-
-const functorListF = {
-  "fmap": mkClosure(function ([_, f]) {
-      return setEnv("f", f, mkClosure(function ([env, m]) {
-          if (m instanceof __Empty) {
-              return Empty;
-          };
-          if (m instanceof __Cons) {
-              return new __Cons(m.value0, applyClosure(env["f"], m.value1));
-          };
-          throw new Error("Failed pattern match");
-      })); 
-   })
-}
-
 const httpGet = mkClosure(function([_, url]) {
   return fetch("/fetch", {
     method: "POST",
