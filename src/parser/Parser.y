@@ -82,16 +82,17 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     '|'   { TokenVBar $$ }
 
 -- Operators
+%left '>>='
+%right '>=>'
 %right '||'
 %right '&&'
 %nonassoc '>' '<' '==' '/=' '>=' '<='
 %left '<*>'
-%right '++' ':' '<>'
+%right '++' ':' 
+%right '<>'
 %left '+' '-'
 %left '*' '/'
 %right '.'
-%right '>=>'
-%left '>>='
 %%
 
 TopDecls : TopDecl                 { [$1] }
