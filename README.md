@@ -7,3 +7,4 @@
 - :white_check_mark: Closure Conversion
 - :white_check_mark: ANF Translation
 - :white_check_mark: JS Code Gen
+- :black_square_button: Native Code Gen TODO
