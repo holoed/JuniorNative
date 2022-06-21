@@ -6,4 +6,4 @@
 - :white_check_mark: Transform TypeClasses to dictionaries
 - :white_check_mark: Closure Conversion
 - :white_check_mark: ANF Translation
-- :black_square_button: Native Code Gen
+- :white_check_mark: JS Code Gen
