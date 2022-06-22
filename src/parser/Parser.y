@@ -34,6 +34,8 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 
 -- Token Names
 %token
+    match { TokenMatch $$ }
+    with  { TokenWith $$ }
     deriving { TokenDeriving $$ }
     data  { TokenData $$ }
     val   { TokenVal $$ }
@@ -119,10 +121,16 @@ Decl : val Pats '::' Expr
 
 Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
      | '\\' Pats '->' Expr         { lam (mkLoc $1) $2 $4 }
+     | match Expr with '|' Matches { matcH (mkLoc $1) $2 $5 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Expr '=>' Expr              { infixApp (mkLoc $2) classOp $1 $3 }
      | Expr '->' Expr              { infixApp (mkLoc $2) lamOp $1 $3 }
      | Form                        { $1 }
+
+Matches : MatchExp                     { [$1] }
+        | MatchExp '|' Matches         { $1 : $3 }
+
+MatchExp : Pat '->' Expr            { patternMatch (mkLoc $2) $1 $3 }
 
 Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '-' Form               { infixApp (mkLoc $2) subOp $1 $3 }

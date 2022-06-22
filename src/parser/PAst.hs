@@ -23,6 +23,8 @@ data SynExpF a = Lit Prim
                | Lam [a] a
                | Let [a] a a
                | IfThenElse a a a 
+               | Match a [a]
+               | MatchExp a a
                | Defn (Maybe (Qual Type)) [a] a 
                | TypeDecl Type [Type] [String] deriving (Show, Eq, Functor, Traversable, Foldable)
 
@@ -67,3 +69,9 @@ defn l qt ps v = In (Ann (Just l) (Defn qt ps v))
 
 typeDecl :: Loc -> Type -> [Type] -> [String] -> SynExp
 typeDecl l t ts ds = In (Ann (Just l) (TypeDecl t ts ds))
+
+matcH :: Loc -> SynExp -> [SynExp] -> SynExp
+matcH l e es = In (Ann (Just l) (Match e es))
+
+patternMatch :: Loc -> SynExp -> SynExp -> SynExp
+patternMatch l e1 e2 = In (Ann (Just l) (MatchExp e1 e2))
