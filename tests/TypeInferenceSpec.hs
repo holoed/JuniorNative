@@ -253,6 +253,20 @@ spec = parallel $
       [i|val f :: (a -> b) -> Maybe (List a) -> Maybe (List b)
          let f = fmap . fmap|] --> "(a -> b) -> Maybe (List a) -> Maybe (List b)"
 
+    it "pattern matching 0" $ do
+      "let foo x = match x with y -> y" --> "a -> a"
+
+    it "pattern matching 1" $ do
+      "let foo x = match x with (y, z) -> y" --> "(a, b) -> a"
+
+    it "pattern matching 2" $ do
+      [i|let foo x = match x with 
+                   | (y, z) -> y
+                   | (y, z) -> z|] --> "(a, a) -> a"
+
+    -- it "pattern matching 3" $ do
+    --   "let foo x = match x with Just y -> y" --> "Maybe a -> a"
+
 
       
 

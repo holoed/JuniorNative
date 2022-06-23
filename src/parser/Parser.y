@@ -191,6 +191,7 @@ Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
      | '(' '>=>' ')'               { varPat (mkLoc $2) ">=>" }
      | '(' '<$>' ')'               { varPat (mkLoc $2) "<$>" }
      | VAR                         { varPat (mkLoc $1) (snd $1) }
+  --   | ConstrPat Pat               {  }           
                        
 
 PatList : Pat                       { [$1] }

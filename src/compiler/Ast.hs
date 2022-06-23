@@ -22,6 +22,8 @@ data ExpF a = Lit Prim
             | Lam a a
             | Let a a a
             | IfThenElse a a a 
+            | Match a [a]
+            | MatchExp a a
             | Defn (Maybe (Qual Type)) a a 
             {- This section is for Closure Conversion -}
             | MkClosure String 
@@ -51,6 +53,12 @@ leT l ps v b = In (Ann (Just l) (Let ps v b))
 
 ifThenElse :: Loc -> Exp -> Exp -> Exp -> Exp
 ifThenElse l p e1 e2 = In (Ann (Just l) (IfThenElse p e1 e2))
+
+matcH :: Loc -> Exp -> [Exp] -> Exp
+matcH l e es = In (Ann (Just l) (Match e es))
+
+matchExp :: Loc -> Exp -> Exp -> Exp
+matchExp l e1 e2 = In (Ann (Just l) (MatchExp e1 e2))
 
 mkTuple :: Loc -> [Exp] -> Exp
 mkTuple l xs = In (Ann (Just l) (MkTuple xs))

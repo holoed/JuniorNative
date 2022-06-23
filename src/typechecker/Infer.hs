@@ -9,8 +9,8 @@ import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Location ( Loc, PString(..) )
 import Ast ( Exp, ExpF(..) )
-import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmkTuple, tvarPat, ttuplePat, tdefn )
-import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology )
+import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmatch, tmkTuple, tvarPat, ttuplePat, tdefn, tmatchExp )
+import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology, tyLam )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, charCon, tupleCon )
 import Environment ( Env, addScheme )
 import Substitutions ( Substitutions, substituteQ )
@@ -21,6 +21,7 @@ import MonomorphicRestriction (applyRestriction)
 import Data.Bifunctor (second)
 import Control.Monad ((<=<))
 import Data.Maybe (isJust)
+import Debug.Trace (trace)
 
 getNameAndTypes :: TypedExp -> [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
@@ -132,7 +133,27 @@ alg (Ann (Just l) (Defn givenQt n e1)) =
      mgu l t0 bt
      return (tdefn l (ps1 `union` ps2 :=> bt) givenQt n' e1')
 
-alg _ = throwError $ PStr ("Undefined", Nothing)
+alg (Ann (Just l) (Match e es)) =
+  do t1 <- newTyVar 0
+     (e1', ps1) <- listen $ local (\(env, _, sv, b)  -> (env, t1, sv, b)) e
+     (e2', ps2) <- listen $ local (\(env, t, sv, b) -> (env, TyApp (TyApp (TyCon "->") t1) t, sv, b)) (sequence es)
+     bt <- getBaseType
+     qt <- substituteQM ((ps1 `union` ps2) :=> bt)
+     return $ tmatch l (fromList [] :=> bt) e1' e2'
+
+alg (Ann (Just l) (MatchExp n e)) =
+  do n'@(In (Ann (_, _ :=> t0) _)) <- n
+     let nts = getNameAndTypes n'
+     bt <- getBaseType
+     t2 <- newTyVar 0
+     let t = TyApp (TyApp (TyCon "->") t0) t2
+     mgu l t bt
+     let (TyVar t1n _) = t0
+     (e', ps'') <- listen $ local (\(env, _, sv, _) ->
+       (foldToScheme env nts, t2, insert t1n sv, False)) e
+     return (tmatchExp l (ps'' :=> t) n' e')
+
+alg _ = throwError $ PStr ("Type Inference doesn't support this syntax yet.", Nothing)
 
 infer :: ClassEnv -> Env -> Exp -> Either PString (Substitutions, TypedExp)
 infer classEnv env e = fmap f (run (m >>= (applyRestriction <=< resolvePreds classEnv)) ctx state)

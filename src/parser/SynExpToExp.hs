@@ -37,6 +37,8 @@ toExp = cataRec alg
           alg (Ann (Just l) (PAst.Let (s:ss) e1 e2)) =
               pure (Ast.leT l) <*> s <*> (pure (foldr (Ast.lam l)) <*> e1 <*> (sequence ss)) <*> e2
           alg (Ann (Just l) (PAst.IfThenElse p e1 e2)) = pure (Ast.ifThenElse l) <*> p <*> e1 <*> e2
+          alg (Ann (Just l) (PAst.Match e es)) = pure (Ast.matcH l) <*> e <*> sequence es
+          alg (Ann (Just l) (PAst.MatchExp e1 e2)) = pure (Ast.matchExp l) <*> e1 <*> e2
           alg _ = Nothing
 
 
