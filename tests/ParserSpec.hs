@@ -7,7 +7,7 @@ import Test.Hspec (Spec, shouldBe, describe, it, parallel)
 import Annotations (Ann(Ann))
 import Location (Loc (Loc), PString (PStr))
 import Fixpoint (Fix(In))
-import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl, Match, MatchExp, TuplePat))
+import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl, Match, MatchExp, TuplePat, ConPat))
 import Primitives (Prim(I))
 import Types (Type(TyCon, TyApp, TyVar), Qual((:=>)), Pred (IsIn), tyLam)
 import Data.Set (fromList)
@@ -124,3 +124,12 @@ spec = parallel $ do
                (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [
                (In (Ann (Just (Loc 2 3 30)) (MatchExp (In (Ann (Just (Loc 1 3 23)) (TuplePat [In (Ann (Just (Loc 1 3 24)) (VarPat "y")),(In (Ann (Just (Loc 1 3 27)) (VarPat "z")))]))) (In (Ann (Just (Loc 1 3 33)) (Var "z"))))))
                    ]))))))]
+
+  it "pattern matching syntax 4" $
+     parseExpr [i|
+        let foo x = match x with 
+                    | Just y -> y
+     |] `shouldBe` 
+      Right [(In (Ann (Just (Loc 3 2 9)) (Defn Nothing [(In (Ann (Just (Loc 3 2 13)) (VarPat "foo"))),(In (Ann (Just (Loc 1 2 17)) (VarPat "x")))] 
+             (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [
+             (In (Ann (Just (Loc 2 3 30)) (MatchExp (In (Ann (Just (Loc 4 3 23)) (ConPat "Just" [(In (Ann (Just (Loc 1 3 28)) (VarPat "y")))]))) (In (Ann (Just (Loc 1 3 33)) (Var "y"))))))]))))))]

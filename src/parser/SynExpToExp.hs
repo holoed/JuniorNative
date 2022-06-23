@@ -26,6 +26,7 @@ toExp = cataRec alg
           alg (Ann (Just l) (PAst.VarPat s)) = pure $ Ast.varPat l s
           alg (Ann (Just l) (PAst.MkTuple es)) = Ast.mkTuple l <$> (sequence es)
           alg (Ann (Just l) (PAst.TuplePat es)) = Ast.tuplePat l <$> (sequence es)
+          alg (Ann (Just l) (PAst.ConPat name es)) = Ast.conPat l name <$> (sequence es)
           alg (Ann Nothing (PAst.App e1 e2)) = pure Ast.app <*> e1 <*> e2
           alg (Ann _ (PAst.InfixApp (" ",_,_) e1 e2)) = pure Ast.app <*> e1 <*> e2
           alg (Ann (Just l) (PAst.InfixApp (op, _, _) e1 e2)) =

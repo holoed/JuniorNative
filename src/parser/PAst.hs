@@ -18,6 +18,7 @@ data SynExpF a = Lit Prim
                | VarPat String
                | MkTuple [a]
                | TuplePat [a]
+               | ConPat String [a]
                | App a a
                | InfixApp Operator a a
                | Lam [a] a
@@ -41,6 +42,9 @@ varPat l s = In (Ann (Just l) (VarPat s))
 
 tuplePat :: Loc ->[SynExp] -> SynExp
 tuplePat l xs = In (Ann (Just l) (TuplePat xs))
+
+conPat :: Loc -> String ->[SynExp] -> SynExp
+conPat l name xs = In (Ann (Just l) (ConPat name xs))
 
 app :: SynExp -> SynExp -> SynExp
 app e1 e2 = In (Ann Nothing (App e1 e2))

@@ -102,6 +102,7 @@ tokens :-
   \]                            {\p s -> TokenRBracket (p, s) }
   ","                           {\_ _ -> TokenComma }
   "."                           {\p s -> TokenDot (p, s) }
+  [A-Z]  [$alpha $digit \_ \']* {\p s -> TokenUSym (p, s) }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
 
 {
@@ -124,6 +125,7 @@ data Token
   | TokenString (AlexPosn, Prim)
   | TokenChar (AlexPosn, Prim)
   | TokenSym (AlexPosn, String)
+  | TokenUSym (AlexPosn, String)
   | TokenArrow (AlexPosn, String)
   | TokenFatArrow (AlexPosn, String)
   | TokenLtStarGt (AlexPosn, String)

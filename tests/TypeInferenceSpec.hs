@@ -264,8 +264,19 @@ spec = parallel $
                    | (y, z) -> y
                    | (y, z) -> z|] --> "(a, a) -> a"
 
-    -- it "pattern matching 3" $ do
-    --   "let foo x = match x with Just y -> y" --> "Maybe a -> a"
+    it "pattern matching 3" $ do
+      "let foo x = match x with Just y -> y" --> "Maybe a -> a"
+
+    it "pattern matching 4" $ do
+        [i|let foo x = match x with 
+                   | Just x -> x + 1
+                   | Nothing -> 0 |] --> "Num a => Maybe a -> a"
+
+    it "pattern matching 5" $ do
+        [i|let foo x = match x with 
+               | Just (y, z) -> y + z 
+               | Nothing -> 0  |] --> "Num a => Maybe (a, a) -> a"
+
 
 
       

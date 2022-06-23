@@ -5,7 +5,7 @@ import Fixpoint ( Fix(In) )
 import Types ( Type, Qual )
 import Annotations ( Ann(..) )
 import Primitives ( Prim )
-import Ast (ExpF(Lit, Var, VarPat, App, Lam, Let, IfThenElse, MkTuple, TuplePat, Defn, Match, MatchExp), ExpF)
+import Ast (ExpF(Lit, Var, VarPat, App, Lam, Let, IfThenElse, MkTuple, TuplePat, Defn, Match, MatchExp, ConPat), ExpF)
 
 type TypedExpF = Ann (Maybe Loc, Qual Type) ExpF
 type TypedExp = Fix TypedExpF
@@ -42,6 +42,9 @@ tmkTuple l t xs = In (Ann (Just l, t) (MkTuple xs))
 
 ttuplePat :: Loc -> Qual Type -> [TypedExp] -> TypedExp
 ttuplePat l t xs = In (Ann (Just l, t) (TuplePat xs))
+
+tconPat :: Loc -> Qual Type -> String -> [TypedExp] -> TypedExp
+tconPat l t n xs = In (Ann (Just l, t) (ConPat n xs))
 
 tdefn :: Loc -> Qual Type -> Maybe (Qual Type) -> TypedExp -> TypedExp -> TypedExp
 tdefn l t t2 ps v = In (Ann (Just l, t) (Defn t2 ps v))

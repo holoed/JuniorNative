@@ -18,6 +18,7 @@ data ExpF a = Lit Prim
             | VarPat String
             | MkTuple [a]
             | TuplePat [a]
+            | ConPat String [a]
             | App a a
             | Lam a a
             | Let a a a
@@ -65,6 +66,9 @@ mkTuple l xs = In (Ann (Just l) (MkTuple xs))
 
 tuplePat :: Loc -> [Exp] -> Exp
 tuplePat l xs = In (Ann (Just l) (TuplePat xs))
+
+conPat :: Loc -> String -> [Exp] -> Exp
+conPat l name xs = In (Ann (Just l) (ConPat name xs))
 
 defn :: Loc -> Maybe (Qual Type) -> Exp -> Exp -> Exp
 defn l qt p v = In (Ann (Just l) (Defn qt p v))

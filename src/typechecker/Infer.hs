@@ -9,23 +9,36 @@ import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Location ( Loc, PString(..) )
 import Ast ( Exp, ExpF(..) )
-import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmatch, tmkTuple, tvarPat, ttuplePat, tdefn, tmatchExp )
+import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmatch, tmkTuple, tvarPat, ttuplePat, tdefn, tmatchExp, tconPat )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology, tyLam )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, charCon, tupleCon )
-import Environment ( Env, addScheme )
+import Environment ( Env, addScheme, findScheme, fromScheme )
 import Substitutions ( Substitutions, substituteQ )
-import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM )
+import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM, mkForAll )
 import Unification ( mgu )
 import ContextReduction (resolvePreds, ClassEnv)
 import MonomorphicRestriction (applyRestriction)
 import Data.Bifunctor (second)
 import Control.Monad ((<=<))
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, fromJust)
 import Debug.Trace (trace)
+import Control.Monad.RWS (ask)
 
-getNameAndTypes :: TypedExp -> [(String, Qual Type)]
-getNameAndTypes (In (Ann (_, qt) (VarPat s))) = [(s, qt)]
-getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = xs >>= getNameAndTypes
+getReturnType :: Qual Type -> Qual Type
+getReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = ps :=> t2
+getReturnType t = t
+
+getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
+getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
+getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
+getNameAndTypes (In (Ann (l, (_ :=> TyApp _ t0)) (ConPat name [x]))) = do
+  x' <- getNameAndTypes x
+  let ts = (\(ps :=> t) -> t) <$> snd <$> x'
+  if (length ts == 1) 
+  then mgu (fromJust l) (head ts) t0
+  else mgu (fromJust l) (tupleCon ts) t0
+  return x'
+getNameAndTypes (In (Ann (l, (_ :=> t0)) (ConPat name []))) = return []
 getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 generateTypeForPattern :: TypedExp -> TypeM Type
@@ -68,7 +81,7 @@ alg (Ann Nothing  (App e1 e2)) =
 
 alg (Ann (Just l) (Lam n e)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     let nts = getNameAndTypes n'
+     nts <- getNameAndTypes n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2
@@ -90,7 +103,7 @@ alg (Ann (Just l) (IfThenElse p e1 e2)) =
 
 alg (Ann (Just l) (Let n e1 e2)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     let nts = getNameAndTypes n'
+     nts <- getNameAndTypes n'
      let (TyVar tn _) = t0
      (e1', ps1) <- listen $ local (\(env, _, sv, _) ->
        (foldToScheme env nts, t0, insert tn sv, False)) e1
@@ -117,9 +130,16 @@ alg (Ann (Just l) (TuplePat ns)) = do
   t <- sequence (generateTypeForPattern <$> ns')
   return $ ttuplePat l (fromList [] :=> tupleCon t) ns'
 
+alg (Ann (Just l) (ConPat name ns)) = do
+  (env, _, _, _) <- ask
+  qt <- mkForAll (fromList []) $ fromScheme $ findScheme name env
+  let qt2 = getReturnType qt
+  ns' <- sequence ns
+  return $ tconPat l qt2 name ns'
+
 alg (Ann (Just l) (Defn givenQt n e1)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     let nts = getNameAndTypes n'
+     nts <- getNameAndTypes n'
      let (TyVar tn _) = t0
      (e1', ps1) <- listen $ local (\(env, _, sv, _) ->
        (foldToScheme env nts, t0, insert tn sv, False)) e1
@@ -143,7 +163,7 @@ alg (Ann (Just l) (Match e es)) =
 
 alg (Ann (Just l) (MatchExp n e)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     let nts = getNameAndTypes n'
+     nts <- getNameAndTypes n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2
