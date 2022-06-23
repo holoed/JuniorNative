@@ -40,3 +40,11 @@ spec = parallel $
          "Symbol {name = x Just line 1 column 13, ty = a, parent = Just (Symbol {name = x Just line 1 column 7, ty = Num a => a, parent = Nothing, top = False}), top = False}",
          "Symbol {name = y Just line 1 column 17, ty = a, parent = Just (Symbol {name = y Just line 1 column 9, ty = Num a => a, parent = Nothing, top = False}), top = False}"
          ]
+
+      it "pattern matching" $ "let f x = match x with y -> y" --> [
+         "Symbol {name = f Just line 1 column 5, ty = a -> a, parent = Nothing, top = True}",
+         "Symbol {name = x Just line 1 column 7, ty = a, parent = Nothing, top = False}",
+         "Symbol {name = x Just line 1 column 17, ty = a, parent = Just (Symbol {name = x Just line 1 column 7, ty = a, parent = Nothing, top = False}), top = False}",
+         "Symbol {name = y Just line 1 column 24, ty = a, parent = Nothing, top = False}",
+         "Symbol {name = y Just line 1 column 29, ty = a, parent = Just (Symbol {name = y Just line 1 column 24, ty = a, parent = Nothing, top = False}), top = False}"
+       ]
