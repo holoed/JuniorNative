@@ -48,6 +48,7 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
     where alg (Ann (Just l) (Ast.Lit x)) = PAst.lit l x
           alg (Ann (Just l) (Ast.Var s)) = PAst.var l s
           alg (Ann l (Ast.VarPat s)) = PAst.varPat (getLoc l) s
+          alg (Ann l (Ast.ConPat name xs)) = PAst.conPat (getLoc l) name xs
           alg (Ann (Just l) (Ast.TuplePat es)) = PAst.tuplePat l es
           alg (Ann (Just l) (Ast.MkTuple es)) = PAst.mkTuple l es
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "*"))) e1))) e2)) = PAst.infixApp zeroLoc mulOp e1 e2
@@ -74,6 +75,8 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
           alg (Ann (Just l) (Ast.Let s e1 e2)) = PAst.leT l [s] e1 e2
           alg (Ann (Just l) (Ast.Defn qt s e1)) = PAst.defn l qt [s] e1
           alg (Ann (Just l) (Ast.IfThenElse p e1 e2)) = PAst.ifThenElse l p e1 e2
+          alg (Ann (Just l) (Ast.Match e1 e2s)) = PAst.matcH l e1 e2s
+          alg (Ann (Just l) (Ast.MatchExp e1 e2)) = PAst.patternMatch l e1 e2
           alg (Ann (Just l) (Ast.MkClosure name)) = 
               PAst.infixApp l juxtaOp (PAst.var l "MkClosure") (PAst.var l name)
           alg (Ann (Just l) (Ast.SetEnv name e1 e2)) =

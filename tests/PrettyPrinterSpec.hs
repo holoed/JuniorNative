@@ -94,6 +94,10 @@ spec = parallel $
 
     it "Print applicative operator" $ do
       ["let foo f x = f <*> x"] --> ["let foo f x = f <*> x"]
+    
+    it "Print Pattern Match" $ do
+      ["let f x = match x with y -> y"] --> ["let f x = match x with y -> y"]
+      ["let f x = match x with y -> y | z -> z"] --> ["let f x = match x with y -> y | z -> z"]
 
 
 
