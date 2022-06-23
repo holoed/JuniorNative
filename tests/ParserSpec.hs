@@ -88,6 +88,13 @@ spec = parallel $ do
   it "data definition with deriving" $
      parseExpr "data Maybe a = Nothing | Just a deriving Functor" `shouldBe` Right [In (Ann (Just (Loc 4 1 1)) (TypeDecl (TyApp (TyCon "Maybe") (TyVar "a" 0)) [TyCon "Nothing", (TyApp (TyCon "Just") (TyVar "a" 0))] ["Functor"]))]   
 
+  it "pattern matching syntax 0" $
+     parseExpr [i|
+        let foo x = match x with y -> y
+     |] `shouldBe` 
+      Right  [In (Ann (Just (Loc 3 2 9)) (Defn Nothing [In (Ann (Just (Loc 3 2 13)) (VarPat "foo")),(In (Ann (Just (Loc 1 2 17)) (VarPat "x")))] (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [(In (Ann (Just (Loc 2 2 36)) (MatchExp (In (Ann (Just (Loc 1 2 34)) (VarPat "y"))) (In (Ann (Just (Loc 1 2 39)) (Var "y"))))))])))))]
+
+
   it "pattern matching syntax 1" $
      parseExpr [i|
         let foo x = match x with 

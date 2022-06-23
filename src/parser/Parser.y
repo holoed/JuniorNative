@@ -122,6 +122,7 @@ Decl : val Pats '::' Expr
 Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
      | '\\' Pats '->' Expr         { lam (mkLoc $1) $2 $4 }
      | match Expr with '|' Matches { matcH (mkLoc $1) $2 $5 }
+     | match Expr with Matches     { matcH (mkLoc $1) $2 $4 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Expr '=>' Expr              { infixApp (mkLoc $2) classOp $1 $3 }
      | Expr '->' Expr              { infixApp (mkLoc $2) lamOp $1 $3 }
