@@ -38,6 +38,16 @@ getNameAndTypes (In (Ann (l, (_ :=> TyApp _ t0)) (ConPat name [x]))) = do
   then mgu (fromJust l) (head ts) t0
   else mgu (fromJust l) (tupleCon ts) t0
   return x'
+getNameAndTypes (In (Ann (l, (_ :=> TyCon tyName)) (ConPat name [x]))) = do
+  (env, _, _, _) <- ask
+  x' <- getNameAndTypes x
+  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
+  qt <- mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env
+  let (_ :=> t0) = getReturnType qt
+  if (length ts == 1) 
+  then mgu (fromJust l) (head ts) t0
+  else mgu (fromJust l) (tupleCon ts) t0
+  return x'
 getNameAndTypes (In (Ann (l, (_ :=> t0)) (ConPat name []))) = return []
 getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 

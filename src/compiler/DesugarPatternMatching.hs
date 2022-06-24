@@ -28,12 +28,15 @@ desugarImp es = sequence (cataRec alg <$> es)
             e1' <- e1 
             e2' <- e2
             case e1' of 
-                In (Ann attr (ConPat name [x])) ->
+                In (Ann _ (ConPat name [x])) ->
                     return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
                                                      In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
                                                        (In (Ann attr (Let x 
                                                        (In (Ann attr (App
                                                        (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
+                In (Ann _ (ConPat name [])) ->
+                    return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
+                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
                 _ ->
                     return $ In (Ann attr (MkTuple ([In (Ann attr (Lam e1' (In (Ann attr (Lit (B True)))))),
                                                      In (Ann attr (Lam e1' e2'))])))

@@ -269,4 +269,4 @@ spec = parallel $ do
 
    it "Duality of Sorts" $ "tests/jnrs_lib/duality_of_sorts.jnr" ---> "[0,1,3,5,6,9]"
 
-   it "Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> "10"
+   it "Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> "30"

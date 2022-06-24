@@ -1,21 +1,27 @@
 data Nat = Z | S Nat
 
-let one = S Z
-let two = S (S Z)
-let three = S (S (S Z))
-
+val add :: Nat -> Nat -> Nat
 let add x y = 
-  if (isZ x) then y else
-  let x' = extractS x in S (add x' y)
+  match x with
+  | Z -> y
+  | S x' -> S (add x' y)
 
-let mul x y =
-  if (isZ y) then Z
-  else if (isS x && isZ(extractS x)) then x
-  else add x (mul x (extractS y))
-
+let mul x y = match y with
+  | Z -> Z
+  | S y -> match y with
+           | Z -> x
+           | S z -> add x (mul x y)
+ 
+val toInt :: Num a => Nat -> a
 let toInt x = 
-  if (isZ x) then 0
-  else toInt (extractS x) + 1
+  match x with
+  | Z -> 0
+  | S x -> toInt x + 1
 
-let main = toInt (mul (add two three) two)
+val fromInt :: Num a => a -> Nat
+let fromInt x =
+  if (x == 0) then Z
+  else S (fromInt (x - 1))
+
+let main = toInt (mul (add (fromInt 2) (fromInt 3)) (fromInt 6))
 
