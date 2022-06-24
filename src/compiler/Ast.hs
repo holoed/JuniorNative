@@ -16,6 +16,7 @@ data TypeDecl = TypeDecl Type [Type] [String]
 data ExpF a = Lit Prim
             | Var String
             | VarPat String
+            | LitPat Prim
             | MkTuple [a]
             | TuplePat [a]
             | ConPat String [a]
@@ -42,6 +43,9 @@ var l s = In (Ann (Just l) (Var s))
 
 varPat :: Loc -> String -> Exp
 varPat l s = In (Ann (Just l) (VarPat s))
+
+litPat :: Loc -> Prim -> Exp
+litPat l x = In (Ann (Just l) (LitPat x))
 
 app :: Exp -> Exp -> Exp
 app e1 e2 = In (Ann Nothing  (App e1 e2))

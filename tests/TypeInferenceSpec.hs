@@ -277,6 +277,9 @@ spec = parallel $
                | Just (y, z) -> y + z 
                | Nothing -> 0  |] --> "Num a => Maybe (a, a) -> a"
 
+    it "pattern matching 6" $ do
+        [i|let foo x = match x with Just 4 -> 5 |] --> "Num a => Maybe Int -> a"
+
 
 
       

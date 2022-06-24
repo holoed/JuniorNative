@@ -194,7 +194,8 @@ Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
      | '(' '<$>' ')'               { varPat (mkLoc $2) "<$>" }
      | UVAR Pats                   { conPat (mkLoc $1) (snd $1) $2 } 
      | UVAR                        { conPat (mkLoc $1) (snd $1) [] }  
-     | VAR                         { varPat (mkLoc $1) (snd $1) }         
+     | VAR                         { varPat (mkLoc $1) (snd $1) }   
+     | NUM                         { litPat (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }  
                        
 
 PatList : Pat                       { [$1] }

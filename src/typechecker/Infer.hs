@@ -9,8 +9,8 @@ import RecursionSchemes ( cataRec )
 import Primitives ( Prim(..) )
 import Location ( Loc, PString(..) )
 import Ast ( Exp, ExpF(..) )
-import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmatch, tmkTuple, tvarPat, ttuplePat, tdefn, tmatchExp, tconPat )
-import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology, tyLam )
+import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmatch, tmkTuple, tvarPat, ttuplePat, tdefn, tmatchExp, tconPat, tlitPat )
+import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology, tyLam, Pred (IsIn) )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, charCon, tupleCon )
 import Environment ( Env, addScheme, findScheme, fromScheme )
 import Substitutions ( Substitutions, substituteQ )
@@ -30,15 +30,17 @@ getReturnType t = t
 
 getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
+getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
 getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
-getNameAndTypes (In (Ann (l, (_ :=> TyApp _ t0)) (ConPat name [x]))) = do
+getNameAndTypes (In (Ann (l, (_ :=> TyApp _ t0)) (ConPat _ [x]))) = do
   x' <- getNameAndTypes x
-  let ts = (\(ps :=> t) -> t) <$> snd <$> x'
-  if (length ts == 1) 
+  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
+  if (null ts) then error "Should never be empty"
+  else if (length ts == 1) 
   then mgu (fromJust l) (head ts) t0
   else mgu (fromJust l) (tupleCon ts) t0
   return x'
-getNameAndTypes (In (Ann (l, (_ :=> TyCon tyName)) (ConPat name [x]))) = do
+getNameAndTypes (In (Ann (l, (_ :=> TyCon _)) (ConPat name [x]))) = do
   (env, _, _, _) <- ask
   x' <- getNameAndTypes x
   let ts = (\(_ :=> t) -> t) <$> snd <$> x'
@@ -48,7 +50,7 @@ getNameAndTypes (In (Ann (l, (_ :=> TyCon tyName)) (ConPat name [x]))) = do
   then mgu (fromJust l) (head ts) t0
   else mgu (fromJust l) (tupleCon ts) t0
   return x'
-getNameAndTypes (In (Ann (l, (_ :=> t0)) (ConPat name []))) = return []
+getNameAndTypes (In (Ann (_, (_ :=> _)) (ConPat _ []))) = return []
 getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 generateTypeForPattern :: TypedExp -> TypeM Type
@@ -135,6 +137,9 @@ alg (Ann (Just l) (VarPat s)) = do
   t <- newTyVar 0
   return $ tvarPat l (fromList [] :=> t) s
 
+alg (Ann (Just l) (LitPat x)) = do
+  return $ tlitPat l (fromList [] :=> valueToType x) x
+
 alg (Ann (Just l) (TuplePat ns)) = do
   ns' <- sequence ns
   t <- sequence (generateTypeForPattern <$> ns')
@@ -169,19 +174,19 @@ alg (Ann (Just l) (Match e es)) =
      (e2', ps2) <- listen $ local (\(env, t, sv, b) -> (env, TyApp (TyApp (TyCon "->") t1) t, sv, b)) (sequence es)
      bt <- getBaseType
      qt <- substituteQM ((ps1 `union` ps2) :=> bt)
-     return $ tmatch l (fromList [] :=> bt) e1' e2'
+     return $ tmatch l qt e1' e2'
 
 alg (Ann (Just l) (MatchExp n e)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     nts <- getNameAndTypes n'
+     (nts, ps1) <- listen $ getNameAndTypes n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2
      mgu l t bt
      let (TyVar t1n _) = t0
-     (e', ps'') <- listen $ local (\(env, _, sv, _) ->
+     (e', ps2) <- listen $ local (\(env, _, sv, _) ->
        (foldToScheme env nts, t2, insert t1n sv, False)) e
-     return (tmatchExp l (ps'' :=> t) n' e')
+     return (tmatchExp l (ps2 `union` ps1 :=> t) n' e')
 
 alg _ = throwError $ PStr ("Type Inference doesn't support this syntax yet.", Nothing)
 

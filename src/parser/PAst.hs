@@ -16,6 +16,7 @@ import TypesPrinter ()
 data SynExpF a = Lit Prim
                | Var String
                | VarPat String
+               | LitPat Prim
                | MkTuple [a]
                | TuplePat [a]
                | ConPat String [a]
@@ -39,6 +40,9 @@ var l s = In (Ann (Just l) (Var s))
 
 varPat :: Loc -> String -> SynExp
 varPat l s = In (Ann (Just l) (VarPat s))
+
+litPat :: Loc -> Prim -> SynExp
+litPat l s = In (Ann (Just l) (LitPat s))
 
 tuplePat :: Loc ->[SynExp] -> SynExp
 tuplePat l xs = In (Ann (Just l) (TuplePat xs))
