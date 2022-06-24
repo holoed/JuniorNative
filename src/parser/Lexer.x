@@ -54,6 +54,8 @@ tokens :-
   "--".*                         ;
 
   -- Syntax
+  match                         {\p s -> TokenMatch (p, s) }
+  with                          {\p s -> TokenWith (p, s) }
   deriving                      {\p s -> TokenDeriving (p, s) }
   data                          {\p s -> TokenData (p, s) }
   val                           {\p s -> TokenVal (p, s) }
@@ -100,12 +102,15 @@ tokens :-
   \]                            {\p s -> TokenRBracket (p, s) }
   ","                           {\_ _ -> TokenComma }
   "."                           {\p s -> TokenDot (p, s) }
+  [A-Z]  [$alpha $digit \_ \']* {\p s -> TokenUSym (p, s) }
   $alpha [$alpha $digit \_ \']* {\p s -> TokenSym (p, s) }
 
 {
 
 data Token
-  = TokenDeriving (AlexPosn, String)
+  = TokenMatch (AlexPosn, String)
+  | TokenWith (AlexPosn, String)
+  | TokenDeriving (AlexPosn, String)
   | TokenData (AlexPosn, String)
   | TokenVal (AlexPosn, String)
   | TokenLet (AlexPosn, String)
@@ -120,6 +125,7 @@ data Token
   | TokenString (AlexPosn, Prim)
   | TokenChar (AlexPosn, Prim)
   | TokenSym (AlexPosn, String)
+  | TokenUSym (AlexPosn, String)
   | TokenArrow (AlexPosn, String)
   | TokenFatArrow (AlexPosn, String)
   | TokenLtStarGt (AlexPosn, String)

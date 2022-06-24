@@ -13,6 +13,7 @@ type FreeVarsExp attr = Fix (Ann (attr, Set String) ExpF)
 getNames :: FreeVarsExp attr -> [String]
 getNames (In (Ann (_, _) (VarPat s))) = [s]
 getNames (In (Ann (_, _) (TuplePat ss))) = ss >>= getNames
+getNames (In (Ann (_, _) (ConPat _ ss))) = ss >>= getNames
 getNames x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 freeVars :: Set String -> Fix (Ann attr ExpF) -> Fix (Ann (attr, Set String) ExpF)
@@ -38,6 +39,9 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
     alg (Ann l (TuplePat xs)) = do
       (xs', fvs) <- listen (sequence xs)
       return $ In (Ann (l, fvs) $ TuplePat xs')
+    alg (Ann l (ConPat name xs)) = do
+      (xs', fvs) <- listen (sequence xs)
+      return $ In (Ann (l, fvs) $ ConPat name xs')
     alg (Ann l (App e1 e2)) = do
       (e1', fvs1) <- listen e1
       (e2', fvs2) <- listen e2
@@ -60,6 +64,14 @@ freeVars globals e = fst $ runWriter (cataRec alg e)
       (e1',fvs2) <- listen e1
       (e2',fvs3) <- listen e2
       return $ In (Ann (l, fvs1 `union` fvs2 `union` fvs3) $ IfThenElse p' e1' e2')
+    alg (Ann l (Match e1 es)) = do
+      (e1', fvs1) <- listen e1
+      (es', fvs2) <- listen (sequence es)
+      return $ In (Ann (l, fvs1 `union` fvs2) $ Match e1' es')
+    alg (Ann l (MatchExp e1 e2)) = do
+      (e1', fvs1) <- listen e1
+      (e2', fvs2) <- listen e2
+      return $ In (Ann (l, fvs1 `union` fvs2) $ MatchExp e1' e2')
     alg (Ann l (Defn qt n v)) = pass (do 
        n' <- n
        let s' = getNames n'

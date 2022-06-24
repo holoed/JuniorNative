@@ -1,11 +1,13 @@
+{-# LANGUAGE QuasiQuotes #-}
 module ParserSpec where
 
+import Data.String.Interpolate (i)
 import Parser (parseExpr)
 import Test.Hspec (Spec, shouldBe, describe, it, parallel)
 import Annotations (Ann(Ann))
 import Location (Loc (Loc), PString (PStr))
 import Fixpoint (Fix(In))
-import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl))
+import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl, Match, MatchExp, TuplePat, ConPat, LitPat))
 import Primitives (Prim(I))
 import Types (Type(TyCon, TyApp, TyVar), Qual((:=>)), Pred (IsIn), tyLam)
 import Data.Set (fromList)
@@ -85,3 +87,57 @@ spec = parallel $ do
 
   it "data definition with deriving" $
      parseExpr "data Maybe a = Nothing | Just a deriving Functor" `shouldBe` Right [In (Ann (Just (Loc 4 1 1)) (TypeDecl (TyApp (TyCon "Maybe") (TyVar "a" 0)) [TyCon "Nothing", (TyApp (TyCon "Just") (TyVar "a" 0))] ["Functor"]))]   
+
+  it "pattern matching syntax 0" $
+     parseExpr [i|
+        let foo x = match x with y -> y
+     |] `shouldBe` 
+      Right  [In (Ann (Just (Loc 3 2 9)) (Defn Nothing [In (Ann (Just (Loc 3 2 13)) (VarPat "foo")),(In (Ann (Just (Loc 1 2 17)) (VarPat "x")))] (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [(In (Ann (Just (Loc 2 2 36)) (MatchExp (In (Ann (Just (Loc 1 2 34)) (VarPat "y"))) (In (Ann (Just (Loc 1 2 39)) (Var "y"))))))])))))]
+
+
+  it "pattern matching syntax 1" $
+     parseExpr [i|
+        let foo x = match x with 
+                    | y -> y
+     |] `shouldBe` 
+      Right  [In (Ann (Just (Loc 3 2 9)) (Defn Nothing [In (Ann (Just (Loc 3 2 13)) (VarPat "foo")),(In (Ann (Just (Loc 1 2 17)) (VarPat "x")))] (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [(In (Ann (Just (Loc 2 3 25)) (MatchExp (In (Ann (Just (Loc 1 3 23)) (VarPat "y"))) (In (Ann (Just (Loc 1 3 28)) (Var "y"))))))])))))]
+
+  it "pattern matching syntax 2" $
+     parseExpr [i|
+        let foo x = match x with 
+                    | y -> y
+                    | z -> z
+     |] `shouldBe` 
+      Right  [In (Ann (Just (Loc 3 2 9)) (Defn Nothing [In (Ann (Just (Loc 3 2 13)) (VarPat "foo")),(In (Ann (Just (Loc 1 2 17)) (VarPat "x")))] 
+        (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [
+        (In (Ann (Just (Loc 2 3 25)) (MatchExp (In (Ann (Just (Loc 1 3 23)) (VarPat "y"))) (In (Ann (Just (Loc 1 3 28)) (Var "y")))))),
+        (In (Ann (Just (Loc 2 4 25)) (MatchExp (In (Ann (Just (Loc 1 4 23)) (VarPat "z"))) (In (Ann (Just (Loc 1 4 28)) (Var "z"))))))
+        ])))))]
+
+  it "pattern matching syntax 3" $
+     parseExpr [i|
+        let foo x = match x with 
+                    | (y, z) -> z
+                    
+     |] `shouldBe` 
+      Right   [(In (Ann (Just (Loc 3 2 9)) (Defn Nothing [In (Ann (Just (Loc 3 2 13)) (VarPat "foo")),(In (Ann (Just (Loc 1 2 17)) (VarPat "x")))] 
+               (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [
+               (In (Ann (Just (Loc 2 3 30)) (MatchExp (In (Ann (Just (Loc 1 3 23)) (TuplePat [In (Ann (Just (Loc 1 3 24)) (VarPat "y")),(In (Ann (Just (Loc 1 3 27)) (VarPat "z")))]))) (In (Ann (Just (Loc 1 3 33)) (Var "z"))))))
+                   ]))))))]
+
+  it "pattern matching syntax 4" $
+     parseExpr [i|
+        let foo x = match x with 
+                    | Just y -> y
+     |] `shouldBe` 
+      Right [(In (Ann (Just (Loc 3 2 9)) (Defn Nothing [(In (Ann (Just (Loc 3 2 13)) (VarPat "foo"))),(In (Ann (Just (Loc 1 2 17)) (VarPat "x")))] 
+             (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "x"))) [
+             (In (Ann (Just (Loc 2 3 30)) (MatchExp (In (Ann (Just (Loc 4 3 23)) (ConPat "Just" [(In (Ann (Just (Loc 1 3 28)) (VarPat "y")))]))) (In (Ann (Just (Loc 1 3 33)) (Var "y"))))))]))))))]
+
+  it "pattern matching syntax 5" $
+    parseExpr [i|
+      let foo x = match x with Just 4 -> 5 
+    |] `shouldBe`
+     Right [(In (Ann (Just (Loc 3 2 7)) (Defn Nothing [(In (Ann (Just (Loc 3 2 11)) (VarPat "foo"))),(In (Ann (Just (Loc 1 2 15)) (VarPat "x")))] 
+            (In (Ann (Just (Loc 5 2 19)) (Match (In (Ann (Just (Loc 1 2 25)) (Var "x"))) [
+              (In (Ann (Just (Loc 2 2 39)) (MatchExp (In (Ann (Just (Loc 4 2 32)) (ConPat "Just" [(In (Ann (Just (Loc 1 2 37)) (LitPat (I 4))))]))) (In (Ann (Just (Loc 1 2 42)) (Lit (I 5)))))))]))))))]

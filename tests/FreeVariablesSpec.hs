@@ -4,7 +4,7 @@ import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel)
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann), mapAnn )
 import Primitives ( Prim(I) )
-import Ast ( ExpF(Lit, Var, VarPat, MkTuple, App, Lam, Let, IfThenElse, Defn) )
+import Ast ( ExpF(Lit, Var, VarPat, MkTuple, App, Lam, Let, IfThenElse, Defn, Match, MatchExp) )
 import FreeVariables ( freeVars )
 import Data.Set (Set(), empty, fromList )
 import Parser (parseExpr)
@@ -53,3 +53,7 @@ spec = parallel $
                     IfThenElse (In (Ann (fromList ["x"]) (Var "x")))
                                (In (Ann (fromList ["y"]) (Var "y")))
                                (In (Ann (fromList ["z"]) (Var "z")))))
+
+    it "Free vars of pattern matching" $
+      "let f x = match x with y -> y" --> 
+       In (Ann (fromList ["y"]) (Defn Nothing (In (Ann (fromList ["f"]) (VarPat "f"))) (In (Ann (fromList ["y"]) (Lam (In (Ann (fromList ["x"]) (VarPat "x"))) (In (Ann (fromList ["x","y"]) (Match (In (Ann (fromList ["x"]) (Var "x"))) [(In (Ann (fromList ["y"]) (MatchExp (In (Ann (fromList ["y"]) (VarPat "y"))) (In (Ann (fromList ["y"]) (Var "y"))))))]))))))))

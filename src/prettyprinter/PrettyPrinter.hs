@@ -1,7 +1,7 @@
 module PrettyPrinter where
 
 import Primitives ( Prim(U, I, D, B, S, C) )
-import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, TuplePat, Let, Defn) )
+import PAst ( SynExp, SynExpF(IfThenElse, Lit, Var, VarPat, Lam, InfixApp, MkTuple, TuplePat, Let, Defn, ConPat, Match, MatchExp) )
 import Operators ( Operator, Associativity(..), lamOp, minOp )
 import PrettyPrinterUtils ( bracket ) 
 import RecursionSchemes ( cataRec )
@@ -16,6 +16,7 @@ import Control.Monad.RWS.Lazy
 import Prelude hiding (Left, Right, (<>), pi)
 import Annotations ( unwrap )
 import Data.List (intersperse)
+import GHC.ResponseFile (escapeArgs)
 
 type PrettyM = RWS Int [Operator] ()
 
@@ -35,6 +36,9 @@ alg (Lit (C c)) =
    return $ text "'" <> text [c] <> text "'"
 alg (Lit U) =
    return $ text "()"
+alg (ConPat name es) = do
+   es' <- sequence es
+   return $ (text name) <> (text " ") <> (folddoc (<>) $ intersperse (text " ") es')
 alg (VarPat x) =
    return $ if isop x
    then parens (text x)
@@ -83,6 +87,15 @@ alg (IfThenElse q t f) = do
   level <- ask
   let ret = group $ nest level $ sep [text "if" <+> q', text "then" <+>  group t', text "else" <+> group f']
   return (ret <|> (line <> indent level ret))
+alg (Match e1 es) = do
+  e1' <- e1
+  es' <- sequence es
+  return $ (text "match") <+> e1' <+> (text "with") <+> group (folddoc (<>) $ intersperse (text " | ") es')
+alg (MatchExp n e) = do
+  n' <- n
+  e' <- e
+  _ <- tell [lamOp]
+  return $ align $ n' <+> text "->" <+/> group e'
 alg (Defn _ [n] v) = do
   n' <- n
   v' <- local (const 4) v

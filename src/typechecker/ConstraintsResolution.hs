@@ -46,7 +46,7 @@ mapEnvWithLocal :: Env -> String -> Qual Type -> ([Pred], Type)
 mapEnvWithLocal env name (_ :=> t1) =
     if containsScheme name env then
         let (ps2 :=> t2) = getTypeForName name env in
-        let subs = fromRight (error "Mapping failed") (mappings t2 t1) in
+        let subs = either (\x -> error ("Mapping failed " ++ show x)) id (mappings t2 t1) in
         let resolvedPredicates = substitutePredicate subs <$> Set.toList ps2 in
         let resolvedType = substitute subs t2 in
         (resolvedPredicates, resolvedType)
@@ -77,6 +77,7 @@ mapCompatibleTypes classEnv parent_args child_args resolved_args =
 extractNames :: TypedExp -> [String]
 extractNames (In (Ann _ (VarPat s))) = [s]
 extractNames (In (Ann _ (TuplePat xs))) = xs >>= extractNames
+extractNames (In (Ann _ (ConPat _ xs))) = xs >>= extractNames
 extractNames _ = error "Unsupported"
 
 convertBody :: ClassEnv -> Env -> String -> [TypedExp] -> TypedExp -> TypedExp

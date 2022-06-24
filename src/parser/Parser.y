@@ -14,7 +14,7 @@ import PAst
 import Types
 import BuiltIns
 import Data.Set
-import Data.Char (isLower)
+import Data.Char (isUpper)
 
 import Control.Monad (mapM)
 import Control.Monad.Except
@@ -34,6 +34,8 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 
 -- Token Names
 %token
+    match { TokenMatch $$ }
+    with  { TokenWith $$ }
     deriving { TokenDeriving $$ }
     data  { TokenData $$ }
     val   { TokenVal $$ }
@@ -48,6 +50,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     STRING { TokenString $$ }
     CHAR   { TokenChar $$ }
     VAR   { TokenSym $$ }
+    UVAR   { TokenUSym $$ }
     '\\'  { TokenLambda $$ }
     '->'  { TokenArrow $$ }
     '<*>' { TokenLtStarGt $$ }
@@ -103,7 +106,7 @@ TopDecl : Decls                    { $1 }
 
 Decls : Decl                       { $1 }
       | Expr                       { $1 }
-      | data Expr '=' Constrs deriving VAR {% fromExprToType $2 >>= (\ty ->
+      | data Expr '=' Constrs deriving UVAR {% fromExprToType $2 >>= (\ty ->
                                                (mapM fromExprToType $4) >>= (\tys -> 
                                                return (typeDecl (mkLoc $1) ty tys [snd $6]))) }
       | data Expr '=' Constrs {% fromExprToType $2 >>= (\ty ->
@@ -119,10 +122,17 @@ Decl : val Pats '::' Expr
 
 Expr : let Pats '=' Expr in Expr   { leT (mkLoc $1) $2 $4 $6 }
      | '\\' Pats '->' Expr         { lam (mkLoc $1) $2 $4 }
+     | match Expr with '|' Matches { matcH (mkLoc $1) $2 $5 }
+     | match Expr with Matches     { matcH (mkLoc $1) $2 $4 }
      | if Expr then Expr else Expr { ifThenElse (mkLoc $1) $2 $4 $6 }
      | Expr '=>' Expr              { infixApp (mkLoc $2) classOp $1 $3 }
      | Expr '->' Expr              { infixApp (mkLoc $2) lamOp $1 $3 }
      | Form                        { $1 }
+
+Matches : MatchExp                     { [$1] }
+        | MatchExp '|' Matches         { $1 : $3 }
+
+MatchExp : Pat '->' Expr            { patternMatch (mkLoc $2) $1 $3 }
 
 Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '-' Form               { infixApp (mkLoc $2) subOp $1 $3 }
@@ -156,6 +166,7 @@ Atom : '(' Expr ')'                { $2 }
      | STRING                      { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
      | CHAR                        { lit (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }
      | VAR                         { var (mkLoc ($1)) (snd $1) }
+     | UVAR                        { var (mkLoc ($1)) (snd $1) }
      | true                        { lit (mkLoc $1) (B True) }
      | false                       { lit (mkLoc $1) (B False) }
      | '[]'                        { var (mkLoc $1) "[]" }
@@ -181,7 +192,10 @@ Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
      | '(' '.' ')'                 { varPat (mkLoc $2) "." }
      | '(' '>=>' ')'               { varPat (mkLoc $2) ">=>" }
      | '(' '<$>' ')'               { varPat (mkLoc $2) "<$>" }
-     | VAR                         { varPat (mkLoc $1) (snd $1) }
+     | UVAR Pats                   { conPat (mkLoc $1) (snd $1) $2 } 
+     | UVAR                        { conPat (mkLoc $1) (snd $1) [] }  
+     | VAR                         { varPat (mkLoc $1) (snd $1) }   
+     | NUM                         { litPat (mkLoc (fst $1, primToStr $ snd $1)) (snd $1) }  
                        
 
 PatList : Pat                       { [$1] }

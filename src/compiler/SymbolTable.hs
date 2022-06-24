@@ -48,6 +48,9 @@ alg (Ann (loc, qt) (Var n)) = do
 alg (Ann (loc, qt) (VarPat n)) = do
     tell [Symbol { name = PStr(n, loc), ty = qt, parent = Nothing, top = False}]
     return $ In (Ann (loc, qt) (VarPat n))
+alg (Ann (loc, qt) (ConPat n xs)) = do
+    xs' <- sequence xs
+    return $ In (Ann (loc, qt) (ConPat n xs'))
 alg (Ann (loc, qt) (MkTuple xs)) = do
     xs' <- sequence xs
     return $ In (Ann (loc, qt) (MkTuple xs'))
@@ -72,6 +75,15 @@ alg (Ann (loc, qt) (IfThenElse p t h)) = do
     p' <- p
     t' <- t
     In . Ann (loc, qt) . IfThenElse p' t' <$> h
+alg (Ann (loc, qt) (Match e1 es)) = do
+    e1' <- e1
+    es' <- sequence es
+    return $ In (Ann (loc, qt) (Match e1' es'))
+alg (Ann (loc, qt) (MatchExp e1 e2)) = do
+    e1' <- e1
+    let names = fromList $ extractSymbols e1'
+    e2' <- local (`union` names) e2
+    return $ In (Ann (loc, qt) (MatchExp e1' e2'))
 alg (Ann (loc, qt) (Defn qt' n v)) = do
     n' <- n
     let names = fromList $ extractSymbols n'

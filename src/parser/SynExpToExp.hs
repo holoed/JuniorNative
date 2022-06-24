@@ -24,8 +24,10 @@ toExp = cataRec alg
           alg (Ann (Just l) (PAst.Lit x)) = pure $ Ast.lit l x
           alg (Ann (Just l) (PAst.Var s)) = pure $ Ast.var l s
           alg (Ann (Just l) (PAst.VarPat s)) = pure $ Ast.varPat l s
+          alg (Ann (Just l) (PAst.LitPat x)) = pure $ Ast.litPat l x
           alg (Ann (Just l) (PAst.MkTuple es)) = Ast.mkTuple l <$> (sequence es)
           alg (Ann (Just l) (PAst.TuplePat es)) = Ast.tuplePat l <$> (sequence es)
+          alg (Ann (Just l) (PAst.ConPat name es)) = Ast.conPat l name <$> (sequence es)
           alg (Ann Nothing (PAst.App e1 e2)) = pure Ast.app <*> e1 <*> e2
           alg (Ann _ (PAst.InfixApp (" ",_,_) e1 e2)) = pure Ast.app <*> e1 <*> e2
           alg (Ann (Just l) (PAst.InfixApp (op, _, _) e1 e2)) =
@@ -37,6 +39,8 @@ toExp = cataRec alg
           alg (Ann (Just l) (PAst.Let (s:ss) e1 e2)) =
               pure (Ast.leT l) <*> s <*> (pure (foldr (Ast.lam l)) <*> e1 <*> (sequence ss)) <*> e2
           alg (Ann (Just l) (PAst.IfThenElse p e1 e2)) = pure (Ast.ifThenElse l) <*> p <*> e1 <*> e2
+          alg (Ann (Just l) (PAst.Match e es)) = pure (Ast.matcH l) <*> e <*> sequence es
+          alg (Ann (Just l) (PAst.MatchExp e1 e2)) = pure (Ast.matchExp l) <*> e1 <*> e2
           alg _ = Nothing
 
 
@@ -45,6 +49,7 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
     where alg (Ann (Just l) (Ast.Lit x)) = PAst.lit l x
           alg (Ann (Just l) (Ast.Var s)) = PAst.var l s
           alg (Ann l (Ast.VarPat s)) = PAst.varPat (getLoc l) s
+          alg (Ann l (Ast.ConPat name xs)) = PAst.conPat (getLoc l) name xs
           alg (Ann (Just l) (Ast.TuplePat es)) = PAst.tuplePat l es
           alg (Ann (Just l) (Ast.MkTuple es)) = PAst.mkTuple l es
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "*"))) e1))) e2)) = PAst.infixApp zeroLoc mulOp e1 e2
@@ -71,6 +76,8 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
           alg (Ann (Just l) (Ast.Let s e1 e2)) = PAst.leT l [s] e1 e2
           alg (Ann (Just l) (Ast.Defn qt s e1)) = PAst.defn l qt [s] e1
           alg (Ann (Just l) (Ast.IfThenElse p e1 e2)) = PAst.ifThenElse l p e1 e2
+          alg (Ann (Just l) (Ast.Match e1 e2s)) = PAst.matcH l e1 e2s
+          alg (Ann (Just l) (Ast.MatchExp e1 e2)) = PAst.patternMatch l e1 e2
           alg (Ann (Just l) (Ast.MkClosure name)) = 
               PAst.infixApp l juxtaOp (PAst.var l "MkClosure") (PAst.var l name)
           alg (Ann (Just l) (Ast.SetEnv name e1 e2)) =

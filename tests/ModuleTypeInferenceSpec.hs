@@ -177,13 +177,13 @@ spec = parallel $
      ]
 
     it "Custom ADT - Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> [
-      ("add", "Nat -> Nat -> Nat"), 
-      ("three", "Nat"),
-      ("toInt", "Num a => Nat -> a"), 
-      ("two", "Nat"), 
-      ("one", "Nat"),
-      ("mul", "Nat -> Nat -> Nat"), 
-      ("main", "Int")
+       ("fromInt", "(Eq a, Num a) => a -> Nat"), 
+       ("toInt", "Num a => Nat -> a"), 
+       ("add", "Nat -> Nat -> Nat"), 
+       ("mul", "Nat -> Nat -> Nat"), 
+       ("facNat", "Nat -> Nat"), 
+       ("fac", "Int -> Int"), 
+       ("main", "Int")
      ]
 
 

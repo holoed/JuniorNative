@@ -74,5 +74,11 @@ let anaRec psi = fix (ana psi)
 val cataRec :: Functor f => (f a -> a) -> Fix f -> a
 let cataRec psi = fix (cata psi)
 
+val matchFn :: List ((a -> Bool, a -> b)) -> a -> b
+let matchFn xs x = 
+  if (null xs) then error "Pattern match failure" ()
+  else let (f, g) = head xs in
+  if (f x) then g x else matchFn (tail xs) x
+
 
 
