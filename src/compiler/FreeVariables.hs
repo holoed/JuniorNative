@@ -13,6 +13,7 @@ type FreeVarsExp attr = Fix (Ann (attr, Set String) ExpF)
 getNames :: FreeVarsExp attr -> [String]
 getNames (In (Ann (_, _) (VarPat s))) = [s]
 getNames (In (Ann (_, _) (TuplePat ss))) = ss >>= getNames
+getNames (In (Ann (_, _) (ConPat _ ss))) = ss >>= getNames
 getNames x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 freeVars :: Set String -> Fix (Ann attr ExpF) -> Fix (Ann (attr, Set String) ExpF)

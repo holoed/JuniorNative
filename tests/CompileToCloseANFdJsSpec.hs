@@ -240,6 +240,20 @@ spec = parallel $ do
 
          let main = fmap ((+) 1) (Some 42)
       |] --> "{\"value\":43}"
+
+   it "pattern matching 1" $ do
+      [i|let foo x = match x with y -> y
+         let main = foo 5|] --> "5" 
+
+   it "pattern matching 2" $ do
+      [i|data Option a = None | Some a
+         let foo v = match v with Some x -> x + 1
+         let main = foo (Some 5)|] --> "6" 
+
+   it "pattern matching 3" $ do
+      [i|data Option a = None | Some a
+         let foo v = match v with Some (x, y) -> x
+         let main = foo (Some ('a', 5))|] --> "\"a\"" 
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 

@@ -5,7 +5,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, interpret, toJs, closureConversion, aNormalisation, optimizeTypeClasses, deadCodeElimin, optimizeClosureEnvs, fromSynExpToDataDecl )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, desugarPatternMatching, interpret, toJs, closureConversion, aNormalisation, optimizeTypeClasses, deadCodeElimin, optimizeClosureEnvs, fromSynExpToDataDecl )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
@@ -38,13 +38,9 @@ backendPrinted = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
        step "pretty print module" prettyPrintModule
 
-closed :: String -> CompileM [TypedExp]
-closed = frontEnd >=>
-       step "desugar constraints" desugarPredicates >=>
-       step "closure conversion" closureConversion 
-
 closedAndANF :: String -> CompileM [TypedExp]
 closedAndANF = frontEnd >=>
+       step "desugar pattern matching" desugarPatternMatching >=>
        step "desugar constraints" desugarPredicates >=>
        step "A Normalisation" aNormalisation >=>
        step "closure conversion" closureConversion 
@@ -58,10 +54,6 @@ fullInterp = frontEnd >=>
 fullJS :: String -> CompileM Text
 fullJS = frontEnd >=>
        step "desugar constraints" desugarPredicates >=>
-       step "to javascript" toJs
-
-fullJSClosed :: String -> CompileM Text
-fullJSClosed = closed >=>
        step "to javascript" toJs
 
 fullJSClosedANF :: String -> CompileM Text

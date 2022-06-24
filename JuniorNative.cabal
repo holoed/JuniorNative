@@ -67,6 +67,7 @@ executable JuniorNative
                        OptimizeTypeClasses,
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
+                       DesugarPatternMatching,
                        ParserUtils,
                        Junior
   build-depends:       base,
@@ -144,6 +145,7 @@ executable JuniorService
                        OptimizeTypeClasses,
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
+                       DesugarPatternMatching,
                        ParserUtils,
                        Junior
   build-depends:       base,
@@ -228,6 +230,7 @@ test-suite spec
                        OptimizeTypeClasses,
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
+                       DesugarPatternMatching,
                        ParserUtils,
                        Junior,
                        AlphaRenameSpec,
@@ -247,7 +250,6 @@ test-suite spec
                        CompileToJsSpec,
                        JavaScriptRunnerSpec,
                        ClosureConversionSpec,
-                       CompileToClosedJsSpec,
                        CompileToCloseANFdJsSpec,
                        OptimizeTypeClassesSpec,
                        DeadCodeEliminationSpec,

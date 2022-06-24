@@ -3,15 +3,22 @@ module ClosureConversionSpec where
 
 import Data.String.Interpolate ( i )
 import Test.Hspec ( describe, it, shouldBe, Spec, parallel )
-import Compiler (closed)
 import Intrinsics (classEnv, env)
 import InterpreterMonad (empty)
-import CompilerMonad (run)
+import CompilerMonad (run, CompileM)
 import TypedAst (TypedExp)
 import SynExpToExp ( fromExp )
 import PrettyPrinter (prettyPrint)
 import Annotations (mapAnn)
 import Data.Char (isSpace)
+import CompilerSteps (desugarPredicates, closureConversion)
+import Compiler (step, frontEnd)
+import Control.Monad ((>=>))
+
+closed :: String -> CompileM [TypedExp]
+closed = frontEnd >=>
+       step "desugar constraints" desugarPredicates >=>
+       step "closure conversion" closureConversion 
 
 process :: String -> IO [String]
 process code = do
