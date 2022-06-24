@@ -5,23 +5,34 @@ let add x y =
   match x with
   | Z -> y
   | S x' -> S (add x' y)
-
-let mul x y = match y with
-  | Z -> Z
-  | S y -> match y with
-           | Z -> x
-           | S z -> add x (mul x y)
  
+val mul :: Nat -> Nat -> Nat
+let mul x y = match y with  
+  | Z -> Z
+  | S Z -> x
+  | S y -> add x (mul x y)
+
+val facNat :: Nat -> Nat
+let facNat n = 
+     match n with
+     | Z -> S Z
+     | S x -> mul n (facNat x)
+
 val toInt :: Num a => Nat -> a
-let toInt x = 
+let toInt x =  
   match x with
   | Z -> 0
   | S x -> toInt x + 1
 
-val fromInt :: Num a => a -> Nat
+val fromInt :: (Eq a, Num a) => a -> Nat
 let fromInt x =
   if (x == 0) then Z
   else S (fromInt (x - 1))
+     
+val fac :: Int -> Int 
+let fac = toInt . facNat . fromInt
 
-let main = toInt (mul (add (fromInt 2) (fromInt 3)) (fromInt 6))
+val main :: Int
+let main = fac 5
 
+         

@@ -181,6 +181,8 @@ spec = parallel $
        ("toInt", "Num a => Nat -> a"), 
        ("add", "Nat -> Nat -> Nat"), 
        ("mul", "Nat -> Nat -> Nat"), 
+       ("facNat", "Nat -> Nat"), 
+       ("fac", "Int -> Int"), 
        ("main", "Int")
      ]
 
