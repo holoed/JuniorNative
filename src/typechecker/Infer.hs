@@ -12,7 +12,7 @@ import Ast ( Exp, ExpF(..) )
 import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmatch, tmkTuple, tvarPat, ttuplePat, tdefn, tmatchExp, tconPat, tlitPat )
 import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology, tyLam, Pred (IsIn) )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, charCon, tupleCon )
-import Environment ( Env, addScheme, findScheme, fromScheme )
+import Environment ( Env, addScheme, findScheme, fromScheme, containsScheme )
 import Substitutions ( Substitutions, substituteQ )
 import InferMonad ( TypeM, newTyVar, getBaseType, getTypeForName, generalise, substituteQM, mkForAll )
 import Unification ( mgu )
@@ -32,14 +32,22 @@ getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
 getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
 getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
-getNameAndTypes (In (Ann (l, (_ :=> TyApp _ t0)) (ConPat _ [x]))) = do
+getNameAndTypes (In (Ann (l, (_ :=> t5@(TyApp _ t1))) (ConPat name [x]))) = do
+  (env, _, _, _) <- ask
   x' <- getNameAndTypes x
   let ts = (\(_ :=> t) -> t) <$> snd <$> x'
+  t0 <- if (containsScheme ("extract" ++ name) env) 
+        then do
+          qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
+          let (_ :=> TyApp (TyApp (TyCon "->") t5') _) = qt0
+          mgu (fromJust l) t5 t5'
+          return $ (\(_ :=> t) -> t) (getReturnType qt0)
+        else return t1
   if (null ts) then error "Should never be empty"
   else if (length ts == 1) 
   then mgu (fromJust l) (head ts) t0
   else mgu (fromJust l) (tupleCon ts) t0
-  return x'
+  trace "Strategy 1" $ return x'
 getNameAndTypes (In (Ann (l, (_ :=> TyCon _)) (ConPat name [x]))) = do
   (env, _, _, _) <- ask
   x' <- getNameAndTypes x
@@ -50,12 +58,12 @@ getNameAndTypes (In (Ann (l, (_ :=> TyCon _)) (ConPat name [x]))) = do
   else if (length ts == 1) 
   then mgu (fromJust l) (head ts) t0
   else mgu (fromJust l) (tupleCon ts) t0
-  return x'
+  trace "Strategy 2" $ return x'
 getNameAndTypes (In (Ann (l, qt0@(_ :=> t0)) (ConPat name []))) = do
   (env, _, _, _) <- ask
-  qt1@(_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
+  (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
   mgu (fromJust l) t1 t0
-  return [("", qt0)]
+  trace "Strategy 3" $ return [("", qt0)]
 getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 generateTypeForPattern :: TypedExp -> TypeM Type

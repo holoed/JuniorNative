@@ -31,7 +31,9 @@ env' = concatEnvs env $ toEnv [
   ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
   ("concat", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("filter", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyCon "Bool")) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-  ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0)))
+  ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
+  ("extractP", Set.fromList [] :=> tyLam (TyApp (TyCon "P") (TyVar "a" 0)) (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) ),
+  ("P", Set.fromList [] :=> tyLam (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) (TyApp (TyCon "P") (TyVar "a" 0)))
  ]
 
 extractName :: SynExp -> String
@@ -279,6 +281,9 @@ spec = parallel $
 
     it "pattern matching 6" $ do
         [i|let foo x = match x with Just 4 -> 5 |] --> "Num a => Maybe Int -> a"
+
+    it "pattern matching 7" $ do
+      "let runP p s = match p with P f -> f s" --> "P a -> String -> List (a, String)"
 
 
 

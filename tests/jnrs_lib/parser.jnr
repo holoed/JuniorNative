@@ -1,0 +1,40 @@
+
+data P a = P (String -> List (a, String)) 
+
+val runP :: P a -> String -> List (a, String)
+let runP p s = match p with P f -> f s
+
+-- instance Monad P where
+val bind :: P a -> (a -> P b) -> P b
+let bind m f = P (\s -> flatten ((\(x, rest) -> runP (f x) rest) <$> (runP m s))) 
+
+val unit :: a -> P a
+let unit x = P (\s -> [(x, s)])
+----------------------------------
+
+val zero :: P a
+let zero = P (\inp -> [])
+
+val item :: P Char
+let item = P (\inp -> if (nullStr inp) then []
+                      else (headStr inp, tailStr inp) : [])
+
+val sat :: (Char -> Bool) -> P Char
+let sat p = bind item (\x -> if p x then unit x else zero)
+
+val char :: Char -> P Char
+let char x = sat (\y -> x == y)
+
+val string :: String -> P String
+let string s = 
+	let string' cs = 
+      if nullStr cs then unit ""
+      else let c   = headStr cs in
+           let cs' = tailStr cs in 
+           bind (char c) (\x1 ->
+           bind (string' cs')(\x2 ->
+           unit (charToStr c <> cs'))) 
+    in string' s
+ 
+val main :: List (String, String)
+let main = runP (string "Hello") "Hello World"
