@@ -28,6 +28,15 @@ getReturnType :: Qual Type -> Qual Type
 getReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = ps :=> t2
 getReturnType t = t
 
+getArgsTypes :: Type -> [Type]
+getArgsTypes (TyApp (TyApp (TyCon "->") t1) t2) = t1 : getArgsTypes t2
+getArgsTypes t = []
+
+traceLog :: (Show a, Show b) => (a -> TypeM b) -> a -> TypeM b
+traceLog f x = do y <- f x
+                  return $ trace ("input: " ++ show x ++ " output: " ++ show y) y 
+
+-- TODO: Delete and find a better way
 getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
 getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
@@ -81,8 +90,16 @@ valueToType (S _) = strCon
 valueToType (C _) = charCon
 valueToType U     = TyCon "()"
 
-foldToScheme :: Env ->  [(String, Qual Type)] -> Env
-foldToScheme = foldl (\env' (n, qt) -> addScheme n (Identity qt) env')
+foldPats :: (Env -> (String, Qual Type) -> Env) -> Env -> TypedExp -> Env
+foldPats f z (In (Ann (_, qt) (VarPat x))) = f z (x, qt) 
+foldPats f z (In (Ann (_, qt) (TuplePat xs))) = foldl (foldPats f) z xs
+foldPats f z (In (Ann (_, qt) (ConPat name xs))) = foldl (foldPats f) z xs
+
+foldToScheme :: Env -> TypedExp -> Env
+foldToScheme =  foldPats (\env' (n, qt) -> addScheme n (Identity qt) env')
+
+foldToScheme' :: Env ->  [(String, Qual Type)] -> Env
+foldToScheme' = foldl (\env' (n, qt) -> addScheme n (Identity qt) env')
 
 alg :: Ann (Maybe Loc) ExpF (TypeM TypedExp) -> TypeM TypedExp
 alg (Ann (Just l) (Lit v)) =
@@ -106,14 +123,13 @@ alg (Ann Nothing  (App e1 e2)) =
 
 alg (Ann (Just l) (Lam n e)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     nts <- getNameAndTypes n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2
      mgu l t bt
      let (TyVar t1n _) = t0
      (e', ps'') <- listen $ local (\(env, _, sv, _) ->
-       (foldToScheme env nts, t2, insert t1n sv, False)) e
+       (foldToScheme env n', t2, insert t1n sv, False)) e
      return (tlam l (ps'' :=> t) n' e')
 
 alg (Ann (Just l) (IfThenElse p e1 e2)) =
@@ -128,13 +144,12 @@ alg (Ann (Just l) (IfThenElse p e1 e2)) =
 
 alg (Ann (Just l) (Let n e1 e2)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     nts <- getNameAndTypes n'
      let (TyVar tn _) = t0
      (e1', ps1) <- listen $ local (\(env, _, sv, _) ->
-       (foldToScheme env nts, t0, insert tn sv, False)) e1
+       (foldToScheme env n', t0, insert tn sv, False)) e1
      (subs, _) <- get
      (e2', ps2) <- listen $ local (\(env, bt, sv, b) ->
-       (foldl (\env' (n'', ps2 :=> t3) -> addScheme n'' (generalise b sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env nts, bt, sv, b)) e2
+       (foldPats (\env' (n'', ps2 :=> t3) -> addScheme n'' (generalise b sv (substituteQ subs ((ps1 `union` ps2) :=> t3))) env') env n', bt, sv, b)) e2
      bt <- getBaseType
      return (tleT l ((ps1 `union` ps2) :=> bt) n' e1' e2')
 
@@ -167,10 +182,9 @@ alg (Ann (Just l) (ConPat name ns)) = do
 
 alg (Ann (Just l) (Defn givenQt n e1)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     nts <- getNameAndTypes n'
      let (TyVar tn _) = t0
      (e1', ps1) <- listen $ local (\(env, _, sv, _) ->
-       (foldToScheme env nts, t0, insert tn sv, False)) e1
+       (foldToScheme env n', t0, insert tn sv, False)) e1
      bt <- getBaseType
      ps2 <- if isJust givenQt
             then do
@@ -191,14 +205,14 @@ alg (Ann (Just l) (Match e es)) =
 
 alg (Ann (Just l) (MatchExp n e)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     (nts, ps1) <- listen $ getNameAndTypes n'
+     (nts, ps1) <- listen $ traceLog getNameAndTypes n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2
      mgu l t bt
      let (TyVar t1n _) = t0
      (e', ps2) <- listen $ local (\(env, _, sv, _) ->
-       (foldToScheme env nts, t2, insert t1n sv, False)) e
+       (foldToScheme' env nts, t2, insert t1n sv, False)) e
      return (tmatchExp l (ps2 `union` ps1 :=> t) n' e')
 
 alg _ = throwError $ PStr ("Type Inference doesn't support this syntax yet.", Nothing)
