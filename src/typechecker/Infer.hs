@@ -21,20 +21,19 @@ import MonomorphicRestriction (applyRestriction)
 import Data.Bifunctor (second)
 import Control.Monad ((<=<))
 import Data.Maybe (isJust, fromJust)
-import Debug.Trace (trace)
 import Control.Monad.RWS (ask)
 
+getFirstReturnType :: Qual Type -> Qual Type
+getFirstReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = ps :=> t2 
+getFirstReturnType t = t
+
 getReturnType :: Qual Type -> Qual Type
-getReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = ps :=> t2
+getReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = getReturnType(ps :=> t2)
 getReturnType t = t
 
 getArgsTypes :: Type -> [Type]
 getArgsTypes (TyApp (TyApp (TyCon "->") t1) t2) = t1 : getArgsTypes t2
 getArgsTypes t = []
-
-traceLog :: (Show a, Show b) => (a -> TypeM b) -> a -> TypeM b
-traceLog f x = do y <- f x
-                  return $ trace ("input: " ++ show x ++ " output: " ++ show y) y 
 
 unifyConstr :: Maybe Loc -> String -> Type -> [(String, Qual Type)] -> TypeM () 
 unifyConstr l name t5 x' = do
@@ -43,7 +42,7 @@ unifyConstr l name t5 x' = do
   qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
   let (_ :=> TyApp (TyApp (TyCon "->") t5') _) = qt0
   mgu (fromJust l) t5 t5'
-  let (_ :=> t0) = getReturnType qt0
+  let (_ :=> t0) = getFirstReturnType qt0
   if (null ts) then error "Should never be empty"
   else if (length ts == 1) 
   then mgu (fromJust l) (head ts) t0
@@ -54,6 +53,11 @@ getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
 getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
 getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
 getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
+getNameAndTypes (In (Ann (l, (_ :=> retType@(TyApp (TyApp _ _) _))) (ConPat name [x, y]))) = do
+  x' <- getNameAndTypes x
+  y' <- getNameAndTypes y
+  unifyConstr l name retType (x' ++ y')
+  return $ (x' ++ y')
 getNameAndTypes (In (Ann (l, (_ :=> retType@(TyApp _ _))) (ConPat name [x]))) = do
   x' <- getNameAndTypes x
   unifyConstr l name retType x'
@@ -66,7 +70,7 @@ getNameAndTypes (In (Ann (l, qt0@(_ :=> t0)) (ConPat name []))) = do
   (env, _, _, _) <- ask
   (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
   mgu (fromJust l) t1 t0
-  trace "Strategy 3" $ return [("", qt0)]
+  return [("", qt0)]
 getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
 
 generateTypeForPattern :: TypedExp -> TypeM Type
@@ -199,7 +203,7 @@ alg (Ann (Just l) (Match e es)) =
 
 alg (Ann (Just l) (MatchExp n e)) =
   do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     (nts, ps1) <- listen $ traceLog getNameAndTypes n'
+     (nts, ps1) <- listen $ getNameAndTypes n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2

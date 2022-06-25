@@ -140,6 +140,16 @@ spec = parallel $
             let main = two
           |] -->  [("zero","Fix (L a)"),("one","Fix (L Int)"),("two","Fix (L Int)"),("main","Fix (L Int)")]
 
+    it "Pattern match 1" $ 
+       [i|
+              data ListF a b = Empty | Cons a b deriving Functor 
+
+              let toListAlg v = 
+              match v with
+              | Empty -> []
+              | Cons x xs -> x:xs 
+       |] --> [("toListAlg","ListF a (List a) -> List a")]
+
     it "Complex example" $ "tests/jnrs_lib/example.jnr" ---> [
       ("++", "Foldable a => a b -> List b -> List b"), 
       ("cadd", "(Num a, Num b) => (a, b) -> (a, b) -> (a, b)"), 
