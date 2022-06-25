@@ -20,6 +20,7 @@ import Data.Bifunctor (second)
 import Data.Map (toList, fromList, (!), member)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
+import BuiltIns (tupleCon)
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
@@ -34,7 +35,12 @@ env' = concatEnvs env $ toEnv [
   ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
   ("extractP", Set.fromList [] :=> tyLam (TyApp (TyCon "P") (TyVar "a" 0)) (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) ),
   ("P", Set.fromList [] :=> tyLam (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) (TyApp (TyCon "P") (TyVar "a" 0))),
-  ("extractJust", Set.fromList [] :=> tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyVar "a" 0))
+  ("extractJust", Set.fromList [] :=> tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyVar "a" 0)),
+  ("isEmpty", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
+  ("isCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
+  ("extractCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (tupleCon [TyVar "a" 0, TyVar "b" 0])),
+  ("Empty", Set.fromList [] :=> (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0))),
+  ("Cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0))))
  ]
 
 extractName :: SynExp -> String
@@ -285,6 +291,14 @@ spec = parallel $
 
     it "pattern matching 7" $ do
       "let runP p s = match p with P f -> f s" --> "P a -> String -> List (a, String)"
+
+    it "pattern matching 8" $ do
+      [i|
+        let toListAlg v = 
+              match v with
+              | Empty -> []
+              | Cons x xs -> x:xs 
+      |] --> "ListF a (List a) -> List a"
 
 
 
