@@ -4,7 +4,7 @@ import TypedAst (TypedExp, TypedExpF)
 import RecursionSchemes (cataRec)
 import Fixpoint (Fix(In))
 import Annotations (Ann(Ann))
-import Ast (ExpF(Var, Match, App, MatchExp, MkTuple, Lam, Lit, ConPat, Let, VarPat))
+import Ast (ExpF(Var, Match, App, MatchExp, MkTuple, Lam, Lit, ConPat, Let, VarPat, TuplePat))
 import Control.Monad.Identity (Identity (runIdentity))
 import Location (Loc)
 import Types (Qual, Type)
@@ -37,6 +37,13 @@ desugarImp es = sequence (cataRec alg <$> es)
                                                     (In (Ann attr (App
                                                        (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))),
                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
+
+                In (Ann _ (ConPat name [x, y])) ->
+                    return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
+                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
+                                                       (In (Ann attr (App
+                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
                 In (Ann _ (ConPat name [x])) ->
                     return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
                                                      In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 

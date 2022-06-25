@@ -1,11 +1,11 @@
 
 data ListF a b = Empty | Cons a b deriving Functor
 
+val toListAlg :: ListF a (List a) -> List a
 let toListAlg v = 
-   if isEmpty v then [] 
-   else if isCons v then 
-   let (x, xs) = extractCons v in x:xs
-   else undefined
+   match v with
+   | Empty -> []
+   | Cons x xs -> x:xs 
             
 let fromListAlg xs = 
    if null xs then Empty
