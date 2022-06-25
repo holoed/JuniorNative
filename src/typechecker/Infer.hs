@@ -36,16 +36,14 @@ traceLog :: (Show a, Show b) => (a -> TypeM b) -> a -> TypeM b
 traceLog f x = do y <- f x
                   return $ trace ("input: " ++ show x ++ " output: " ++ show y) y 
 
-unifyConstr :: Maybe Loc -> String -> Type -> [Type] -> TypeM () 
-unifyConstr l name t5@(TyApp _ t1) ts = do
+unifyConstr :: Maybe Loc -> String -> Type -> [(String, Qual Type)] -> TypeM () 
+unifyConstr l name t5 x' = do
   (env, _, _, _) <- ask
-  t0 <- if (containsScheme ("extract" ++ name) env) 
-        then do
-          qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
-          let (_ :=> TyApp (TyApp (TyCon "->") t5') _) = qt0
-          mgu (fromJust l) t5 t5'
-          return $ (\(_ :=> t) -> t) (getReturnType qt0)
-        else return t1
+  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
+  qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
+  let (_ :=> TyApp (TyApp (TyCon "->") t5') _) = qt0
+  mgu (fromJust l) t5 t5'
+  let (_ :=> t0) = getReturnType qt0
   if (null ts) then error "Should never be empty"
   else if (length ts == 1) 
   then mgu (fromJust l) (head ts) t0
@@ -58,20 +56,12 @@ getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
 getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
 getNameAndTypes (In (Ann (l, (_ :=> retType@(TyApp _ _))) (ConPat name [x]))) = do
   x' <- getNameAndTypes x
-  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
-  unifyConstr l name retType ts
-  trace "Strategy 1" $ return x'
-getNameAndTypes (In (Ann (l, (_ :=> t5@(TyCon _))) (ConPat name [x]))) = do
-  (env, _, _, _) <- ask
+  unifyConstr l name retType x'
+  return x'
+getNameAndTypes (In (Ann (l, (_ :=> retType@(TyCon _))) (ConPat name [x]))) = do
   x' <- getNameAndTypes x
-  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
-  qt <- mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env
-  let (_ :=> t0) = getReturnType qt
-  if (null ts) then error "Should never be empty"
-  else if (length ts == 1) 
-  then mgu (fromJust l) (head ts) t0
-  else mgu (fromJust l) (tupleCon ts) t0
-  trace "Strategy 2" $ return x'
+  unifyConstr l name retType x'
+  return x'
 getNameAndTypes (In (Ann (l, qt0@(_ :=> t0)) (ConPat name []))) = do
   (env, _, _, _) <- ask
   (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env

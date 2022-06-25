@@ -33,7 +33,8 @@ env' = concatEnvs env $ toEnv [
   ("filter", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyCon "Bool")) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("singleton", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "List") (TyVar "a" 0))),
   ("extractP", Set.fromList [] :=> tyLam (TyApp (TyCon "P") (TyVar "a" 0)) (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) ),
-  ("P", Set.fromList [] :=> tyLam (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) (TyApp (TyCon "P") (TyVar "a" 0)))
+  ("P", Set.fromList [] :=> tyLam (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) (TyApp (TyCon "P") (TyVar "a" 0))),
+  ("extractJust", Set.fromList [] :=> tyLam (TyApp (TyCon "Maybe") (TyVar "a" 0)) (TyVar "a" 0))
  ]
 
 extractName :: SynExp -> String
