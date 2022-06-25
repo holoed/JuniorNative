@@ -36,15 +36,9 @@ traceLog :: (Show a, Show b) => (a -> TypeM b) -> a -> TypeM b
 traceLog f x = do y <- f x
                   return $ trace ("input: " ++ show x ++ " output: " ++ show y) y 
 
--- TODO: Delete and find a better way
-getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
-getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
-getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
-getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
-getNameAndTypes (In (Ann (l, (_ :=> t5@(TyApp _ t1))) (ConPat name [x]))) = do
+unifyConstr :: Maybe Loc -> String -> Type -> [Type] -> TypeM () 
+unifyConstr l name t5@(TyApp _ t1) ts = do
   (env, _, _, _) <- ask
-  x' <- getNameAndTypes x
-  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
   t0 <- if (containsScheme ("extract" ++ name) env) 
         then do
           qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
@@ -56,8 +50,18 @@ getNameAndTypes (In (Ann (l, (_ :=> t5@(TyApp _ t1))) (ConPat name [x]))) = do
   else if (length ts == 1) 
   then mgu (fromJust l) (head ts) t0
   else mgu (fromJust l) (tupleCon ts) t0
+
+-- TODO: Delete and find a better way
+getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
+getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
+getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
+getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
+getNameAndTypes (In (Ann (l, (_ :=> retType@(TyApp _ _))) (ConPat name [x]))) = do
+  x' <- getNameAndTypes x
+  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
+  unifyConstr l name retType ts
   trace "Strategy 1" $ return x'
-getNameAndTypes (In (Ann (l, (_ :=> TyCon _)) (ConPat name [x]))) = do
+getNameAndTypes (In (Ann (l, (_ :=> t5@(TyCon _))) (ConPat name [x]))) = do
   (env, _, _, _) <- ask
   x' <- getNameAndTypes x
   let ts = (\(_ :=> t) -> t) <$> snd <$> x'
