@@ -187,7 +187,7 @@ Atom : '(' Expr ')'                { $2 }
 Exprs : Expr                       { [$1] }
       | Expr ',' Exprs             { $1 : $3 }
 
-Pat  : '(' PatList ')'             { tuplePat (mkLoc $1) $2 }
+Pat  : '(' PatList ')'             { if length $2 > 1 then tuplePat (mkLoc $1) $2 else head $2 }
      | '(' '++' ')'                { varPat (mkLoc $2) "++" }
      | '(' '.' ')'                 { varPat (mkLoc $2) "." }
      | '(' '>=>' ')'               { varPat (mkLoc $2) ">=>" }

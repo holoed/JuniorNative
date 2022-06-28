@@ -10,7 +10,7 @@ import Primitives ( Prim(..) )
 import Location ( Loc, PString(..) )
 import Ast ( Exp, ExpF(..) )
 import TypedAst ( TypedExp, tlit, tvar, tapp, tlam, tleT, tifThenElse, tmatch, tmkTuple, tvarPat, ttuplePat, tdefn, tmatchExp, tconPat, tlitPat )
-import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology, tyLam, Pred (IsIn) )
+import Types ( TypeScheme(Identity), Type(..), Qual(..), clean, deleteTautology )
 import BuiltIns ( boolCon, intCon, doubleCon, strCon, charCon, tupleCon )
 import Environment ( Env, addScheme, findScheme, fromScheme, containsScheme )
 import Substitutions ( Substitutions, substituteQ )
@@ -22,6 +22,7 @@ import Data.Bifunctor (second)
 import Control.Monad ((<=<))
 import Data.Maybe (isJust, fromJust)
 import Control.Monad.RWS (ask)
+import Debug.Trace (trace)
 
 getFirstReturnType :: Qual Type -> Qual Type
 getFirstReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = ps :=> t2 
@@ -35,43 +36,28 @@ getArgsTypes :: Type -> [Type]
 getArgsTypes (TyApp (TyApp (TyCon "->") t1) t2) = t1 : getArgsTypes t2
 getArgsTypes t = []
 
-unifyConstr :: Maybe Loc -> String -> Type -> [(String, Qual Type)] -> TypeM () 
-unifyConstr l name t5 x' = do
-  (env, _, _, _) <- ask
-  let ts = (\(_ :=> t) -> t) <$> snd <$> x'
-  qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
-  let (_ :=> TyApp (TyApp (TyCon "->") t5') _) = qt0
-  mgu (fromJust l) t5 t5'
-  let (_ :=> t0) = getFirstReturnType qt0
-  if (null ts) then error "Should never be empty"
-  else if (length ts == 1) 
-  then mgu (fromJust l) (head ts) t0
-  else mgu (fromJust l) (tupleCon ts) t0
-
--- TODO: Delete and find a better way
-getNameAndTypes :: TypedExp -> TypeM [(String, Qual Type)]
-getNameAndTypes (In (Ann (_, qt) (VarPat s))) = return $ [(s, qt)]
-getNameAndTypes (In (Ann (_, qt) (LitPat _))) = return $ [("", qt)]
-getNameAndTypes (In (Ann (_, _) (TuplePat xs))) = (concat <$>) $ sequence $ getNameAndTypes <$> xs 
-getNameAndTypes (In (Ann (l, (_ :=> retType@(TyApp (TyApp _ _) _))) (ConPat name [x, y]))) = do
-  x' <- getNameAndTypes x
-  y' <- getNameAndTypes y
-  unifyConstr l name retType (x' ++ y')
-  return $ (x' ++ y')
-getNameAndTypes (In (Ann (l, (_ :=> retType@(TyApp _ _))) (ConPat name [x]))) = do
-  x' <- getNameAndTypes x
-  unifyConstr l name retType x'
-  return x'
-getNameAndTypes (In (Ann (l, (_ :=> retType@(TyCon _))) (ConPat name [x]))) = do
-  x' <- getNameAndTypes x
-  unifyConstr l name retType x'
-  return x'
-getNameAndTypes (In (Ann (l, qt0@(_ :=> t0)) (ConPat name []))) = do
-  (env, _, _, _) <- ask
-  (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
-  mgu (fromJust l) t1 t0
-  return [("", qt0)]
-getNameAndTypes x = error $ "getNames: Unexpected exp " ++ show (unwrap x)
+process :: TypedExp -> TypeM TypedExp
+process (In (Ann (l, qt) (TuplePat xs))) = do
+   xs' <- sequence $ process <$> xs 
+   return $ In (Ann (l, qt) (TuplePat xs'))
+process (In (Ann (l, qt@(_ :=> retType)) (ConPat name xs))) = do
+  xs' <- sequence $ process <$> xs
+  (env, _, _, _) <- ask 
+  if (containsScheme ("extract" ++ name) env) then do
+    qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
+    let (_ :=> TyApp (TyApp (TyCon "->") t5') _) = qt0
+    mgu (fromJust l) retType t5'
+    let (_ :=> t0) = getFirstReturnType qt0
+    let ts = (\(In (Ann (_, _ :=> t) _)) -> t) <$> xs'
+    if (null ts) then error "Should never be empty"
+    else if (length ts == 1) 
+    then mgu (fromJust l) (head ts) t0
+    else mgu (fromJust l) (tupleCon ts) t0
+  else do
+   (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
+   mgu (fromJust l) t1 retType
+  return $ In (Ann (l, qt) (ConPat name xs'))
+process x = return x
 
 generateTypeForPattern :: TypedExp -> TypeM Type
 generateTypeForPattern (In (Ann (_, _ :=> t) (VarPat _))) = return t
@@ -90,14 +76,12 @@ valueToType U     = TyCon "()"
 
 foldPats :: (Env -> (String, Qual Type) -> Env) -> Env -> TypedExp -> Env
 foldPats f z (In (Ann (_, qt) (VarPat x))) = f z (x, qt) 
+foldPats f z (In (Ann (_, qt) (LitPat _))) = f z ("", qt)
 foldPats f z (In (Ann (_, qt) (TuplePat xs))) = foldl (foldPats f) z xs
 foldPats f z (In (Ann (_, qt) (ConPat name xs))) = foldl (foldPats f) z xs
 
 foldToScheme :: Env -> TypedExp -> Env
 foldToScheme =  foldPats (\env' (n, qt) -> addScheme n (Identity qt) env')
-
-foldToScheme' :: Env ->  [(String, Qual Type)] -> Env
-foldToScheme' = foldl (\env' (n, qt) -> addScheme n (Identity qt) env')
 
 alg :: Ann (Maybe Loc) ExpF (TypeM TypedExp) -> TypeM TypedExp
 alg (Ann (Just l) (Lit v)) =
@@ -202,15 +186,15 @@ alg (Ann (Just l) (Match e es)) =
      return $ tmatch l qt e1' e2'
 
 alg (Ann (Just l) (MatchExp n e)) =
-  do n'@(In (Ann (_, _ :=> t0) _)) <- n
-     (nts, ps1) <- listen $ getNameAndTypes n'
+  do (n'@(In (Ann (_, _ :=> t0) _)), ps1) <- listen n
+     _ <- process n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2
      mgu l t bt
      let (TyVar t1n _) = t0
      (e', ps2) <- listen $ local (\(env, _, sv, _) ->
-       (foldToScheme' env nts, t2, insert t1n sv, False)) e
+       (foldToScheme env n', t2, insert t1n sv, False)) e
      return (tmatchExp l (ps2 `union` ps1 :=> t) n' e')
 
 alg _ = throwError $ PStr ("Type Inference doesn't support this syntax yet.", Nothing)

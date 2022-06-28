@@ -11,7 +11,8 @@ import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl, Match, MatchExp
 import Primitives (Prim(I))
 import Types (Type(TyCon, TyApp, TyVar), Qual((:=>)), Pred (IsIn), tyLam)
 import Data.Set (fromList)
-import qualified Operators (Fixity (Infix), Associativity(Right))
+import qualified Operators (Associativity(Left, Right))
+import Operators (Fixity(Infix))
 
 spec :: Spec
 spec = parallel $ do
@@ -141,3 +142,15 @@ spec = parallel $ do
      Right [(In (Ann (Just (Loc 3 2 7)) (Defn Nothing [(In (Ann (Just (Loc 3 2 11)) (VarPat "foo"))),(In (Ann (Just (Loc 1 2 15)) (VarPat "x")))] 
             (In (Ann (Just (Loc 5 2 19)) (Match (In (Ann (Just (Loc 1 2 25)) (Var "x"))) [
               (In (Ann (Just (Loc 2 2 39)) (MatchExp (In (Ann (Just (Loc 4 2 32)) (ConPat "Just" [(In (Ann (Just (Loc 1 2 37)) (LitPat (I 4))))]))) (In (Ann (Just (Loc 1 2 42)) (Lit (I 5)))))))]))))))]
+
+  it "pattern matching syntax 6" $
+    parseExpr [i|
+       let swap v = match v with
+                    | Empty -> Empty
+                    | (Cons a Empty) -> Cons a Empty
+    |] `shouldBe` Right [(In (Ann (Just (Loc 3 2 8)) (Defn Nothing [(In (Ann (Just (Loc 4 2 12)) (VarPat "swap"))),(In (Ann (Just (Loc 1 2 17)) (VarPat "v")))] 
+                         (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "v"))) [
+                          (In (Ann (Just (Loc 2 3 29)) (MatchExp (In (Ann (Just (Loc 5 3 23)) (ConPat "Empty" []))) (In (Ann (Just (Loc 5 3 32)) (Var "Empty")))))),
+                          (In (Ann (Just (Loc 2 4 38)) (MatchExp (In (Ann (Just (Loc 4 4 24)) (ConPat "Cons" [(In (Ann (Just (Loc 1 4 29)) (VarPat "a"))),(In (Ann (Just (Loc 5 4 31)) (ConPat "Empty" [])))]))) (In (Ann (Just (Loc 1 1 1)) (InfixApp (" ",20,Infix Operators.Left) (In (Ann (Just (Loc 1 1 1)) (InfixApp (" ",20,Infix Operators.Left) (In (Ann (Just (Loc 4 4 41)) (Var "Cons"))) (In (Ann (Just (Loc 1 4 46)) (Var "a")))))) (In (Ann (Just (Loc 5 4 48)) (Var "Empty")))))))))
+                        ]))))))]
+

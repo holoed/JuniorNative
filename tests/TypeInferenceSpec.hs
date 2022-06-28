@@ -300,6 +300,17 @@ spec = parallel $
               | Cons x xs -> x:xs 
       |] --> "ListF a (List a) -> List a"
 
+    it "pattern matching 9" $ do
+      [i|
+        let swap v = 
+              match v with
+              | Empty -> Empty
+              | (Cons a Empty) -> Cons a Empty
+              | (Cons a (Cons b x)) -> if a <= b 
+                                        then Cons a (Cons b x)
+                                        else Cons b (Cons a x)
+      |] --> "Ord a => ListF a (ListF a b) -> ListF a (ListF a b)"
+
 
 
       
