@@ -254,6 +254,13 @@ spec = parallel $ do
       [i|data Option a = None | Some a
          let foo v = match v with Some (x, y) -> x
          let main = foo (Some ('a', 5))|] --> "\"a\"" 
+
+   it "pattern matching 4" $ do
+      [i|data ListF a b = Empty | Cons a b
+         let foo v = 
+            match v with
+            | (Cons a Empty) -> Cons a Empty
+         let main = foo (Cons (Cons Empty) Empty)|] --> "{\"value1\":{\"env\":{\"x\":{}}},\"value2\":{}}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 

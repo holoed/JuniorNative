@@ -5,12 +5,27 @@ import RecursionSchemes (cataRec)
 import Fixpoint (Fix(In))
 import Annotations (Ann(Ann))
 import Ast (ExpF(Var, Match, App, MatchExp, MkTuple, Lam, Lit, ConPat, Let, VarPat, TuplePat))
-import Control.Monad.Identity (Identity (runIdentity))
+import Control.Monad.State (State, evalState, MonadState (get, put))
 import Location (Loc)
 import Types (Qual, Type)
 import Primitives (Prim(B))
 
-type PatternM = Identity 
+type PatternM = State Int
+
+getNewVar :: PatternM String
+getNewVar = do
+    x <- get
+    put (x + 1)
+    return $ "___w" ++ show x
+
+replaceConstWithWildCard :: TypedExp -> PatternM TypedExp
+replaceConstWithWildCard (In (Ann attr (ConPat _ []))) = do
+    x <- getNewVar
+    return (In (Ann attr (VarPat x))) 
+replaceConstWithWildCard (In (Ann attr (ConPat name xs))) = do
+    xs' <- sequence $ replaceConstWithWildCard <$> xs
+    return (In (Ann attr (ConPat name xs'))) 
+replaceConstWithWildCard x = return x
 
 mkList :: (Maybe Loc, Qual Type) -> [TypedExp] -> TypedExp
 mkList attr xs = foldr f (In (Ann attr (Var "[]"))) xs
@@ -38,10 +53,12 @@ desugarImp es = sequence (cataRec alg <$> es)
                                                        (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))),
                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
 
-                In (Ann _ (ConPat name [x, y])) ->
+                In (Ann _ (ConPat name [x, y])) -> do
+                    x' <- replaceConstWithWildCard x
+                    y' <- replaceConstWithWildCard y
                     return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
                                                      In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
+                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x', y']))) 
                                                        (In (Ann attr (App
                                                        (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
                 In (Ann _ (ConPat name [x])) ->
@@ -60,4 +77,4 @@ desugarImp es = sequence (cataRec alg <$> es)
         alg x = fmap In (sequenceA x)
 
 desugar :: [TypedExp] -> [TypedExp]
-desugar es = runIdentity (desugarImp es)
+desugar es = evalState (desugarImp es) 0
