@@ -22,26 +22,21 @@ import Data.Bifunctor (second)
 import Control.Monad ((<=<))
 import Data.Maybe (isJust, fromJust)
 import Control.Monad.RWS (ask)
-import Debug.Trace (trace)
 
 getFirstReturnType :: Qual Type -> Qual Type
-getFirstReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = ps :=> t2 
+getFirstReturnType (ps :=> TyApp (TyApp (TyCon "->") _) t2) = ps :=> t2 
 getFirstReturnType t = t
 
 getReturnType :: Qual Type -> Qual Type
-getReturnType (ps :=> TyApp (TyApp (TyCon "->") t1) t2) = getReturnType(ps :=> t2)
+getReturnType (ps :=> TyApp (TyApp (TyCon "->") _) t2) = getReturnType(ps :=> t2)
 getReturnType t = t
 
-getArgsTypes :: Type -> [Type]
-getArgsTypes (TyApp (TyApp (TyCon "->") t1) t2) = t1 : getArgsTypes t2
-getArgsTypes t = []
-
-process :: TypedExp -> TypeM TypedExp
-process (In (Ann (l, qt) (TuplePat xs))) = do
-   xs' <- sequence $ process <$> xs 
+unifyPatternsWithDataTypes :: TypedExp -> TypeM TypedExp
+unifyPatternsWithDataTypes (In (Ann (l, qt) (TuplePat xs))) = do
+   xs' <- sequence $ unifyPatternsWithDataTypes <$> xs 
    return $ In (Ann (l, qt) (TuplePat xs'))
-process (In (Ann (l, qt@(_ :=> retType)) (ConPat name xs))) = do
-  xs' <- sequence $ process <$> xs
+unifyPatternsWithDataTypes (In (Ann (l, qt@(_ :=> retType)) (ConPat name xs))) = do
+  xs' <- sequence $ unifyPatternsWithDataTypes <$> xs
   (env, _, _, _) <- ask 
   if (containsScheme ("extract" ++ name) env) then do
     qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
@@ -57,7 +52,7 @@ process (In (Ann (l, qt@(_ :=> retType)) (ConPat name xs))) = do
    (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
    mgu (fromJust l) t1 retType
   return $ In (Ann (l, qt) (ConPat name xs'))
-process x = return x
+unifyPatternsWithDataTypes x = return x
 
 generateTypeForPattern :: TypedExp -> TypeM Type
 generateTypeForPattern (In (Ann (_, _ :=> t) (VarPat _))) = return t
@@ -77,8 +72,9 @@ valueToType U     = TyCon "()"
 foldPats :: (Env -> (String, Qual Type) -> Env) -> Env -> TypedExp -> Env
 foldPats f z (In (Ann (_, qt) (VarPat x))) = f z (x, qt) 
 foldPats f z (In (Ann (_, qt) (LitPat _))) = f z ("", qt)
-foldPats f z (In (Ann (_, qt) (TuplePat xs))) = foldl (foldPats f) z xs
-foldPats f z (In (Ann (_, qt) (ConPat name xs))) = foldl (foldPats f) z xs
+foldPats f z (In (Ann (_, _) (TuplePat xs))) = foldl (foldPats f) z xs
+foldPats f z (In (Ann (_, _) (ConPat _ xs))) = foldl (foldPats f) z xs
+foldPats _ _ _ = error "Unrecognized pattern"
 
 foldToScheme :: Env -> TypedExp -> Env
 foldToScheme =  foldPats (\env' (n, qt) -> addScheme n (Identity qt) env')
@@ -187,7 +183,7 @@ alg (Ann (Just l) (Match e es)) =
 
 alg (Ann (Just l) (MatchExp n e)) =
   do (n'@(In (Ann (_, _ :=> t0) _)), ps1) <- listen n
-     _ <- process n'
+     _ <- unifyPatternsWithDataTypes n'
      bt <- getBaseType
      t2 <- newTyVar 0
      let t = TyApp (TyApp (TyCon "->") t0) t2
