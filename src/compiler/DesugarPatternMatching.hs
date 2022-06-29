@@ -40,6 +40,26 @@ desugarIsPattern (In (Ann attr (ConPat name [In (Ann _ (ConPat name2 []))]))) =
             (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
             (In (Ann attr (App
             (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v"))))))))))))))
+desugarIsPattern (In (Ann attr (ConPat name [x, In (Ann _ (ConPat name2 [y, z]))]))) =
+    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+            (In (Ann attr (App 
+            (In (Ann attr (App (In (Ann attr (Var "&&")))
+            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name)))) (In (Ann attr (Var "_v")))))))))
+            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
+            (In (Ann attr (App
+            (In (Ann attr (Var ("snd"))))
+            (In (Ann attr (App
+            (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))))))
+desugarIsPattern (In (Ann attr (ConPat name [x, In (Ann _ (ConPat name2 []))]))) =
+    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+            (In (Ann attr (App 
+            (In (Ann attr (App (In (Ann attr (Var "&&")))
+            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name)))) (In (Ann attr (Var "_v")))))))))
+            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
+            (In (Ann attr (App
+            (In (Ann attr (Var ("snd"))))
+            (In (Ann attr (App
+            (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))))))
 desugarIsPattern (In (Ann attr (ConPat name [x, y]))) = 
     return $ In (Ann attr (Var ("is" ++ name)))
 desugarIsPattern (In (Ann attr (ConPat name [x]))) =
@@ -48,8 +68,6 @@ desugarIsPattern (In (Ann attr (ConPat name []))) =
     return $ In (Ann attr (Var ("is" ++ name)))
 desugarIsPattern e1'@(In (Ann attr _)) = 
     return $ In (Ann attr (Lam e1' (In (Ann attr (Lit (B True))))))
-
-
 
 
 desugarImp :: [TypedExp] -> PatternM [TypedExp]
@@ -68,6 +86,19 @@ desugarImp es = sequence (cataRec alg <$> es)
                 In (Ann _ (ConPat name [In (Ann _ (ConPat name2 []))])) -> 
                     return $ In (Ann attr (MkTuple ([cond,
                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
+                In (Ann _ (ConPat name [x, In (Ann _ (ConPat name2 [y, z]))])) -> do
+                    x' <- replaceConstWithWildCard x
+                    y' <- replaceConstWithWildCard y
+                    z' <- replaceConstWithWildCard z
+                    return $ In (Ann attr (MkTuple ([cond,
+                                                    In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x', (In (Ann attr (VarPat "____yz")))]))) 
+                                                       (In (Ann attr (App
+                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v"))))))
+                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [y', z']))) 
+                                                       (In (Ann attr (App
+                                                       (In (Ann attr (Var ("extract" ++ name2)))) (In (Ann attr (Var "____yz"))))))
+                                                        e2'))))))))])))
                 In (Ann _ (ConPat name [x, y])) -> do
                     x' <- replaceConstWithWildCard x
                     y' <- replaceConstWithWildCard y

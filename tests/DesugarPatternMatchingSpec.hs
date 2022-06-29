@@ -63,7 +63,7 @@ spec = parallel $
            let foo x = match x with Some None -> 42
          |]
       xs <- process code 
-      unlines xs --> "let foo x = matchFn ((\\_v-> isSome _v && isNone(extractSome _v), \\_v -> fromInteger 42) : []) x"
+      unlines xs --> "let foo x = matchFn ((\\_v -> isSome _v && isNone(extractSome _v), \\_v -> fromInteger 42) : []) x"
 
     it "pattern match 4" $ do
       let code = [i|
@@ -74,5 +74,31 @@ spec = parallel $
 
          |]
       xs <- process code 
-      unlines xs --> "let swap v = matchFn ((isCons, \\_v -> let (a,___w0) = extractCons _v in Cons a Empty) : []) v"
+      unlines xs --> "let swap v = matchFn ((\\_v -> isCons _v && isEmpty(snd(extractCons _v)), \\_v -> let (a,___w0) = extractCons _v in Cons a Empty) : []) v"
+
+    it "pattern match 5" $ do
+      let code = [i|
+           data ListF a b = Empty | Cons a b
+           let swap v = 
+                match v with
+                | Empty -> Empty
+                | (Cons a Empty) -> Cons a Empty
+                | (Cons a (Cons b x)) -> if a <= b 
+                                          then Cons a (Cons b x)
+                                          else Cons b (Cons a x)
+
+         |]
+      xs <- process code 
+      unlines xs --> [i| 
+        let swap v = (matchFn(
+                  ((isEmpty,\\_v -> Empty)) : 
+                  (\\ _v -> isCons _v && isEmpty(snd(extractCons _v)), 
+                   \\ _v -> let (a,___w0) = extractCons_v in Cons a Empty) : 
+                  (\\ _v -> isCons _v && isCons(snd(extractCons _v)), 
+                   \\ _v -> let(a ,____yz) = extractCons _v in 
+                           let(b, x) = extractCons ____yz in 
+                           if a <= b then Cons a (Cons b x)
+                           else Cons b (Cons a x)):
+                  [])) v
+      |]
    

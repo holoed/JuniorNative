@@ -11,12 +11,14 @@ let fromListAlg xs =
    if null xs then Empty
    else Cons (head xs) (tail xs)
    
-let swap v = if isEmpty v then Empty
-             else let (x, y) = extractCons v in
-             if isEmpty y then Cons x Empty 
-             else let (x2, y2) = extractCons y in
-             if x <= x2 then Cons x (Cons x2 y2)
-             else Cons x2 (Cons x y2)
+val swap :: Ord a => ListF a (ListF a b) -> ListF a (ListF a b)
+let swap v = 
+     match v with
+     | Empty -> Empty
+     | (Cons a Empty) -> Cons a Empty
+     | (Cons a (Cons b x)) -> if a <= b 
+                              then Cons a (Cons b x)
+                              else Cons b (Cons a x)
 
 let sortList = anaRec (cataRec (fmap In . swap))
 
