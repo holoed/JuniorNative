@@ -31,6 +31,27 @@ mkList :: (Maybe Loc, Qual Type) -> [TypedExp] -> TypedExp
 mkList attr xs = foldr f (In (Ann attr (Var "[]"))) xs
     where f e1 e2 = In (Ann attr (App (In (Ann attr (App (In (Ann attr (Var ":"))) e1))) e2))
 
+desugarIsPattern :: TypedExp -> PatternM TypedExp
+desugarIsPattern (In (Ann attr (ConPat name [In (Ann _ (ConPat name2 []))]))) =  
+    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+            (In (Ann attr (App 
+            (In (Ann attr (App (In (Ann attr (Var "&&")))
+            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name)))) (In (Ann attr (Var "_v")))))))))
+            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
+            (In (Ann attr (App
+            (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v"))))))))))))))
+desugarIsPattern (In (Ann attr (ConPat name [x, y]))) = 
+    return $ In (Ann attr (Var ("is" ++ name)))
+desugarIsPattern (In (Ann attr (ConPat name [x]))) =
+    return $ In (Ann attr (Var ("is" ++ name)))
+desugarIsPattern (In (Ann attr (ConPat name []))) =
+    return $ In (Ann attr (Var ("is" ++ name)))
+desugarIsPattern e1'@(In (Ann attr _)) = 
+    return $ In (Ann attr (Lam e1' (In (Ann attr (Lit (B True))))))
+
+
+
+
 desugarImp :: [TypedExp] -> PatternM [TypedExp]
 desugarImp es = sequence (cataRec alg <$> es)
     where
@@ -42,36 +63,29 @@ desugarImp es = sequence (cataRec alg <$> es)
         alg (Ann attr (MatchExp e1 e2)) = do
             e1' <- e1 
             e2' <- e2
+            cond <- desugarIsPattern e1'
             case e1' of 
-                In (Ann _ (ConPat name [In (Ann _ (ConPat name2 []))])) ->
-                    return $ In (Ann attr (MkTuple ([In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                    (In (Ann attr (App 
-                                                    (In (Ann attr (App (In (Ann attr (Var "&&")))
-                                                    (In (Ann attr (App (In (Ann attr (Var ("is" ++ name)))) (In (Ann attr (Var "_v")))))))))
-                                                    (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
-                                                    (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))),
+                In (Ann _ (ConPat name [In (Ann _ (ConPat name2 []))])) -> 
+                    return $ In (Ann attr (MkTuple ([cond,
                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
-
                 In (Ann _ (ConPat name [x, y])) -> do
                     x' <- replaceConstWithWildCard x
                     y' <- replaceConstWithWildCard y
-                    return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
+                    return $ In (Ann attr (MkTuple ([cond,
                                                      In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
                                                        (In (Ann attr (Let (In (Ann attr (TuplePat [x', y']))) 
                                                        (In (Ann attr (App
                                                        (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
-                In (Ann _ (ConPat name [x])) ->
-                    return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
+                In (Ann _ (ConPat name [x])) -> 
+                    return $ In (Ann attr (MkTuple ([cond,
                                                      In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
                                                        (In (Ann attr (Let x 
                                                        (In (Ann attr (App
                                                        (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
-                In (Ann _ (ConPat name [])) ->
-                    return $ In (Ann attr (MkTuple ([In (Ann attr (Var ("is" ++ name))),
+                In (Ann _ (ConPat name [])) -> 
+                    return $ In (Ann attr (MkTuple ([cond,
                                                      In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
-                _ ->
-                    return $ In (Ann attr (MkTuple ([In (Ann attr (Lam e1' (In (Ann attr (Lit (B True)))))),
+                _ -> return $ In (Ann attr (MkTuple ([cond,
                                                      In (Ann attr (Lam e1' e2'))])))
 
         alg x = fmap In (sequenceA x)
