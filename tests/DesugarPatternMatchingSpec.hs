@@ -67,6 +67,14 @@ spec = parallel $
 
     it "pattern match 4" $ do
       let code = [i|
+           data Option a = None | Some a
+           let foo x = match x with Some (Some v) -> v + 1
+         |]
+      xs <- process code  
+      unlines xs --> "let foo x = matchFn((\\_v -> isSome _v && isSome(extractSome _v), \\_v-> let ____x = extractSome _v in let v= extractSome ____x in v + fromInteger 1) : [])x"
+
+    it "pattern match 5" $ do
+      let code = [i|
            data ListF a b = Empty | Cons a b
            let swap v = 
             match v with
@@ -76,7 +84,7 @@ spec = parallel $
       xs <- process code 
       unlines xs --> "let swap v = matchFn ((\\_v -> isCons _v && isEmpty(snd(extractCons _v)), \\_v -> let (a,___w0) = extractCons _v in Cons a Empty) : []) v"
 
-    it "pattern match 5" $ do
+    it "pattern match 6" $ do
       let code = [i|
            data ListF a b = Empty | Cons a b
            let swap v = 

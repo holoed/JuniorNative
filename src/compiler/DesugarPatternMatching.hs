@@ -32,7 +32,7 @@ mkList attr xs = foldr f (In (Ann attr (Var "[]"))) xs
     where f e1 e2 = In (Ann attr (App (In (Ann attr (App (In (Ann attr (Var ":"))) e1))) e2))
 
 desugarIsPattern :: TypedExp -> PatternM TypedExp
-desugarIsPattern (In (Ann attr (ConPat name [In (Ann _ (ConPat name2 []))]))) =  
+desugarIsPattern (In (Ann attr (ConPat name [In (Ann _ (ConPat name2 _))]))) =  
     return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
             (In (Ann attr (App 
             (In (Ann attr (App (In (Ann attr (Var "&&")))
@@ -40,7 +40,7 @@ desugarIsPattern (In (Ann attr (ConPat name [In (Ann _ (ConPat name2 []))]))) =
             (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
             (In (Ann attr (App
             (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v"))))))))))))))
-desugarIsPattern (In (Ann attr (ConPat name [x, In (Ann _ (ConPat name2 [y, z]))]))) =
+desugarIsPattern (In (Ann attr (ConPat name [_, In (Ann _ (ConPat name2 [_, _]))]))) =
     return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
             (In (Ann attr (App 
             (In (Ann attr (App (In (Ann attr (Var "&&")))
@@ -50,7 +50,7 @@ desugarIsPattern (In (Ann attr (ConPat name [x, In (Ann _ (ConPat name2 [y, z]))
             (In (Ann attr (Var ("snd"))))
             (In (Ann attr (App
             (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))))))
-desugarIsPattern (In (Ann attr (ConPat name [x, In (Ann _ (ConPat name2 []))]))) =
+desugarIsPattern (In (Ann attr (ConPat name [_, In (Ann _ (ConPat name2 []))]))) =
     return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
             (In (Ann attr (App 
             (In (Ann attr (App (In (Ann attr (Var "&&")))
@@ -60,9 +60,9 @@ desugarIsPattern (In (Ann attr (ConPat name [x, In (Ann _ (ConPat name2 []))])))
             (In (Ann attr (Var ("snd"))))
             (In (Ann attr (App
             (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))))))
-desugarIsPattern (In (Ann attr (ConPat name [x, y]))) = 
+desugarIsPattern (In (Ann attr (ConPat name [_, _]))) = 
     return $ In (Ann attr (Var ("is" ++ name)))
-desugarIsPattern (In (Ann attr (ConPat name [x]))) =
+desugarIsPattern (In (Ann attr (ConPat name [_]))) =
     return $ In (Ann attr (Var ("is" ++ name)))
 desugarIsPattern (In (Ann attr (ConPat name []))) =
     return $ In (Ann attr (Var ("is" ++ name)))
@@ -83,9 +83,20 @@ desugarImp es = sequence (cataRec alg <$> es)
             e2' <- e2
             cond <- desugarIsPattern e1'
             case e1' of 
-                In (Ann _ (ConPat name [In (Ann _ (ConPat name2 []))])) -> 
+                In (Ann _ (ConPat _ [In (Ann _ (ConPat _ []))])) -> 
                     return $ In (Ann attr (MkTuple ([cond,
                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
+                In (Ann _ (ConPat name [In (Ann _ (ConPat name2 [x]))])) -> do
+                    x' <- replaceConstWithWildCard x
+                    return $ In (Ann attr (MkTuple ([cond,
+                                                    In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+                                                       (In (Ann attr (Let (In (Ann attr (VarPat ("____x")))) 
+                                                       (In (Ann attr (App
+                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var ("_v")))))))
+                                                       (In (Ann attr (Let x' 
+                                                       (In (Ann attr (App
+                                                       (In (Ann attr (Var ("extract" ++ name2)))) (In (Ann attr (Var "____x"))))))
+                                                        e2'))))))))])))
                 In (Ann _ (ConPat name [x, In (Ann _ (ConPat name2 [y, z]))])) -> do
                     x' <- replaceConstWithWildCard x
                     y' <- replaceConstWithWildCard y
@@ -113,7 +124,7 @@ desugarImp es = sequence (cataRec alg <$> es)
                                                        (In (Ann attr (Let x 
                                                        (In (Ann attr (App
                                                        (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
-                In (Ann _ (ConPat name [])) -> 
+                In (Ann _ (ConPat _ [])) -> 
                     return $ In (Ann attr (MkTuple ([cond,
                                                      In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
                 _ -> return $ In (Ann attr (MkTuple ([cond,
