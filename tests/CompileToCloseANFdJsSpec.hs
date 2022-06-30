@@ -27,7 +27,7 @@ exec = do
 
 spec :: Spec
 spec = parallel $ do
-  describe "Compile to Closed and ANF JavaScript Tests" $ do
+  describe "Compile_to_Closed_and_ANF_JavaScript_Tests" $ do
 
    it "value" $ "let main = 42" --> "42"
 
@@ -264,7 +264,8 @@ spec = parallel $ do
 
    it "pattern matching 5" $ do
       [i|data Option a = None | Some a
-         let foo v = match v with Some (Some x) -> x + 1
+         let foo v = match v with 
+                     | Some (Some x) -> x + 1
          let main = foo (Some (Some 5))|] --> "6" 
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"

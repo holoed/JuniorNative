@@ -35,6 +35,7 @@ import qualified OptimizeClosureEnvs (optimize)
 import SynExpToTypeDecl (toTypeDecl, fromTypeDeclToEnv, fromTypeDeclToClassEnv)
 import Data.Maybe (maybeToList)
 import qualified DesugarPatternMatching (desugar)
+import qualified CompilePatternMatching
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -94,6 +95,10 @@ desugarPredicates es = do
 desugarPatternMatching :: [TypedExp] -> CompileM [TypedExp]
 desugarPatternMatching es = 
     return $ DesugarPatternMatching.desugar es
+
+compilePatternMatching :: [TypedExp] -> CompileM [TypedExp]
+compilePatternMatching es = 
+    return $ CompilePatternMatching.desugar es
 
 interpret :: [TypedExp] -> CompileM [Result]
 interpret es = do
