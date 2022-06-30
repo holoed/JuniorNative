@@ -59,6 +59,18 @@ generateTypeForPattern (In (Ann (_, _ :=> t) (VarPat _))) = return t
 generateTypeForPattern (In (Ann (_, _) (TuplePat xs))) = do
     ts <- sequence (generateTypeForPattern <$> xs)
     return $ tupleCon ts
+generateTypeForPattern (In (Ann (l, _) (ConPat name xs))) = do
+    ts <- sequence (generateTypeForPattern <$> xs)
+    (env, _, _, _) <- ask 
+    (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
+    if (length ts > 0) then do
+      qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
+      let (_ :=> t0) = getFirstReturnType qt0
+      if (length ts == 1) 
+      then mgu (fromJust l) (head ts) t0
+      else mgu (fromJust l) (tupleCon ts) t0
+    else return ()
+    return $ t1
 generateTypeForPattern _ = undefined 
 
 valueToType :: Prim -> Type
