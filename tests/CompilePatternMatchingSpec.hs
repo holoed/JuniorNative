@@ -89,6 +89,16 @@ spec = parallel $
       unlines xs --> 
         [i|let foo v = matchFn((isSome,\\_v -> let ___patV0 = extractSome _v in matchFn((isSome,\\_v -> let x = extractSome _v in x + fromInteger1):[]) ___patV0):[])v|]
 
+    it "pattern match 5" $ do
+      let code = [i|
+        let foo v = match v with 
+                    | (x, y) -> x + y
+      |]
+      xs <- process code
+      unlines xs --> 
+        [i|let foo v = (matchFn(((\\_v -> let(___patV0,___patV1) = _v in((\\x -> True) ___patV0)&&((\\y -> True) ___patV1),\\_v->let(x,y)=_v in x + y)):[]))v|]
+
+
     -- it "pattern match 5" $ do
     --   let code = [i|
     --     data ListF a b = Empty | Cons a b
