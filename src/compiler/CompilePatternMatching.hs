@@ -45,6 +45,25 @@ desugarIsPattern (In (Ann attr (TuplePat xs))) = do
 desugarIsPattern e1'@(In (Ann attr _)) = 
     return $ In (Ann attr (Lam e1' (In (Ann attr (Lit (B True))))))
 
+desugarTarget :: TypedExp -> TypedExp -> PatternM TypedExp
+desugarTarget e2 (In (Ann attr (TuplePat [x, y]))) = do
+                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
+                                                       (In (Ann attr (Var "_v"))) e2)))))
+desugarTarget e2 (In (Ann attr (ConPat name [x, y]))) = do
+                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
+                                                       (In (Ann attr (App
+                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2)))))
+desugarTarget e2 (In (Ann attr (ConPat name [x]))) =
+                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
+                                                       (In (Ann attr (Let x 
+                                                       (In (Ann attr (App
+                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2)))))
+desugarTarget e2 (In (Ann attr (ConPat _ []))) =
+                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2))
+desugarTarget e2 e1@(In (Ann attr _)) = return $ In (Ann attr (Lam e1 e2))
+
 
 desugarImp :: [TypedExp] -> PatternM [TypedExp]
 desugarImp es = sequence (cataRec alg <$> es)
@@ -58,30 +77,8 @@ desugarImp es = sequence (cataRec alg <$> es)
             e1' <- e1 
             e2' <- e2
             cond <- desugarIsPattern e1'
-            case e1' of
-                In (Ann _ (TuplePat [x, y])) -> do
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
-                                                       (In (Ann attr (Var "_v"))) e2')))))]))) 
-                In (Ann _ (ConPat name [x, y])) -> do
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
-                In (Ann _ (ConPat name [x])) -> 
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let x 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
-                In (Ann _ (ConPat _ [])) -> 
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
-                _ -> return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam e1' e2'))])))
-
+            target <- desugarTarget e2' e1'
+            return $ In (Ann attr (MkTuple ([cond, target])))
         alg x = fmap In (sequenceA x)
 
 desugar :: [TypedExp] -> [TypedExp]

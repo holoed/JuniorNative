@@ -107,7 +107,7 @@ spec = parallel $
       xs <- process code
       unlines xs --> 
         [i|  let foo v = matchFn((\\_v -> let (___patV0,___patV1) = _v in isNone ___patV0 && isSome ___patV1,
-                                  \\_v->  let (None, Some x)= _v in x):[])v|]
+                                  \\_v ->  let (None, Some x) = _v in x):[])v|]
 
 
 
