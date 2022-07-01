@@ -3,134 +3,90 @@ module DesugarPatternMatching where
 import TypedAst (TypedExp, TypedExpF)
 import RecursionSchemes (cataRec)
 import Fixpoint (Fix(In))
-import Annotations (Ann(Ann))
-import Ast (ExpF(Var, Match, App, MatchExp, MkTuple, Lam, Lit, ConPat, Let, VarPat, TuplePat))
-import Control.Monad.State (State, evalState, MonadState (get, put))
-import Location (Loc)
+import Control.Monad.State (MonadState (get, put))
 import Types (Qual, Type)
-import Primitives (Prim(B))
+import Annotations (Ann(Ann))
+import Ast (ExpF(Var, VarPat, Match, MatchExp, ConPat, TuplePat))
+import Location (Loc(..))
+import Control.Monad.RWS (RWS, evalRWS)
+import Data.List (partition)
 
-type PatternM = State Int
+type PatternM = RWS Bool [(TypedExp, TypedExp)] Int
 
 getNewVar :: PatternM String
 getNewVar = do
-    x <- get
-    put (x + 1)
-    return $ "___w" ++ show x
+    i <- get
+    put (i + 1)
+    return $ "___patV" ++ show i
 
-replaceConstWithWildCard :: TypedExp -> PatternM TypedExp
-replaceConstWithWildCard (In (Ann attr (ConPat _ []))) = do
-    x <- getNewVar
-    return (In (Ann attr (VarPat x))) 
-replaceConstWithWildCard (In (Ann attr (ConPat name xs))) = do
-    xs' <- sequence $ replaceConstWithWildCard <$> xs
-    return (In (Ann attr (ConPat name xs'))) 
-replaceConstWithWildCard x = return x
+mkVar :: (Maybe Loc, Qual Type) -> String -> TypedExp
+mkVar attr s = In (Ann attr (Var s))
 
-mkList :: (Maybe Loc, Qual Type) -> [TypedExp] -> TypedExp
-mkList attr xs = foldr f (In (Ann attr (Var "[]"))) xs
-    where f e1 e2 = In (Ann attr (App (In (Ann attr (App (In (Ann attr (Var ":"))) e1))) e2))
+mkVarPat :: (Maybe Loc, Qual Type) -> String -> TypedExp
+mkVarPat attr s = In (Ann attr (VarPat s))
 
-desugarIsPattern :: TypedExp -> PatternM TypedExp
-desugarIsPattern (In (Ann attr (ConPat name [In (Ann _ (ConPat name2 _))]))) =  
-    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-            (In (Ann attr (App 
-            (In (Ann attr (App (In (Ann attr (Var "&&")))
-            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name)))) (In (Ann attr (Var "_v")))))))))
-            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
-            (In (Ann attr (App
-            (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v"))))))))))))))
-desugarIsPattern (In (Ann attr (ConPat name [_, In (Ann _ (ConPat name2 [_, _]))]))) =
-    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-            (In (Ann attr (App 
-            (In (Ann attr (App (In (Ann attr (Var "&&")))
-            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name)))) (In (Ann attr (Var "_v")))))))))
-            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
-            (In (Ann attr (App
-            (In (Ann attr (Var ("snd"))))
-            (In (Ann attr (App
-            (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))))))
-desugarIsPattern (In (Ann attr (ConPat name [_, In (Ann _ (ConPat name2 []))]))) =
-    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-            (In (Ann attr (App 
-            (In (Ann attr (App (In (Ann attr (Var "&&")))
-            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name)))) (In (Ann attr (Var "_v")))))))))
-            (In (Ann attr (App (In (Ann attr (Var ("is" ++ name2))))
-            (In (Ann attr (App
-            (In (Ann attr (Var ("snd"))))
-            (In (Ann attr (App
-            (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))))))))))))))
-desugarIsPattern (In (Ann attr (ConPat name [_, _]))) = 
-    return $ In (Ann attr (Var ("is" ++ name)))
-desugarIsPattern (In (Ann attr (ConPat name [_]))) =
-    return $ In (Ann attr (Var ("is" ++ name)))
-desugarIsPattern (In (Ann attr (ConPat name []))) =
-    return $ In (Ann attr (Var ("is" ++ name)))
-desugarIsPattern e1'@(In (Ann attr _)) = 
-    return $ In (Ann attr (Lam e1' (In (Ann attr (Lit (B True))))))
+mkTuplePat :: (Maybe Loc, Qual Type) -> [TypedExp] -> TypedExp
+mkTuplePat attr ps = In (Ann attr (TuplePat ps))
 
+mkMatch :: (Maybe Loc, Qual Type) -> TypedExp -> [TypedExp] -> TypedExp
+mkMatch attr e es = In (Ann attr (Match e es))
+
+mkMatchExp :: (Maybe Loc, Qual Type) -> TypedExp -> TypedExp -> TypedExp
+mkMatchExp attr e1 e2 = In (Ann attr (MatchExp e1 e2))
+
+isConPat :: String -> TypedExp -> Bool
+isConPat name1 (In (Ann _ (MatchExp (In (Ann _ (ConPat name2 _))) _))) = name1 == name2 
+isConPat _ _ = False
+
+isAnyConPat :: TypedExp -> Bool
+isAnyConPat (In (Ann _ (ConPat _ _))) = True
+isAnyConPat _ = False
+
+collect :: [TypedExp] -> [[TypedExp]]
+collect vs@(x:xs) = 
+    case x of 
+      In (Ann _ (MatchExp (In (Ann _ (ConPat name _))) _)) -> 
+        let (ls, rs) = partition (isConPat name) xs in
+        (x : ls) : collect rs
+      _ -> [vs]
+collect [] = []
+
+merge :: [TypedExp] -> PatternM TypedExp
+merge xs = do
+     var <- getNewVar
+     case head xs of  
+        (In (Ann attr (MatchExp (In (Ann attr2 (ConPat name args))) target))) -> do
+            if (length xs == 1) 
+            then do 
+                let (ls, rs) = partition isAnyConPat args
+                return $ (In (Ann attr (MatchExp (In (Ann attr2 (ConPat name (((\arg -> if (isAnyConPat arg) then (mkVarPat attr var) else arg) <$> args))))) 
+                          (if (length ls > 0) 
+                          then (mkMatch attr (mkVar attr var) 
+                               [mkMatchExp attr (if (length ls > 1) then mkTuplePat attr ls else (head ls)) target])
+                          else target))))
+            else do
+                let clauses = (\(In (Ann _ (MatchExp (In (Ann _ (ConPat _ xs))) e2))) -> 
+                                (In (Ann attr (MatchExp (if (length xs == 1) then (head xs) else mkTuplePat attr xs) e2)))) <$> xs
+                return $ mkMatchExp attr (In (Ann attr2 (ConPat name [mkVarPat attr var]))) (mkMatch attr (mkVar attr var) clauses)
+        _ -> return $ head xs             
 
 desugarImp :: [TypedExp] -> PatternM [TypedExp]
 desugarImp es = sequence (cataRec alg <$> es)
     where
         alg :: TypedExpF (PatternM TypedExp) -> PatternM TypedExp
-        alg (Ann attr (Match e' es')) = do 
-            e'' <- e'
-            es'' <- sequence es'
-            return $ In (Ann attr (App (In (Ann attr (App (In (Ann attr (Var "matchFn"))) (mkList attr es'')))) e''))
+        alg (Ann attr (Match e1 es1)) = do
+            e1' <- e1
+            es1' <- sequence es1
+            let es2 = collect es1'
+            es3 <- sequence (merge <$> es2)
+            return $ In (Ann attr (Match e1' es3))
         alg (Ann attr (MatchExp e1 e2)) = do
             e1' <- e1 
             e2' <- e2
-            cond <- desugarIsPattern e1'
-            case e1' of 
-                In (Ann _ (ConPat _ [In (Ann _ (ConPat _ []))])) -> 
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                    In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
-                In (Ann _ (ConPat name [In (Ann _ (ConPat name2 [x]))])) -> do
-                    x' <- replaceConstWithWildCard x
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                    In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (VarPat ("____x")))) 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var ("_v")))))))
-                                                       (In (Ann attr (Let x' 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name2)))) (In (Ann attr (Var "____x"))))))
-                                                        e2'))))))))])))
-                In (Ann _ (ConPat name [x, In (Ann _ (ConPat name2 [y, z]))])) -> do
-                    x' <- replaceConstWithWildCard x
-                    y' <- replaceConstWithWildCard y
-                    z' <- replaceConstWithWildCard z
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                    In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x', (In (Ann attr (VarPat "____yz")))]))) 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v"))))))
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [y', z']))) 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name2)))) (In (Ann attr (Var "____yz"))))))
-                                                        e2'))))))))])))
-                In (Ann _ (ConPat name [x, y])) -> do
-                    x' <- replaceConstWithWildCard x
-                    y' <- replaceConstWithWildCard y
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x', y']))) 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
-                In (Ann _ (ConPat name [x])) -> 
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let x 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2')))))])))
-                In (Ann _ (ConPat _ [])) -> 
-                    return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2'))])))
-                _ -> return $ In (Ann attr (MkTuple ([cond,
-                                                     In (Ann attr (Lam e1' e2'))])))
-
+            return $ In (Ann attr (MatchExp e1' e2'))
         alg x = fmap In (sequenceA x)
 
 desugar :: [TypedExp] -> [TypedExp]
-desugar es = evalState (desugarImp es) 0
+desugar es = fst $ evalRWS (desugarImp es) False 0
+
+

@@ -35,78 +35,96 @@ trim = f . f
 
 spec :: Spec
 spec = parallel $
-  describe "Desugar Pattern Matching Tests" $ do
+  describe "Desugar_Pattern_Matching_Tests" $ do
 
     it "pattern match 0" $ do
       xs <- process "let foo x = match x with y -> y"
-      unlines xs --> "let foo x = (matchFn (((\\y -> True, \\y -> y)) : [])) x"
-    
+      unlines xs --> "let foo x = match x with y -> y"
+
     it "pattern match 1" $ do
       let code = [i|
-           data Option a = None | Some a
-           let foo x = match x with None -> 42
-         |]
-      xs <- process code 
-      unlines xs --> "let foo x = matchFn ((isNone, \\_v -> fromInteger 42) : []) x"
+        data Option a = Some a | None
+        let foo x = match x with | Some v -> v + 1
+      |]
+      xs <- process code
+      unlines xs --> 
+        "let foo x = match x with Some v -> v + fromInteger 1"
 
     it "pattern match 2" $ do
       let code = [i|
-           data Option a = None | Some a
-           let foo x = match x with Some v -> v + 1
-         |]
-      xs <- process code 
-      unlines xs --> "let foo x = matchFn ((isSome, \\_v -> let v = extractSome _v in v + fromInteger 1 ) : []) x"
+        data Option a = Some a | None
+        let foo x = match x with 
+                    | Some (Some v) -> v + 1
+                    | Some None -> 1
+                    | None -> 0
+      |]
+      xs <- process code
+      unlines xs --> 
+        [i|let foo x = match x with 
+                       Some ___patV0 -> match ___patV0 with 
+                                        Some v-> v + fromInteger 1
+                                       |None-> fromInteger 1
+                      |None -> fromInteger 0|]
 
     it "pattern match 3" $ do
       let code = [i|
-           data Option a = None | Some a
-           let foo x = match x with Some None -> 42
-         |]
-      xs <- process code 
-      unlines xs --> "let foo x = matchFn ((\\_v -> isSome _v && isNone(extractSome _v), \\_v -> fromInteger 42) : []) x"
+        data Option a = Some a | None
+        let foo x = match x with 
+                    | Some v -> v + 1
+                    | None -> 0
+      |]
+      xs <- process code
+      unlines xs --> [i|
+         let foo x = match x with 
+                      Some v -> v + fromInteger 1
+                     |None   -> fromInteger 0 |]
 
     it "pattern match 4" $ do
       let code = [i|
-           data Option a = None | Some a
-           let foo x = match x with Some (Some v) -> v + 1
-         |]
-      xs <- process code  
-      unlines xs --> "let foo x = matchFn((\\_v -> isSome _v && isSome(extractSome _v), \\_v-> let ____x = extractSome _v in let v= extractSome ____x in v + fromInteger 1) : [])x"
+        data ListF a b = Empty | Cons a b
 
+        let swap v = 
+          match v with
+          | Empty -> Empty
+          | (Cons a Empty) -> Cons a Empty
+          | (Cons a (Cons b x)) -> if a <= b 
+                                    then Cons a (Cons b x)
+                                    else Cons b (Cons a x)
+      |]
+      xs <- process code
+      unlines xs --> [i|
+        let swap v = match v with 
+                     Empty -> Empty 
+                    |Cons ___patV1 -> 
+                       match ___patV1 with
+                       (a, Empty) -> Cons a Empty
+                      |(a, Cons b x)-> if a <= b 
+                                       then Cons a (Cons b x)
+                                       else Cons b (Cons a x) |]
+                                      
     it "pattern match 5" $ do
       let code = [i|
-           data ListF a b = Empty | Cons a b
-           let swap v = 
+        data Option a = None | Some a
+        let foo v = match v with 
+                    | Some (Some x) -> x + 1
+      |]
+      xs <- process code
+      unlines xs --> 
+        [i|let foo v = match v with 
+                       Some ___patV0 ->
+                       match ___patV0 with Some x -> x + fromInteger 1|]
+
+    it "pattern matching 6" $ do
+      let code = [i|
+        data ListF a b = Empty | Cons a b
+         let foo v = 
             match v with
             | (Cons a Empty) -> Cons a Empty
-
-         |]
-      xs <- process code 
-      unlines xs --> "let swap v = matchFn ((\\_v -> isCons _v && isEmpty(snd(extractCons _v)), \\_v -> let (a,___w0) = extractCons _v in Cons a Empty) : []) v"
-
-    it "pattern match 6" $ do
-      let code = [i|
-           data ListF a b = Empty | Cons a b
-           let swap v = 
-                match v with
-                | Empty -> Empty
-                | (Cons a Empty) -> Cons a Empty
-                | (Cons a (Cons b x)) -> if a <= b 
-                                          then Cons a (Cons b x)
-                                          else Cons b (Cons a x)
-
-         |]
-      xs <- process code 
-      unlines xs --> [i| 
-        let swap v = (matchFn(
-                  ((isEmpty,\\_v -> Empty)) : 
-                  (\\ _v -> isCons _v && isEmpty(snd(extractCons _v)), 
-                   \\ _v -> let (a,___w0) = extractCons_v in Cons a Empty) : 
-                  (\\ _v -> isCons _v && isCons(snd(extractCons _v)), 
-                   \\ _v -> let(a ,____yz) = extractCons _v in 
-                           let(b, x) = extractCons ____yz in 
-                           if a <= b then Cons a (Cons b x)
-                           else Cons b (Cons a x)):
-                  [])) v
+         let main = foo (Cons (Cons Empty) Empty)
       |]
+      xs <- process code
+      unlines xs --> 
+        [i|letfoov=matchvwithConsa___patV0->match___patV0withEmpty->ConsaEmptyletmain=foo(Cons(ConsEmpty)Empty)|]
+    
+
    
