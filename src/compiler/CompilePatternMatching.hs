@@ -45,25 +45,35 @@ desugarIsPattern (In (Ann attr (TuplePat xs))) = do
 desugarIsPattern e1'@(In (Ann attr _)) = 
     return $ In (Ann attr (Lam e1' (In (Ann attr (Lit (B True))))))
 
-desugarTarget :: TypedExp -> TypedExp -> PatternM TypedExp
-desugarTarget e2 (In (Ann attr (TuplePat [x, y]))) = do
-                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
-                                                       (In (Ann attr (Var "_v"))) e2)))))
-desugarTarget e2 (In (Ann attr (ConPat name [x, y]))) = do
-                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2)))))
-desugarTarget e2 (In (Ann attr (ConPat name [x]))) =
-                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) 
-                                                       (In (Ann attr (Let x 
-                                                       (In (Ann attr (App
-                                                       (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2)))))
-desugarTarget e2 (In (Ann attr (ConPat _ []))) =
-                    return $ In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) e2))
-desugarTarget e2 e1@(In (Ann attr _)) = return $ In (Ann attr (Lam e1 e2))
+mergeLets :: TypedExp -> TypedExp -> TypedExp
+mergeLets (In (Ann attr1 (Let e1 e2 _))) (In (Ann attr2 (Let e4 e5 e6))) = 
+    (In (Ann attr1 (Let e1 e2 (In (Ann attr2 (Let e4 e5 e6)))))) 
+mergeLets e1@(In (Ann _ (Let _ _ _))) _  = e1
+mergeLets _  e2@(In (Ann _ (Let _ _ _))) = e2
+mergeLets _ _ = error "Unsupported"
 
+extractTupleIndex :: String -> TypedExp -> TypedExp
+extractTupleIndex s = cataRec alg
+    where alg e@(Ann attr (Var "_v")) = In (Ann attr (App (In (Ann attr (Var s))) (In e)))
+          alg e = In e
+
+desugarTarget :: TypedExp -> TypedExp -> PatternM TypedExp
+desugarTarget e2 (In (Ann _ (TuplePat [x, y]))) = do
+    x' <- desugarTarget e2 x
+    y' <- desugarTarget e2 y
+    return $ mergeLets (extractTupleIndex "fst" x') (extractTupleIndex "snd" y')
+desugarTarget e2 (In (Ann attr (ConPat name [x, y]))) = do
+    return $ (In (Ann attr (Let (In (Ann attr (TuplePat [x, y]))) 
+             (In (Ann attr (App
+             (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2)))
+desugarTarget e2 (In (Ann attr (ConPat name [x]))) =
+    return $ (In (Ann attr (Let x 
+             (In (Ann attr (App
+             (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2)))
+desugarTarget e2 (In (Ann _ (ConPat _ []))) = 
+    return $ e2
+desugarTarget e2 e1@(In (Ann attr _)) = 
+    return $ (In (Ann attr (Let e1 (In (Ann attr (Var "_v"))) e2)))
 
 desugarImp :: [TypedExp] -> PatternM [TypedExp]
 desugarImp es = sequence (cataRec alg <$> es)
@@ -78,7 +88,7 @@ desugarImp es = sequence (cataRec alg <$> es)
             e2' <- e2
             cond <- desugarIsPattern e1'
             target <- desugarTarget e2' e1'
-            return $ In (Ann attr (MkTuple ([cond, target])))
+            return $ In (Ann attr (MkTuple ([cond, In (Ann attr (Lam (In (Ann attr (VarPat "_v"))) target))])))
         alg x = fmap In (sequenceA x)
 
 desugar :: [TypedExp] -> [TypedExp]

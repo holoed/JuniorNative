@@ -41,7 +41,7 @@ spec = parallel $
 
     it "pattern match 0" $ do
       xs <- process "let foo x = match x with y -> y"
-      unlines xs --> "let foo x = (matchFn(((\\y -> True, \\y -> y)) : [])) x"
+      unlines xs --> "let foo x = (matchFn(((\\y -> True, \\_v-> let y = _v in y)) : [])) x"
 
     it "pattern match 1" $ do
       let code = [i|
@@ -96,7 +96,8 @@ spec = parallel $
       |]
       xs <- process code
       unlines xs --> 
-        [i|let foo v = (matchFn(((\\_v -> let(___patV0,___patV1) = _v in((\\x -> True) ___patV0)&&((\\y -> True) ___patV1),\\_v->let(x,y)=_v in x + y)):[]))v|]
+        [i|let foo v = (matchFn(((\\_v -> let(___patV0,___patV1) = _v in((\\x -> True) ___patV0)&&((\\y -> True) ___patV1),
+                                  \\_v-> let x = fst _v in let y = snd _v in x + y)):[]))v|]
 
     it "pattern match 6" $ do
       let code = [i|
@@ -107,31 +108,34 @@ spec = parallel $
       xs <- process code
       unlines xs --> 
         [i|  let foo v = matchFn((\\_v -> let (___patV0,___patV1) = _v in isNone ___patV0 && isSome ___patV1,
-                                  \\_v ->  let (None, Some x) = _v in x):[])v|]
+                                  \\_v -> let x = extractSome (snd _v) in x):[])v|]
 
+    it "pattern matching 7" $ do
+      let code = [i|
+        data ListF a b = Empty | Cons a b
+         let foo v = 
+            match v with
+            | (Cons a Empty) -> Cons a Empty
+         let main = foo (Cons (Cons Empty) Empty)
+      |]
+      xs <- process code
+      unlines xs --> 
+        [i|letfoov=matchFn((isCons,\\_v->let(a,___patV0)=extractCons_vinmatchFn((isEmpty,\\_v->ConsaEmpty):[])___patV0):[])vletmain=foo(Cons(ConsEmpty)Empty)|]
 
+    it "pattern match 8" $ do
+      let code = [i|
+        data ListF a b = Empty | Cons a b
 
-    -- it "pattern match 5" $ do
-    --   let code = [i|
-    --     data ListF a b = Empty | Cons a b
-
-    --     let swap v = 
-    --       match v with
-    --       | Empty -> Empty
-    --       | (Cons a Empty) -> Cons a Empty
-    --       | (Cons a (Cons b x)) -> if a <= b 
-    --                                 then Cons a (Cons b x)
-    --                                 else Cons b (Cons a x)
-    --   |]
-    --   xs <- process code
-    --   unlines xs --> [i|
-    --     let swap v = match v with 
-    --                  Empty -> Empty 
-    --                 |Cons ___patV0 -> 
-    --                    match ___patV0 with
-    --                    (a, Empty) -> Cons a Empty
-    --                   |(a, Cons b x)-> if a <= b 
-    --                                    then Cons a (Cons b x)
-    --                                    else Cons b (Cons a x) |]
+        let swap v = 
+          match v with
+          | Empty -> Empty
+          | (Cons a Empty) -> Cons a Empty
+          | (Cons a (Cons b x)) -> if a <= b 
+                                    then Cons a (Cons b x)
+                                    else Cons b (Cons a x)
+      |]
+      xs <- process code
+      unlines xs --> [i|
+        letswapv=(matchFn(((isEmpty,\\_v->Empty)):(isCons,\\_v->let___patV1=extractCons_vin(matchFn(((\\_v->let(___patV0,___patV1)=_vin((\\a->True)___patV0)&&isEmpty___patV1,\\_v->leta=fst_vinConsaEmpty)):(((\\_v->let(___patV2,___patV3)=_vin((\\a->True)___patV2)&&isCons___patV3,\\_v->leta=fst_vinlet(b,x)=extractCons(snd_v)inifa<=bthenConsa(Consbx)elseConsb(Consax))):[])))___patV1):[]))v|]
 
    

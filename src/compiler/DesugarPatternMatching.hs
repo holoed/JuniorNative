@@ -59,7 +59,7 @@ merge xs = do
             if (length xs == 1) 
             then do 
                 let (ls, rs) = partition isAnyConPat args
-                return $ (In (Ann attr (MatchExp (In (Ann attr2 (ConPat name (((\_ -> (mkVarPat attr var)) <$> ls) ++ rs)))) 
+                return $ (In (Ann attr (MatchExp (In (Ann attr2 (ConPat name (((\arg -> if (isAnyConPat arg) then (mkVarPat attr var) else arg) <$> args))))) 
                           (if (length ls > 0) 
                           then (mkMatch attr (mkVar attr var) 
                                [mkMatchExp attr (if (length ls > 1) then mkTuplePat attr ls else (head ls)) target])

@@ -112,7 +112,19 @@ spec = parallel $
       unlines xs --> 
         [i|let foo v = match v with 
                        Some ___patV0 ->
-                       match ___patV0 with Some x-> x + fromInteger 1|]
+                       match ___patV0 with Some x -> x + fromInteger 1|]
+
+    it "pattern matching 6" $ do
+      let code = [i|
+        data ListF a b = Empty | Cons a b
+         let foo v = 
+            match v with
+            | (Cons a Empty) -> Cons a Empty
+         let main = foo (Cons (Cons Empty) Empty)
+      |]
+      xs <- process code
+      unlines xs --> 
+        [i|letfoov=matchvwithConsa___patV0->match___patV0withEmpty->ConsaEmptyletmain=foo(Cons(ConsEmpty)Empty)|]
     
 
    
