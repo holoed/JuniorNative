@@ -1,5 +1,5 @@
 {-# LANGUAGE QuasiQuotes #-}
-module DeadCodeEliminationSpec where
+module UnitTests.DeadCodeEliminationSpec where
 
 import CompilerMonad ( run, CompileM )
 import Data.Text (Text, unpack)
@@ -9,7 +9,9 @@ import Intrinsics (env, classEnv)
 import Control.Monad ((>=>))
 import CompilerSteps (prettyPrintModule, deadCodeElimin)
 import qualified InterpreterIntrinsics as Interp (env)
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 compile :: String -> CompileM Text
 compile = frontEnd >=>
@@ -21,11 +23,11 @@ build code = do
    (x, _, _) <- run (compile code) ("main", Interp.env) (classEnv, env, [], [])
    either (return . show) (return . unpack) x
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
+(-->) s1 s2 = liftIO $ build s1 >>= (`shouldBe` s2)
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Dead Code Elimination Tests" $ do
 
    it "eliminate unused let" $ "let main = let x = 42 in 3" --> [i|val main :: Int

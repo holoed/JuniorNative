@@ -1,20 +1,21 @@
-module AlphaRenameSpec where
+module UnitTests.AlphaRenameSpec where
 
-import Test.Hspec ( describe, it, shouldBe, Expectation, Spec, parallel )
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
 import AlphaRename ( rename )
 import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
 import SynExpToExp (fromExp, toExp)
 import Data.Maybe (fromJust)
+import Control.Monad.Catch (MonadThrow)
 
 rn :: String -> String
 rn s = either show (prettyPrint . (fromExp . rename . (fromJust . toExp) . head)) (parseExpr s)
 
-(-->) :: String -> String -> Expectation
+(-->) :: MonadThrow m => String -> String -> m ()
 (-->) x y = rn x `shouldBe` y
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Alpha Rename Tests" $ do
 
      it "Rename identity" $

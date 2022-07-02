@@ -1,14 +1,17 @@
 {-# LANGUAGE QuasiQuotes #-}
-module MandelbrotSpec where
+module UnitTests.MandelbrotSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullInterp )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.Cont (MonadIO(liftIO))
 
 interpPrelude :: String
 interpPrelude = [i|
@@ -21,13 +24,13 @@ build code = do
    (x, _, _) <- run (fullInterp (interpPrelude <> "\r\n\r\n" <> code)) ("main", Interp.env) (classEnv, env, [], [])
    return $ either show unpack x
 
-(--->) :: FilePath -> String -> Expectation 
-(--->) x y = do handle <- openFile x ReadMode
-                contents <- hGetContents handle
-                build contents >>= (`shouldBe` y)
+(--->) :: (MonadIO m, MonadThrow m, MonadFail m) => FilePath -> String -> m () 
+(--->) x y = do handle <- liftIO $ openFile x ReadMode
+                contents <- liftIO $ hGetContents handle
+                liftIO $ build contents >>= (`shouldBe` y)
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Mandelbrot Tests" $ do
 
    it "Haskell vs Junior" $ 

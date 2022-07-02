@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module DesugarPatternMatchingSpec where
+module UnitTests.DesugarPatternMatchingSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( describe, it, shouldBe, Spec, parallel, Expectation )
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
 import Intrinsics (classEnv, env)
 import InterpreterMonad (empty)
 import CompilerMonad (run, CompileM)
@@ -14,6 +14,8 @@ import Data.Char (isSpace)
 import CompilerSteps (desugarPatternMatching)
 import Compiler (step, frontEnd)
 import Control.Monad ((>=>))
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 closed :: String -> CompileM [TypedExp]
 closed = frontEnd >=> step "desugar pattern matching" desugarPatternMatching  
@@ -30,15 +32,15 @@ trim :: String -> String
 trim = f . f
   where f = reverse . dropWhile isSpace
 
-(-->) :: String -> String -> Expectation
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
 (-->) x y = (filter (\v -> (/=' ') v && (/='\n') v) x) `shouldBe` (filter (\v -> (/=' ') v && (/='\n') v) y) 
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Desugar_Pattern_Matching_Tests" $ do
 
     it "pattern match 0" $ do
-      xs <- process "let foo x = match x with y -> y"
+      xs <- liftIO $ process "let foo x = match x with y -> y"
       unlines xs --> "let foo x = match x with y -> y"
 
     it "pattern match 1" $ do
@@ -46,7 +48,7 @@ spec = parallel $
         data Option a = Some a | None
         let foo x = match x with | Some v -> v + 1
       |]
-      xs <- process code
+      xs <- liftIO $ process code
       unlines xs --> 
         "let foo x = match x with Some v -> v + fromInteger 1"
 
@@ -58,7 +60,7 @@ spec = parallel $
                     | Some None -> 1
                     | None -> 0
       |]
-      xs <- process code
+      xs <- liftIO $ process code
       unlines xs --> 
         [i|let foo x = match x with 
                        Some ___patV0 -> match ___patV0 with 
@@ -73,7 +75,7 @@ spec = parallel $
                     | Some v -> v + 1
                     | None -> 0
       |]
-      xs <- process code
+      xs <- liftIO $ process code
       unlines xs --> [i|
          let foo x = match x with 
                       Some v -> v + fromInteger 1
@@ -91,7 +93,7 @@ spec = parallel $
                                     then Cons a (Cons b x)
                                     else Cons b (Cons a x)
       |]
-      xs <- process code
+      xs <- liftIO $ process code
       unlines xs --> [i|
         let swap v = match v with 
                      Empty -> Empty 
@@ -108,7 +110,7 @@ spec = parallel $
         let foo v = match v with 
                     | Some (Some x) -> x + 1
       |]
-      xs <- process code
+      xs <- liftIO $ process code
       unlines xs --> 
         [i|let foo v = match v with 
                        Some ___patV0 ->
@@ -122,7 +124,7 @@ spec = parallel $
             | (Cons a Empty) -> Cons a Empty
          let main = foo (Cons (Cons Empty) Empty)
       |]
-      xs <- process code
+      xs <- liftIO $ process code
       unlines xs --> 
         [i|letfoov=matchvwithConsa___patV0->match___patV0withEmpty->ConsaEmptyletmain=foo(Cons(ConsEmpty)Empty)|]
     

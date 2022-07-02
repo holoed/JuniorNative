@@ -1,20 +1,21 @@
 {-# LANGUAGE QuasiQuotes #-}
-module DependencyAnalysisSpec where
+module UnitTests.DependencyAnalysisSpec where
 
 import Parser (parseExpr)
 import DependencyAnalysis ( deps, chunks )
 import SynExpToExp ( toExp )
 import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)
-import Test.Hspec ( it, describe, shouldBe, Spec, parallel )
+import Test.Sandwich ( it, describe, shouldBe, TopSpec, parallel )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Data.Maybe (fromJust)
+import Control.Monad.IO.Class (MonadIO(liftIO))
 
 globals :: Set [Char]
 globals = fromList ["+", "-", "/", "*", "++", "==", "/=", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Build dependencies" $ do
 
    let build code = deps globals $ (fromJust . toExp) <$> either (error . show) id (parseExpr code)
@@ -39,8 +40,8 @@ spec = parallel $ do
 
     let build code = chunks globals $ (fromJust . toExp) <$> either (error . show) id (parseExpr code)
     let (-->) x y = build x `shouldBe` y
-    let (--->) x y = do handle <- openFile x ReadMode
-                        contents <- hGetContents handle
+    let (--->) x y = do handle <- liftIO $ openFile x ReadMode
+                        contents <- liftIO $ hGetContents handle
                         contents --> y
 
     it "single node" $ "let x = 42" --> [[("x",[])]]

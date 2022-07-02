@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
-module OptimizeClosureEnvsSpec where
+module UnitTests.OptimizeClosureEnvsSpec where
 
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Compiler ( closedAndANF, step )
 import CompilerMonad ( run, CompileM )
 import Intrinsics (env, classEnv)
@@ -10,6 +10,8 @@ import Data.Text (unpack, Text)
 import Data.String.Interpolate (i)
 import CompilerSteps (optimizeClosureEnvs, prettyPrintModule, optimizeTypeClasses, deadCodeElimin)
 import Control.Monad ((>=>))
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 compile :: String -> CompileM Text
 compile = closedAndANF >=>
@@ -23,11 +25,11 @@ build code = do
    (x, _, _) <- run (compile code) ("", Interp.env) (classEnv, env, [], [])
    either (return . show) (return . unpack) x
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
+(-->) s1 s2 = liftIO $ build s1 >>= (`shouldBe` s2)
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Optimize away not used setEnvs" $ do
 
    it "Remove unused SetEnv numInt" $ [i|
@@ -48,7 +50,7 @@ let main = let anf_6 = 5 in
            AppClosure (f, anf_7)
 |]
 
-  it "Remove unused SetEnv in cases with Tuple pattern in let" $ [i|
+   it "Remove unused SetEnv in cases with Tuple pattern in let" $ [i|
 val add :: ((Int, Int), (Int, Int)) -> (Int, Int)
 let add (z1, z2) = 
   let (a, b) = z1 in

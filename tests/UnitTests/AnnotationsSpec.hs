@@ -1,14 +1,14 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
-module AnnotationsSpec where
+module UnitTests.AnnotationsSpec where
 
-import Test.Hspec ( describe, it, shouldBe, Spec, parallel )
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
 import Fixpoint ( Fix(In) )
 import Primitives ( Prim(I) )
 import Ast ( ExpF(Lit) )
 import Annotations ( Ann(Ann), unwrap, wrap, mapAnn )
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Annotations Tests" $ do
 
     it "Annotate a literal" $

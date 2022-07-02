@@ -1,26 +1,28 @@
 {-# LANGUAGE QuasiQuotes #-}
-module PrettyPrinterSpec where
+module UnitTests.PrettyPrinterSpec where
 
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel )
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
 import SynExpToExp ( toExp, fromExp )
 import PrettyPrinter ( prettyPrint )
 import Parser (parseExpr)
 import Data.List (intercalate)
 import Data.Char (isSpace)
 import Data.Maybe (fromJust)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Catch (MonadThrow)
 
 trim :: String -> String
 trim = f . f
   where f = reverse . dropWhile isSpace
 
-(-->) :: [String] -> [String] -> Expectation
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => [String] -> [String] -> m ()
 (-->) x y = either show (intercalate "\n" . map (trim . prettyPrint . fromExp . (fromJust . toExp)))
                       (parseExpr (intercalate "\n" x))
             `shouldBe`
                       intercalate "\n" (map trim y)
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Pretty Printer Tests" $ do
 
     it "Print a lit" $ do

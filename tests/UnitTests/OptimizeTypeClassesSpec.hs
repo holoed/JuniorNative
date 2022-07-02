@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
-module OptimizeTypeClassesSpec where
+module UnitTests.OptimizeTypeClassesSpec where
 
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Compiler ( closedAndANF, step )
 import CompilerMonad ( run, CompileM )
 import Intrinsics (env, classEnv)
@@ -10,6 +10,8 @@ import Data.Text (unpack, Text)
 import Data.String.Interpolate (i)
 import CompilerSteps (optimizeTypeClasses, deadCodeElimin, prettyPrintModule)
 import Control.Monad ((>=>))
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 compile :: String -> CompileM Text
 compile = closedAndANF >=>
@@ -22,11 +24,11 @@ build code = do
    (x, _, _) <- run (compile code) ("", Interp.env) (classEnv, env, [], [])
    either (return . show) (return . unpack) x
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) =>  String -> String -> m ()
+(-->) s1 s2 = liftIO $ build s1 >>= (`shouldBe` s2)
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Optimize resolved Type Classes Known Instances" $ do
 
    it "native eq" $ "let main = 2 == 3" --> [i|val main :: Bool

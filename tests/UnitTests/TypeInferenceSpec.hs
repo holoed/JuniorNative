@@ -1,11 +1,12 @@
 {-# LANGUAGE QuasiQuotes #-}
-module TypeInferenceSpec where
+module UnitTests.TypeInferenceSpec where
 
 import Data.String.Interpolate ( i )
 import Fixpoint (Fix(..))
 import Annotations (Ann(..))
 import Location ( PString(..) )
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel )
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
+import Control.Monad.Catch (MonadThrow)
 import Types ( Type(..), Qual(..), tyLam )
 import SynExpToExp ( toExp )
 import Infer (infer)
@@ -64,12 +65,12 @@ extractResults = getKey . fromList . filter (\(n, _) -> not $ containsScheme n e
           | member "main" dict = dict!"main"
           | otherwise = intercalate "\n" (snd <$> toList dict)
 
-(-->) :: String -> String -> Expectation
+(-->) :: MonadThrow m => String -> String -> m ()
 (-->) x y = either (\(PStr (txt, _)) -> txt) extractResults (typeOf x) `shouldBe` y
 
-spec :: Spec
-spec = parallel $
-  describe "Type Inference Tests" $ do
+tests :: TopSpec
+tests = parallel $
+  describe "Type Inference Tests" $ parallel $ do
 
     it "Integral instances" $ do
       "let main = mod 5 3" --> "Int"

@@ -1,16 +1,18 @@
-module PrettyTypesSpec where
+module UnitTests.PrettyTypesSpec where
 
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import PrettyTypes (prettyQ)
 import Types (Type(..), Qual(..), Pred(..), tyLam)
 import TypesPrinter ()
 import Data.Set (fromList)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Catch (MonadThrow)
 
-(-->) :: Qual Type -> String -> Expectation
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => Qual Type -> String -> m ()
 (-->) qt s = show qt `shouldBe` s
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Pretty Types Tests" $ do
 
     it "Pretty a bool" $ do

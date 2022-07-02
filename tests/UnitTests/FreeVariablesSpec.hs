@@ -1,6 +1,6 @@
-module FreeVariablesSpec where
+module UnitTests.FreeVariablesSpec where
 
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel)
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel)
 import Fixpoint ( Fix(In) )
 import Annotations ( Ann(Ann), mapAnn )
 import Primitives ( Prim(I) )
@@ -10,12 +10,14 @@ import Data.Set (Set(), empty, fromList )
 import Parser (parseExpr)
 import SynExpToExp (toExp)
 import Data.Maybe (fromJust)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 
-(-->) :: String -> Fix (Ann (Set String) ExpF) -> Expectation
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> Fix (Ann (Set String) ExpF) -> m ()
 (-->) s v  = (mapAnn snd <$> either (error . show) (freeVars empty . (fromJust . toExp) <$>) (parseExpr s)) `shouldBe` [v]
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Free Variables Tests" $ do
 
     it "Free vars of a literal" $

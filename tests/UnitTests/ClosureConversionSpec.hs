@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module ClosureConversionSpec where
+module UnitTests.ClosureConversionSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( describe, it, shouldBe, Spec, parallel )
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
 import Intrinsics (classEnv, env)
 import InterpreterMonad (empty)
 import CompilerMonad (run, CompileM)
@@ -14,6 +14,7 @@ import Data.Char (isSpace)
 import CompilerSteps (desugarPredicates, closureConversion)
 import Compiler (step, frontEnd)
 import Control.Monad ((>=>))
+import Control.Monad.IO.Class (liftIO)
 
 closed :: String -> CompileM [TypedExp]
 closed = frontEnd >=>
@@ -32,26 +33,26 @@ trim :: String -> String
 trim = f . f
   where f = reverse . dropWhile isSpace
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Closure Conversion Tests" $ do
 
     it "convert lit bool" $ do
-      xs <- process "let x = True"
+      xs <- liftIO $ process "let x = True"
       xs `shouldBe` ["let x = True"]
 
     it "convert lit num" $ do
-      xs <- process "let x = 42"
+      xs <- liftIO $ process "let x = 42"
       xs `shouldBe` ["let x = \n    AppClosure ((AppClosure (fromInteger, numInt), 42))"]
 
     it "convert simple function with no free vars" $ do
-      xs <- process "let f x = x"
+      xs <- liftIO $ process "let f x = x"
       xs `shouldBe` (map trim . lines)
        [i|let _f0 (_env, x) = x
           let f = let _c0 = MkClosure _f0 in _c0|]
 
     it "convert simple function with one free var" $ do
-      xs <- process "let f x y = (x, y)"
+      xs <- liftIO $ process "let f x y = (x, y)"
       unlines xs `shouldBe` drop 1 [i|
 let _f1 (_env, y) = (GetEnv (\"x\", _env), y)
 let _f0 (_env, x) = let _c0 = MkClosure _f1 in
@@ -60,7 +61,7 @@ let f = let _c1 = MkClosure _f0 in _c1
 |]
 
     it "convert simple function with two free var" $ do
-      xs <- process "let f x y z = (x, y, z)"
+      xs <- liftIO $ process "let f x y z = (x, y, z)"
       unlines xs `shouldBe` drop 1 [i|
 let _f2 (_env, z) = 
     (GetEnv (\"x\", _env), GetEnv (\"y\", _env), z)
@@ -72,7 +73,7 @@ let f = let _c2 = MkClosure _f0 in _c2
 |]
 
     it "convert simple recursive function" $ do
-      xs <- process [i|let fac n = if n == 0 then 1 else n * fac (n - 1)
+      xs <- liftIO $ process [i|let fac n = if n == 0 then 1 else n * fac (n - 1)
                        let main = fac 5 |]
       unlines xs `shouldBe` drop 1 [i|
 let _f2 (_env, n) = 
@@ -89,7 +90,7 @@ let fac = let _c2 = MkClosure _f0 in _c2\nlet main =
 |]
 
     it "applied function" $ do
-      xs <- process [i|let f x = x + 1
+      xs <- liftIO $ process [i|let f x = x + 1
                        let main = f 5 |]
       unlines xs `shouldBe` drop 1 [i|
 let _f1 (_env, x) = 
@@ -102,7 +103,7 @@ let main =
 |]
 
     it "tuple pattern in let" $ do
-      xs <- process [i|
+      xs <- liftIO $ process [i|
 let add (z1, z2) = 
   let (a, b) = z1 in
   let (c, d) = z2 in

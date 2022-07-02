@@ -1,14 +1,16 @@
 {-# LANGUAGE QuasiQuotes #-}
-module CompilerInterpSpec where
+module UnitTests.CompilerInterpSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullInterp )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (liftIO, MonadIO)
 
 interpPrelude :: String
 interpPrelude = [i|
@@ -31,16 +33,16 @@ build code = do
    (x, _, _) <- run (fullInterp (interpPrelude <> "\r\n\r\n" <> code)) ("main", Interp.env) (classEnv, env, [], [])
    return $ either show unpack x
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) :: (MonadIO m, MonadThrow m) => String -> String -> m ()
+(-->) s1 s2 = liftIO $ build s1 >>= (`shouldBe` s2)
 
-(--->) :: FilePath -> String -> Expectation
-(--->) x y = do handle <- openFile x ReadMode
-                contents <- hGetContents handle
+(--->) :: (MonadIO m, MonadThrow m) => FilePath -> String -> m ()
+(--->) x y = do handle <- liftIO $ openFile x ReadMode
+                contents <- liftIO $ hGetContents handle
                 contents --> y
 
-spec :: Spec
-spec = parallel $ do 
+tests :: TopSpec
+tests = parallel $ do 
   describe "Compiler Tests" $ do
 
    it "value" $ do
