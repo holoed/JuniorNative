@@ -68,7 +68,7 @@ executable JuniorNative
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        DesugarPatternMatching,
-                       CompilePatternMatching
+                       CompilePatternMatching,
                        ParserUtils,
                        Junior
   build-depends:       base,
@@ -147,7 +147,7 @@ executable JuniorService
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        DesugarPatternMatching,
-                       CompilePatternMatching
+                       CompilePatternMatching,
                        ParserUtils,
                        Junior
   build-depends:       base,
@@ -233,7 +233,7 @@ test-suite spec
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        DesugarPatternMatching,
-                       CompilePatternMatching
+                       CompilePatternMatching,
                        ParserUtils,
                        Junior,
                        AlphaRenameSpec,
