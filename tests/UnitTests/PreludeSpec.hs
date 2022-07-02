@@ -1,26 +1,28 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
-module PreludeSpec where
+module UnitTests.PreludeSpec where
 
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Data.Text ( pack, unpack, Text )
 import JavaScriptRunner (runJS)
 import Junior (prelude, buildAll)
 import Data.String.Interpolate ( i )
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 exec :: Text -> IO String
 exec = do
    let libPath = "src/javascript/baseClosedLib.js"
    runJS libPath . unpack
 
-(-->) :: [(String, Text)] -> String -> Expectation
-(-->) s1 s2 = do lib <- prelude
-                 (Right (js, _)) <- buildAll lib s1 
-                 ret <- exec js
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => [(String, Text)] -> String -> m ()
+(-->) s1 s2 = do lib <- liftIO $ prelude
+                 (Right (js, _)) <- liftIO $ buildAll lib s1 
+                 ret <- liftIO $ exec js
                  ret `shouldBe` s2
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Prelude tests" $ do
 
    it "identity" $ [("main", "let main = id 5")] --> "5"

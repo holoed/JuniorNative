@@ -1,10 +1,10 @@
 {-# LANGUAGE QuasiQuotes #-}
-module ConstraintsResolutionSpec where
+module UnitTests.ConstraintsResolutionSpec where
 
 import Annotations (mapAnn)
 import Types ( Pred(IsIn), Type(TyApp, TyVar, TyCon), tyLam, Qual ((:=>)) ) 
 import ConstraintsResolution (typeForPred, toCamel, varNameForPred, getNewArgs)
-import Test.Hspec ( it, describe, shouldBe, Spec, Expectation, parallel )
+import Test.Sandwich ( it, describe, shouldBe, TopSpec, parallel )
 import TypesPrinter () 
 import Intrinsics ( classEnv, env )
 import Data.String.Interpolate ( i )
@@ -17,6 +17,9 @@ import SynExpToExp ( fromExp )
 import PrettyPrinter ( prettyPrint )
 import qualified Data.Set as Set
 import Environment (Env, concatEnvs, toEnv)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.Cont (MonadIO(liftIO))
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
@@ -31,11 +34,11 @@ build code = do
    (x, _, _) <- run (backendPrinted code) ("main", empty) (classEnv, env', [], [])
    return $ either show unpack x
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
+(-->) s1 s2 = liftIO $ build s1 >>= (`shouldBe` s2)
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Constraints Resolution Tests" $ do
 
    it "Type for a Predicate" $ do

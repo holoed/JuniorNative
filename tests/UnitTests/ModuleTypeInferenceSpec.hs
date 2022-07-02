@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module ModuleTypeInferenceSpec where
+module UnitTests.ModuleTypeInferenceSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( Spec, describe, it, shouldBe, Expectation, parallel )
+import Test.Sandwich ( TopSpec, describe, it, shouldBe, parallel )
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Intrinsics ( env, classEnv )
 import Location ( PString, getName )
@@ -15,6 +15,8 @@ import InterpreterMonad (empty)
 import Environment (Env, concatEnvs, toEnv)
 import Types ( Type(..), Qual(..), tyLam )
 import qualified Data.Set as Set
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
@@ -34,17 +36,17 @@ typeOfModule code = do
    (x, (_, _, ss, _), _) <- run (frontEndPrinted code) ("main", empty) (classEnv, env', [], [])
    return (nub . extractNames . const ss <$> x)
 
-(-->) :: String -> [(String, String)] -> Expectation
-(-->) x y = do v <- typeOfModule x
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> [(String, String)] -> m ()
+(-->) x y = do v <- liftIO $ typeOfModule x
                either (error . show) id v `shouldBe` y
 
-(--->) :: FilePath -> [(String, String)] -> Expectation
-(--->) x y = do handle <- openFile x ReadMode
-                contents <- hGetContents handle
+(--->) :: (MonadIO m, MonadThrow m, MonadFail m) => FilePath -> [(String, String)] -> m ()
+(--->) x y = do handle <- liftIO $ openFile x ReadMode
+                contents <- liftIO $ hGetContents handle
                 contents --> y
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Module Type Inference Tests" $ do
 
     it "Simple bindings" $

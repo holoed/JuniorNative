@@ -1,32 +1,34 @@
 {-# LANGUAGE QuasiQuotes #-}
-module CompileToCloseANFdJsSpec where
+module UnitTests.CompileToCloseANFdJsSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Data.Text (unpack)
 import JavaScriptRunner (runJS)
 import Data.Text ( pack, Text )
 import Junior (prelude, buildAll)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (liftIO, MonadIO)
 
 exec :: Text -> IO String
 exec = do
    let libPath = "src/javascript/baseClosedLib.js"
    runJS libPath . unpack
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = do lib <- prelude
-                 (Right (js, _)) <- buildAll lib [("main", pack s1)] 
-                 ret <- exec js
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
+(-->) s1 s2 = do lib <- liftIO $ prelude
+                 (Right (js, _)) <- liftIO $ buildAll lib [("main", pack s1)] 
+                 ret <- liftIO $ exec js
                  ret `shouldBe` s2
 
-(--->) :: FilePath -> String -> Expectation
-(--->) x y = do handle <- openFile x ReadMode
-                contents <- hGetContents handle
+(--->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
+(--->) x y = do handle <- liftIO $ openFile x ReadMode
+                contents <- liftIO $ hGetContents handle
                 contents --> y
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Compile_to_Closed_and_ANF_JavaScript_Tests" $ do
 
    it "value" $ "let main = 42" --> "42"

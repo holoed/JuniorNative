@@ -1,24 +1,26 @@
 {-# LANGUAGE QuasiQuotes #-}
-module ModulePrinterSpec where
+module UnitTests.ModulePrinterSpec where
 
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Compiler ( frontEndPrinted )
 import CompilerMonad ( run )
 import Intrinsics ( env, classEnv )
 import Data.String.Interpolate ( i )
 import InterpreterMonad (empty) 
 import Data.Text (unpack)
+import Control.Monad.IO.Class (MonadIO(liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 build :: String -> IO String
 build code = do
    (Right x, _, _) <- run (frontEndPrinted code) ("main", empty) (classEnv, env, [], [])
    return (unpack x)
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
+(-->) s1 s2 = liftIO $ build s1 >>= (`shouldBe` s2)
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Pretty Types Tests" $ do
 
     it "Pretty one binding" $ do

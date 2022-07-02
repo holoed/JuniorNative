@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-module InterpreterSpec where
+module UnitTests.InterpreterSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel)
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel)
 import Interpreter (interpretModule)
 import InterpreterMonad (Result(..), InterpreterEnv, Prim(..), showResult, member, lookup)
 import Parser (parseExpr)
@@ -17,6 +17,8 @@ import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )
 import Data.Text (pack, unpack)
 import Prelude hiding (lookup)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Catch (MonadThrow)
 
 
 env :: InterpreterEnv
@@ -44,11 +46,11 @@ run code = do ast <- parseExpr code
            if member "it" xs then lookup "it" xs
            else extractName (last ast) >>= ((`lookup` xs) . pack)
 
-(-->) :: String -> String -> Expectation
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
 (-->) code v  = either show (unpack . showResult . List) (run code) `shouldBe` v
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Interpreter tests" $ do
 
     it "Literal" $ do

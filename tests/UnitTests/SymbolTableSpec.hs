@@ -1,23 +1,25 @@
-module SymbolTableSpec where
+module UnitTests.SymbolTableSpec where
 
 import SymbolTable (Symbol)
 import CompilerMonad (run)
 import Compiler (frontEndPrinted)
 import Intrinsics ( env, classEnv )
-import Test.Hspec ( describe, it, shouldBe, Spec, Expectation, parallel )
+import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
+import Control.Monad.Catch (MonadThrow)
 import InterpreterMonad (empty) 
+import Control.Monad.IO.Class (MonadIO (liftIO))
 
 compile :: String -> IO [Symbol]
 compile code = do
    (_, (_, _, ss, _), _) <- run (frontEndPrinted code) ("main", empty) (classEnv, env, [], [])
    return ss
 
-(-->) :: String -> [String] -> Expectation 
-(-->) x y = do ret <- compile x
-               show <$> ret `shouldBe` y
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> [String] -> m() 
+(-->) x y = do ret <- liftIO $ compile x
+               (show <$> ret) `shouldBe` y
 
-spec :: Spec
-spec = parallel $
+tests :: TopSpec
+tests = parallel $
   describe "Symbol Table Tests" $ do
 
       it "value binding" $  "let x = 42" --> [

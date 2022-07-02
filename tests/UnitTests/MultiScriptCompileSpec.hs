@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
-module MultiScriptCompileSpec where
+module UnitTests.MultiScriptCompileSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Compiler ( fullJSClosedANF )
 import CompilerMonad ( run )
 import Intrinsics (env, classEnv)
@@ -13,6 +13,8 @@ import JavaScriptRunner (runJS)
 import Location (PString)
 import Environment (Env)
 import Control.Monad ( foldM )
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Catch (MonadThrow)
 
 build :: Either PString (Text, Env) -> (String, Text) -> IO (Either PString (Text, Env))
 build (Right (js, env1)) (ns, code) = do
@@ -28,13 +30,13 @@ exec = do
 buildAll :: [(String, Text)] -> IO (Either PString (Text, Env))
 buildAll = foldM build (Right (pack "", env))
 
-(-->) :: [(String, Text)] -> String -> Expectation
-(-->) s1 s2 = do (Right (js, _)) <- buildAll s1
-                 ret <- exec js
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => [(String, Text)] -> String -> m ()
+(-->) s1 s2 = do (Right (js, _)) <- liftIO $ buildAll s1
+                 ret <- liftIO $ exec js
                  ret `shouldBe` s2
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Multi script compilation tests" $ do
 
    it "single script" $ [("main", "let main = 42")] --> "42"

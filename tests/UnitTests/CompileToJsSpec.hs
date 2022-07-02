@@ -1,8 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
-module CompileToJsSpec where
+module UnitTests.CompileToJsSpec where
 
 import Data.String.Interpolate ( i )
-import Test.Hspec (Spec, shouldBe, describe, it, Expectation, parallel)
+import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Compiler ( fullJS )
 import CompilerMonad ( run )
@@ -10,6 +10,8 @@ import Intrinsics (env, classEnv)
 import qualified InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack)
 import JavaScriptRunner (runJS)
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.Catch (MonadThrow)
 
 build :: String -> IO String
 build code = do
@@ -19,16 +21,16 @@ build code = do
    (x, _, _) <- run (fullJS (contents <> "\r\n\r\n" <> code)) ("main", Interp.env) (classEnv, env, [], [])
    either (return . show) (runJS libPath . unpack) x
 
-(-->) :: String -> String -> Expectation
-(-->) s1 s2 = build s1 >>= (`shouldBe` s2)
+(-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
+(-->) s1 s2 = liftIO $ build s1 >>= (`shouldBe` s2)
 
-(--->) :: FilePath -> String -> Expectation
-(--->) x y = do handle <- openFile x ReadMode
-                contents <- hGetContents handle
+(--->) :: (MonadIO m, MonadThrow m, MonadFail m) => FilePath -> String -> m ()
+(--->) x y = do handle <- liftIO $ openFile x ReadMode
+                contents <- liftIO $ hGetContents handle
                 contents --> y
 
-spec :: Spec
-spec = parallel $ do
+tests :: TopSpec
+tests = parallel $ do
   describe "Compile to JavaScript Tests" $ do
 
    it "value" $ "let main = 42" --> "42"

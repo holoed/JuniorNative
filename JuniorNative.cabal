@@ -175,10 +175,9 @@ executable JuniorService
   build-tool-depends:  happy:happy, alex:alex
   default-language:    Haskell2010
 
-test-suite spec
+executable TestSuite
   ghc-options:         -Wall -fno-warn-orphans -threaded -rtsopts -with-rtsopts=-N
-  type:                exitcode-stdio-1.0
-  main-is:             Spec.hs
+  main-is:             Main.hs
   other-modules:       StringUtils,
                        Location,
                        Ast,
@@ -236,35 +235,36 @@ test-suite spec
                        CompilePatternMatching,
                        ParserUtils,
                        Junior,
-                       AlphaRenameSpec,
-                       AnnotationsSpec,
-                       FreeVariablesSpec,
-                       TypeInferenceSpec,
-                       PrettyPrinterSpec,
-                       DependencyAnalysisSpec,
-                       ModuleTypeInferenceSpec,
-                       SymbolTableSpec,
-                       PrettyTypesSpec,
-                       ModulePrinterSpec,
-                       InterpreterSpec,
-                       ConstraintsResolutionSpec,
-                       CompilerInterpSpec,
-                       MandelbrotSpec,
-                       CompileToJsSpec,
-                       JavaScriptRunnerSpec,
-                       ClosureConversionSpec,
-                       CompileToCloseANFdJsSpec,
-                       OptimizeTypeClassesSpec,
-                       DeadCodeEliminationSpec,
-                       OptimizeClosureEnvsSpec,
-                       ParserSpec,
-                       MultiScriptCompileSpec,
-                       PreludeSpec,
-                       DesugarPatternMatchingSpec,
-                       CompilePatternMatchingSpec
+                       UnitTests,
+                       UnitTests.AlphaRenameSpec,
+                       UnitTests.AnnotationsSpec,
+                       UnitTests.FreeVariablesSpec,
+                       UnitTests.TypeInferenceSpec,
+                       UnitTests.PrettyPrinterSpec,
+                       UnitTests.DependencyAnalysisSpec,
+                       UnitTests.ModuleTypeInferenceSpec,
+                       UnitTests.SymbolTableSpec,
+                       UnitTests.PrettyTypesSpec,
+                       UnitTests.ModulePrinterSpec,
+                       UnitTests.InterpreterSpec,
+                       UnitTests.ConstraintsResolutionSpec,
+                       UnitTests.CompilerInterpSpec,
+                       UnitTests.MandelbrotSpec,
+                       UnitTests.CompileToJsSpec,
+                       UnitTests.JavaScriptRunnerSpec,
+                       UnitTests.ClosureConversionSpec,
+                       UnitTests.CompileToCloseANFdJsSpec,
+                       UnitTests.OptimizeTypeClassesSpec,
+                       UnitTests.DeadCodeEliminationSpec,
+                       UnitTests.OptimizeClosureEnvsSpec,
+                       UnitTests.ParserSpec,
+                       UnitTests.MultiScriptCompileSpec,
+                       UnitTests.PreludeSpec,
+                       UnitTests.DesugarPatternMatchingSpec,
+                       UnitTests.CompilePatternMatchingSpec
 
   hs-source-dirs:      tests, src, src/parser, src/compiler, src/typechecker, src/prettyprinter, src/utils, src/interpreter, src/javascript
-  build-tool-depends:  happy:happy, alex:alex, hspec-discover:hspec-discover 
+  build-tool-depends:  happy:happy, alex:alex, sandwich:sandwich-discover
   build-depends:       base,
                        array,
                        containers,
@@ -274,8 +274,9 @@ test-suite spec
                        transformers,
                        mainland-pretty,
                        interpolate,
-                       hspec-core,
-                       hspec,
+                       sandwich,
+                       time,
+                       exceptions,
                        haskeline,
                        parallel,
                        deepseq,
