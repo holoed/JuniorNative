@@ -31,7 +31,7 @@ build code = do
 
 tests :: TopSpec
 tests = parallel $ do
-  describe "Compile to JavaScript Tests" $ do
+  describe "Compile to JavaScript Tests" $ parallel $ do
 
    it "value" $ "let main = 42" --> "42"
 

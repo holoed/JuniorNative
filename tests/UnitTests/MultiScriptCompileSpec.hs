@@ -37,7 +37,7 @@ buildAll = foldM build (Right (pack "", env))
 
 tests :: TopSpec
 tests = parallel $ do
-  describe "Multi script compilation tests" $ do
+  describe "Multi script compilation tests" $ parallel $ do
 
    it "single script" $ [("main", "let main = 42")] --> "42"
 

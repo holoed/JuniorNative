@@ -23,7 +23,7 @@ exec = do
 
 tests :: TopSpec
 tests = parallel $ do
-  describe "Prelude tests" $ do
+  describe "Prelude tests" $ parallel $ do
 
    it "identity" $ [("main", "let main = id 5")] --> "5"
    

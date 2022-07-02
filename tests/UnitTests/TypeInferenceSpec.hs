@@ -70,7 +70,7 @@ extractResults = getKey . fromList . filter (\(n, _) -> not $ containsScheme n e
 
 tests :: TopSpec
 tests = parallel $
-  describe "Type Inference Tests" $ do
+  describe "Type Inference Tests" $ parallel $ do
 
     it "Integral instances" $ do
       "let main = mod 5 3" --> "Int"

@@ -29,7 +29,7 @@ exec = do
 
 tests :: TopSpec
 tests = parallel $ do
-  describe "Compile_to_Closed_and_ANF_JavaScript_Tests" $ do
+  describe "Compile_to_Closed_and_ANF_JavaScript_Tests" $ parallel $ do
 
    it "value" $ "let main = 42" --> "42"
 
