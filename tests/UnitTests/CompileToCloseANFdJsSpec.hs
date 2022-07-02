@@ -288,6 +288,6 @@ tests = parallel $ do
 
    it "Duality of Sorts" $ "tests/jnrs_lib/duality_of_sorts.jnr" ---> "[0,1,3,5,6,9]"
 
-   it "Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> "120"
+   it "Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> "125"
 
    it "Parser with custom data type and pattern match" $ "tests/jnrs_lib/parser.jnr" ---> "[[\"Hello\",\" World\"]]"
