@@ -493,6 +493,20 @@ const httpGet = mkClosure(function([_, url]) {
    }).then(response => response.text())
 })
 
+function _base64ToArrayBuffer(base64) {
+  var binary_string = window.atob(base64);
+  var len = binary_string.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+const decompress = mkClosure(function([_, strData]) {
+  return pako.ungzip(_base64ToArrayBuffer(strData));
+})
+
 const functorAsync = {
   "fmap": mkClosure(function ([_, f]) {
       return setEnv("f", f, mkClosure(function ([env, m]) {

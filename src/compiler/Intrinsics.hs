@@ -61,6 +61,7 @@ env = toEnv [
   ("fromListToMap", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))) (TyApp (TyApp (TyCon "Map") (TyVar "a" 0)) (TyVar "b" 0))),
   ("undefined", Set.fromList [] :=> TyVar "a" 0),
   ("httpGet", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "Async") (TyCon "String"))),
+  ("decompress", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "String")),
   ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
   ("mkAsync", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "a" 0))),
   ("JsonNode", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyCon "String", TyCon "Json"])) (TyCon "Json")),
