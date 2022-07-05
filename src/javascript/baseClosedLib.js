@@ -504,7 +504,7 @@ function _base64ToArrayBuffer(base64) {
 }
 
 const decompress = mkClosure(function([_, strData]) {
-  return pako.ungzip(_base64ToArrayBuffer(strData));
+  return pako.ungzip(_base64ToArrayBuffer(strData)).toString();
 })
 
 const functorAsync = {
