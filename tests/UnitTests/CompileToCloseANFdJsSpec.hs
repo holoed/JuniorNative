@@ -291,3 +291,9 @@ tests = parallel $ do
    it "Peano Numbers" $ "tests/jnrs_lib/peano_numbers.jnr" ---> "120"
 
    it "Parser with custom data type and pattern match" $ "tests/jnrs_lib/parser.jnr" ---> "[[\"Hello\",\" World\"]]"
+
+   it "Indexing into lists" $ do
+      [i|let main = ['a', 'b', 'c'] !! 0|] --> "\"a\""
+      [i|let main = ['a', 'b', 'c'] !! 2|] --> "\"c\""
+      [i|let main = ['a', 'b', 'c'] !! 3|] --> "Exception: Prelude.!!: index too large"
+      [i|let main = ['a', 'b', 'c'] !! (-1)|] --> "Exception: Prelude.!!: negative index"

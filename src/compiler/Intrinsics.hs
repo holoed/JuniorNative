@@ -30,6 +30,7 @@ env = toEnv [
   ("headStr", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "Char")),
   ("tailStr", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "String")),
   (":", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+  ("!!", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyCon "Int") (TyVar "a" 0))),
   ("fromInteger", Set.fromList [IsIn "Num" (TyVar "a" 0)] :=> tyLam (TyCon "Int") (TyVar "a" 0)),
   ("fromRational", Set.fromList [IsIn "Fractional" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0)),
   ("toDouble", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "Double")),

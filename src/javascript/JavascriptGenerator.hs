@@ -43,6 +43,7 @@ mapOp ">=>" = "__lrKleisli"
 mapOp ">>=" = "__bind"
 mapOp "<>" = "mappend"
 mapOp "++" = "__plusplus"
+mapOp "!!" = "__exclexcl"
 mapOp x    = x
 
 mapName :: Text -> Text
@@ -54,6 +55,7 @@ mapName "()" = "undefined"
 mapName "." = "__dot"
 mapName ":" = "__colon"
 mapName "++" = "__plusplus"
+mapName "!!" = "__exclexcl"
 mapName ">=>" = "__lrKleisli"
 mapName "<$>" = "__fmap"
 mapName x      = replace "'" "Quoted" x

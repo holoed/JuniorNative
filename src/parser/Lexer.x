@@ -87,6 +87,7 @@ tokens :-
   ":"                           {\p s -> TokenCons (p, s) }
   "::"                          {\p s -> TokenColonColon (p, s) }
   "++"                          {\p s -> TokenConcat (p, s) }
+  "!!"                          {\p s -> TokenExclExclMark (p, s) }
   "&&"                          {\p s -> TokenAnd (p, s) }
   "||"                          {\p s -> TokenOr (p, s) }
   [\|]                          {\p s -> TokenVBar (p, s) }
@@ -134,6 +135,7 @@ data Token
   | TokenGtEqGt (AlexPosn, String)
   | TokenGtGtEq (AlexPosn, String)
   | TokenConcat (AlexPosn, String)
+  | TokenExclExclMark (AlexPosn, String)
   | TokenEmpty (AlexPosn, String)
   | TokenCons (AlexPosn, String)
   | TokenColonColon (AlexPosn, String)

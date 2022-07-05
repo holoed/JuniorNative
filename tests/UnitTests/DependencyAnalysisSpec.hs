@@ -12,7 +12,7 @@ import Data.Maybe (fromJust)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 
 globals :: Set [Char]
-globals = fromList ["+", "-", "/", "*", "++", "==", "/=", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
+globals = fromList ["+", "-", "/", "*", "++", "!!", "==", "/=", ">", "<", "head", "tail", "null", "[]", ":", "&&", "||"]
 
 tests :: TopSpec
 tests = parallel $ do

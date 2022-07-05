@@ -5,7 +5,7 @@ import qualified Ast
 import qualified PAst
 import Annotations ( Ann(Ann) )
 import Fixpoint ( Fix(In) )
-import Operators ( juxtaOp, mulOp, divOp, plusOp, plusplusOp, subOp, eqeqOp, gteqOp, lteqOp, andOp, orOp, gtOp, ltOp, consOp, ltStarGtOp, ltGtOp, noteqOp, gtEqGtOp, gtGtEqOp, ltDollarGtOp )
+import Operators ( juxtaOp, mulOp, divOp, plusOp, plusplusOp, exclexclOp, subOp, eqeqOp, gteqOp, lteqOp, andOp, orOp, gtOp, ltOp, consOp, ltStarGtOp, ltGtOp, noteqOp, gtEqGtOp, gtGtEqOp, ltDollarGtOp )
 import RecursionSchemes ( cataRec )
 import Location (Loc, zeroLoc)
 import Data.Maybe ( fromMaybe )
@@ -65,6 +65,7 @@ fromExp = compressDefn . compressLets . compressLambdas . cataRec alg
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var ">"))) e1))) e2)) = PAst.infixApp zeroLoc gtOp e1 e2
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "<"))) e1))) e2)) = PAst.infixApp zeroLoc ltOp e1 e2
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "++"))) e1))) e2)) = PAst.infixApp zeroLoc plusplusOp e1 e2
+          alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "!!"))) e1))) e2)) = PAst.infixApp zeroLoc exclexclOp e1 e2
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var ":"))) e1))) e2)) = PAst.infixApp zeroLoc consOp e1 e2
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "<*>"))) e1))) e2)) = PAst.infixApp zeroLoc ltStarGtOp e1 e2
           alg (Ann _ (Ast.App (In (Ann _ (PAst.InfixApp (" ", _, _) (In (Ann _ (PAst.Var "<$>"))) e1))) e2)) = PAst.infixApp zeroLoc ltDollarGtOp e1 e2

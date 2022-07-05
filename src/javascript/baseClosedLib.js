@@ -864,3 +864,12 @@ const tailStr = mkClosure(function([_, xs]){
 const charToStr = mkClosure(function([_, x]){
   return `${x}`
 })
+
+const __exclexcl = mkClosure(function([_, xs]){
+  return setEnv("xs", xs, mkClosure(function([env, n]){
+    const vs = env["xs"]
+    if (n < 0) throw "Exception: Prelude.!!: negative index"
+    if (n >= vs.length) throw "Exception: Prelude.!!: index too large"
+    return env["xs"][n];
+  }))
+})

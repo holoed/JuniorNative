@@ -66,6 +66,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     '&&'  { TokenAnd $$ }
     '||'  { TokenOr $$ }
     '++'  { TokenConcat $$ }
+    '!!'  { TokenExclExclMark $$ }
     '+'   { TokenAdd $$ }
     '-'   { TokenSub $$ }
     '*'   { TokenMul $$ }
@@ -97,6 +98,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 %left '+' '-'
 %left '*' '/'
 %right '.'
+%left '!!'
 %%
 
 TopDecls : TopDecl                 { [$1] }
@@ -147,6 +149,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '>' Form               { infixApp (mkLoc $2) gtOp $1 $3 }
      | Form '<' Form               { infixApp (mkLoc $2) ltOp $1 $3 }
      | Form '++' Form              { infixApp (mkLoc $2) plusplusOp $1 $3}
+     | Form '!!' Form              { infixApp (mkLoc $2) exclexclOp $1 $3}
      | Form ':' Form               { infixApp (mkLoc $2) consOp $1 $3 }
      | Form '.' Form               { infixApp (mkLoc $2) dotOp $1 $3}
      | Form '<*>' Form             { infixApp (mkLoc $2) ltStarGtOp $1 $3}
@@ -176,6 +179,7 @@ Atom : '(' Expr ')'                { $2 }
      | '(' '*' ')'                 { var (mkLoc $2) "*" }
      | '(' '/' ')'                 { var (mkLoc $2) "/" }
      | '(' '++' ')'                { var (mkLoc $2) "++" }
+     | '(' '!!' ')'                { var (mkLoc $2) "!!" }
      | '(' ':' ')'                 { var (mkLoc $2) ":" }
      | '(' '.' ')'                 { var (mkLoc $2) "." }
      | '(' '<*>' ')'               { var (mkLoc $2) "<*>" }

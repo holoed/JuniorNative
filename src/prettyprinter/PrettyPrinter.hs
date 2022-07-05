@@ -16,12 +16,11 @@ import Control.Monad.RWS.Lazy
 import Prelude hiding (Left, Right, (<>), pi)
 import Annotations ( unwrap )
 import Data.List (intersperse)
-import GHC.ResponseFile (escapeArgs)
 
 type PrettyM = RWS Int [Operator] ()
 
 isop :: String -> Bool
-isop x = x == "++" || x == "+" || x == "*" || x == ":"
+isop x = x == "++" || x == "+" || x == "*" || x == ":" || x == "!!" || x == ">=>" || x == ">>="
 
 alg :: SynExpF (PrettyM Doc) -> PrettyM Doc
 alg (Lit (I v)) =
