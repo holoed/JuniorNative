@@ -233,6 +233,14 @@ const toCharList = mkClosure(function([_, s]) {
     return Array.from(s);
   })
 
+const fromCharList = mkClosure(function([_, xs]) {
+    return xs.join("");
+  })
+
+const unlines = mkClosure(function([_, xs]) {
+    return xs.join("\n");
+  })
+
 const mkParser = mkClosure(function([_, f]) {
     return f;
   })
@@ -504,7 +512,15 @@ function _base64ToArrayBuffer(base64) {
 }
 
 const decompress = mkClosure(function([_, strData]) {
-  return pako.ungzip(_base64ToArrayBuffer(strData)).toString();
+  const buffer = _base64ToArrayBuffer(strData);
+  console.log("Decompressing...")
+  const data = pako.ungzip(buffer);
+  console.log("Decompressed")
+  return data;
+})
+
+const bufferToIntList = mkClosure(function([_, buffer]){
+  return Array.from(buffer);
 })
 
 const functorAsync = {
@@ -849,6 +865,10 @@ const listToJson = mkClosure(function([_, xs]){
   return xs;
 })
 
+const jsonToList = mkClosure(function([_, xs]){
+  return xs;
+})
+
 const nullStr = mkClosure(function([_, xs]){
   return xs.length == 0;
 })
@@ -872,4 +892,8 @@ const __exclexcl = mkClosure(function([_, xs]){
     if (n >= vs.length) throw "Exception: Prelude.!!: index too large"
     return env["xs"][n];
   }))
+})
+
+const length = mkClosure(function([_, xs]){
+  return xs.length;
 })

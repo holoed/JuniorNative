@@ -50,6 +50,7 @@ env = toEnv [
   ("mkParser", Set.fromList [] :=> tyLam (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String")))) (TyApp (TyCon "Parser") (TyVar "a" 0))),
   ("runParser", Set.fromList [] :=> tyLam (TyApp (TyCon "Parser") (TyVar "a" 0)) (tyLam (TyCon "String") (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyCon "String"))))),
   ("toCharList", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "List") (TyCon "Char"))),
+  ("fromCharList", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Char")) (TyCon "String")),
   ("charToStr", Set.fromList [] :=> tyLam (TyCon "Char") (TyCon "String")),
   ("ord", Set.fromList [] :=> tyLam (TyCon "Char") (TyCon "Int")),
   ("display", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyApp (TyApp (TyApp (TyCon "Tuple") (TyCon "Int")) (TyCon "Int")) (TyCon "Int")))) (TyApp (TyCon "Async") (TyCon "Unit"))),
@@ -62,7 +63,8 @@ env = toEnv [
   ("fromListToMap", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))) (TyApp (TyApp (TyCon "Map") (TyVar "a" 0)) (TyVar "b" 0))),
   ("undefined", Set.fromList [] :=> TyVar "a" 0),
   ("httpGet", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "Async") (TyCon "String"))),
-  ("decompress", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "String")),
+  ("decompress", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "Uint8Array")),
+  ("bufferToIntList", Set.fromList [] :=> tyLam (TyCon "Uint8Array") (TyApp (TyCon "List") (TyCon "Int"))),
   ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
   ("mkAsync", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "a" 0))),
   ("JsonNode", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyCon "String", TyCon "Json"])) (TyCon "Json")),
@@ -89,7 +91,10 @@ env = toEnv [
   ("error", Set.fromList [] :=> tyLam (TyCon "String") (tyLam (TyCon "Unit") (TyVar "a" 0))),
   ("show", Set.fromList [IsIn "Show" (TyVar "a" 0)] :=> tyLam (TyVar "a" 0) (TyCon "String")),
   ("mapToJson", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Map") (TyCon "String")) (TyCon "Json")) (TyCon "Json")),
-  ("listToJson", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Json")) (TyCon "Json"))
+  ("listToJson", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Json")) (TyCon "Json")),
+  ("jsonToList", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "List") (TyCon "Json"))),
+  ("length", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Int")),
+  ("unlines", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "String")) (TyCon "String"))
  ]
 
 classEnv :: ClassEnv
