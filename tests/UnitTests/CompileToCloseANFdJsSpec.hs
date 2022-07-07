@@ -167,6 +167,7 @@ tests = parallel $ do
 
    it "Semigroup append" $ do
       [i|let main = foldr (<>) "" ["Hello", " ", "World"]|] --> "\"Hello World\""
+      [i|let main = [1,2] <> [3,4,5]|] -->"[1,2,3,4,5]"
 
    it "bug missing - native sub int" $ do
        "let main = (fmap . fmap) ((-) 0)  (Just [1,2,3])" --> "{\"value\":[-1,-2,-3]}"

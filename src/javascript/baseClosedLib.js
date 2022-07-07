@@ -809,6 +809,14 @@ const semigroupString = {
   })
 }
 
+const semigroupList = {
+  "<>" : mkClosure(function([_, xs]){
+    return setEnv("xs", xs, mkClosure(function([env, ys]){
+      return env["xs"].concat(ys);
+    }))
+  })
+}
+
 const mappend = mkClosure(function([_, inst]) { return inst["<>"]; })
 
 const fromMaybe = mkClosure(function([_, x]){

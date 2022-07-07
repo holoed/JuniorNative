@@ -159,7 +159,8 @@ classEnv = ClassEnv {
        Set.fromList [] :=> IsIn "Traversable" (TyCon "List")
       ])),
       ("Semigroup", ([], [
-        Set.fromList [] :=> IsIn "Semigroup" (TyCon "String")
+        Set.fromList [] :=> IsIn "Semigroup" (TyCon "String"),
+        Set.fromList [] :=> IsIn "Semigroup" (TyApp (TyCon "List") (TyVar "a" 0))
       ])),
       ("Show", ([], [
         Set.fromList [] :=> IsIn "Show" (TyCon "Int"),
