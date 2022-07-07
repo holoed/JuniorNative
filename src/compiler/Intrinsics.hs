@@ -94,7 +94,8 @@ env = toEnv [
   ("listToJson", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Json")) (TyCon "Json")),
   ("jsonToList", Set.fromList [] :=> tyLam (TyCon "Json") (TyApp (TyCon "List") (TyCon "Json"))),
   ("length", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Int")),
-  ("unlines", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "String")) (TyCon "String"))
+  ("unlines", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "String")) (TyCon "String")),
+  ("take", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))))
  ]
 
 classEnv :: ClassEnv

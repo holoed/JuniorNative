@@ -298,3 +298,9 @@ tests = parallel $ do
       [i|let main = ['a', 'b', 'c'] !! 2|] --> "\"c\""
       [i|let main = ['a', 'b', 'c'] !! 3|] --> "Exception: Prelude.!!: index too large"
       [i|let main = ['a', 'b', 'c'] !! (-1)|] --> "Exception: Prelude.!!: negative index"
+
+   it "take n from lists" $ do
+      [i|let main = take 0 [1,2,3,4]|] --> "[]"
+      [i|let main = take 1 [1,2,3,4]|] --> "[1]"
+      [i|let main = take 2 [1,2,3,4]|] --> "[1,2]"
+      [i|let main = take 3 [1,2,3,4]|] --> "[1,2,3]"

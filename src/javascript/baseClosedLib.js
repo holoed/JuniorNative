@@ -905,3 +905,9 @@ const __exclexcl = mkClosure(function([_, xs]){
 const length = mkClosure(function([_, xs]){
   return xs.length;
 })
+
+const take = mkClosure(function([_, n]){
+  return setEnv("n", n, mkClosure(function([env, xs]){
+    return xs.slice(0, env["n"]);
+  }))
+})
