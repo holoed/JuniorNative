@@ -5,7 +5,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, desugarPatternMatching, interpret, toJs, closureConversion, aNormalisation, optimizeTypeClasses, deadCodeElimin, optimizeClosureEnvs, fromSynExpToDataDecl, compilePatternMatching )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, desugarPatternMatching, interpret, toJs, closureConversion, aNormalisation, optimizeTypeClasses, deadCodeElimin, optimizeClosureEnvs, fromSynExpToDataDecl, compilePatternMatching, renameVars )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
@@ -27,7 +27,8 @@ frontEnd = step "code to parse tree" parse >=>
            step "parse tree to syntax tree" fromSynExpToExp >=>
            step "dependency analysis" dependencyAnalysis >=>
            step "type inference" typeInference >=>
-           step "build symbol table" buildSymbolTable
+           step "build symbol table" buildSymbolTable >=>
+           step "alpha renamer" renameVars 
 
 frontEndPrinted :: String -> CompileM Text
 frontEndPrinted = frontEnd >=>

@@ -67,34 +67,34 @@ tests = parallel $ do
 
    it "Convert predicates for Num function" $ 
        "let f x = x + 1" --> [i|val f :: Num a -> a -> a
-let f numT2 x = 
-    (numT2 + x) (fromInteger numT2 1)
+let f numT2 x0 = 
+    (numT2 + x0) (fromInteger numT2 1)
 |]
 
    it "Convert predicates for curried function" $ 
        "let f x y = (x + 1, y + 2)" --> [i|val f :: Num a -> Num b -> a -> b -> (a, b)
-let f numT5 numT6 x y = 
-    ((numT5 + x) (fromInteger numT5 1), (numT6 + y) (fromInteger numT6 2))
+let f numT5 numT6 x0 y1 = 
+    ((numT5 + x0) (fromInteger numT5 1), (numT6 + y1) (fromInteger numT6 2))
 |]
 
    it "Convert predicates for recursive function" $ 
        "let fac n = if n == 0 then 1 else n * (fac (n - 1))" --> 
            [i|val fac :: Eq a -> Num a -> a -> a
-let fac eqT14 numT14 n = 
-    if (eqT14 == n) (fromInteger numT14 0)
+let fac eqT14 numT14 n0 = 
+    if (eqT14 == n0) (fromInteger numT14 0)
         then fromInteger numT14 1
-        else (numT14 * n) (fac eqT14 numT14 ((numT14 - n) (fromInteger numT14 1)))
+        else (numT14 * n0) (fac eqT14 numT14 ((numT14 - n0) (fromInteger numT14 1)))
 |]
 
    it "Convert predicates for recursive function 2" $ 
        "let fib n = if n == 0 then 1 else if n == 1 then 1 else fib (n - 1) + fib (n - 2)" --> 
            [i|val fib :: Eq a -> Num a -> Num b -> a -> b
-let fib eqT28 numT28 numT3 n = 
-    if (eqT28 == n) (fromInteger numT28 0)
+let fib eqT28 numT28 numT3 n0 = 
+    if (eqT28 == n0) (fromInteger numT28 0)
         then fromInteger numT3 1 else 
-            if (eqT28 == n) (fromInteger numT28 1)
+            if (eqT28 == n0) (fromInteger numT28 1)
                 then fromInteger numT3 1
-                else numT3 + fib eqT28 numT28 numT3 ((numT28 - n) (fromInteger numT28 1)) (fib eqT28 numT28 numT3 ((numT28 - n) (fromInteger numT28 2)))
+                else numT3 + fib eqT28 numT28 numT3 ((numT28 - n0) (fromInteger numT28 1)) (fib eqT28 numT28 numT3 ((numT28 - n0) (fromInteger numT28 2)))
 |]
 
    it "Convert predicate for let value" $
@@ -110,8 +110,8 @@ let main =
 
    it "Instance construction - Function Equality of Tuples" $
        "let f x y = (x, y) == (x, y)" --> [i|val f :: Eq a -> Eq b -> a -> b -> Bool
-let f eqT8 eqT9 x y = 
-    eqTuple2 eqT8 eqT9 == (x, y) (x, y)
+let f eqT8 eqT9 x0 y1 = 
+    eqTuple2 eqT8 eqT9 == (x0, y1) (x0, y1)
 |]
 
    it "Regression Test" $
@@ -123,17 +123,17 @@ let partition n xs =
       if (n == 0 || null xs) then (reverse acc, xs)
           else partition' (n - 1) ((head xs) : acc) (tail xs) in
     partition' n [] xs|] --> [i|val reverse :: Foldable a -> a b -> List b
-let reverse foldabletT6 xs = 
-    foldl foldabletT6 (\\xs x ->
-                       x : xs) [] xs
+let reverse foldabletT6 xs0 = 
+    foldl foldabletT6 (\\xs1 x2 ->
+                       x2 : xs1) [] xs0
 
 val partition :: Eq a -> Num a -> a -> List b -> (List b, List b)
-let partition eqT44 numT44 n xs = 
-    let partition' n acc xs = 
-                if (eqT44 == n) (fromInteger numT44 0) || null xs
-                    then (reverse foldableList acc, xs)
-                    else ((partition' ((numT44 - n) (fromInteger numT44 1))) (head xs : acc)) (tail xs) in
-    partition' n [] xs
+let partition eqT44 numT44 n3 xs4 = 
+    let partition'5 n6 acc7 xs8 = 
+                if (eqT44 == n6) (fromInteger numT44 0) || null xs8
+                    then (reverse foldableList acc7, xs8)
+                    else ((partition'5 ((numT44 - n6) (fromInteger numT44 1))) (head xs8 : acc7)) (tail xs8) in
+    partition'5 n3 [] xs4
 |]
 
    it "Regression Test - Variable f shadowing top level decl f" $ [i|        
@@ -151,17 +151,17 @@ let const x = \\v -> x
 
 let main = (foldl compose f (map (const f) xs)) (5)   
 |] --> [i|val compose :: (a -> b) -> (c -> a) -> c -> b
-let compose f g = . f g
+let compose f0 g1 = . f0 g1
 
 val const :: a -> b -> a
-let const x v = x
+let const x2 v3 = x2
 
 val f :: Num a -> a -> a
-let f numT2 x = \n    (numT2 + x) (fromInteger numT2 1)
+let f numT2 x4 = \n    (numT2 + x4) (fromInteger numT2 1)
 
 val map :: (a -> b) -> List a -> List b
-let map f xs = if null xs then []
-    else f (head xs) : map f (tail xs)
+let map f5 xs6 = if null xs6 then []
+    else f5 (head xs6) : map f5 (tail xs6)
 
 val xs :: List Int
 let xs = 

@@ -37,11 +37,11 @@ trim = f . f
 
 tests :: TopSpec
 tests = parallel $
-  describe "Desugar_Pattern_Matching_Tests" $ do
+  describe "Desugar Pattern Matching Tests" $ do
 
     it "pattern match 0" $ do
       xs <- liftIO $ process "let foo x = match x with y -> y"
-      unlines xs --> "let foo x = match x with y -> y"
+      unlines xs --> "let foo x0 = match x0 with y1 -> y1"
 
     it "pattern match 1" $ do
       let code = [i|
@@ -50,7 +50,7 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        "let foo x = match x with Some v -> v + fromInteger 1"
+        "let foo x0 = match x0 with Some v1 -> v1 + fromInteger 1"
 
     it "pattern match 2" $ do
       let code = [i|
@@ -62,9 +62,9 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|let foo x = match x with 
+        [i|let foo x0 = match x0 with 
                        Some ___patV0 -> match ___patV0 with 
-                                        Some v-> v + fromInteger 1
+                                        Some v1 -> v1 + fromInteger 1
                                        |None-> fromInteger 1
                       |None -> fromInteger 0|]
 
@@ -77,8 +77,8 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> [i|
-         let foo x = match x with 
-                      Some v -> v + fromInteger 1
+         let foo x0 = match x0 with 
+                      Some v1 -> v1 + fromInteger 1
                      |None   -> fromInteger 0 |]
 
     it "pattern match 4" $ do
@@ -95,14 +95,14 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> [i|
-        let swap v = match v with 
+        let swap v0 = match v0 with 
                      Empty -> Empty 
                     |Cons ___patV1 -> 
                        match ___patV1 with
-                       (a, Empty) -> Cons a Empty
-                      |(a, Cons b x)-> if a <= b 
-                                       then Cons a (Cons b x)
-                                       else Cons b (Cons a x) |]
+                       (a1, Empty) -> Cons a1 Empty
+                      |(a2, Cons b3 x4)-> if a2 <= b3
+                                       then Cons a2 (Cons b3 x4)
+                                       else Cons b3 (Cons a2 x4) |]
                                       
     it "pattern match 5" $ do
       let code = [i|
@@ -112,9 +112,9 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|let foo v = match v with 
+        [i|let foo v0 = match v0 with 
                        Some ___patV0 ->
-                       match ___patV0 with Some x -> x + fromInteger 1|]
+                       match ___patV0 with Some x1 -> x1 + fromInteger 1|] 
 
     it "pattern matching 6" $ do
       let code = [i|
@@ -126,7 +126,7 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|letfoov=matchvwithConsa___patV0->match___patV0withEmpty->ConsaEmptyletmain=foo(Cons(ConsEmpty)Empty)|]
+        [i|letfoov0=matchv0withConsa1___patV0->match___patV0withEmpty->Consa1Emptyletmain=foo(Cons(ConsEmpty)Empty)|]
     
 
    

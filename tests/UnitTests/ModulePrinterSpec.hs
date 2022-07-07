@@ -21,11 +21,11 @@ build code = do
 
 tests :: TopSpec
 tests = parallel $
-  describe "Pretty Types Tests" $ do
+  describe "Module Printer Tests" $ do
 
     it "Pretty one binding" $ do
         "let f x = x" --> [i|val f :: a -> a
-let f x = x
+let f x0 = x0
 |]
 
     it "Pretty many binding" $ do
@@ -33,6 +33,7 @@ let f x = x
 let foldr f v xs =
   if (null xs) then v
   else f (head xs) (foldr f v (tail xs))|] --> [i|val foldr :: (a -> b -> b) -> b -> List a -> b
-let foldr f v xs = if null xs then v
-    else f (head xs) (foldr f v (tail xs))
+let foldr f0 v1 xs2 = if null xs2
+    then v1
+    else f0 (head xs2) (foldr f0 v1 (tail xs2))
 |]

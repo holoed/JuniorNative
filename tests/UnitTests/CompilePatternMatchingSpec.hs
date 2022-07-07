@@ -43,7 +43,7 @@ tests = parallel $
 
     it "pattern match 0" $ do
       xs <- liftIO $ process "let foo x = match x with y -> y"
-      unlines xs --> "let foo x = (matchFn(((\\y -> True, \\_v-> let y = _v in y)) : [])) x"
+      unlines xs --> "let foo x0 = (matchFn(((\\y1 -> True, \\_v-> let y1 = _v in y1)) : [])) x0"
 
     it "pattern match 1" $ do
       let code = [i|
@@ -52,7 +52,7 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        "let foo x = matchFn((isSome,\\_v -> let v = extractSome _v in v + fromInteger 1) : []) x"
+        "let foo x0 = matchFn((isSome,\\_v -> let v1 = extractSome _v in v1 + fromInteger 1) : []) x0"
 
     it "pattern match 2" $ do
       let code = [i|
@@ -64,10 +64,10 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|let foo x = matchFn((isSome,\\_v -> let ___patV0 = extractSome _v in 
-                                               matchFn((isSome,\\_v -> let v = extractSome _v in v + fromInteger 1):
+        [i|let foo x0 = matchFn((isSome,\\_v -> let ___patV0 = extractSome _v in 
+                                               matchFn((isSome,\\_v -> let v1 = extractSome _v in v1 + fromInteger 1):
                                                        (isNone,\\_v -> fromInteger 1) : []) ___patV0):
-                               (isNone,\\_v -> fromInteger 0):[])x|]
+                               (isNone,\\_v -> fromInteger 0):[])x0|]
 
     it "pattern match 3" $ do
       let code = [i|
@@ -78,8 +78,8 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> [i|
-         let foo x = matchFn((isSome,\\_v -> let v = extractSome _v in v + fromInteger 1):
-                             (isNone,\\_v -> fromInteger 0):[])x |]
+         let foo x0 = matchFn((isSome,\\_v -> let v1 = extractSome _v in v1 + fromInteger 1):
+                             (isNone,\\_v -> fromInteger 0):[])x0 |]
 
     it "pattern match 4" $ do
       let code = [i|
@@ -89,7 +89,7 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|let foo v = matchFn((isSome,\\_v -> let ___patV0 = extractSome _v in matchFn((isSome,\\_v -> let x = extractSome _v in x + fromInteger1):[]) ___patV0):[])v|]
+        [i|let foo v0 = matchFn((isSome,\\_v -> let ___patV0 = extractSome _v in matchFn((isSome,\\_v -> let x1 = extractSome _v in x1 + fromInteger1):[]) ___patV0):[])v0|]
 
     it "pattern match 5" $ do
       let code = [i|
@@ -98,8 +98,8 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|let foo v = (matchFn(((\\_v -> let(___patV0,___patV1) = _v in((\\x -> True) ___patV0)&&((\\y -> True) ___patV1),
-                                  \\_v-> let x = fst _v in let y = snd _v in x + y)):[]))v|]
+        [i|let foo v0 = (matchFn(((\\_v -> let(___patV0,___patV1) = _v in((\\x1 -> True) ___patV0)&&((\\y2 -> True) ___patV1),
+                                  \\_v-> let x1 = fst _v in let y2 = snd _v in x1 + y2)):[]))v0|]
 
     it "pattern match 6" $ do
       let code = [i|
@@ -109,8 +109,8 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|  let foo v = matchFn((\\_v -> let (___patV0,___patV1) = _v in isNone ___patV0 && isSome ___patV1,
-                                  \\_v -> let x = extractSome (snd _v) in x):[])v|]
+        [i|  let foo v0 = matchFn((\\_v -> let (___patV0,___patV1) = _v in isNone ___patV0 && isSome ___patV1,
+                                  \\_v -> let x1 = extractSome (snd _v) in x1):[])v0|]
 
     it "pattern matching 7" $ do
       let code = [i|
@@ -122,7 +122,7 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|letfoov=matchFn((isCons,\\_v->let(a,___patV0)=extractCons_vinmatchFn((isEmpty,\\_v->ConsaEmpty):[])___patV0):[])vletmain=foo(Cons(ConsEmpty)Empty)|]
+        [i|letfoov0=matchFn((isCons,\\_v->let(a1,___patV0)=extractCons_vinmatchFn((isEmpty,\\_v->Consa1Empty):[])___patV0):[])v0letmain=foo(Cons(ConsEmpty)Empty)|]
 
     it "pattern match 8" $ do
       let code = [i|
@@ -138,6 +138,6 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> [i|
-        letswapv=(matchFn(((isEmpty,\\_v->Empty)):(isCons,\\_v->let___patV1=extractCons_vin(matchFn(((\\_v->let(___patV0,___patV1)=_vin((\\a->True)___patV0)&&isEmpty___patV1,\\_v->leta=fst_vinConsaEmpty)):(((\\_v->let(___patV2,___patV3)=_vin((\\a->True)___patV2)&&isCons___patV3,\\_v->leta=fst_vinlet(b,x)=extractCons(snd_v)inifa<=bthenConsa(Consbx)elseConsb(Consax))):[])))___patV1):[]))v|]
+        letswapv0=(matchFn(((isEmpty,\\_v->Empty)):(isCons,\\_v->let___patV1=extractCons_vin(matchFn(((\\_v->let(___patV0,___patV1)=_vin((\\a1->True)___patV0)&&isEmpty___patV1,\\_v->leta1=fst_vinConsa1Empty)):(((\\_v->let(___patV2,___patV3)=_vin((\\a2->True)___patV2)&&isCons___patV3,\\_v->leta2=fst_vinlet(b3,x4)=extractCons(snd_v)inifa2<=b3thenConsa2(Consb3x4)elseConsb3(Consa2x4))):[])))___patV1):[]))v0|]
 
    

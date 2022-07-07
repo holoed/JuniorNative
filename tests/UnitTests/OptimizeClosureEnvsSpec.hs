@@ -37,9 +37,9 @@ tests = parallel $ do
       let f x = x + 1
       let main = f 5
    |] --> [i|val _f0 :: Int -> Int
-let _f0 (_env, x) = let anf_2 = 1 in
-                    let anf_4 = AppClosure (nativeInt, anf_2) in
-                    nativeAddInt x anf_4
+let _f0 (_env, x0) = let anf_2 = 1 in
+                     let anf_4 = AppClosure (nativeInt, anf_2) in
+                     nativeAddInt x0 anf_4
 
 val f :: Int -> Int
 let f = let _c0 = MkClosure _f0 in _c0
@@ -58,11 +58,11 @@ let add (z1, z2) =
   (a + c, b + d)
   
 let main = add ((2, 3), (4, 5)) |] --> [i|val _f0 :: ((Int, Int), (Int, Int)) -> (Int, Int)
-let _f0 (_env, (z1, z2)) = 
-    let (a, b) = z1 in
-    let (c, d) = z2 in
-    let anf_5 = nativeAddInt b d in
-    let anf_4 = nativeAddInt a c in
+let _f0 (_env, (z10, z21)) = 
+    let (a2, b3) = z10 in
+    let (c4, d5) = z21 in
+    let anf_5 = nativeAddInt b3 d5 in
+    let anf_4 = nativeAddInt a2 c4 in
     (anf_4, anf_5)
 
 val add :: ((Int, Int), (Int, Int)) -> (Int, Int)
