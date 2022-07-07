@@ -48,59 +48,26 @@ tests = parallel $
     it "convert simple function with no free vars" $ do
       xs <- liftIO $ process "let f x = x"
       xs `shouldBe` (map trim . lines)
-       [i|let _f0 (_env, x) = x
+       [i|let _f0 (_env, x0) = x0 
           let f = let _c0 = MkClosure _f0 in _c0|]
 
     it "convert simple function with one free var" $ do
       xs <- liftIO $ process "let f x y = (x, y)"
-      unlines xs `shouldBe` drop 1 [i|
-let _f1 (_env, y) = (GetEnv (\"x\", _env), y)
-let _f0 (_env, x) = let _c0 = MkClosure _f1 in
-                    SetEnv (\"x\", x, _c0)
-let f = let _c1 = MkClosure _f0 in _c1
-|]
+      unlines xs `shouldBe` "let _f1 (_env, y1) = (GetEnv (\"x0\", _env), y1)\nlet _f0 (_env, x0) = let _c0 = MkClosure _f1 in\n                     SetEnv (\"x0\", x0, _c0)\nlet f = let _c1 = MkClosure _f0 in _c1\n"
 
     it "convert simple function with two free var" $ do
       xs <- liftIO $ process "let f x y z = (x, y, z)"
-      unlines xs `shouldBe` drop 1 [i|
-let _f2 (_env, z) = 
-    (GetEnv (\"x\", _env), GetEnv (\"y\", _env), z)
-let _f1 (_env, y) = let _c0 = MkClosure _f2 in
-                    SetEnv ((\"x\", GetEnv (\"x\", _env), SetEnv (\"y\", y, _c0)))
-let _f0 (_env, x) = let _c1 = MkClosure _f1 in
-                    SetEnv (\"x\", x, _c1)
-let f = let _c2 = MkClosure _f0 in _c2
-|]
+      unlines xs `shouldBe` "let _f2 (_env, z2) = \n    (GetEnv (\"x0\", _env), GetEnv (\"y1\", _env), z2)\nlet _f1 (_env, y1) = let _c0 = MkClosure _f2 in\n                     SetEnv ((\"x0\", GetEnv (\"x0\", _env), SetEnv (\"y1\", y1, _c0)))\nlet _f0 (_env, x0) = let _c1 = MkClosure _f1 in\n                     SetEnv (\"x0\", x0, _c1)\nlet f = let _c2 = MkClosure _f0 in _c2\n"
 
     it "convert simple recursive function" $ do
       xs <- liftIO $ process [i|let fac n = if n == 0 then 1 else n * fac (n - 1)
                        let main = fac 5 |]
-      unlines xs `shouldBe` drop 1 [i|
-let _f2 (_env, n) = 
-    if AppClosure ((AppClosure ((AppClosure ((==, GetEnv (\"eqT14\", _env))), n)), AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT14\", _env))), 0))))
-        then AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT14\", _env))), 1))
-        else AppClosure ((AppClosure ((AppClosure (((*), GetEnv (\"numT14\", _env))), n)), AppClosure ((AppClosure ((AppClosure ((fac, GetEnv (\"eqT14\", _env))), GetEnv (\"numT14\", _env))), AppClosure ((AppClosure ((AppClosure ((-, GetEnv (\"numT14\", _env))), n)), AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT14\", _env))), 1))))))))
-let _f1 (_env, numT14) = 
-    let _c0 = MkClosure _f2 in
-    SetEnv ((\"eqT14\", GetEnv (\"eqT14\", _env), SetEnv (\"numT14\", numT14, _c0)))
-let _f0 (_env, eqT14) = let _c1 = MkClosure _f1 in
-                        SetEnv (\"eqT14\", eqT14, _c1)
-let fac = let _c2 = MkClosure _f0 in _c2\nlet main = 
-    AppClosure ((AppClosure ((AppClosure (fac, eqInt), numInt)), AppClosure ((AppClosure (fromInteger, numInt), 5))))
-|]
+      unlines xs `shouldBe` "let _f2 (_env, n0) = \n    if AppClosure ((AppClosure ((AppClosure ((==, GetEnv (\"eqT14\", _env))), n0)), AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT14\", _env))), 0))))\n        then AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT14\", _env))), 1))\n        else AppClosure ((AppClosure ((AppClosure (((*), GetEnv (\"numT14\", _env))), n0)), AppClosure ((AppClosure ((AppClosure ((fac, GetEnv (\"eqT14\", _env))), GetEnv (\"numT14\", _env))), AppClosure ((AppClosure ((AppClosure ((-, GetEnv (\"numT14\", _env))), n0)), AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT14\", _env))), 1))))))))\nlet _f1 (_env, numT14) = \n    let _c0 = MkClosure _f2 in\n    SetEnv ((\"eqT14\", GetEnv (\"eqT14\", _env), SetEnv (\"numT14\", numT14, _c0)))\nlet _f0 (_env, eqT14) = let _c1 = MkClosure _f1 in\n                        SetEnv (\"eqT14\", eqT14, _c1)\nlet fac = let _c2 = MkClosure _f0 in _c2\nlet main = \n    AppClosure ((AppClosure ((AppClosure (fac, eqInt), numInt)), AppClosure ((AppClosure (fromInteger, numInt), 5))))\n"
 
     it "applied function" $ do
       xs <- liftIO $ process [i|let f x = x + 1
                        let main = f 5 |]
-      unlines xs `shouldBe` drop 1 [i|
-let _f1 (_env, x) = 
-    AppClosure ((AppClosure ((AppClosure (((+), GetEnv (\"numT2\", _env))), x)), AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT2\", _env))), 1))))
-let _f0 (_env, numT2) = let _c0 = MkClosure _f1 in
-                        SetEnv (\"numT2\", numT2, _c0)
-let f = let _c1 = MkClosure _f0 in _c1
-let main = 
-    AppClosure ((AppClosure (f, numInt), AppClosure ((AppClosure (fromInteger, numInt), 5))))
-|]
+      unlines xs `shouldBe` "let _f1 (_env, x0) = \n    AppClosure ((AppClosure ((AppClosure (((+), GetEnv (\"numT2\", _env))), x0)), AppClosure ((AppClosure ((fromInteger, GetEnv (\"numT2\", _env))), 1))))\nlet _f0 (_env, numT2) = let _c0 = MkClosure _f1 in\n                        SetEnv (\"numT2\", numT2, _c0)\nlet f = let _c1 = MkClosure _f0 in _c1\nlet main = \n    AppClosure ((AppClosure (f, numInt), AppClosure ((AppClosure (fromInteger, numInt), 5))))\n"
 
     it "tuple pattern in let" $ do
       xs <- liftIO $ process [i|
@@ -110,15 +77,4 @@ let add (z1, z2) =
   (a + c, b + d)
   
 let main = add ((2, 3), (4, 5)) |]
-      unlines xs `shouldBe` drop 1 [i|
-let _f2 (_env, (z1, z2)) = let (a, b) = z1 in
-                           let (c, d) = z2 in
-                           (AppClosure ((AppClosure ((AppClosure (((+), GetEnv ("numT8", _env))), a)), c)), AppClosure ((AppClosure ((AppClosure (((+), GetEnv ("numT9", _env))), b)), d)))
-let _f1 (_env, numT9) = let _c0 = MkClosure _f2 in
-                        SetEnv (("numT8", GetEnv ("numT8", _env), SetEnv ("numT9", numT9, _c0)))
-let _f0 (_env, numT8) = let _c1 = MkClosure _f1 in
-                        SetEnv ("numT8", numT8, _c1)
-let add = let _c2 = MkClosure _f0 in _c2
-let main = 
-    AppClosure ((AppClosure ((AppClosure (add, numInt), numInt)), ((AppClosure ((AppClosure (fromInteger, numInt), 2)), AppClosure ((AppClosure (fromInteger, numInt), 3))), (AppClosure ((AppClosure (fromInteger, numInt), 4)), AppClosure ((AppClosure (fromInteger, numInt), 5))))))
-|]
+      unlines xs `shouldBe` "let _f2 (_env, (z10, z21)) = let (a2, b3) = z10 in\n                             let (c4, d5) = z21 in\n                             (AppClosure ((AppClosure ((AppClosure (((+), GetEnv (\"numT8\", _env))), a2)), c4)), AppClosure ((AppClosure ((AppClosure (((+), GetEnv (\"numT9\", _env))), b3)), d5)))\nlet _f1 (_env, numT9) = let _c0 = MkClosure _f2 in\n                        SetEnv ((\"numT8\", GetEnv (\"numT8\", _env), SetEnv (\"numT9\", numT9, _c0)))\nlet _f0 (_env, numT8) = let _c1 = MkClosure _f1 in\n                        SetEnv (\"numT8\", numT8, _c1)\nlet add = let _c2 = MkClosure _f0 in _c2\nlet main = \n    AppClosure ((AppClosure ((AppClosure (add, numInt), numInt)), ((AppClosure ((AppClosure (fromInteger, numInt), 2)), AppClosure ((AppClosure (fromInteger, numInt), 3))), (AppClosure ((AppClosure (fromInteger, numInt), 4)), AppClosure ((AppClosure (fromInteger, numInt), 5))))))\n"

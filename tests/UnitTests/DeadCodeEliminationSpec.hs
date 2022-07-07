@@ -35,11 +35,11 @@ let main = fromInteger 3
 |]
 
    it "eliminate unused other let" $ "let main = let x = 42 in let y = 12 in x" --> [i|val main :: Int
-let main = let x = fromInteger 42 in x
+let main = let x0 = fromInteger 42 in x0
 |]
 
    it "nothing to eliminate" $ "let main = let x = 42 in let y = 12 in (x, y)" --> [i|val main :: (Int, Int)
-let main = let x = fromInteger 42 in
-           let y = fromInteger 12 in
-           (x, y)
-|]
+let main = let x0 = fromInteger 42 in
+           let y1 = fromInteger 12 in
+           (x0, y1)
+|] 

@@ -52,9 +52,9 @@ let main = let anf_1 = 2 in
       let f x = x + 1
       let main = f 5
    |] --> [i|val _f0 :: Int -> Int
-let _f0 (_env, x) = let anf_2 = 1 in
-                    let anf_4 = AppClosure (nativeInt, anf_2) in
-                    nativeAddInt x anf_4
+let _f0 (_env, x0) = let anf_2 = 1 in
+                     let anf_4 = AppClosure (nativeInt, anf_2) in
+                     nativeAddInt x0 anf_4
 
 val f :: Int -> Int
 let f = let _c0 = MkClosure _f0 in
@@ -71,9 +71,9 @@ let main = let anf_6 = 5 in
       let f x = x - 1
       let main = f 5
    |] --> [i|val _f0 :: Int -> Int
-let _f0 (_env, x) = let anf_2 = 1 in
-                    let anf_4 = AppClosure (nativeInt, anf_2) in
-                    nativeSubInt x anf_4
+let _f0 (_env, x0) = let anf_2 = 1 in
+                     let anf_4 = AppClosure (nativeInt, anf_2) in
+                     nativeSubInt x0 anf_4
 
 val f :: Int -> Int
 let f = let _c0 = MkClosure _f0 in
@@ -90,9 +90,9 @@ let main = let anf_6 = 5 in
       let f x = x / 2.5
       let main = f 5
    |] --> [i|val _f0 :: Double -> Double
-let _f0 (_env, x) = let anf_2 = 2.5 in
-                    let anf_4 = AppClosure (nativeDouble, anf_2) in
-                    nativeDivDouble x anf_4
+let _f0 (_env, x0) = let anf_2 = 2.5 in
+                     let anf_4 = AppClosure (nativeDouble, anf_2) in
+                     nativeDivDouble x0 anf_4
 
 val f :: Double -> Double
 let f = let _c0 = MkClosure _f0 in
@@ -109,9 +109,9 @@ let main = let anf_6 = 5 in
       let f x = x / 2
       let main = f 5
    |] --> [i|val _f0 :: Int -> Int
-let _f0 (_env, x) = let anf_2 = 2 in
-                    let anf_4 = AppClosure (nativeInt, anf_2) in
-                    nativeDivInt x anf_4
+let _f0 (_env, x0) = let anf_2 = 2 in
+                     let anf_4 = AppClosure (nativeInt, anf_2) in
+                     nativeDivInt x0 anf_4
 
 val f :: Int -> Int
 let f = let _c0 = MkClosure _f0 in
@@ -128,9 +128,9 @@ let main = let anf_6 = 5 in
       let f x = x == 2.5
       let main = f 5
    |] --> [i|val _f0 :: Double -> Bool
-let _f0 (_env, x) = let anf_2 = 2.5 in
-                    let anf_4 = AppClosure (nativeDouble, anf_2) in
-                    nativeEqDouble x anf_4
+let _f0 (_env, x0) = let anf_2 = 2.5 in
+                     let anf_4 = AppClosure (nativeDouble, anf_2) in
+                     nativeEqDouble x0 anf_4
 
 val f :: Double -> Bool
 let f = let _c0 = MkClosure _f0 in
@@ -147,9 +147,9 @@ let main = let anf_6 = 5 in
       let f x = x > 2.5
       let main = f 5
    |] --> [i|val _f0 :: Double -> Bool
-let _f0 (_env, x) = let anf_2 = 2.5 in
-                    let anf_4 = AppClosure (nativeDouble, anf_2) in
-                    nativeGtDouble x anf_4
+let _f0 (_env, x0) = let anf_2 = 2.5 in
+                     let anf_4 = AppClosure (nativeDouble, anf_2) in
+                     nativeGtDouble x0 anf_4
 
 val f :: Double -> Bool
 let f = let _c0 = MkClosure _f0 in
@@ -166,14 +166,14 @@ let main = let anf_6 = 5 in
       let f x = x > 2.5 || x < 3.5
       let main = f 5
    |] --> [i|val _f0 :: Double -> Bool
-let _f0 (_env, x) = let anf_2 = 2.5 in
-                    let anf_4 = AppClosure (nativeDouble, anf_2) in
-                    let anf_5 = nativeGtDouble x anf_4 in
-                    let anf_11 = AppClosure (||, anf_5) in
-                    let anf_8 = 3.5 in
-                    let anf_10 = AppClosure (nativeDouble, anf_8) in
-                    let anf_12 = nativeLtDouble x anf_10 in
-                    AppClosure (anf_11, anf_12)
+let _f0 (_env, x0) = let anf_2 = 2.5 in
+                     let anf_4 = AppClosure (nativeDouble, anf_2) in
+                     let anf_5 = nativeGtDouble x0 anf_4 in
+                     let anf_11 = AppClosure (||, anf_5) in
+                     let anf_8 = 3.5 in
+                     let anf_10 = AppClosure (nativeDouble, anf_8) in
+                     let anf_12 = nativeLtDouble x0 anf_10 in
+                     AppClosure (anf_11, anf_12)
 
 val f :: Double -> Bool
 let f = let _c0 = MkClosure _f0 in

@@ -36,6 +36,7 @@ import SynExpToTypeDecl (toTypeDecl, fromTypeDeclToEnv, fromTypeDeclToClassEnv)
 import Data.Maybe (maybeToList)
 import qualified DesugarPatternMatching (desugar)
 import qualified CompilePatternMatching
+import qualified AlphaRename
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -95,6 +96,10 @@ desugarPredicates es = do
 desugarPatternMatching :: [TypedExp] -> CompileM [TypedExp]
 desugarPatternMatching es = 
     return $ DesugarPatternMatching.desugar es
+
+renameVars :: [TypedExp] -> CompileM [TypedExp]
+renameVars es = 
+    return $ AlphaRename.rename es
 
 compilePatternMatching :: [TypedExp] -> CompileM [TypedExp]
 compilePatternMatching es = 
