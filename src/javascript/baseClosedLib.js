@@ -911,3 +911,9 @@ const take = mkClosure(function([_, n]){
     return xs.slice(0, env["n"]);
   }))
 })
+
+const drop = mkClosure(function([_, n]){
+  return setEnv("n", n, mkClosure(function([env, xs]){
+    return xs.slice(env["n"]);
+  }))
+})
