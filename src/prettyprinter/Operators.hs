@@ -22,6 +22,9 @@ exclexclOp = ("!!", 9, Infix Left)
 dotOp :: ([Char], Integer, Fixity)
 dotOp = (".", 9, Infix Right)
 
+powOp :: ([Char], Integer, Fixity)
+powOp    = ("^", 8, Infix Right)
+
 mulOp :: ([Char], Integer, Fixity)
 mulOp    = ("*", 7, Infix Left)
 

@@ -90,6 +90,7 @@ tokens :-
   "!!"                          {\p s -> TokenExclExclMark (p, s) }
   "&&"                          {\p s -> TokenAnd (p, s) }
   "||"                          {\p s -> TokenOr (p, s) }
+  [\^]                          {\p s -> TokenCaret (p, s) }
   [\|]                          {\p s -> TokenVBar (p, s) }
   [\+]                          {\p s -> TokenAdd (p, s) }
   [\-]                          {\p s -> TokenSub (p, s) }
@@ -160,6 +161,7 @@ data Token
   | TokenDot (AlexPosn, String)
   | TokenUnit (AlexPosn, String)
   | TokenVBar (AlexPosn, String)
+  | TokenCaret (AlexPosn, String)
   | TokenEOF
   deriving (Eq,Show)
 

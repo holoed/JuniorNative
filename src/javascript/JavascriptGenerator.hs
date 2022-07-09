@@ -25,6 +25,7 @@ generatePrim U = "()"
 mapOp :: Text -> Text
 mapOp "+" = "__add"
 mapOp "*" = "__mul"
+mapOp "^" = "__pow"
 mapOp "==" = "__eqeq"
 mapOp "/=" = "__noteq"
 mapOp "||" = "__or"

@@ -66,6 +66,16 @@ tests = parallel $ do
       "let main = (1 + 1.5) / 3" --> "0.8333333333333334"
       "let main = 2 * (4.6 - 3.1)" --> "2.999999999999999"
 
+   it "Raise to non-negative integral power" $ do
+      "let main = 2^4" --> "16"
+      [i|let f x = x^2
+         let main = f 5 
+      |] --> "25"
+      [i|let f x = x^2 + 2 * x + 1
+         let g x = (x + 1) ^ 2
+         let main = (f 10, g 10) 
+      |] --> "[121,121]"
+
    it "Eq instances" $ do
       "let main = 2 == 3" --> "false"
       "let main = 2 /= 3" --> "true"

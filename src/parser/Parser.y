@@ -79,6 +79,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
     '['   { TokenLBracket $$ }
     ']'   { TokenRBracket $$ }
     '.'   { TokenDot $$ }
+    '^'   { TokenCaret $$ }
     '[]'  { TokenEmpty $$ }
     '()'  { TokenUnit $$ }
     ':'   { TokenCons $$ }
@@ -97,6 +98,7 @@ import ParserUtils (fromExprToQualType, fromExprToType)
 %right '<>'
 %left '+' '-'
 %left '*' '/'
+%right '^'
 %right '.'
 %left '!!'
 %%
@@ -140,6 +142,7 @@ Form : Form '+' Form               { infixApp (mkLoc $2) plusOp $1 $3 }
      | Form '-' Form               { infixApp (mkLoc $2) subOp $1 $3 }
      | Form '*' Form               { infixApp (mkLoc $2) mulOp $1 $3 }
      | Form '/' Form               { infixApp (mkLoc $2) divOp $1 $3 }
+     | Form '^' Form               { infixApp (mkLoc $2) powOp $1 $3 }
      | Form '&&' Form              { infixApp (mkLoc $2) andOp $1 $3 }
      | Form '||' Form              { infixApp (mkLoc $2) orOp $1 $3 }
      | Form '==' Form              { infixApp (mkLoc $2) eqeqOp $1 $3 }
@@ -178,6 +181,7 @@ Atom : '(' Expr ')'                { $2 }
      | '(' '-' ')'                 { var (mkLoc $2) "-" }
      | '(' '*' ')'                 { var (mkLoc $2) "*" }
      | '(' '/' ')'                 { var (mkLoc $2) "/" }
+     | '(' '^' ')'                 { var (mkLoc $2) "^" }
      | '(' '++' ')'                { var (mkLoc $2) "++" }
      | '(' '!!' ')'                { var (mkLoc $2) "!!" }
      | '(' ':' ')'                 { var (mkLoc $2) ":" }

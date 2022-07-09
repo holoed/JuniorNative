@@ -185,6 +185,16 @@ const __mul = mkClosure(function([_, inst]) { return inst["*"]; });
 
 const __div = mkClosure(function([_, inst]) { return inst["/"]; });
 
+const __pow = mkClosure(function([_, instA]) {
+  return mkClosure(function([_, instB]){
+    return mkClosure(function([_, x]){
+      return setEnv("x", x, mkClosure(function([env, y]){
+        return Math.pow(env["x"], y);
+      }))
+    })
+  })
+})
+
 const toDouble = mkClosure(function([_, x]) { return x + 0.0; })
 
 const truncate = mkClosure(function([_, instA]) { 
