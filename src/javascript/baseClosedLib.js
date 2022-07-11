@@ -927,3 +927,25 @@ const drop = mkClosure(function([_, n]){
     return xs.slice(env["n"]);
   }))
 })
+
+const remote = mkClosure(function([_, serializableA]){
+  return mkClosure(function([_, serializableB]){
+    return mkClosure(function([_, f]){
+      return setEnv("f", f, mkClosure(function([env, x]){
+        return fetch("/eval", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            'code': codeBase64,
+            'fn': env["f"],
+            'arg': x
+          })
+        }).then(response => response.json())
+      }))
+    })
+  })
+})
+
+const serializableInt = {}

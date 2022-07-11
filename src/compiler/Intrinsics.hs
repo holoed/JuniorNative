@@ -97,7 +97,8 @@ env = toEnv [
   ("length", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Int")),
   ("unlines", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "String")) (TyCon "String")),
   ("take", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-  ("drop", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0))))
+  ("drop", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
+  ("remote", Set.fromList [IsIn "Serializable" (TyVar "a" 0), IsIn "Serializable" (TyVar "b" 0)] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "b" 0))))
  ]
 
 classEnv :: ClassEnv
@@ -168,6 +169,9 @@ classEnv = ClassEnv {
       ("Show", ([], [
         Set.fromList [] :=> IsIn "Show" (TyCon "Int"),
         Set.fromList [IsIn "Show" (TyVar "a" 0)] :=> IsIn "Show" (TyApp (TyCon "List") (TyVar "a" 0))
+      ])),
+      ("Serializable", ([], [
+        Set.fromList [] :=> IsIn "Serializable" (TyCon "Int")
       ]))
    ],
   defaults = [intCon, doubleCon]

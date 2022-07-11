@@ -5,7 +5,7 @@ import CompilerMonad ( CompileM )
 import Control.Monad ( (>=>) )
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.Writer( MonadWriter(tell) )
-import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, desugarPatternMatching, interpret, toJs, closureConversion, aNormalisation, optimizeTypeClasses, deadCodeElimin, optimizeClosureEnvs, fromSynExpToDataDecl, compilePatternMatching, renameVars )
+import CompilerSteps ( parse, fromSynExpToExp, dependencyAnalysis, typeInference, buildSymbolTable, prettyPrintModule, desugarPredicates, desugarRemote, desugarPatternMatching, interpret, toJs, closureConversion, aNormalisation, optimizeTypeClasses, deadCodeElimin, optimizeClosureEnvs, fromSynExpToDataDecl, compilePatternMatching, renameVars )
 import System.TimeIt ( timeItT )
 import Text.Printf ( printf )
 import TypedAst (TypedExp)
@@ -44,6 +44,7 @@ closedAndANF = frontEnd >=>
        step "desugar pattern matching" desugarPatternMatching >=>
        step "compile pattern matching" compilePatternMatching >=>
        step "desugar constraints" desugarPredicates >=>
+       step "desugar remote" desugarRemote >=>
        step "A Normalisation" aNormalisation >=>
        step "closure conversion" closureConversion 
        
