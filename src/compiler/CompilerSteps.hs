@@ -37,7 +37,7 @@ import Data.Maybe (maybeToList)
 import qualified DesugarPatternMatching (desugar)
 import qualified CompilePatternMatching
 import qualified AlphaRename
-import qualified DesugarRemotes
+import qualified DesugarQuotation
 
 parse :: String -> CompileM [SynExp]
 parse code =
@@ -96,7 +96,7 @@ desugarPredicates es = do
 
 desugarRemote :: [TypedExp] -> CompileM [TypedExp]
 desugarRemote es = do
-    return $ DesugarRemotes.desugar es
+    return $ DesugarQuotation.desugar es
 
 desugarPatternMatching :: [TypedExp] -> CompileM [TypedExp]
 desugarPatternMatching es = 

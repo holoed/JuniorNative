@@ -98,7 +98,8 @@ env = toEnv [
   ("unlines", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "String")) (TyCon "String")),
   ("take", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("drop", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
-  ("remote", Set.fromList [IsIn "Serializable" (TyVar "a" 0), IsIn "Serializable" (TyVar "b" 0)] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "b" 0))))
+  ("quote", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (TyApp (TyApp (TyCon "Quotation") (TyVar "a" 0)) (TyVar "b" 0))),
+  ("remote", Set.fromList [] :=> tyLam ((TyApp (TyApp (TyCon "Quotation") (TyVar "a" 0)) (TyVar "b" 0))) (tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "b" 0))))
  ]
 
 classEnv :: ClassEnv

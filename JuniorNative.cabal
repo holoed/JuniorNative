@@ -68,7 +68,7 @@ executable JuniorNative
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        DesugarPatternMatching,
-                       DesugarRemotes,
+                       DesugarQuotation,
                        CompilePatternMatching,
                        ParserUtils,
                        Junior
@@ -148,7 +148,7 @@ executable JuniorService
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        DesugarPatternMatching,
-                       DesugarRemotes,
+                       DesugarQuotation,
                        CompilePatternMatching,
                        ParserUtils,
                        Junior
@@ -234,7 +234,7 @@ executable TestSuite
                        DeadCodeElimination,
                        OptimizeClosureEnvs,
                        DesugarPatternMatching,
-                       DesugarRemotes,
+                       DesugarQuotation,
                        CompilePatternMatching,
                        ParserUtils,
                        Junior,

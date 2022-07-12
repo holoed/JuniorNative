@@ -928,11 +928,9 @@ const drop = mkClosure(function([_, n]){
   }))
 })
 
-const remote = mkClosure(function([_, serializableA]){
-  return mkClosure(function([_, serializableB]){
-    return mkClosure(function([_, f]){
-      return setEnv("f", f, mkClosure(function([env, x]){
-        return fetch("/eval", {
+const remote = mkClosure(function([_, f]){
+      return setEnv("f", f, mkClosure(async function([env, x]){
+        const response = await fetch("/eval", {
           method: "POST",
           headers: {
             'Content-Type': 'application/json'
@@ -942,10 +940,13 @@ const remote = mkClosure(function([_, serializableA]){
             'fn': env["f"],
             'arg': x
           })
-        }).then(response => response.json())
+        });
+        return await response.json();
       }))
     })
-  })
+
+const quote = mkClosure(function([_, s]){
+  return s
 })
 
 const serializableInt = {}
