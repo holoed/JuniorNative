@@ -44,7 +44,6 @@ closedAndANF = frontEnd >=>
        step "desugar pattern matching" desugarPatternMatching >=>
        step "compile pattern matching" compilePatternMatching >=>
        step "desugar constraints" desugarPredicates >=>
-       step "desugar remote" desugarRemote >=>
        step "A Normalisation" aNormalisation >=>
        step "closure conversion" closureConversion 
        
@@ -64,5 +63,6 @@ fullJSClosedANF = closedAndANF >=>
        step "Optimize resolved instances" optimizeTypeClasses >=>
        step "Dead code elimination" deadCodeElimin >=>
        step "Optimize away not used SetEnvs" optimizeClosureEnvs >=>
+       step "desugar remote" desugarRemote >=>
        step "to javascript" toJs
        
