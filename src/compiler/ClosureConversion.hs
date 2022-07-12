@@ -20,7 +20,7 @@ type TypedFExp = FreeVarsExp (Qual Type)
 type ClosureM = RWS (Set String) [TypedFExp] (String, Int, Int)
 
 convertProg :: String -> Set String -> [TypedExp] -> [TypedExp]
-convertProg ns existing defs = mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> newDefs ++ origDefs
+convertProg ns existing defs = removeRedundantLet $ mapAnn (\(qt, _) -> (Just zeroLoc, qt)) <$> newDefs ++ origDefs
   where
     topLevelNames = fromList . map (\(In (Ann _ (Defn _ (In (Ann _ (VarPat name))) _))) -> name) $ defs
     globals = topLevelNames `union` existing
@@ -102,4 +102,10 @@ subst vars env expr = runReader (cataRec alg expr) (env, vars)
 callClosure ::  (Qual Type, Set String) -> TypedFExp -> TypedFExp -> TypedFExp
 callClosure attr closure arg =
  In (Ann attr (AppClosure closure arg))
+
+removeRedundantLet :: [TypedExp] -> [TypedExp]
+removeRedundantLet es = cataRec alg <$> es
+   where 
+       alg (Ann attr (Let n@(In (Ann _ (VarPat n1))) v b@(In (Ann _ (Var n2))))) | n1 == n2 = v 
+       alg x = In x
 
