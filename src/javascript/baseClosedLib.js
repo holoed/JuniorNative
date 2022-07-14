@@ -537,7 +537,7 @@ const functorAsync = {
   "fmap": mkClosure(function ([_, f]) {
       return setEnv("f", f, mkClosure(function ([env, m]) {
           return new Promise((resolve, reject) => {
-             m.then(x => resolve(applyClosure(env["f"], x))).catch(r => reject(x))
+             m.then(x => resolve(applyClosure(env["f"], x))).catch(r => reject(r))
           })
       })); 
    })
@@ -927,3 +927,32 @@ const drop = mkClosure(function([_, n]){
     return xs.slice(env["n"]);
   }))
 })
+
+const remote = mkClosure(function([_, f]){
+      return setEnv("f", f, mkClosure(async function([env, x]){
+        if (typeof codeBase64 != 'undefined') {
+          try {
+          const response = await fetch("/eval", {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              'code': codeBase64,
+              'fn': env["f"],
+              'arg': JSON.stringify(x)
+            })
+          });
+          return await response.json();
+        } catch (e) {
+          console.log(e)
+        }
+        }
+      }))
+    })
+
+const quote = mkClosure(function([_, s]){
+  return s
+})
+
+const serializableInt = {}

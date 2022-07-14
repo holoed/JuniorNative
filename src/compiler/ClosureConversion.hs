@@ -106,6 +106,6 @@ callClosure attr closure arg =
 removeRedundantLet :: [TypedExp] -> [TypedExp]
 removeRedundantLet es = cataRec alg <$> es
    where 
-       alg (Ann attr (Let n@(In (Ann _ (VarPat n1))) v b@(In (Ann _ (Var n2))))) | n1 == n2 = v 
+       alg (Ann attr (Let (In (Ann _ (VarPat n1))) v (In (Ann _ (Var n2))))) | n1 == n2 = v 
        alg x = In x
 
