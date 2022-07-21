@@ -928,7 +928,7 @@ const drop = mkClosure(function([_, n]){
   }))
 })
 
-function eval(fn, x, retries) {
+async function eval(fn, x, retries) {
     try {
     const response = await fetch("/eval", {
       method: "POST",
