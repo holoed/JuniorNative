@@ -928,25 +928,35 @@ const drop = mkClosure(function([_, n]){
   }))
 })
 
+function eval(fn, x, retries) {
+    try {
+    const response = await fetch("/eval", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        'code': codeBase64,
+        'fn': fn,
+        'arg': JSON.stringify(x)
+      })
+    });
+    return await response.json();
+  } catch (e) {
+    if (retries > 0) {
+      eval(fn, retries - 1)
+    }
+  }
+}
+
 const remote = mkClosure(function([_, f]){
       return setEnv("f", f, mkClosure(async function([env, x]){
         if (typeof codeBase64 != 'undefined') {
           try {
-          const response = await fetch("/eval", {
-            method: "POST",
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              'code': codeBase64,
-              'fn': env["f"],
-              'arg': JSON.stringify(x)
-            })
-          });
-          return await response.json();
-        } catch (e) {
-          console.log(e)
-        }
+            eval(env["f"], x, 3)
+          } catch (e) {
+            console.log(e)
+          }
         }
       }))
     })
