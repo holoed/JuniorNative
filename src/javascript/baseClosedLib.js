@@ -928,7 +928,7 @@ const drop = mkClosure(function([_, n]){
   }))
 })
 
-async function eval(fn, x, retries) {
+async function runCode(fn, x, retries) {
     try {
     const response = await fetch("/eval", {
       method: "POST",
@@ -943,8 +943,9 @@ async function eval(fn, x, retries) {
     });
     return await response.json();
   } catch (e) {
+    console.log(e)
     if (retries > 0) {
-      eval(fn, retries - 1)
+      return await runCode(fn, x, retries - 1)
     }
   }
 }
@@ -953,7 +954,7 @@ const remote = mkClosure(function([_, f]){
       return setEnv("f", f, mkClosure(async function([env, x]){
         if (typeof codeBase64 != 'undefined') {
           try {
-            eval(env["f"], x, 3)
+            return await runCode(env["f"], x, 3)
           } catch (e) {
             console.log(e)
           }
