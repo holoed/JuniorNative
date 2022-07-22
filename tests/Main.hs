@@ -12,6 +12,7 @@ discoverDemo :: TopSpec
 discoverDemo = describe "Discover" $ do
   UnitTests.tests
 
+testOptions :: Options
 testOptions = defaultOptions {
   optionsTestArtifactsDirectory = TestArtifactsGeneratedDirectory "test_runs" (show <$> getCurrentTime)
   }

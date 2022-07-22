@@ -1,9 +1,9 @@
 module UnitTests.PrettyTypesSpec where
 
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
-import PrettyTypes (prettyQ)
-import Types (Type(..), Qual(..), Pred(..), tyLam)
-import TypesPrinter ()
+import Junior.Pretty.PrettyTypes (prettyQ)
+import Junior.Core.Types (Type(..), Qual(..), Pred(..), tyLam)
+import Junior.Pretty.TypesPrinter ()
 import Data.Set (fromList)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Catch (MonadThrow)

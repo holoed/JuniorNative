@@ -2,13 +2,13 @@
 module UnitTests.OptimizeClosureEnvsSpec where
 
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
-import Compiler ( closedAndANF, step )
-import CompilerMonad ( run, CompileM )
-import Intrinsics (env, classEnv)
-import qualified InterpreterIntrinsics as Interp (env)
+import Junior.Compiler.Compiler ( closedAndANF, step )
+import Junior.Compiler.CompilerMonad ( run, CompileM )
+import Junior.Compiler.Intrinsics (env, classEnv)
+import qualified Junior.Interpreter.InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack, Text)
 import Data.String.Interpolate (i)
-import CompilerSteps (optimizeClosureEnvs, prettyPrintModule, optimizeTypeClasses, deadCodeElimin)
+import Junior.Compiler.CompilerSteps (optimizeClosureEnvs, prettyPrintModule, optimizeTypeClasses, deadCodeElimin)
 import Control.Monad ((>=>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Catch (MonadThrow)

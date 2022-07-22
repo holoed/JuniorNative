@@ -1,9 +1,9 @@
 {-# LANGUAGE QuasiQuotes #-}
 module UnitTests.DependencyAnalysisSpec where
 
-import Parser (parseExpr)
-import DependencyAnalysis ( deps, chunks )
-import SynExpToExp ( toExp )
+import Junior.Parser.Parser (parseExpr)
+import Junior.Compiler.DependencyAnalysis ( deps, chunks )
+import Junior.Parser.SynExpToExp ( toExp )
 import Data.String.Interpolate ( i )
 import Data.Set (Set, fromList)
 import Test.Sandwich ( it, describe, shouldBe, TopSpec, parallel )

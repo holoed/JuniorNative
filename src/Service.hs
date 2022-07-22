@@ -2,8 +2,8 @@
 {-# LANGUAGE TupleSections #-}
 module Main where
 
-import StringUtils (padR)
-import Location (Loc(..), PString(..))
+import Junior.Utils.StringUtils (padR)
+import Junior.Parser.Location (Loc(..), PString(..))
 import Control.Monad.Trans ()
 import Control.Monad.IO.Class ( MonadIO(liftIO) )
 import Data.List (intersperse)
@@ -14,18 +14,18 @@ import Web.Scotty         (ScottyM, scotty)
 import Web.Scotty.Trans ( body, json, post, get, middleware )
 import Network.Wai.Middleware.RequestLogger ( logStdout )
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
-import Intrinsics (classEnv )
+import Junior.Compiler.Intrinsics (classEnv )
 import Data.Aeson
     ( ToJSON(toJSON), object, KeyValue((.=)) )
-import Compiler (fullInterp, backendPrinted, frontEndPrinted, fullJSClosedANF)
-import CompilerMonad (CompileM, run)
-import qualified SymbolTable as S
-import qualified InterpreterIntrinsics as Interp (env)
+import Junior.Compiler.Compiler (fullInterp, backendPrinted, frontEndPrinted, fullJSClosedANF)
+import Junior.Compiler.CompilerMonad (CompileM, run)
+import qualified Junior.Compiler.SymbolTable as S
+import qualified Junior.Interpreter.InterpreterIntrinsics as Interp (env)
 import Data.Text (Text, pack)
-import qualified Environment
+import qualified Junior.TypeChecker.Environment as Environment
 import Data.Bifunctor (second)
-import Junior (prelude)
-import PrettyTypes (prettyQ)
+import Junior.Compiler.Junior (prelude)
+import Junior.Pretty.PrettyTypes (prettyQ)
 
 instance ToJSON Loc where
   toJSON (Loc offset line column) = object ["len" .= offset,
@@ -82,7 +82,7 @@ route = do
          ret <- liftIO $ compile fullJSClosedANF (Char8.unpack code)
          either json json ret
     get "/libJs" $ do
-         baseJs <- liftIO $ readFile "src/javascript/baseClosedLib.js"
+         baseJs <- liftIO $ readFile "src/Junior/JavaScript/baseClosedLib.js"
          (preludeJs, _) <- liftIO $ prelude
          json (pack baseJs <> pack "\r\n\r\n" <> preludeJs)
     get "/libTypes" $ do

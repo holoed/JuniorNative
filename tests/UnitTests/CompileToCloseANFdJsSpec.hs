@@ -5,15 +5,15 @@ import Data.String.Interpolate ( i )
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
 import Data.Text (unpack)
-import JavaScriptRunner (runJS)
+import Junior.JavaScript.JavaScriptRunner (runJS)
 import Data.Text ( pack, Text )
-import Junior (prelude, buildAll)
+import Junior.Compiler.Junior (prelude, buildAll)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (liftIO, MonadIO)
 
 exec :: Text -> IO String
 exec = do
-   let libPath = "src/javascript/baseClosedLib.js"
+   let libPath = "src/Junior/JavaScript/baseClosedLib.js"
    runJS libPath . unpack
 
 (-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()

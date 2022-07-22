@@ -1,18 +1,18 @@
 module UnitTests.AlphaRenameSpec where
 
 import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
-import PrettyPrinter ( prettyPrint )
-import SynExpToExp (fromExp)
+import Junior.Pretty.Printer ( prettyPrint )
+import Junior.Parser.SynExpToExp (fromExp)
 import Control.Monad.Catch (MonadThrow)
-import CompilerMonad (CompileM, run)
-import InterpreterMonad (empty)
-import Intrinsics (classEnv, env)
-import TypedAst (TypedExp)
-import Compiler (frontEnd, step)
+import Junior.Compiler.CompilerMonad (CompileM, run)
+import Junior.Interpreter.InterpreterMonad (empty)
+import Junior.Compiler.Intrinsics (classEnv, env)
+import Junior.TypeChecker.TypedAst (TypedExp)
+import Junior.Compiler.Compiler (frontEnd, step)
 import Control.Monad ((>=>))
-import CompilerSteps (renameVars)
+import Junior.Compiler.CompilerSteps (renameVars)
 import Control.Monad.Cont (MonadIO(liftIO))
-import Annotations (mapAnn)
+import Junior.Utils.Annotations (mapAnn)
 
 closed :: String -> CompileM [TypedExp]
 closed = frontEnd >=> step "Rename" renameVars

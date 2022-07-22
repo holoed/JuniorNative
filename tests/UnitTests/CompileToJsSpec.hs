@@ -4,20 +4,20 @@ module UnitTests.CompileToJsSpec where
 import Data.String.Interpolate ( i )
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import System.IO ( IOMode(ReadMode), hGetContents, openFile )
-import Compiler ( fullJS )
-import CompilerMonad ( run )
-import Intrinsics (env, classEnv)
-import qualified InterpreterIntrinsics as Interp (env)
+import Junior.Compiler.Compiler ( fullJS )
+import Junior.Compiler.CompilerMonad ( run )
+import Junior.Compiler.Intrinsics (env, classEnv)
+import qualified Junior.Interpreter.InterpreterIntrinsics as Interp (env)
 import Data.Text (unpack)
-import JavaScriptRunner (runJS)
+import Junior.JavaScript.JavaScriptRunner (runJS)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Catch (MonadThrow)
 
 build :: String -> IO String
 build code = do
-   handle <- openFile "src/prelude/prelude.jnr" ReadMode 
+   handle <- openFile "src/Junior/Prelude/prelude.jnr" ReadMode 
    contents <- hGetContents handle
-   let libPath = "src/javascript/baselib.js"
+   let libPath = "src/Junior/JavaScript/baselib.js"
    (x, _, _) <- run (fullJS (contents <> "\r\n\r\n" <> code)) ("main", Interp.env) (classEnv, env, [], [])
    either (return . show) (runJS libPath . unpack) x
 

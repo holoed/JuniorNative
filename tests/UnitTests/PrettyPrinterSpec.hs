@@ -2,9 +2,9 @@
 module UnitTests.PrettyPrinterSpec where
 
 import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
-import SynExpToExp ( toExp, fromExp )
-import PrettyPrinter ( prettyPrint )
-import Parser (parseExpr)
+import Junior.Parser.SynExpToExp ( toExp, fromExp )
+import Junior.Pretty.Printer ( prettyPrint )
+import Junior.Parser.Parser (parseExpr)
 import Data.List (intercalate)
 import Data.Char (isSpace)
 import Data.Maybe (fromJust)

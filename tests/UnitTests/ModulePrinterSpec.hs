@@ -2,11 +2,11 @@
 module UnitTests.ModulePrinterSpec where
 
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
-import Compiler ( frontEndPrinted )
-import CompilerMonad ( run )
-import Intrinsics ( env, classEnv )
+import Junior.Compiler.Compiler ( frontEndPrinted )
+import Junior.Compiler.CompilerMonad ( run )
+import Junior.Compiler.Intrinsics ( env, classEnv )
 import Data.String.Interpolate ( i )
-import InterpreterMonad (empty) 
+import Junior.Interpreter.InterpreterMonad (empty) 
 import Data.Text (unpack)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Catch (MonadThrow)

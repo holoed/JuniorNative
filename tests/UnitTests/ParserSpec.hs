@@ -2,17 +2,16 @@
 module UnitTests.ParserSpec where
 
 import Data.String.Interpolate (i)
-import Parser (parseExpr)
+import Junior.Parser.Parser (parseExpr)
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
-import Annotations (Ann(Ann))
-import Location (Loc (Loc), PString (PStr))
-import Fixpoint (Fix(In))
-import PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl, Match, MatchExp, TuplePat, ConPat, LitPat))
-import Primitives (Prim(I))
-import Types (Type(TyCon, TyApp, TyVar), Qual((:=>)), Pred (IsIn), tyLam)
+import Junior.Utils.Annotations (Ann(Ann))
+import Junior.Parser.Location (Loc (Loc), PString (PStr))
+import Junior.Utils.Fixpoint (Fix(In))
+import Junior.Parser.PAst (SynExpF(Lit, VarPat, Defn, InfixApp, Var, TypeDecl, Match, MatchExp, TuplePat, ConPat, LitPat))
+import Junior.Parser.Primitives (Prim(I))
+import Junior.Core.Types (Type(TyCon, TyApp, TyVar), Qual((:=>)), Pred (IsIn), tyLam)
 import Data.Set (fromList)
-import qualified Operators (Associativity(Left, Right))
-import Operators (Fixity(Infix))
+import qualified Junior.Core.Operators as Operators (Associativity(Left, Right), Fixity(Infix))
 
 tests :: TopSpec
 tests = parallel $ do
@@ -151,6 +150,6 @@ tests = parallel $ do
       |] `shouldBe` Right [(In (Ann (Just (Loc 3 2 8)) (Defn Nothing [(In (Ann (Just (Loc 4 2 12)) (VarPat "swap"))),(In (Ann (Just (Loc 1 2 17)) (VarPat "v")))] 
                           (In (Ann (Just (Loc 5 2 21)) (Match (In (Ann (Just (Loc 1 2 27)) (Var "v"))) [
                             (In (Ann (Just (Loc 2 3 29)) (MatchExp (In (Ann (Just (Loc 5 3 23)) (ConPat "Empty" []))) (In (Ann (Just (Loc 5 3 32)) (Var "Empty")))))),
-                            (In (Ann (Just (Loc 2 4 38)) (MatchExp (In (Ann (Just (Loc 4 4 24)) (ConPat "Cons" [(In (Ann (Just (Loc 1 4 29)) (VarPat "a"))),(In (Ann (Just (Loc 5 4 31)) (ConPat "Empty" [])))]))) (In (Ann (Just (Loc 1 1 1)) (InfixApp (" ",20,Infix Operators.Left) (In (Ann (Just (Loc 1 1 1)) (InfixApp (" ",20,Infix Operators.Left) (In (Ann (Just (Loc 4 4 41)) (Var "Cons"))) (In (Ann (Just (Loc 1 4 46)) (Var "a")))))) (In (Ann (Just (Loc 5 4 48)) (Var "Empty")))))))))
+                            (In (Ann (Just (Loc 2 4 38)) (MatchExp (In (Ann (Just (Loc 4 4 24)) (ConPat "Cons" [(In (Ann (Just (Loc 1 4 29)) (VarPat "a"))),(In (Ann (Just (Loc 5 4 31)) (ConPat "Empty" [])))]))) (In (Ann (Just (Loc 1 1 1)) (InfixApp (" ",20,Operators.Infix Operators.Left) (In (Ann (Just (Loc 1 1 1)) (InfixApp (" ",20,Operators.Infix Operators.Left) (In (Ann (Just (Loc 4 4 41)) (Var "Cons"))) (In (Ann (Just (Loc 1 4 46)) (Var "a")))))) (In (Ann (Just (Loc 5 4 48)) (Var "Empty")))))))))
                           ]))))))]
 
