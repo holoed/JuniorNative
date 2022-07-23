@@ -1,12 +1,12 @@
 module UnitTests.SymbolTableSpec where
 
-import SymbolTable (Symbol)
-import CompilerMonad (run)
-import Compiler (frontEndPrinted)
-import Intrinsics ( env, classEnv )
+import Junior.Compiler.SymbolTable (Symbol)
+import Junior.Compiler.CompilerMonad (run)
+import Junior.Compiler.Compiler (frontEndPrinted)
+import Junior.Compiler.Intrinsics ( env, classEnv )
 import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
 import Control.Monad.Catch (MonadThrow)
-import InterpreterMonad (empty) 
+import Junior.Interpreter.InterpreterMonad (empty) 
 import Control.Monad.IO.Class (MonadIO (liftIO))
 
 compile :: String -> IO [Symbol]

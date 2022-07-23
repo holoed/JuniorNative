@@ -2,10 +2,10 @@
 module UnitTests.AnnotationsSpec where
 
 import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
-import Fixpoint ( Fix(In) )
-import Primitives ( Prim(I) )
-import Ast ( ExpF(Lit) )
-import Annotations ( Ann(Ann), unwrap, wrap, mapAnn )
+import Junior.Utils.Fixpoint ( Fix(In) )
+import Junior.Parser.Primitives ( Prim(I) )
+import Junior.Core.Ast ( ExpF(Lit) )
+import Junior.Utils.Annotations ( Ann(Ann), unwrap, wrap, mapAnn )
 
 tests :: TopSpec
 tests = parallel $

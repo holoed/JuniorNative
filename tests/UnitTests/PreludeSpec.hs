@@ -4,15 +4,15 @@ module UnitTests.PreludeSpec where
 
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Data.Text ( pack, unpack, Text )
-import JavaScriptRunner (runJS)
-import Junior (prelude, buildAll)
+import Junior.JavaScript.JavaScriptRunner (runJS)
+import Junior.Compiler.Junior (prelude, buildAll)
 import Data.String.Interpolate ( i )
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Catch (MonadThrow)
 
 exec :: Text -> IO String
 exec = do
-   let libPath = "src/javascript/baseClosedLib.js"
+   let libPath = "src/Junior/JavaScript/baseClosedLib.js"
    runJS libPath . unpack
 
 (-->) :: (MonadIO m, MonadThrow m, MonadFail m) => [(String, Text)] -> String -> m ()

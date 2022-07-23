@@ -1,14 +1,14 @@
 {-# LANGUAGE QuasiQuotes #-}
 module UnitTests.DeadCodeEliminationSpec where
 
-import CompilerMonad ( run, CompileM )
+import Junior.Compiler.CompilerMonad ( run, CompileM )
 import Data.Text (Text, unpack)
 import Data.String.Interpolate (i)
-import Compiler (frontEnd, step)
-import Intrinsics (env, classEnv)
+import Junior.Compiler.Compiler (frontEnd, step)
+import Junior.Compiler.Intrinsics (env, classEnv)
 import Control.Monad ((>=>))
-import CompilerSteps (prettyPrintModule, deadCodeElimin)
-import qualified InterpreterIntrinsics as Interp (env)
+import Junior.Compiler.CompilerSteps (prettyPrintModule, deadCodeElimin)
+import qualified Junior.Interpreter.InterpreterIntrinsics as Interp (env)
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Catch (MonadThrow)

@@ -4,14 +4,14 @@ module UnitTests.MultiScriptCompileSpec where
 
 import Data.String.Interpolate ( i )
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
-import Compiler ( fullJSClosedANF )
-import CompilerMonad ( run )
-import Intrinsics (env, classEnv)
-import qualified InterpreterIntrinsics as Interp (env)
+import Junior.Compiler.Compiler ( fullJSClosedANF )
+import Junior.Compiler.CompilerMonad ( run )
+import Junior.Compiler.Intrinsics (env, classEnv)
+import qualified Junior.Interpreter.InterpreterIntrinsics as Interp (env)
 import Data.Text ( pack, unpack, Text )
-import JavaScriptRunner (runJS)
-import Location (PString)
-import Environment (Env)
+import Junior.JavaScript.JavaScriptRunner (runJS)
+import Junior.Parser.Location (PString)
+import Junior.TypeChecker.Environment (Env)
 import Control.Monad ( foldM )
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Catch (MonadThrow)
@@ -24,7 +24,7 @@ build (Left x) _ = return $ Left x
 
 exec :: Text -> IO String
 exec = do
-   let libPath = "src/javascript/baseClosedLib.js"
+   let libPath = "src/Junior/JavaScript/baseClosedLib.js"
    runJS libPath . unpack
 
 buildAll :: [(String, Text)] -> IO (Either PString (Text, Env))
