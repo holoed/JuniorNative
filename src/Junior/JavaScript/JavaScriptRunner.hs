@@ -11,6 +11,9 @@ runJS libPath code = do
            "if (main instanceof Promise) {" ++
            "main.then(x => console.log(JSON.stringify(x))) " ++
            "} else " ++  
+           "if (main.constructor.name == 'IO') {" ++
+           "main.run(0).then(([x, _]) => console.log(JSON.stringify(x))) " ++
+           "} else " ++  
            "console.log(JSON.stringify(main));"
            ++ "\r\n\r\n" ++
            "} catch (e) { console.log(e); }"

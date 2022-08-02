@@ -18,9 +18,20 @@ exec = do
 
 (-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
 (-->) s1 s2 = do lib <- liftIO $ prelude
-                 (Right (js, _)) <- liftIO $ buildAll lib [("main", pack s1)] 
-                 ret <- liftIO $ exec js
-                 ret `shouldBe` s2
+                 value <- liftIO $ buildAll lib [("main", pack s1)] 
+                 case value of 
+                  (Right (js, _)) -> do ret <- liftIO $ exec js
+                                        ret `shouldBe` s2
+                  (Left s) -> fail (show s)
+
+shouldBeBetween :: (MonadIO m, MonadThrow m, MonadFail m) => String -> (Float, Float) -> m ()
+shouldBeBetween s1 (l, h) = do lib <- liftIO $ prelude
+                               value <- liftIO $ buildAll lib [("main", pack s1)] 
+                               case value of 
+                                (Right (js, _)) -> do ret <- liftIO $ exec js
+                                                      let v = read ret :: Float
+                                                      (v > l && v < h) `shouldBe` True
+                                (Left s) -> fail (show s)
 
 (--->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
 (--->) x y = do handle <- liftIO $ openFile x ReadMode
@@ -314,3 +325,19 @@ tests = parallel $ do
       [i|let main = take 1 [1,2,3,4]|] --> "[1]"
       [i|let main = take 2 [1,2,3,4]|] --> "[1,2]"
       [i|let main = take 3 [1,2,3,4]|] --> "[1,2,3]"
+
+   it "IO Tests" $ do
+      [i|val main :: IO Int
+         let main = pure 42|] --> "42"
+      [i|val main :: IO Double
+         let main = ((*) 10) <$> pure 2.5|] --> "25"
+      [i|val main :: IO Int
+         let main = (pure (+)) <*> (pure 3) <*> (pure 2) |] --> "5"
+      [i|val main :: IO Double
+         let main = pure 20 >>= (\\x ->
+                    pure 10 >>= (\\y ->
+                    pure (x * y)))|] --> "200"
+      [i|val main :: IO Double
+         let main = randomIO >>= (\\x ->
+                    pure 10 >>= (\\y ->
+                    pure (x * y)))|] `shouldBeBetween` (0, 10)

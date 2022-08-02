@@ -64,6 +64,7 @@ env = toEnv [
   ("fromListToMap", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0))) (TyApp (TyApp (TyCon "Map") (TyVar "a" 0)) (TyVar "b" 0))),
   ("undefined", Set.fromList [] :=> TyVar "a" 0),
   ("httpGet", Set.fromList [] :=> tyLam (TyCon "String") (TyApp (TyCon "Async") (TyCon "String"))),
+  ("randomIO", Set.fromList [] :=> (TyApp (TyCon "IO") (TyCon "Double"))),
   ("decompress", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "Uint8Array")),
   ("bufferToIntList", Set.fromList [] :=> tyLam (TyCon "Uint8Array") (TyApp (TyCon "List") (TyCon "Int"))),
   ("trace", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
@@ -136,6 +137,7 @@ classEnv = ClassEnv {
      ("Functor", ([], [
        Set.fromList [] :=> IsIn "Functor" (TyCon "Maybe"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "Async"),
+       Set.fromList [] :=> IsIn "Functor" (TyCon "IO"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "List"),
        Set.fromList [] :=> IsIn "Functor" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Functor" (TyApp (TyCon "Reader") (TyVar "a" 0))
@@ -143,6 +145,7 @@ classEnv = ClassEnv {
      ("Applicative", (["Functor"], [
        Set.fromList [] :=> IsIn "Applicative" (TyCon "Maybe"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "Async"),
+       Set.fromList [] :=> IsIn "Applicative" (TyCon "IO"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "List"),
        Set.fromList [] :=> IsIn "Applicative" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Applicative" (TyApp (TyCon "Reader") (TyVar "a" 0))
@@ -150,6 +153,7 @@ classEnv = ClassEnv {
      ("Monad", (["Applicative"], [
        Set.fromList [] :=> IsIn "Monad" (TyCon "Maybe"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "Async"),
+       Set.fromList [] :=> IsIn "Monad" (TyCon "IO"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "List"),
        Set.fromList [] :=> IsIn "Monad" (TyCon "Parser"),
        Set.fromList [] :=> IsIn "Monad" (TyApp (TyCon "Reader") (TyVar "a" 0))

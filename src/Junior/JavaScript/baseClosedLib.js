@@ -461,6 +461,12 @@ const nativeMulInt = mkClosure(function([_, x]) {
   }))
 })
 
+const nativeMulDouble = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return env["x"] * y;
+  }))
+})
+
 const nativeAddInt = mkClosure(function([_, x]) {
   return setEnv("x", x, mkClosure(function([env, y]) {
     return env["x"] + y;
@@ -967,3 +973,52 @@ const quote = mkClosure(function([_, s]){
 })
 
 const serializableInt = {}
+
+class IO {
+  constructor(fn) {
+    this.fn = fn
+  }
+
+  run(world) {
+    return applyClosure(this.fn, world);
+  }
+}
+
+const randomIO = new IO(mkClosure(function([_, world]) { return Promise.resolve([Math.random(), world + 1]) }))
+
+const functorIO = {
+  "fmap": mkClosure(function ([_, f]) {
+    return setEnv("f", f, mkClosure(function([env1, m]){
+      return new IO (setEnv("m", m, setEnv("f", env1["f"], mkClosure(function([env2, world]){
+        return env2["m"].run(world).then(([x, _]) => [applyClosure(env2["f"], x), world]);
+      }))))
+    }))
+  })
+}
+
+const applicativeIO = {
+    "fmap" : functorIO["fmap"],
+    "pure": mkClosure(function([_, x]) {
+      return new IO(setEnv("x", x, mkClosure(function([env, world]) { return Promise.resolve([env["x"], world]) })))
+    }),
+    "<*>":  mkClosure(function([_, mf]) {
+      return setEnv("mf", mf, mkClosure(function([env, mx]){
+        return new IO(setEnv("mf", env["mf"], setEnv("mx", mx, mkClosure(function([env2, world]){
+          return env2["mf"].run(world).then(([f, world2]) =>
+                 env2["mx"].run(world2).then(([x, world3]) =>
+                 [applyClosure(f, x), world3]))
+        }))))
+        }))
+      })
+}
+
+const monadIO = {
+    "pure": applicativeIO["pure"],
+    ">>=": mkClosure(function([_, m]) {
+      return setEnv("m", m, mkClosure(function([env1, f]){
+        return new IO(setEnv("f", f, setEnv("m", env1["m"], mkClosure(function([env2, world]){
+          return env2["m"].run(world).then(([x, world2]) => applyClosure(env2["f"], x).run(world2))
+        }))))
+      }))
+    })
+  }
