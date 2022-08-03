@@ -416,6 +416,19 @@ const renderTimeSeries = mkClosure(function([_, vs]) {
   });
 });
 
+const renderBarChart = mkClosure(function([_, vs]) {
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    plotChart = document.getElementById("plotlyChart");
+    plotChart.style.display = "block"
+    Plotly.newPlot("plotlyChart", vs.map(([s, xs, ys]) => {
+      const ys1 = ys.map(x => x == 0 ? null : x)
+      return {x: xs, y: ys1, name: s, type: 'bar'}
+    }), {showlegend: true});
+    resolve({});
+  });
+});
+
 const renderDataGrid = mkClosure(function([_, gridOptions]) {
   return new Promise((resolve, reject) => {
     clearPanels();
@@ -984,7 +997,7 @@ class IO {
   }
 }
 
-const randomIO = new IO(mkClosure(function([_, world]) { return Promise.resolve([Math.random(), world + 1]) }))
+const randomIO = new IO(mkClosure(function([_, world]) { return Promise.resolve([1 - Math.random(), world + 1]) }))
 
 const functorIO = {
   "fmap": mkClosure(function ([_, f]) {
