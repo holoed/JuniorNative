@@ -81,18 +81,28 @@ let matchFn xs x =
   if (f x) then g x else matchFn (tail xs) x
 
 val groupBy :: (a -> a -> Bool) -> List a -> List (List a)
-let groupBy p xs = 
-  if (null xs) then []
-  else 
-    let go p z vs = 
-      if (null vs) then ([], []) else
-      let (v, vs') = (head vs, tail vs) in
-      let (ys, zs) = go p v vs' in
-      if (p z v) then (v:ys, zs)
-                 else ([], (v:ys):zs) in
-    let (x', xs') = (head xs, tail xs) in
-    let (ys', zs') = go p x' xs' in
-    (x' : ys') : zs'
+let groupBy f xs = 
+  let step x yss =
+  if (null yss) then [x]:yss else
+  let (ys, yss') = (head yss, tail yss) in
+  let (y, ys') = (head ys, tail ys) in
+  if f x y then (x:y:ys'):yss' 
+  else [x]:yss in
+  foldr step [] xs
+
+let partitionBy p xs = 
+  let select x (ts, fs) = 
+    if p x then (x : ts, fs) 
+           else (ts, x : fs) in
+  foldr select ([],[]) xs
+
+val sortBy :: (a -> a -> Bool) -> List a -> List a
+let sortBy p xs =
+    if (null xs) then xs else  
+    let (pivot, rest) = (head xs, tail xs) in
+    let (lessThan, greaterThan) = partitionBy (\x -> p x pivot) rest in
+    (sortBy p lessThan) <> [pivot] <> (sortBy p greaterThan)
+
 
 
 
