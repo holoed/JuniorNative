@@ -80,5 +80,19 @@ let matchFn xs x =
   else let (f, g) = head xs in
   if (f x) then g x else matchFn (tail xs) x
 
+val groupBy :: (a -> a -> Bool) -> List a -> List (List a)
+let groupBy p xs = 
+  if (null xs) then []
+  else 
+    let go p z vs = 
+      if (null vs) then ([], []) else
+      let (v, vs') = (head vs, tail vs) in
+      let (ys, zs) = go p v vs' in
+      if (p z v) then (v:ys, zs)
+                 else ([], (v:ys):zs) in
+    let (x', xs') = (head xs, tail xs) in
+    let (ys', zs') = go p x' xs' in
+    (x' : ys') : zs'
+
 
 

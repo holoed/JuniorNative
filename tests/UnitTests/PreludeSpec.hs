@@ -86,3 +86,7 @@ tests = parallel $ do
    it "fmap operator" $ do
        [("main", "let main = ((+) 1) <$> [1,2,3,4]")] --> "[2,3,4,5]"
 
+   it "groupBy adjacent elements according to some relation" $ do
+       [("main", "let main = groupBy (\\x y -> x == y) [1,2,2,2,2,6,3,3,2,1,1,1]")] --> "[[1],[2,2,2,2],[6],[3,3],[2],[1,1,1]]"
+       [("main", "let main = groupBy (\\x y -> x <= y) [1,2,2,3,1,2,0,4,5,2]")] --> "[[1,2,2,3],[1,2],[0,4,5],[2]]"
+
