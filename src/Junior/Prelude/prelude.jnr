@@ -103,6 +103,33 @@ let sortBy p xs =
     let (lessThan, greaterThan) = partitionBy (\x -> p x pivot) rest in
     (sortBy p lessThan) <> [pivot] <> (sortBy p greaterThan)
 
+val zipWith :: (a -> b -> c) -> List a -> List b -> List c
+let zipWith f xs ys =
+  let go xs ys = 
+    if null xs then []
+    else if null ys then []
+    else let (x, xs') = (head xs, tail xs) in
+         let (y, ys') = (head ys, tail ys) in
+         f x y : go xs' ys' in
+  go xs ys
 
+val zipWithM :: (Applicative m) => (a -> b -> m c) -> List a -> List b -> m (List c)
+let zipWithM f xs ys = sequenceA (zipWith f xs ys)
+
+val replicate :: Int -> a -> List a 
+let replicate n x = range (\v -> x) 1 n
+
+val liftA2 :: (a -> b -> c) -> f a -> f b -> f c
+let liftA2 f x = (<*>) (fmap f x)
+
+val replicateM :: (Applicative m) => Int -> m a -> m (List a)
+let replicateM cnt0 f =
+  let loop cnt = 
+    if cnt <= 0 then pure []
+    else liftA2 (:) f (loop (cnt - 1)) in
+  loop cnt0
+
+val zip :: List a -> List b -> List (a, b)
+let zip = zipWith (\x y -> (x, y))
 
 

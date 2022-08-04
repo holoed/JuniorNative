@@ -96,3 +96,22 @@ tests = parallel $ do
    it "sortBy predicate" $ do
        [("main", "let main = sortBy (\\x y -> x <= y) [4,3,2,7,5,9,4,0,8,5,4,4,3,2,6,4,3,3,3,7]")] --> "[0,2,2,3,3,3,3,3,4,4,4,4,4,5,5,6,7,7,8,9]"
 
+   it "zipWith" $ do
+       [("main", "let main = zipWith (+) [1,2,3] [4,5,6]")] --> "[5,7,9]"
+       [("main", "let main = zipWith (\\x y -> (x, y)) [1,2,3,4,5] ['a','b','c','d']")] --> "[[1,\"a\"],[2,\"b\"],[3,\"c\"],[4,\"d\"]]"
+
+   it "zipWithM" $ do
+       [("main", "let main = zipWithM (\\x y -> Just (x, y)) [1,2,3] [4,5,6]")] --> "{\"value\":[[1,4],[2,5],[3,6]]}"
+       [("main", "let main = zipWithM (\\x y -> [x, y]) [1,2,3] [4,5,6]")] --> "[[1,2,3],[1,2,6],[1,5,3],[1,5,6],[4,2,3],[4,2,6],[4,5,3],[4,5,6]]"
+
+   it "replicate" $ do
+       [("main", "let main = replicate 5 'a'")] -->  "[\"a\",\"a\",\"a\",\"a\",\"a\"]"
+
+   it "liftA2" $ do
+       [("main", "let main = liftA2 (\\x y -> (x, y)) (Just 3) (Just 5)")] --> "{\"value\":[3,5]}"
+       [("main", "let main = liftA2 (\\x y -> [x, y]) [3] [5]")] --> "[[3,5]]"
+
+   it "replicateM" $ do
+       [("main", "let main = replicateM 5 (Just 'a')")] --> "{\"value\":[\"a\",\"a\",\"a\",\"a\",\"a\"]}"
+
+
