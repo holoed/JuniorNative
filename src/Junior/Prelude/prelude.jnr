@@ -132,4 +132,29 @@ let replicateM cnt0 f =
 val zip :: List a -> List b -> List (a, b)
 let zip = zipWith (\x y -> (x, y))
 
+val unzip :: List (a, b) -> (List a, List b)
+let unzip = foldr (\(x, y) (xs, ys) -> (x:xs, y:ys)) ([], [])
+
+val reverse :: List a -> List a
+let reverse l = 
+  let rev xs a = 
+    if null xs then a
+    else let (x, xs') = (head xs, tail xs) in
+         rev xs' (x:a) in
+  rev l []
+
+val uncurry :: (a -> b -> c) -> ((a, b) -> c)
+let uncurry f p =  f (fst p) (snd p)
+
+val transpose :: List (List a) -> List (List a)
+let transpose xss = 
+  if null xss then [] else 
+  let (xs, xss') = (head xss, tail xss) in
+  if null xs then transpose xss' else
+  let (hds, tls) = unzip (xss' >>= (\xs -> if null xs then [] 
+                                           else [(head xs, tail xs)])) in
+  let combine y h ys t = (y:h) : transpose (ys:t) in
+  let (x, xs') = (head xs, tail xs) in
+  combine x hds xs' tls
+
 

@@ -114,4 +114,28 @@ tests = parallel $ do
    it "replicateM" $ do
        [("main", "let main = replicateM 5 (Just 'a')")] --> "{\"value\":[\"a\",\"a\",\"a\",\"a\",\"a\"]}"
 
+   it "reverse" $ do
+       [("main", "let main = reverse []")] --> "[]"
+       [("main", "let main = reverse [42]")] --> "[42]"
+       [("main", "let main = reverse [2,5,7]")] --> "[7,5,2]"
+       [("main", "let main = reverse [1,2,3,4,5]")] --> "[5,4,3,2,1]"
+
+   it "unzip" $ do 
+       [("main", "let main = unzip []")] --> "[[],[]]"
+       [("main", "let main = unzip [(1, 'a'), (2, 'b')]")] --> "[[1,2],[\"a\",\"b\"]]"
+
+  it "zip" $ do 
+       [("main", "let main = zip [] []")] --> "[]"
+       [("main", "let main = zip [1, 2] ['a', 'b']")] --> "[[1,\"a\"],[2,\"b\"]]"
+       [("main", "let main = (uncurry zip . unzip) [(1, 'a'), (2, 'b')] ")] --> "[[1,\"a\"],[2,\"b\"]]"
+
+  it "transpose" $ do 
+       [("main", "let main = transpose [[1,2,3], [4,5,6]]")] --> "[[1,4],[2,5],[3,6]]"
+       [("main", "let main = transpose [[10,11],[20],[],[30,31,32]]")] --> "[[10,20,30],[11,31],[32]]"
+       
+
+       
+       
+       
+
 
