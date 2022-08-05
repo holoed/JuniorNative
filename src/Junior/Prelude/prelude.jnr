@@ -113,6 +113,18 @@ let zipWith f xs ys =
          f x y : go xs' ys' in
   go xs ys
 
+val zipWith3 :: (a -> b -> c -> d) -> List a -> List b -> List c -> List d
+let zipWith3 f xs ys zs =
+  let go xs ys zs = 
+    if null xs then []
+    else if null ys then []
+    else if null zs then [] 
+    else let (x, xs') = (head xs, tail xs) in
+         let (y, ys') = (head ys, tail ys) in
+         let (z, zs') = (head zs, tail zs) in
+         f x y z : go xs' ys' zs' in
+  go xs ys zs
+
 val zipWithM :: (Applicative m) => (a -> b -> m c) -> List a -> List b -> m (List c)
 let zipWithM f xs ys = sequenceA (zipWith f xs ys)
 
@@ -157,4 +169,6 @@ let transpose xss =
   let (x, xs') = (head xs, tail xs) in
   combine x hds xs' tls
 
-
+val scanl :: (b -> a -> b) -> b -> List a -> List b
+let scanl f q ls = q : (if null ls then []
+                        else scanl f (f q (head ls)) (tail ls))

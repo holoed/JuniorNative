@@ -132,6 +132,14 @@ tests = parallel $ do
   it "transpose" $ do 
        [("main", "let main = transpose [[1,2,3], [4,5,6]]")] --> "[[1,4],[2,5],[3,6]]"
        [("main", "let main = transpose [[10,11],[20],[],[30,31,32]]")] --> "[[10,20,30],[11,31],[32]]"
+
+  it "zipWith3" $ do
+       [("main", "let main = zipWith3 (\\x y z -> x + y * z) [1,2,3] [4,5,6] [7,8,9]")] --> "[29,42,57]"
+       [("main", "let main = zipWith3 (\\x y z -> (x, y, z)) [1,2,3,4,5] ['a','b','c','d'] [5.3,7.5,2.3]")] --> "[[1,\"a\",5.3],[2,\"b\",7.5],[3,\"c\",2.3]]"
+
+  it "scanl" $ do
+       [("main", "let main = scanl (+) 0 [1,1,1,1,1]")] --> "[0,1,2,3,4,5]"
+       [("main", "let main = scanl (/) 64 [4,2,4]")] --> "[64,16,8,2]"
        
 
        

@@ -486,7 +486,19 @@ const nativeAddInt = mkClosure(function([_, x]) {
   }))
 })
 
+const nativeAddDouble = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return env["x"] + y;
+  }))
+})
+
 const nativeSubInt = mkClosure(function([_, x]) {
+  return setEnv("x", x, mkClosure(function([env, y]) {
+    return env["x"] - y;
+  }))
+})
+
+const nativeSubDouble = mkClosure(function([_, x]) {
   return setEnv("x", x, mkClosure(function([env, y]) {
     return env["x"] - y;
   }))
