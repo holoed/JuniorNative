@@ -7,7 +7,7 @@ import Junior.Utils.Annotations (Ann(..))
 import Junior.Parser.Location ( PString(..) )
 import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )
 import Control.Monad.Catch (MonadThrow)
-import Junior.Core.Types ( Type(..), Qual(..), tyLam )
+import Junior.Core.Types ( Type(..), Qual(..), tyLam, Pred (IsIn) )
 import Junior.Parser.SynExpToExp ( toExp )
 import Junior.TypeChecker.Infer (infer)
 import Junior.Parser.Parser (parseExpr)
@@ -41,7 +41,8 @@ env' = concatEnvs env $ toEnv [
   ("isCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
   ("extractCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (tupleCon [TyVar "a" 0, TyVar "b" 0])),
   ("Empty", Set.fromList [] :=> (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0))),
-  ("Cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0))))
+  ("Cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)))),
+  ("<$>", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1) (TyVar "b" 0))))
  ]
 
 extractName :: SynExp -> String
@@ -311,6 +312,11 @@ tests = parallel $
                                         then Cons a (Cons b x)
                                         else Cons b (Cons a x)
       |] --> "Ord a => ListF a (ListF a b) -> ListF a (ListF a b)"
+
+    it "bug - applicative style operators precedence" $ do
+      [i|let f x y z = x <$> y <*> z|] --> "Applicative a => (b -> c -> d) -> a b -> a c -> a d"
+      [i|let f x y z = (x <$> y) <*> z|] --> "Applicative a => (b -> c -> d) -> a b -> a c -> a d"
+      [i|let f x y z = x <$> (y <*> z)|] --> "Applicative a => (b -> c) -> a (d -> b) -> a d -> a c"
 
 
 

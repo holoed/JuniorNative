@@ -93,7 +93,7 @@ import Junior.Parser.Utils (fromExprToQualType, fromExprToType)
 %right '||'
 %right '&&'
 %nonassoc '>' '<' '==' '/=' '>=' '<='
-%left '<*>'
+%left '<$>' '<*>'
 %right '++' ':' 
 %right '<>'
 %left '+' '-'
