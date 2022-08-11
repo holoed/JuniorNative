@@ -1,5 +1,6 @@
-FROM haskell:9
+FROM haskell:9.2.2
 
+RUN cabal --version
 RUN cabal update
 
 # Add .cabal file
