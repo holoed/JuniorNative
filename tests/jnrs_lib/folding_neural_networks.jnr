@@ -3,10 +3,10 @@ data Layer k = InputLayer
              deriving Functor
              
 val brain :: Fix Layer
-let brain = In (DenseLayer [[0],[0]] [0,0] (In (DenseLayer [[0],[0]] [0,0] (In InputLayer))))
+let brain = In (DenseLayer [[20,20]] [-30] (In (DenseLayer [[20,20],[-20,-20]] [-10,30] (In InputLayer))))
 
-val sigma :: List Double -> List Double
-let sigma = fmap (\x -> 1 / (1 + exp (0 - x)))
+val sigmoid :: List Double -> List Double
+let sigmoid = fmap (\x -> 1 / (1 + exp (0 - x)))
 
 -- vector addition
 val add :: List Double -> List Double -> List Double
@@ -21,12 +21,12 @@ let algfwd v = match v with
             | InputLayer -> \a0 -> [a0]
             | DenseLayer wl bl forwardPass -> 
               (\as -> let (a, as') = (head as, tail as) in
-                      let al = sigma (add (mul wl a) bl) in
+                      let al = sigmoid (add (mul wl a) bl) in
                       (al:a:as')) . forwardPass
 
 val calc :: Fix Layer -> List Double -> List (List Double)
 let calc = cataRec algfwd
  
-let main = calc brain [0.0, 1.0]
+let main = head . (calc brain) <$> [[0,0],[0,1],[1,0],[1,1]]
 
       
