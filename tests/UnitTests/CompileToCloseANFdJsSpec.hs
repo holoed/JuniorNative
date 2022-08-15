@@ -294,9 +294,20 @@ tests = parallel $ do
                      | Some (Some x) -> x + 1
          let main = foo (Some (Some 5))|] --> "6" 
 
-   it "pattern matching 1" $ do
+   it "pattern matching 6" $ do
       [i|let foo x = match x with (y, z) -> y + z
          let main = foo (2, 5)|] --> "7" 
+
+   it "pattern matching 7" $ do
+      [i|data Point = Point0D Int | Point2D Int Int | Point3D Int Int Int
+
+         let toString v = 
+               match v with
+               | Point0D x -> show x
+               | Point2D x y -> show x <> " " <> show y
+               | Point3D x y z -> show x <> " " <> show y <> " " <> show z
+                  
+         let main = toString <$> [Point0D 1, Point2D 2 3, Point3D 4 5 6]|] --> "[\"1\",\"2 3\",\"4 5 6\"]"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 
