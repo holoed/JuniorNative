@@ -327,6 +327,8 @@ tests = parallel $ do
 
    it "Parser with custom data type and pattern match" $ "tests/jnrs_lib/parser.jnr" ---> "[[\"Hello\",\" World\"]]"
 
+   it "Folding neural networks test" $ "tests/jnrs_lib/folding_neural_networks.jnr" ---> "[[0.5,0.5],[0.5,0.5],[0,1]]"
+
    it "Indexing into lists" $ do
       [i|let main = ['a', 'b', 'c'] !! 0|] --> "\"a\""
       [i|let main = ['a', 'b', 'c'] !! 2|] --> "\"c\""
