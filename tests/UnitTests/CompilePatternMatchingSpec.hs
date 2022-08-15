@@ -140,4 +140,17 @@ tests = parallel $
       unlines xs --> [i|
         letswapv0=(matchFn(((isEmpty,\\_v->Empty)):(isCons,\\_v->let___patV1=extractCons_vin(matchFn(((\\_v->let(___patV0,___patV1)=_vin((\\a1->True)___patV0)&&isEmpty___patV1,\\_v->leta1=fst_vinConsa1Empty)):(((\\_v->let(___patV2,___patV3)=_vin((\\a2->True)___patV2)&&isCons___patV3,\\_v->leta2=fst_vinlet(b3,x4)=extractCons(snd_v)inifa2<=b3thenConsa2(Consb3x4)elseConsb3(Consa2x4))):[])))___patV1):[]))v0|]
 
+    it "pattern match 9" $ do
+      let code = [i|
+        data Point = Point0D Int | Point2D Int Int | Point3D Int Int Int
+
+        let toString v = 
+          match v with
+          | Point0D x -> show x
+          | Point2D x y -> show x <> " " <> show y
+          | Point3D x y z -> show x <> " " <> show y <> " " <> show z
+      |]
+      xs <- liftIO $ process code
+      unlines xs --> [i|
+        lettoStringv0=matchFn((isPoint0D,\\_v->letx1=extractPoint0D_vinshowx1):(isPoint2D,\\_v->let(x2,y3)=extractPoint2D_vinshowx2<>\"\"<>showy3):(isPoint3D,\\_v->let(x4,y5,z6)=extractPoint3D_vinshowx4<>\"\"<>showy5<>\"\"<>showz6):[])v0|]
    

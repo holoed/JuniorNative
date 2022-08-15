@@ -15,6 +15,7 @@ import Junior.Compiler.FreeVariables (FreeVarsExp, freeVars)
 import Junior.Core.Types (Qual, Type)
 import Junior.TypeChecker.TypedAst (TypedExp)
 import Data.Bifunctor (second)
+import Debug.Trace (trace)
 
 type TypedFExp = FreeVarsExp (Qual Type)
 type ClosureM = RWS (Set String) [TypedFExp] (String, Int, Int)
@@ -76,7 +77,7 @@ convert = cataRec alg
 extractNames :: TypedFExp -> [String]
 extractNames (In (Ann _ (VarPat s))) = [s]
 extractNames (In (Ann _ (TuplePat es))) = es >>= extractNames 
-extractNames _ = error "Unsupported"
+extractNames x = trace (show x) $ error "Unsupported"
 
 subst :: Set String -> TypedFExp -> TypedFExp -> TypedFExp
 subst vars env expr = runReader (cataRec alg expr) (env, vars)
