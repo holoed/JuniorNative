@@ -113,6 +113,8 @@ tests = parallel $ do
       "let main = sin 0.5" --> "0.479425538604203"
       "let main = sqrt 4"  --> "2"
       "let main = log 10" --> "2.302585092994046"
+      "let main = exp 1" --> "2.718281828459045"
+      "let main = exp (0-2)" --> "0.1353352832366127"
 
    it "Integral tests" $ do
       "let main = mod 205 54" --> "43"
