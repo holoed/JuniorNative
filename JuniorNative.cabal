@@ -261,7 +261,8 @@ executable TestSuite
                        UnitTests.MultiScriptCompileSpec,
                        UnitTests.PreludeSpec,
                        UnitTests.DesugarPatternMatchingSpec,
-                       UnitTests.CompilePatternMatchingSpec
+                       UnitTests.CompilePatternMatchingSpec,
+                       UnitTests.DeriveSpec
 
   hs-source-dirs:      tests, src
   build-tool-depends:  happy:happy, alex:alex, sandwich:sandwich-discover
