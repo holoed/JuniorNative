@@ -12,10 +12,28 @@ tests :: TopSpec
 tests = parallel $ do
   describe "Derive Tests" $ do
 
+    it "Derive Functor 0" $
+        derive (TyApp (TyCon "FooF") (TyVar "a" 0)) 
+               [TyApp (TyCon "FooF") (TyVar "a" 0)] "Functor" `shouldBe`
+               pack [i|
+const functorFooF = {
+  \"fmap\": mkClosure(function ([_, f]) {
+      return setEnv(\"f\", f, mkClosure(function ([env, m]) {
+          
+    if (m instanceof __FooF) {
+              return applyClosure(FooF, applyClosure(env[\"f\"], applyClosure(extractFooF, m)));
+    };
+
+          throw new Error(\"Failed pattern match\");
+      })); 
+   })
+}
+|]
+
     it "Derive Functor 1" $
-        derive (TyApp (TyCon "FooF") (TyVar "f" 1)) 
+        derive (TyApp (TyCon "FooF") (TyVar "a" 0)) 
                [TyCon "Nil", 
-                TyApp (TyApp (TyCon "Cons") (TyCon "Int")) (TyVar "f" 1)] "Functor" `shouldBe` 
+                TyApp (TyApp (TyCon "Cons") (TyCon "Int")) (TyVar "a" 0)] "Functor" `shouldBe` 
                 pack [i|
 const functorFooF = {
   \"fmap\": mkClosure(function ([_, f]) {
