@@ -328,6 +328,8 @@ tests = parallel $ do
 
    it "Folding neural networks test" $ "tests/jnrs_lib/folding_neural_networks.jnr" ---> "[[0.000045439104876545914],[0.999954519621495],[0.999954519621495],[0.000045439104876545914]]"
 
+   it "Ana-Cata Hylo Factorial" $ "tests/jnrs_lib/ana_cata_factorial.jnr" ---> "120"
+
    it "Indexing into lists" $ do
       [i|let main = ['a', 'b', 'c'] !! 0|] --> "\"a\""
       [i|let main = ['a', 'b', 'c'] !! 2|] --> "\"c\""

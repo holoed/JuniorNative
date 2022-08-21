@@ -1,0 +1,25 @@
+data ListF a b = Nil | Cons a b deriving Functor
+
+val coAlg :: Int -> ListF Int Int
+let coAlg x = 
+  if x == 0 
+  then Nil
+  else Cons x (x - 1)
+
+val genList :: Int -> Fix (ListF Int)
+let genList = anaRec coAlg
+
+val alg :: ListF Int Int -> Int
+let alg m = 
+  match m with
+  | Nil -> 1
+  | Cons x y -> x * y
+  
+val cataList :: Fix (ListF Int) -> Int
+let cataList = cataRec alg 
+
+val fac :: Int -> Int
+let fac = cataList . genList
+
+val main :: Int
+let main = fac 5
