@@ -56,4 +56,9 @@ deriveConstructor tf (TyApp (TyApp (TyApp (TyCon n) _) _) t3) | t3 == tf = pack 
               return applyClosure(applyClosure(applyClosure(#{n}, x), y), applyClosure(env["f"], z));
     };
 |]
+deriveConstructor tf (TyApp (TyCon n) (TyApp (TyApp (TyCon "->") t1) t2)) | t2 == tf = pack [i|
+    if (m instanceof __#{n}) {
+              return applyClosure(#{n}, function (x) { return applyClosure(env["f"], applyClosure(extract#{n}, m)(x))}); 
+    };
+|]
 deriveConstructor _ _ = "// TODO: Implement"

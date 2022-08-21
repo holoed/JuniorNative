@@ -5,7 +5,7 @@ import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Data.String.Interpolate (i)
 import Data.Text ( pack )
 import Junior.JavaScript.DeriveJs (derive)
-import Junior.Core.Types (Type(TyApp, TyCon, TyVar))
+import Junior.Core.Types (Type(TyApp, TyCon, TyVar), tyLam)
 
 
 tests :: TopSpec
@@ -46,6 +46,24 @@ const functorFooF = {
     if (m instanceof __Cons) {
               const [x, y] = applyClosure(extractCons, m);
               return applyClosure(applyClosure(Cons, x), applyClosure(env[\"f\"], y));
+    };
+
+          throw new Error(\"Failed pattern match\");
+      })); 
+   })
+}
+|]
+
+    it "Derive Functor 2" $
+        derive (TyApp (TyApp (TyCon "FooF") (TyVar "a" 0)) (TyVar "b" 0)) 
+               [TyApp (TyCon "FooF") (tyLam (TyVar "a" 0) (TyVar "b" 0))] "Functor" `shouldBe` 
+                pack [i|
+const functorFooF = {
+  \"fmap\": mkClosure(function ([_, f]) {
+      return setEnv(\"f\", f, mkClosure(function ([env, m]) {
+          
+    if (m instanceof __FooF) {
+              return applyClosure(FooF, function (x) { return applyClosure(env[\"f\"], applyClosure(extractFooF, m)(x))}); 
     };
 
           throw new Error(\"Failed pattern match\");
