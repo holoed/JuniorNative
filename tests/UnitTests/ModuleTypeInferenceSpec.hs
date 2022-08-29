@@ -13,7 +13,7 @@ import Data.List (nub)
 import Junior.Pretty.PrettyTypes (prettyQ)
 import Junior.Interpreter.InterpreterMonad (empty) 
 import Junior.TypeChecker.Environment (Env, concatEnvs, toEnv)
-import Junior.Core.Types ( Type(..), Qual(..), tyLam )
+import Junior.Core.Types ( Type(..), Qual(..), tyLam, Pred (IsIn) )
 import qualified Data.Set as Set
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Catch (MonadThrow)
@@ -25,7 +25,11 @@ env' = concatEnvs env $ toEnv [
                              (tyLam (TyVar "a" 0) (TyVar "c" 0)))),
   ("id", Set.fromList [] :=> tyLam (TyVar "a" 0) (TyVar "a" 0)),
   ("fst", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "a" 0)),
-  ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0))
+  ("snd", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Tuple") (TyVar "a" 0)) (TyVar "b" 0)) (TyVar "b" 0)),
+  ("zipWith", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyVar "c" 0))) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "b" 0)) (TyApp (TyCon "List") (TyVar "c" 0))))),
+  ("sum", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Double")) (TyCon "Double")),
+  ("anaRec", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyApp (TyVar "f" 1) (TyVar "a" 0))) (tyLam (TyVar "a" 0) (TyApp (TyCon "Fix") (TyVar "f" 1)))),
+  ("cataRec", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyVar "a" 0)) (tyLam (TyApp (TyCon "Fix") (TyVar "f" 1)) (TyVar "a" 0)))
  ]
 
 extractNames :: [S.Symbol] -> [(String, String)]
@@ -197,5 +201,19 @@ tests = parallel $
        ("fac", "Int -> Int"), 
        ("main", "Int")
      ]
+
+    it "Folding neural networks test 2" $ "tests/jnrs_lib/folding_neural_networks_2.jnr" ---> [
+       ("add", "List Double -> List Double -> List Double"), 
+       ("mul", "List (List Double) -> List Double -> List Double"), 
+       ("sigmoid", "List Double -> List Double"), 
+       ("backward", "List (List Double) -> List Double -> BackProp -> (List Double, List (List Double), List Double)"), 
+       ("brain", "Fix Layer"), 
+       ("main", "Int"), 
+       ("algfwd", "Layer (List Double -> List (List Double)) -> List Double -> List (List Double)"), 
+       ("getAs", "BackProp -> List (List Double)"), 
+       ("getDesiredOutput", "BackProp -> List Double"), 
+       ("coalgbwd", "(Fix Layer, BackProp) -> Layer ((Fix Layer, BackProp))"), 
+       ("train", "(List Double, List Double) -> Fix Layer -> Fix Layer")]
+
 
 

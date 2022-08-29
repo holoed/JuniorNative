@@ -154,3 +154,18 @@ tests = parallel $
       unlines xs --> [i|
         lettoStringv0=matchFn((isPoint0D,\\_v->letx1=extractPoint0D_vinshowx1):(isPoint2D,\\_v->let(x2,y3)=extractPoint2D_vinshowx2<>\"\"<>showy3):(isPoint3D,\\_v->let(x4,y5,z6)=extractPoint3D_vinshowx4<>\"\"<>showy5<>\"\"<>showz6):[])v0|]
    
+    it "pattern match 10" $ do
+      let code = [i|
+        data BackProp = BackProp (List (List Double)) -- as 
+                                 (List (List Double)) -- w(l+1) weights
+                                 (List Double)        -- deltas 
+                                 (List Double)        -- desired output 
+
+        let toTuple v = 
+          match v with
+          | BackProp x1 x2 x3 x4 -> (x1, x2, x3, x4) 
+      |]
+      xs <- liftIO $ process code
+      unlines xs --> [i|
+        lettoTuplev0=matchFn((isBackProp,\\_v->let(x11,x22,x33,x44)=extractBackProp_vin(x11,x22,x33,x44)):[])v0|]
+   

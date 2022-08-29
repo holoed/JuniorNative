@@ -330,6 +330,8 @@ tests = parallel $ do
 
    it "Ana-Cata Hylo Factorial" $ "tests/jnrs_lib/ana_cata_factorial.jnr" ---> "120"
 
+   it "Folding neural networks test 2" $ "tests/jnrs_lib/folding_neural_networks_2.jnr" ---> "42"
+
    it "Indexing into lists" $ do
       [i|let main = ['a', 'b', 'c'] !! 0|] --> "\"a\""
       [i|let main = ['a', 'b', 'c'] !! 2|] --> "\"c\""

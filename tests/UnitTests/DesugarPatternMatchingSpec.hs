@@ -127,6 +127,21 @@ tests = parallel $
       xs <- liftIO $ process code
       unlines xs --> 
         [i|letfoov0=matchv0withConsa1___patV0->match___patV0withEmpty->Consa1Emptyletmain=foo(Cons(ConsEmpty)Empty)|]
+
+    it "pattern matching 7" $ do
+      let code = [i|
+        data BackProp = BackProp (List (List Double)) -- as 
+                                 (List (List Double)) -- w(l+1) weights
+                                 (List Double)        -- deltas 
+                                 (List Double)        -- desired output 
+
+        let main v = 
+          match v with
+          | BackProp x1 x2 x3 x4 -> (x1, x2, x3, x4) 
+      |]
+      xs <- liftIO $ process code
+      unlines xs --> 
+        [i|letmainv0=matchv0withBackPropx11x22x33x44->(x11,x22,x33,x44)|]
     
 
    

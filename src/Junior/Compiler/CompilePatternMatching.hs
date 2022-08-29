@@ -62,6 +62,10 @@ desugarTarget e2 (In (Ann _ (TuplePat [x, y]))) = do
     x' <- desugarTarget e2 x
     y' <- desugarTarget e2 y
     return $ mergeLets (extractTupleIndex "fst" x') (extractTupleIndex "snd" y')
+desugarTarget e2 (In (Ann attr (ConPat name [x, y, z, w]))) = do
+    return $ (In (Ann attr (Let (In (Ann attr (TuplePat [x, y, z, w]))) 
+             (In (Ann attr (App
+             (In (Ann attr (Var ("extract" ++ name)))) (In (Ann attr (Var "_v")))))) e2)))
 desugarTarget e2 (In (Ann attr (ConPat name [x, y, z]))) = do
     return $ (In (Ann attr (Let (In (Ann attr (TuplePat [x, y, z]))) 
              (In (Ann attr (App
