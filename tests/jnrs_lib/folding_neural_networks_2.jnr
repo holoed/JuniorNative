@@ -5,8 +5,8 @@ data Layer k = InputLayer
 val sigmoid :: List Double -> List Double
 let sigmoid = fmap (\x -> 1 / (1 + exp (0 - x)))
 
--- vector addition
-val add :: List Double -> List Double -> List Double
+-- vector addition 
+val add :: List Double -> List Double -> List Double 
 let add xs ys = zipWith (+) xs ys
 
 -- matrix-vector multiplication
@@ -16,18 +16,20 @@ let mul xss ys = fmap (sum . zipWith (*) ys) xss
 val algfwd :: Layer (List Double -> List (List Double)) -> (List Double -> List (List Double))
 let algfwd v = match v with
             | InputLayer -> \a0 -> [a0]
-            | DenseLayer wl bl forwardPass -> 
+            | DenseLayer wl bl forwardPass ->  
               (\as -> let (a, as') = (head as, tail as) in
                       let al = sigmoid (add (mul wl a) bl) in
-                      (al:a:as')) . forwardPass
-
+                      (al:a:as')) . forwardPass 
+ 
 data BackProp = BackProp (List (List Double)) -- as 
                          (List (List Double)) -- w(l+1) weights
                          (List Double)        -- deltas 
                          (List Double)        -- desired output 
 
 val backward :: List (List Double) -> List Double -> BackProp -> (List Double, List (List Double), List Double)
-let backward x = undefined
+let backward wl bl backProp = 
+  match backProp with
+    | BackProp x1 wl1 sl1 desiredOutput -> (sl1, wl1, bl)
 
 val getAs :: BackProp -> List (List Double)
 let getAs backDrop = 
@@ -37,7 +39,7 @@ let getAs backDrop =
 val getDesiredOutput :: BackProp -> List Double
 let getDesiredOutput backDrop = 
   match backDrop with 
-    | BackProp x1 x2 x3 x4 -> x4 
+    | BackProp x1 x2 x3 x4 -> x4  
 
 val coalgbwd :: (Fix Layer, BackProp) -> Layer (Fix Layer, BackProp)
 let coalgbwd (v, backProp) = 
@@ -50,7 +52,7 @@ let coalgbwd (v, backProp) =
 
 val train :: (List Double, List Double) -> Fix Layer -> Fix Layer
 let train (a0, desiredOutput) nn = 
-   let h forwardPass = 
+   let h forwardPass =  
      let as = forwardPass a0 in
      (nn, BackProp as [] [] desiredOutput) in
    (anaRec coalgbwd . h . cataRec algfwd) nn
@@ -58,7 +60,10 @@ let train (a0, desiredOutput) nn =
 val brain :: Fix Layer
 let brain = In (DenseLayer [[20,20]] [-30] (In (DenseLayer [[20,20],[-20,-20]] [-10,30] (In InputLayer))))
 
--- let newBrain = train ([0, 1], [1]) brain
+let newBrain = train ([0, 1], [1]) brain
 
-let main = 42
+val calc :: Fix Layer -> List Double -> List (List Int)
+let calc b = ((<$>)((<$>) round)) . (cataRec algfwd b)
+
+let main = head . (calc newBrain) <$> [[0,0],[0,1],[1,0],[1,1]]
 

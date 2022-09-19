@@ -227,7 +227,7 @@ generateJsForConstr _ (TyApp (TyApp (TyApp (TyApp (TyCon n) _)_)_)_) = pack [i|
     const #{n} = mkClosure(function([_, x]) {
         return setEnv("x", x, mkClosure(function([env, y]){
             return setEnv("x", env["x"], setEnv("y", y, mkClosure(function([env2, z]){
-                setEnv("x", env2["x"], setEnv("y", env2["y"], setEnv("z", z, mkClosure(function([env3, w]){
+                return setEnv("x", env2["x"], setEnv("y", env2["y"], setEnv("z", z, mkClosure(function([env3, w]){
                     return new __#{n}(env3["x"], env3["y"], env3["z"], w);
                 }))))
             })))

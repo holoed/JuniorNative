@@ -29,7 +29,8 @@ env' = concatEnvs env $ toEnv [
   ("zipWith", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyVar "c" 0))) (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (tyLam (TyApp (TyCon "List") (TyVar "b" 0)) (TyApp (TyCon "List") (TyVar "c" 0))))),
   ("sum", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Double")) (TyCon "Double")),
   ("anaRec", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyApp (TyVar "f" 1) (TyVar "a" 0))) (tyLam (TyVar "a" 0) (TyApp (TyCon "Fix") (TyVar "f" 1)))),
-  ("cataRec", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyVar "a" 0)) (tyLam (TyApp (TyCon "Fix") (TyVar "f" 1)) (TyVar "a" 0)))
+  ("cataRec", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyVar "a" 0)) (tyLam (TyApp (TyCon "Fix") (TyVar "f" 1)) (TyVar "a" 0))),
+  ("<$>", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1) (TyVar "b" 0))))
  ]
 
 extractNames :: [S.Symbol] -> [(String, String)]
@@ -206,14 +207,15 @@ tests = parallel $
        ("add", "List Double -> List Double -> List Double"), 
        ("mul", "List (List Double) -> List Double -> List Double"), 
        ("sigmoid", "List Double -> List Double"), 
-       ("backward", "List (List Double) -> List Double -> BackProp -> (List Double, List (List Double), List Double)"), 
        ("brain", "Fix Layer"), 
-       ("main", "Int"), 
        ("algfwd", "Layer (List Double -> List (List Double)) -> List Double -> List (List Double)"), 
-       ("getAs", "BackProp -> List (List Double)"), 
+       ("backward", "List (List Double) -> List Double -> BackProp -> (List Double, List (List Double), List Double)"), 
+       ("calc", "Fix Layer -> List Double -> List (List Int)"), ("getAs", "BackProp -> List (List Double)"), 
        ("getDesiredOutput", "BackProp -> List Double"), 
        ("coalgbwd", "(Fix Layer, BackProp) -> Layer ((Fix Layer, BackProp))"), 
-       ("train", "(List Double, List Double) -> Fix Layer -> Fix Layer")]
+       ("train", "(List Double, List Double) -> Fix Layer -> Fix Layer"), 
+       ("newBrain", "Fix Layer"), 
+       ("main", "List (List Int)")]
 
 
 
