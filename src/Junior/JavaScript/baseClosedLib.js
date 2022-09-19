@@ -1050,3 +1050,9 @@ const monadIO = {
       }))
     })
   }
+
+const round = mkClosure(function([_, inst]) {
+  return mkClosure(function([_, x]) {
+    return Math.round(x)
+  })
+})

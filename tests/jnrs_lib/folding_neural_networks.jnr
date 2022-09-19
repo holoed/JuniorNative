@@ -24,8 +24,8 @@ let algfwd v = match v with
                       let al = sigmoid (add (mul wl a) bl) in
                       (al:a:as')) . forwardPass
 
-val calc :: Fix Layer -> List Double -> List (List Double)
-let calc = cataRec algfwd
+val calc :: Fix Layer -> List Double -> List (List Int)
+let calc b = ((<$>)((<$>) round)) . (cataRec algfwd b)
  
 let main = head . (calc brain) <$> [[0,0],[0,1],[1,0],[1,1]]
 

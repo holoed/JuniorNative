@@ -326,7 +326,7 @@ tests = parallel $ do
 
    it "Parser with custom data type and pattern match" $ "tests/jnrs_lib/parser.jnr" ---> "[[\"Hello\",\" World\"]]"
 
-   it "Folding neural networks test" $ "tests/jnrs_lib/folding_neural_networks.jnr" ---> "[[0.000045439104876545914],[0.999954519621495],[0.999954519621495],[0.000045439104876545914]]"
+   it "Folding neural networks test" $ "tests/jnrs_lib/folding_neural_networks.jnr" ---> "[[0],[1],[1],[0]]"
 
    it "Ana-Cata Hylo Factorial" $ "tests/jnrs_lib/ana_cata_factorial.jnr" ---> "120"
 
