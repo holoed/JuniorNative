@@ -359,3 +359,11 @@ tests = parallel $ do
          let main = randomIO >>= (\\x ->
                     pure 10 >>= (\\y ->
                     pure (x * y)))|] `shouldBeBetween` (0, 10)
+
+   it "Eq List Tests" $ do
+      [i|let main = [1,2,3,4] == [1,2,3,4]|] --> "true"
+      [i|let main = [2,4,6,8] /= [1,2,3,4]|] --> "true"
+      [i|let main = [[1],[2]] == [[1],[2]]|] --> "true"
+      [i|let main = [[1],[2]] /= [[1],[2]]|] --> "false"
+      [i|let main = ['a', 'b'] /= ['b', 'a']|] --> "true"
+      [i|let main = ['a', 'b'] == ['b', 'a']|] --> "false"

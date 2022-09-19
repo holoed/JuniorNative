@@ -1056,3 +1056,20 @@ const round = mkClosure(function([_, inst]) {
     return Math.round(x)
   })
 })
+
+function eqListEqEq([env2, ys]){
+  return env2["xs"].length == ys.length &&
+         env2["xs"].every((v, i) => applyClosure(applyClosure(env2["inst"]["=="], v), ys[i]))   
+}
+
+function eqListNotEqEq([env2, ys]){
+  return env2["xs"].length != ys.length ||
+         env2["xs"].some((v, i) => applyClosure(applyClosure(env2["inst"]["/="], v), ys[i])) 
+}
+
+const eqList = mkClosure(function([_, inst]){
+  return {
+    "==": setEnv("inst", inst, mkClosure(function([env,xs]) { return setEnv("inst", env["inst"], setEnv("xs", xs, mkClosure(eqListEqEq)))})),
+    "/=": setEnv("inst", inst, mkClosure(function([env,xs]) { return setEnv("inst", env["inst"], setEnv("xs", xs, mkClosure(eqListNotEqEq)))}))
+  }
+})
