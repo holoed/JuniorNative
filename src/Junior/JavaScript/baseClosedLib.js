@@ -254,6 +254,10 @@ const unlines = mkClosure(function([_, xs]) {
     return xs.join("\n");
   })
 
+const lines = mkClosure(function([_, str]){
+    return str.split(/\r?\n/);
+  })
+
 const mkParser = mkClosure(function([_, f]) {
     return f;
   })
