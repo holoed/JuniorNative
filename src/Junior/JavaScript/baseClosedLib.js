@@ -1018,6 +1018,16 @@ class IO {
 
 const randomIO = new IO(mkClosure(function([_, world]) { return Promise.resolve([1 - Math.random(), world + 1]) }))
 
+const currentDate = new IO(mkClosure(function([_, world]) { return Promise.resolve([new Date().toISOString().slice(0, 10), world + 1]) }))
+
+const asyncToIO = mkClosure(function ([_, f]) { 
+  return new IO(setEnv("f", f, mkClosure(function([env, world]) { 
+    return new Promise((resolve, reject) => {
+      env["f"].then(x => resolve([x, world + 1]).catch(r => reject(r)))
+   })
+   })))
+ })
+
 const functorIO = {
   "fmap": mkClosure(function ([_, f]) {
     return setEnv("f", f, mkClosure(function([env1, m]){
