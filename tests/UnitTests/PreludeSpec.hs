@@ -140,6 +140,11 @@ tests = parallel $ do
    it "scanl" $ do
        [("main", "let main = scanl (+) 0 [1,1,1,1,1]")] --> "[0,1,2,3,4,5]"
        [("main", "let main = scanl (/) 64 [4,2,4]")] --> "[64,16,8,2]"
+
+   it "geJsonValue" $ do
+       [("main", pack [i|let main = parseJson "{ \\"value\\": 0 }" >>= getJsonValue "value"|])] --> "{\"value\":0}"
+       [("main", pack [i|let main = parseJson "{ \\"value\\": 42 }" >>= getJsonValue "value"|])] --> "{\"value\":42}"
+       [("main", pack [i|let main = parseJson "{ \\"value\\": 42 }" >>= getJsonValue "foo"|])] --> "{}"
        
 
        

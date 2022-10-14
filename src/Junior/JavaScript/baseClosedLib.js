@@ -715,7 +715,7 @@ const parseJson = mkClosure(function([_, s]){
 const getJsonValue = mkClosure(function([_, x]) {
   return setEnv("x", x, mkClosure(function([env, y]){
     const z = y[env["x"]];
-    if (z) { return applyClosure(Just, z) }
+    if (z != undefined) { return applyClosure(Just, z) }
     else { return Nothing; }
   }))
 })
