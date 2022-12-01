@@ -61,6 +61,8 @@ let foldKliesli = foldr1 (>=>)
 
 val fix :: ((a -> b) -> a -> b) -> a -> b
 let fix f x = f (fix f) x
+
+-- Begin Recursion Schemes
   
 val ana :: Functor f => (a -> f a) -> (a -> Fix f) -> a -> Fix f
 let ana psi f = In . fmap f . psi
@@ -73,6 +75,14 @@ let anaRec psi = fix (ana psi)
  
 val cataRec :: Functor f => (f a -> a) -> Fix f -> a
 let cataRec psi = fix (cata psi)
+
+val hylo :: Functor f => (f a -> a) -> (c -> f c) -> (c -> a) -> c -> a
+let hylo psi phi f = psi . fmap f . phi
+
+val hyloRec :: Functor f => (f a -> a) -> (c -> f c) -> c -> a
+let hyloRec psi phi = fix (hylo psi phi)
+
+-- End Recursion Schemes
 
 val matchFn :: List ((a -> Bool, a -> b)) -> a -> b
 let matchFn xs x = 

@@ -367,3 +367,17 @@ tests = parallel $ do
       [i|let main = [[1],[2]] /= [[1],[2]]|] --> "false"
       [i|let main = ['a', 'b'] /= ['b', 'a']|] --> "true"
       [i|let main = ['a', 'b'] == ['b', 'a']|] --> "false"
+
+   it "hylomorphism" $ do
+      [i|data ListF a b = Nil | Cons a b deriving Functor
+ 
+         val coAlg :: Int -> ListF Int Int
+         let coAlg x = if x == 0 then Nil else Cons x (x - 1)
+         
+         val alg :: ListF Int Int -> Int
+         let alg m = 
+            match m with
+            | Nil -> 1
+            | Cons x y -> x * y
+         
+         let main = hyloRec alg coAlg 5|] --> "120" 
