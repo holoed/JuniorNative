@@ -20,6 +20,8 @@ import Control.Monad.Catch (MonadThrow)
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
+  ("out", Set.fromList [] :=> tyLam (TyApp (TyCon "Fix") (TyVar "f" 1)) (TyApp (TyVar "f" 1) (TyApp (TyCon "Fix") (TyVar "f" 1)))),
+  ("In", Set.fromList [] :=> tyLam (TyApp (TyVar "f" 1) (TyApp (TyCon "Fix") (TyVar "f" 1))) (TyApp (TyCon "Fix") (TyVar "f" 1))),
   (".",  Set.fromList [] :=> tyLam (tyLam (TyVar "b" 0) (TyVar "c" 0))
                              (tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0))
                              (tyLam (TyVar "a" 0) (TyVar "c" 0)))),

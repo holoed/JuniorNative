@@ -1,0 +1,46 @@
+
+
+val para :: Functor f => (f (Fix f , a) -> a) -> (Fix f -> a) -> Fix f -> a
+let para alg f = 
+  let pair f g x = (f x , g x ) in
+  alg . fmap (pair id f) . out
+  
+let paraRec psi = fix (para psi)
+
+data NatF a = Zero | Succ a deriving Functor
+
+val add :: Fix NatF -> Fix NatF -> Fix NatF
+let add x y = 
+  match (out x) with
+  | Zero -> y
+  | Succ x' -> In (Succ (add x' y))
+
+val mul :: Fix NatF -> Fix NatF -> Fix NatF
+let mul x y = match (out y) with  
+  | Zero -> In Zero
+  | Succ y' -> match (out y') with
+               | Zero -> x
+               | v -> add x (mul x y')
+ -- | Succ (In Zero) -> x -- TODO: Bug
+ -- | Succ y -> add x (mul x y)
+
+let fac = 
+ let alg v = 
+  match v with
+  | Zero -> In (Succ (In Zero))
+  | Succ (n, fn) -> mul (In (Succ n)) fn in
+ paraRec alg 
+ 
+val fromInt :: (Eq a, Num a) => a -> Fix NatF
+let fromInt x =
+  if (x == 0) then In (Zero)
+  else In (Succ (fromInt (x - 1)))
+  
+val toInt :: Num a => Fix NatF -> a
+let toInt x =  
+  match (out x) with
+  | Zero -> 0
+  | Succ x -> toInt x + 1
+ 
+let main = (toInt . fac . fromInt) 5
+  

@@ -2,7 +2,7 @@ module Junior.Compiler.AlphaRename where
 
 import Junior.Parser.Location ( Loc )
 import Junior.TypeChecker.TypedAst (TypedExp, tlam, tvar, tleT, tmatchExp)
-import Junior.Core.Ast ( Exp, ExpF(Let, Lam, Var, Defn, VarPat, TuplePat, MatchExp, ConPat) )
+import Junior.Core.Ast (ExpF(Let, Lam, Var, VarPat, TuplePat, MatchExp, ConPat) )
 import Data.Map ( (!), empty, insert, lookup, member, Map, fromList )
 import Data.Maybe ( fromMaybe )
 import Control.Monad.Trans.Reader ( ask, local, ReaderT(runReaderT) )

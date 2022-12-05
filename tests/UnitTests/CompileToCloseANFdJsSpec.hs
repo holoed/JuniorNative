@@ -138,7 +138,7 @@ tests = parallel $ do
    it "Construct fix type value" $ [i|
       data ListF a b = Empty | Cons a b deriving Functor 
       let main = In (Cons 5 (In (Cons 4 (In Empty))))
-   |] --> "{\"value0\":{\"value1\":5,\"value2\":{\"value0\":{\"value1\":4,\"value2\":{\"value0\":{}}}}}}"
+   |] --> "{\"value\":{\"value1\":5,\"value2\":{\"value\":{\"value1\":4,\"value2\":{\"value\":{}}}}}}"
 
    it "Catamorphism product" $ [i|
       data ListF a b = Empty | Cons a b deriving Functor
@@ -244,7 +244,7 @@ tests = parallel $ do
          let two = In (C 2 one)
 
          let main = two
-      |] --> "{\"value0\":{\"value1\":2,\"value2\":{\"value0\":{\"value1\":1,\"value2\":{\"value0\":{}}}}}}"
+      |] --> "{\"value\":{\"value1\":2,\"value2\":{\"value\":{\"value1\":1,\"value2\":{\"value\":{}}}}}}"
 
    it "Custom ADT with 3 parameters" $ do
       [i|
@@ -330,6 +330,8 @@ tests = parallel $ do
 
    it "Ana-Cata Hylo Factorial" $ "tests/jnrs_lib/ana_cata_factorial.jnr" ---> "120"
 
+   it "Para Factorial" $ "tests/jnrs_lib/para_factorial.jnr" ---> "120"
+
    it "Folding neural networks test 2" $ "tests/jnrs_lib/folding_neural_networks_2.jnr" ---> "[[],[],[],[]]"
 
    it "Indexing into lists" $ do
@@ -367,17 +369,3 @@ tests = parallel $ do
       [i|let main = [[1],[2]] /= [[1],[2]]|] --> "false"
       [i|let main = ['a', 'b'] /= ['b', 'a']|] --> "true"
       [i|let main = ['a', 'b'] == ['b', 'a']|] --> "false"
-
-   it "hylomorphism" $ do
-      [i|data ListF a b = Nil | Cons a b deriving Functor
- 
-         val coAlg :: Int -> ListF Int Int
-         let coAlg x = if x == 0 then Nil else Cons x (x - 1)
-         
-         val alg :: ListF Int Int -> Int
-         let alg m = 
-            match m with
-            | Nil -> 1
-            | Cons x y -> x * y
-         
-         let main = hyloRec alg coAlg 5|] --> "120" 

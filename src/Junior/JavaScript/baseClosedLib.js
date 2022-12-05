@@ -521,22 +521,6 @@ function div(x, y) {
   return ~~(x / y)
 }
 
-//************** Type Level Fixed Point **************/
-
-class InClass {
-  constructor(value0) {
-    this.value0 = value0;
-  }
-}
-
-const In = mkClosure(function([_, x]) {
-  return new InClass(x);
-})
-
-const out = mkClosure(function([_, x]) {
-  return x.value0;
-})
-
 const httpGet = mkClosure(function([_, url]) {
   return fetch("/fetch", {
     method: "POST",

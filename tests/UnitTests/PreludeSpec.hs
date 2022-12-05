@@ -145,6 +145,20 @@ tests = parallel $ do
        [("main", pack [i|let main = parseJson "{ \\"value\\": 0 }" >>= getJsonValue "value"|])] --> "{\"value\":0}"
        [("main", pack [i|let main = parseJson "{ \\"value\\": 42 }" >>= getJsonValue "value"|])] --> "{\"value\":42}"
        [("main", pack [i|let main = parseJson "{ \\"value\\": 42 }" >>= getJsonValue "foo"|])] --> "{}"
+
+   it "hylomorphism" $ do
+      [("main", pack [i|data ListF a b = Nil | Cons a b deriving Functor
+ 
+         val coAlg :: Int -> ListF Int Int
+         let coAlg x = if x == 0 then Nil else Cons x (x - 1)
+         
+         val alg :: ListF Int Int -> Int
+         let alg m = 
+            match m with
+            | Nil -> 1
+            | Cons x y -> x * y
+         
+         let main = hyloRec alg coAlg 5|])] --> "120" 
        
 
        
