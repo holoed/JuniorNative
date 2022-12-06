@@ -1,12 +1,3 @@
-
-
-val para :: Functor f => (f (Fix f , a) -> a) -> (Fix f -> a) -> Fix f -> a
-let para alg f = 
-  let pair f g x = (f x , g x ) in
-  alg . fmap (pair id f) . out
-  
-let paraRec psi = fix (para psi)
-
 data NatF a = Zero | Succ a deriving Functor
 
 val add :: Fix NatF -> Fix NatF -> Fix NatF

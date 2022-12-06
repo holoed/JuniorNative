@@ -12,6 +12,9 @@ let fst (x, y) = x
 val snd :: (a, b) -> b
 let snd (x, y) = y
 
+val applyPair :: (a -> b) -> (a -> c) -> a -> (b, c)
+let applyPair f g x = (f x , g x)
+
 val flip :: (a -> b -> c) -> b -> a -> c
 let flip f x y = f y x
 
@@ -59,6 +62,8 @@ let (<$>) = fmap
 val foldKliesli :: (Foldable t, Monad m) => t (a -> m a) -> a -> m a
 let foldKliesli = foldr1 (>=>)
 
+-- Value Level Fix Point
+
 val fix :: ((a -> b) -> a -> b) -> a -> b
 let fix f x = f (fix f) x
 
@@ -88,6 +93,11 @@ let hylo psi phi f = psi . fmap f . phi
 
 val hyloRec :: Functor f => (f a -> a) -> (c -> f c) -> c -> a
 let hyloRec psi phi = fix (hylo psi phi)
+
+val para :: Functor f => (f (Fix f , a) -> a) -> (Fix f -> a) -> Fix f -> a
+let para alg f = alg . fmap (applyPair id f) . out
+  
+let paraRec psi = fix (para psi)
 
 -- End Recursion Schemes
 
