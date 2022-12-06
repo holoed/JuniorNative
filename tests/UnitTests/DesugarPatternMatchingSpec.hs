@@ -143,7 +143,6 @@ tests = parallel $
       unlines xs --> 
         [i|letmainv0=matchv0withBackPropx11x22x33x44->(x11,x22,x33,x44)|]
 
-    -- TODO: This test is wrong and need fixing, with In Zero should be desugared to with In __patV0 -> match __patV0 with Zero
     it "pattern matching 8" $ do 
       let code = [i|
 
@@ -158,7 +157,23 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|letfoov0=matchv0withSucc___patV0->match___patV0withInZero->fromInteger42|]
+        [i|letfoov0=matchv0withSucc___patV0->match___patV0withIn___patV1->match___patV1withZero->fromInteger42|]
+
+    it "pattern matching 9" $ do 
+      let code = [i|
+
+        data Fix f = In (f (Fix f))
+
+        data NatF a = Zero | Succ a deriving Functor
+
+        let foo v = match v with  
+          | Succ (In Zero) -> 42 
+          | Succ y -> 12
+ 
+      |]
+      xs <- liftIO $ process code
+      unlines xs --> 
+        [i|letfoov0=matchv0withSucc___patV0->match___patV0withInZero->fromInteger42|y1->fromInteger12|]
     
 
    
