@@ -169,7 +169,6 @@ tests = parallel $
       unlines xs --> [i|
         lettoTuplev0=matchFn((isBackProp,\\_v->let(x11,x22,x33,x44)=extractBackProp_vin(x11,x22,x33,x44)):[])v0|]
 
-    -- TODO: This test is wrong, it should test IsIn and IsZero, to fix
     it "pattern matching 11" $ do 
       let code = [i|
 
@@ -184,5 +183,5 @@ tests = parallel $
       |]
       xs <- liftIO $ process code
       unlines xs --> 
-        [i|letfoov0=matchFn((isSucc,\\_v->let___patV0=extractSucc_vinmatchFn((isIn,\\_v->letZero=extractIn_vinfromInteger42):(((\\y1->True,\\_v->lety1=_vinfromInteger12)):[]))___patV0):[])v0|]
+        [i|letfoov0=matchFn((isSucc,\\_v->let___patV0=extractSucc_vinmatchFn((\\_v->isIn_v&&isZero(extractIn_v),\\_v->fromInteger42):(((\\y1->True,\\_v->lety1=_vinfromInteger12)):[]))___patV0):[])v0|]
    

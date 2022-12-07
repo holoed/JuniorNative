@@ -9,11 +9,8 @@ let add x y =
 val mul :: Fix NatF -> Fix NatF -> Fix NatF
 let mul x y = match (out y) with  
   | Zero -> In Zero
-  | Succ y' -> match (out y') with
-               | Zero -> x
-               | v -> add x (mul x y')
- -- | Succ (In Zero) -> x -- TODO: Bug
- -- | Succ y -> add x (mul x y)
+  | Succ (In Zero) -> x 
+  | Succ y -> add x (mul x y)
 
 let fac = 
  let alg v = 
