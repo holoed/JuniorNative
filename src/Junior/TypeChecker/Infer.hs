@@ -19,7 +19,7 @@ import Junior.TypeChecker.Unification ( mgu )
 import Junior.TypeChecker.ContextReduction (resolvePreds, ClassEnv)
 import Junior.Compiler.MonomorphicRestriction (applyRestriction)
 import Data.Bifunctor (second)
-import Control.Monad ((<=<))
+import Control.Monad ((<=<), unless)
 import Data.Maybe (isJust, fromJust)
 import Control.Monad.RWS (ask)
 
@@ -30,6 +30,10 @@ getFirstReturnType t = t
 getReturnType :: Qual Type -> Qual Type
 getReturnType (ps :=> TyApp (TyApp (TyCon "->") _) t2) = getReturnType(ps :=> t2)
 getReturnType t = t
+
+getReturnType' :: Type -> Type
+getReturnType' (TyApp (TyApp (TyCon "->") _) t2)  = getReturnType' t2
+getReturnType' t = t
 
 unifyPatternsWithDataTypes :: TypedExp -> TypeM TypedExp
 unifyPatternsWithDataTypes (In (Ann (l, qt) (TuplePat xs))) = do
@@ -57,20 +61,19 @@ unifyPatternsWithDataTypes x = return x
 generateTypeForPattern :: TypedExp -> TypeM Type
 generateTypeForPattern (In (Ann (_, _ :=> t) (VarPat _))) = return t
 generateTypeForPattern (In (Ann (_, _) (TuplePat xs))) = do
-    ts <- sequence (generateTypeForPattern <$> xs)
+    ts <- mapM generateTypeForPattern xs
     return $ tupleCon ts
 generateTypeForPattern (In (Ann (l, _) (ConPat name xs))) = do
-    ts <- sequence (generateTypeForPattern <$> xs)
+    ts <- mapM generateTypeForPattern xs
     (env, _, _, _) <- ask 
-    (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme (name) env
-    if (length ts > 0) then do
-      qt0 <- (mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env)
+    (_ :=> t1) <- mkForAll (fromList []) $ fromScheme $ findScheme name env
+    unless (null ts) $ do
+      qt0 <- mkForAll (fromList []) $ fromScheme $ findScheme ("extract" ++ name) env
       let (_ :=> t0) = getFirstReturnType qt0
-      if (length ts == 1) 
+      if length ts == 1
       then mgu (fromJust l) (head ts) t0
       else mgu (fromJust l) (tupleCon ts) t0
-    else return ()
-    return $ t1
+    return $  getReturnType' t1
 generateTypeForPattern _ = undefined 
 
 valueToType :: Prim -> Type
@@ -160,7 +163,7 @@ alg (Ann (Just l) (LitPat x)) = do
 
 alg (Ann (Just l) (TuplePat ns)) = do
   ns' <- sequence ns
-  t <- sequence (generateTypeForPattern <$> ns')
+  t <- mapM generateTypeForPattern ns'
   return $ ttuplePat l (fromList [] :=> tupleCon t) ns'
 
 alg (Ann (Just l) (ConPat name ns)) = do

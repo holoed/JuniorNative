@@ -5,6 +5,7 @@ module Junior.JavaScript.DeriveJs where
 import Junior.Core.Types (Type (TyApp, TyCon))
 import Data.Text (Text, pack)
 import Data.String.Interpolate (i)
+import Junior.Pretty.TypesPrinter ()
 
 derive :: Type -> [Type] -> String -> Text
 derive t ts "Functor" = deriveFunctor t ts
@@ -39,9 +40,20 @@ deriveConstructor _ (TyCon n) = pack [i|
               return #{n};
     };
 |]
+deriveConstructor _ (TyApp (TyCon n) (TyCon n2)) = pack [i|
+    if (m instanceof __#{n}) {
+        return m;
+    };
+|]
 deriveConstructor tf (TyApp (TyCon n) t) | t == tf = pack [i|
     if (m instanceof __#{n}) {
               return applyClosure(#{n}, applyClosure(env["f"], applyClosure(extract#{n}, m)));
+    };
+|]
+deriveConstructor tf (TyApp (TyApp (TyCon n) t2) t3) | t2 == tf && t3 == tf = pack [i|
+    if (m instanceof __#{n}) {
+              const [x, y] = applyClosure(extract#{n}, m);
+              return applyClosure(applyClosure(#{n}, applyClosure(env["f"], x)), applyClosure(env["f"], y));
     };
 |]
 deriveConstructor tf (TyApp (TyApp (TyCon n) _) t2) | t2 == tf = pack [i|
@@ -61,4 +73,4 @@ deriveConstructor tf (TyApp (TyCon n) (TyApp (TyApp (TyCon "->") t1) t2)) | t2 =
               return applyClosure(#{n}, function (x) { return applyClosure(env["f"], applyClosure(extract#{n}, m)(x))}); 
     };
 |]
-deriveConstructor _ _ = "// TODO: Implement"
+deriveConstructor t1 t2 = pack [i|// Implement deriveFunctor (#{show t1}) (#{show t2})|] 

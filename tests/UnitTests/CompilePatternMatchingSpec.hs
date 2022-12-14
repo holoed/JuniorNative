@@ -185,3 +185,15 @@ tests = parallel $
       unlines xs --> 
         [i|letfoov0=matchFn((isSucc,\\_v->let___patV0=extractSucc_vinmatchFn((\\_v->isIn_v&&isZero(extractIn_v),\\_v->fromInteger42):(((\\y1->True,\\_v->lety1=_vinfromInteger12)):[]))___patV0):[])v0|]
    
+    it "pattern match 12" $ do
+      let code = [i|
+        data Result = Value Int
+
+        let foo v = match v with 
+                    | (Value x, Value y) -> Value (x + y)
+      |]
+      xs <- liftIO $ process code
+      unlines xs --> 
+        [i|let foo v0 = matchFn((\\_v-> let(___patV0,___patV1)= _v in isValue ___patV0 && isValue ___patV1,
+                                 \\_v-> let x1 = extractValue (fst _v) in 
+                                        let y2 = extractValue (snd _v) in Value(x1 + y2)):[]) v0|]

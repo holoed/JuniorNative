@@ -72,3 +72,36 @@ const functorFooF = {
 }
 |]
 
+    it "Derive Functor 3" $
+        derive (TyApp (TyCon "Expr") (TyVar "a" 0)) 
+               [TyApp (TyCon "Lit") (TyCon "Int"), 
+                TyApp (TyCon "Var") (TyCon "String"),
+                TyApp (TyCon "App") (tyLam (TyVar "a" 0) (TyVar "a" 0)),
+                TyApp (TyCon "Lam") (tyLam (TyVar "a" 0) (TyVar "a" 0))] "Functor" `shouldBe` 
+                pack [i|
+const functorExpr = {
+  \"fmap\": mkClosure(function ([_, f]) {
+      return setEnv(\"f\", f, mkClosure(function ([env, m]) {
+          
+    if (m instanceof __Lit) {
+        return m;
+    };
+
+    if (m instanceof __Var) {
+        return m;
+    };
+
+    if (m instanceof __App) {
+              return applyClosure(App, function (x) { return applyClosure(env[\"f\"], applyClosure(extractApp, m)(x))}); 
+    };
+
+    if (m instanceof __Lam) {
+              return applyClosure(Lam, function (x) { return applyClosure(env[\"f\"], applyClosure(extractLam, m)(x))}); 
+    };
+
+          throw new Error(\"Failed pattern match\");
+      })); 
+   })
+}
+|]
+

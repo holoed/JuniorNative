@@ -40,9 +40,12 @@ env' = concatEnvs env $ toEnv [
   ("isEmpty", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
   ("isCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (TyCon "Bool")),
   ("extractCons", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)) (tupleCon [TyVar "a" 0, TyVar "b" 0])),
-  ("Empty", Set.fromList [] :=> (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0))),
+  ("Empty", Set.fromList [] :=> TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)),
   ("Cons", Set.fromList [] :=> tyLam (TyVar "a" 0) (tyLam (TyVar "b" 0) (TyApp (TyApp (TyCon "ListF") (TyVar "a" 0)) (TyVar "b" 0)))),
-  ("<$>", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1) (TyVar "b" 0))))
+  ("<$>", Set.fromList [IsIn "Functor" (TyVar "f" 1)] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (tyLam (TyApp (TyVar "f" 1) (TyVar "a" 0)) (TyApp (TyVar "f" 1) (TyVar "b" 0)))),
+  ("Value", Set.fromList [] :=> tyLam (TyCon "Int") (TyCon "Result")),
+  ("isValue", Set.fromList [] :=> tyLam (TyCon "Result") (TyCon "Bool")),
+  ("extractValue", Set.fromList [] :=> tyLam (TyCon "Result") (TyCon "Int"))
  ]
 
 extractName :: SynExp -> String
@@ -57,7 +60,7 @@ typeOf s = parseExpr s >>= typ . ((\e -> [(extractName e, (fromJust . toExp) e)]
       f env2 (n, e) = env2 >>= flip g (n, e)
       k ev1 ev2 = (\(e1, x) (e2, y) -> (e1 ++ e2, concatEnvs x y)) <$> ev1 <*> ev2
       h acc bs = foldl k acc (f acc <$> bs)
-      typ bss = foldl h (Right ([], env')) bss
+      typ = foldl h (Right ([], env')) 
 
 extractResults :: [(String, String)] -> String
 extractResults = getKey . fromList . filter (\(n, _) -> not $ containsScheme n env')
@@ -318,7 +321,10 @@ tests = parallel $
       [i|let f x y z = (x <$> y) <*> z|] --> "Applicative a => (b -> c -> d) -> a b -> a c -> a d"
       [i|let f x y z = x <$> (y <*> z)|] --> "Applicative a => (b -> c) -> a (d -> b) -> a d -> a c"
 
-
-
+    it "pattern matching 10" $ do
+      [i|
+        let foo v = match v with 
+                    | (Value x, Value y) -> Value (x + y)
+      |] --> "(Result, Result) -> Result"
       
 

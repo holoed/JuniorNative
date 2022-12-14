@@ -1,0 +1,8 @@
+data Expr = Val Int | Add Expr Expr
+
+val eval :: Expr -> Int
+let eval e = match e with
+             | Val n -> n
+             | Add x y -> eval x + eval y
+             
+let main = eval (Add (Add (Val 5) (Val 3)) (Val 2))

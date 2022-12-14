@@ -332,6 +332,10 @@ tests = parallel $ do
 
    it "Para Factorial" $ "tests/jnrs_lib/para_factorial.jnr" ---> "120"
 
+   it "Simple Interpreter" $ "tests/jnrs_lib/simple_interpreter.jnr" ---> "10"
+
+   it "Simple Interpreter 2" $ "tests/jnrs_lib/simple_interpreter_2.jnr" ---> "{\"value\":54}"
+
    it "Folding neural networks test 2" $ "tests/jnrs_lib/folding_neural_networks_2.jnr" ---> "[[],[],[],[]]"
 
    it "Indexing into lists" $ do

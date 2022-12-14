@@ -1,0 +1,24 @@
+data Expr a = Lit Int
+            | Var String
+            | App a a
+            | Lam a a deriving Functor
+
+data Result = Value Int
+            | Function (Result -> Result)
+            | Error String
+
+let add x y = match (x, y) with
+              | (Value v, Value w) -> Value (v + w)
+
+val alg :: Expr a -> Result
+let alg e = match e with
+          | Lit n -> Value n
+          | Var s -> Function (\x -> (Function(\y -> (add x y)))) 
+          | App e1 e2 -> match e1 with
+                         | Function f -> f e2
+
+val eval :: Fix Expr -> Result
+let eval = cataRec alg
+
+val main :: Result
+let main = eval (In (App (In (App (In (Var "+")) (In (Lit 42)))) (In (Lit 12))))             
