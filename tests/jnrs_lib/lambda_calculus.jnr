@@ -37,9 +37,25 @@ let loop f x =
 val normalOrderReducer :: Exp -> Exp
 let normalOrderReducer = loop reduce 
 
-let two = Lam "h" (Lam "x" (App (Var "h") (App (Var "h") (Var "x"))))
-let three = Lam "g" (Lam "x" (App (Var "g") (App (Var "g") (App (Var "g") (Var "x")))))
+val add :: Exp
 let add = Lam "m" (Lam "n" (Lam "f" (Lam "x" (App (App (Var "m") (Var "f")) (App (App (Var "n") (Var "f")) (Var "x"))))))
-let five = Lam "f" (Lam "x" (App (Var "f") (App (Var "f") (App (Var "f") (App (Var "f") (App (Var "f") (Var "x")))))))
 
-let main = equal (normalOrderReducer (App (App add two) three)) five
+val fromNum :: Int -> Exp
+let fromNum n =
+  let xs = range id 1 n in
+  let v = foldr (\v e -> App (Var "f") e) (Var "x") xs in
+  Lam "f" (Lam "x" v)
+
+val toNum :: Exp -> Int
+let toNum e =
+  let toNum' e acc =   
+    match e with
+    | Lam s (Lam s' e') -> 
+      match e' with
+      | Var x -> acc
+      | App (Var x') e'' -> 
+        toNum' (Lam s (Lam s' e'')) (acc + 1) in
+  toNum' e 0
+
+val main :: Int
+let main = toNum (normalOrderReducer (App (App add (fromNum 2)) (fromNum 5))) 

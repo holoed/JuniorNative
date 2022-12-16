@@ -338,7 +338,7 @@ tests = parallel $ do
 
    it "Folding neural networks test 2" $ "tests/jnrs_lib/folding_neural_networks_2.jnr" ---> "[[],[],[],[]]"
 
-   it "Lambda calculus" $ "tests/jnrs_lib/lambda_calculus.jnr" ---> "true"
+   it "Lambda calculus" $ "tests/jnrs_lib/lambda_calculus.jnr" ---> "7"
 
    it "Indexing into lists" $ do
       [i|let main = ['a', 'b', 'c'] !! 0|] --> "\"a\""
