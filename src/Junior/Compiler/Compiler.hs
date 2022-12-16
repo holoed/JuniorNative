@@ -36,6 +36,8 @@ frontEndPrinted = frontEnd >=>
 
 backendPrinted :: String -> CompileM Text
 backendPrinted = frontEnd >=>
+       step "desugar pattern matching" desugarPatternMatching >=>
+       step "compile pattern matching" compilePatternMatching >=>
        step "desugar constraints" desugarPredicates >=>
        step "pretty print module" prettyPrintModule
 

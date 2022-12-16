@@ -1,6 +1,5 @@
 module Junior.TypeChecker.Environment where
 
-import Data.Maybe ( fromJust )
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Junior.Core.Types ( TypeScheme(ForAll, Identity), Type, Qual )
@@ -10,7 +9,10 @@ import Data.Bifunctor (second)
 type Env = Map.Map String TypeScheme
 
 findScheme :: String -> Env -> TypeScheme
-findScheme n = fromJust . Map.lookup n
+findScheme n env = 
+    case Map.lookup n env of 
+        Just x -> x
+        Nothing -> error ("Can't find " ++ n)
 
 containsScheme :: String -> Env -> Bool
 containsScheme = Map.member

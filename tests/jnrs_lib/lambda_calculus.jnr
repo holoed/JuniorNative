@@ -1,0 +1,45 @@
+data Exp = Var String
+         | Lam String Exp
+         | App Exp Exp deriving Show
+ 
+val equal :: Exp -> Exp -> Bool
+let equal x y = 
+           match (x, y) with 
+           | (Var x, Var y) -> x == y
+           | (Lam s1 e1, Lam s2 e2) -> s1 == s2 && equal e1 e2
+           | (App e1 e2, App e3 e4) -> equal e1 e3 && equal e2 e4  
+           | v -> False
+
+val subst :: String -> Exp -> Exp -> Exp
+let subst x v a =
+  match a with 
+  | Var y -> if x == y then v else a
+  | Lam y a' -> if x == y then a else Lam y (subst x v a')
+  | App a' a'' -> App (subst x v a')  (subst x v a'')
+ 
+val reduce :: Exp -> Exp
+let reduce e =
+    let reduce' e = 
+        match e with 
+        | Var v -> e
+        | Lam s e' -> Lam s (reduce' e')
+        | App e1 e2 ->
+           match e1 with
+           | Lam s e3 -> subst s e2 e3
+           | v -> App (reduce' e1) (reduce' e2) in
+    reduce' e
+    
+val loop :: (Exp -> Exp) -> Exp -> Exp
+let loop f x =
+    let x' = f x in
+    if equal x x' then x' else loop f x'
+
+val normalOrderReducer :: Exp -> Exp
+let normalOrderReducer = loop reduce 
+
+let two = Lam "h" (Lam "x" (App (Var "h") (App (Var "h") (Var "x"))))
+let three = Lam "g" (Lam "x" (App (Var "g") (App (Var "g") (App (Var "g") (Var "x")))))
+let add = Lam "m" (Lam "n" (Lam "f" (Lam "x" (App (App (Var "m") (Var "f")) (App (App (Var "n") (Var "f")) (Var "x"))))))
+let five = Lam "f" (Lam "x" (App (Var "f") (App (Var "f") (App (Var "f") (App (Var "f") (App (Var "f") (Var "x")))))))
+
+let main = equal (normalOrderReducer (App (App add two) three)) five

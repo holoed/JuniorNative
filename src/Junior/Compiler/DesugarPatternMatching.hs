@@ -51,7 +51,7 @@ collect vs@(x:xs) =
       _ -> [vs]
 collect [] = []
 
-merge :: [TypedExp] -> PatternM TypedExp
+merge :: [TypedExp] -> PatternM [TypedExp]
 merge xs = do
      var <- getNewVar
      case head xs of  
@@ -60,18 +60,18 @@ merge xs = do
             then do 
                 let (ls, _) = partition isAnyConPat args
                 exp2 <- if null ls
-                then return $ mkMatchExp attr (if length ls > 1 then mkTuplePat attr ls else head ls) target
+                then return [mkMatchExp attr (if length ls > 1 then mkTuplePat attr ls else head ls) target]
                 else merge [mkMatchExp attr (if length ls > 1 then mkTuplePat attr ls else head ls) target]
                 let exp3 = (if not (null ls)
-                          then mkMatch attr (mkVar attr var) [exp2]
-                          else target)
-                return $ In (Ann attr (MatchExp (In (Ann attr2 (ConPat name ((\arg -> if isAnyConPat arg then mkVarPat attr var else arg) <$> args)))) 
-                          exp3))
+                          then [mkMatch attr (mkVar attr var) exp2]
+                          else [target])
+                return [In (Ann attr (MatchExp (In (Ann attr2 (ConPat name ((\arg -> if isAnyConPat arg then mkVarPat attr var else arg) <$> args)))) 
+                          (head exp3)))]
             else do
                 let clauses = (\(In (Ann _ (MatchExp (In (Ann _ (ConPat _ xs))) e2))) -> 
                                 In (Ann attr (MatchExp (if length xs == 1 then head xs else mkTuplePat attr xs) e2))) <$> xs
-                return $ mkMatchExp attr (In (Ann attr2 (ConPat name [mkVarPat attr var]))) (mkMatch attr (mkVar attr var) clauses)
-        _ -> return $ head xs             
+                return [mkMatchExp attr (In (Ann attr2 (ConPat name [mkVarPat attr var]))) (mkMatch attr (mkVar attr var) clauses)]
+        _ -> return xs             
 
 desugarImp :: [TypedExp] -> PatternM [TypedExp]
 desugarImp = mapM (cataRec alg) 
@@ -82,7 +82,7 @@ desugarImp = mapM (cataRec alg)
             es1' <- sequence es1
             let es2 = collect es1'
             es3 <- mapM merge es2
-            return $ In (Ann attr (Match e1' es3))
+            return $ In (Ann attr (Match e1' (concat es3)))
         alg (Ann attr (MatchExp e1 e2)) = do
             e1' <- e1
             In . Ann attr . MatchExp e1' <$> e2

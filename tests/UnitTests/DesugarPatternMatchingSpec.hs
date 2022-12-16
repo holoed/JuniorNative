@@ -174,6 +174,23 @@ tests = parallel $
       xs <- liftIO $ process code
       unlines xs --> 
         [i|letfoov0=matchv0withSucc___patV0->match___patV0withInZero->fromInteger42|y1->fromInteger12|]
+
+    it "pattern matching 10" $ do 
+      let code = [i|
+        data Exp = Var String
+                | Lam String Exp
+                | App Exp Exp
+        
+        val equal :: Exp -> Exp -> Bool 
+        let equal x y = 
+                  match (x, y) with
+                  | (Var x, Var y) -> x == y
+                  | (Lam s1 e1, Lam s2 e2) -> s1 == s2 && equal e1 e2
+                  | (App e1 e2, App e3 e4) -> equal e1 e3 && equal e2 e4  
+      |]
+      xs <- liftIO $ process code
+      unlines xs --> 
+        [i|letequal=\\x0y1->match(x0,y1)with(Varx2,Vary3)->x2==y3|(Lams14e15,Lams26e27)->s14==s26&&equale15e27|(Appe18e29,Appe310e411)->equale18e310&&equale29e411|]
     
 
    

@@ -16,6 +16,11 @@ const eqDouble = {
     "/=": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] != y; }))})
   }
 
+const eqString = {
+  "==": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] == y; }))}),
+  "/=": mkClosure(function([_,x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] != y; }))})
+}
+
 function __eqeqChar2([env, y]){
     return env["x"] == y;
 }
