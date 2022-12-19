@@ -366,12 +366,9 @@ const applicativeReader = {
     // data Parser a = String -> [(a, String)]
     "<*>":  mkClosure(function([_, mf]) {
       return setEnv("mf", mf, mkClosure(function([env, mx]){
-        return setEnv("mf", env["mf"], setEnv("mx", mx, mkClosure(function([env2, inp]){
-          return Array.prototype.concat.apply([],
-                 applyClosure(env2["mf"], inp).map(([f, rest]) => 
-                 applyClosure(applyClosure(applyClosure(functorReader["fmap"], f), env2["mx"]), rest)   ))
-        })))
-        }))
+        return setEnv("mf", env["mf"], setEnv("mx", mx, mkClosure(function([env2, ctx]){
+          return applyClosure(applyClosure(env2["mf"], ctx), applyClosure(env2["mx"], ctx))
+        })))}))
       })
 }
 
