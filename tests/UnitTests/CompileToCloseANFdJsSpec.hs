@@ -392,3 +392,21 @@ tests = parallel $ do
          val main :: Int
          let main = runReader (pure (+) <*> (pure 3) <*> (pure 4)) 42  
       |] --> "7"
+
+   it "Reader Monad 3" $ do
+      [i|
+         val mx :: Reader a Int
+         let mx = pure 12
+
+         val my :: Reader a Int
+         let my = pure 14
+
+         let ask = mkReader (\\ctx -> ctx)
+
+         val mz :: Reader Int Int
+         let mz = mx  >>=  (\\x ->
+                  ask >>=  (\\ctx ->
+                  my  >>=  (\\y -> pure ((x + y) * ctx))))
+                  
+         let main = runReader mz 100
+      |] --> "2600"

@@ -376,8 +376,8 @@ const monadReader = {
     "pure": applicativeReader["pure"],
     ">>=": mkClosure(function([_, m]) {
       return setEnv("m", m, mkClosure(function([env1, f]){
-        return setEnv("f", f, setEnv("m", env1["m"], mkClosure(function([env2, inp]){
-          return Array.prototype.concat.apply([], applyClosure(env2["m"], inp).map(([x,rest]) => applyClosure(applyClosure(env2["f"], x), rest)));
+        return setEnv("f", f, setEnv("m", env1["m"], mkClosure(function([env2, ctx]){
+          return applyClosure(applyClosure(env2["f"], applyClosure(env2["m"], ctx)), ctx)
         })))
       }))
     })
