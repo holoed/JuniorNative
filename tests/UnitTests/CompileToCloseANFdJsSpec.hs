@@ -375,3 +375,14 @@ tests = parallel $ do
       [i|let main = [[1],[2]] /= [[1],[2]]|] --> "false"
       [i|let main = ['a', 'b'] /= ['b', 'a']|] --> "true"
       [i|let main = ['a', 'b'] == ['b', 'a']|] --> "false"
+
+   it "Reader Monad 1" $ do
+      [i|
+         val ask :: Reader a a
+         let ask = mkReader (\\ctx -> ctx)
+
+         val local :: (r -> r) -> Reader r a -> Reader r a
+         let local f m = mkReader (\\ctx -> runReader m (f ctx))
+
+         let main = runReader (local (\\v -> v + 1) ask) 42 
+      |] --> "43"

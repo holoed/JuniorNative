@@ -338,6 +338,54 @@ const monadList = {
     })
   }
 
+const mkReader = mkClosure(function([_, f]) {
+  return f;
+})
+
+const runReader = mkClosure(function([_, m]) {
+    return m;
+})
+
+const functorReader = {
+  "fmap": mkClosure(function ([_, f]) {
+    return setEnv("f", f, mkClosure(function([env1, m]){
+      return setEnv("m", m, setEnv("f", env1["f"], mkClosure(function([env2, ctx]){
+        return applyClosure(env1["f"], applyClosure(env2["m"], ctx));
+      })))
+    }))
+  })
+}
+
+const applicativeReader = {
+    "fmap" : functorReader["fmap"],
+    "pure": mkClosure(function([_, x]) {
+      return setEnv("x", x, mkClosure(function([env, ctx]) {
+        return env["x"];
+      }))
+    }),
+    // data Parser a = String -> [(a, String)]
+    "<*>":  mkClosure(function([_, mf]) {
+      return setEnv("mf", mf, mkClosure(function([env, mx]){
+        return setEnv("mf", env["mf"], setEnv("mx", mx, mkClosure(function([env2, inp]){
+          return Array.prototype.concat.apply([],
+                 applyClosure(env2["mf"], inp).map(([f, rest]) => 
+                 applyClosure(applyClosure(applyClosure(functorReader["fmap"], f), env2["mx"]), rest)   ))
+        })))
+        }))
+      })
+}
+
+const monadReader = {
+    "pure": applicativeReader["pure"],
+    ">>=": mkClosure(function([_, m]) {
+      return setEnv("m", m, mkClosure(function([env1, f]){
+        return setEnv("f", f, setEnv("m", env1["m"], mkClosure(function([env2, inp]){
+          return Array.prototype.concat.apply([], applyClosure(env2["m"], inp).map(([x,rest]) => applyClosure(applyClosure(env2["f"], x), rest)));
+        })))
+      }))
+    })
+  }
+
 const __bind = mkClosure(function([_, inst]) { return inst[">>="]; })
 
 const pure = mkClosure(function([_, inst]) { return inst["pure"]; })
