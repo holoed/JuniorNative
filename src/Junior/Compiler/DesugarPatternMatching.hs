@@ -6,7 +6,7 @@ import Junior.Utils.Fixpoint (Fix(In))
 import Control.Monad.State (MonadState (get, put))
 import Junior.Core.Types (Qual, Type)
 import Junior.Utils.Annotations (Ann(Ann))
-import Junior.Core.Ast (ExpF(Var, VarPat, Match, MatchExp, ConPat, TuplePat))
+import Junior.Core.Ast (ExpF(Var, VarPat, Match, MatchExp, ConPat, TuplePat, Lam))
 import Junior.Parser.Location (Loc(..))
 import Control.Monad.RWS (RWS, evalRWS)
 import Data.List (partition)
@@ -73,10 +73,26 @@ merge xs = do
                 return [mkMatchExp attr (In (Ann attr2 (ConPat name [mkVarPat attr var]))) (mkMatch attr (mkVar attr var) clauses)]
         _ -> return xs             
 
+
+desugarLambda :: (Maybe Loc, Qual Type) -> TypedExp -> TypedExp -> PatternM TypedExp
+desugarLambda attr e1' e2' = do
+            case e1' of
+             (In (Ann attr (TuplePat [In (Ann _ (ConPat _ _)), In (Ann _ (ConPat _ _))]))) -> do
+              var <- getNewVar
+              return $ In (Ann attr (Lam (In (Ann attr (VarPat var))) (In (Ann attr (Match (In (Ann attr (Var var))) [In (Ann attr (MatchExp e1' e2'))])))))  
+             (In (Ann _ (ConPat n [In (Ann attr (VarPat _))]))) -> do
+              var <- getNewVar
+              return $ In (Ann attr (Lam (In (Ann attr (VarPat var))) (In (Ann attr (Match (In (Ann attr (Var var))) [In (Ann attr (MatchExp e1' e2'))])))))
+             _ -> return $ In (Ann attr (Lam e1' e2')) 
+
 desugarImp :: [TypedExp] -> PatternM [TypedExp]
 desugarImp = mapM (cataRec alg) 
     where
         alg :: TypedExpF (PatternM TypedExp) -> PatternM TypedExp
+        alg (Ann attr (Lam e1 e2)) = do
+            e1' <- e1 
+            e2' <- e2  
+            desugarLambda attr e1' e2'
         alg (Ann attr (Match e1 es1)) = do
             e1' <- e1
             es1' <- sequence es1

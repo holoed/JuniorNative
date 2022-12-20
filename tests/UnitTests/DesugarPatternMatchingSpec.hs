@@ -33,7 +33,7 @@ trim = f . f
   where f = reverse . dropWhile isSpace
 
 (-->) :: (MonadIO m, MonadThrow m, MonadFail m) => String -> String -> m ()
-(-->) x y = (filter (\v -> (/=' ') v && (/='\n') v) x) `shouldBe` (filter (\v -> (/=' ') v && (/='\n') v) y) 
+(-->) x y = filter (\v -> (/=' ') v && (/='\n') v) x `shouldBe` filter (\v -> (/=' ') v && (/='\n') v) y
 
 tests :: TopSpec
 tests = parallel $
@@ -116,7 +116,7 @@ tests = parallel $
                        Some ___patV0 ->
                        match ___patV0 with Some x1 -> x1 + fromInteger 1|] 
 
-    it "pattern matching 6" $ do
+    it "pattern match 6" $ do
       let code = [i|
         data ListF a b = Empty | Cons a b
          let foo v = 
@@ -128,7 +128,7 @@ tests = parallel $
       unlines xs --> 
         [i|letfoov0=matchv0withConsa1___patV0->match___patV0withEmpty->Consa1Emptyletmain=foo(Cons(ConsEmpty)Empty)|]
 
-    it "pattern matching 7" $ do
+    it "pattern match 7" $ do
       let code = [i|
         data BackProp = BackProp (List (List Double)) -- as 
                                  (List (List Double)) -- w(l+1) weights
@@ -143,7 +143,7 @@ tests = parallel $
       unlines xs --> 
         [i|letmainv0=matchv0withBackPropx11x22x33x44->(x11,x22,x33,x44)|]
 
-    it "pattern matching 8" $ do 
+    it "pattern match 8" $ do 
       let code = [i|
 
         data Fix f = In (f (Fix f))
@@ -159,7 +159,7 @@ tests = parallel $
       unlines xs --> 
         [i|letfoov0=matchv0withSucc___patV0->match___patV0withIn___patV1->match___patV1withZero->fromInteger42|]
 
-    it "pattern matching 9" $ do 
+    it "pattern match 9" $ do 
       let code = [i|
 
         data Fix f = In (f (Fix f))
@@ -175,7 +175,7 @@ tests = parallel $
       unlines xs --> 
         [i|letfoov0=matchv0withSucc___patV0->match___patV0withInZero->fromInteger42|y1->fromInteger12|]
 
-    it "pattern matching 10" $ do 
+    it "pattern match 10" $ do 
       let code = [i|
         data Exp = Var String
                 | Lam String Exp
@@ -191,6 +191,17 @@ tests = parallel $
       xs <- liftIO $ process code
       unlines xs --> 
         [i|letequal=\\x0y1->match(x0,y1)with(Varx2,Vary3)->x2==y3|(Lams14e15,Lams26e27)->s14==s26&&equale15e27|(Appe18e29,Appe310e411)->equale18e310&&equale29e411|]
+
+    it "pattern match 11" $ do 
+      let code = [i|
+        data Prim = I Int | B Bool 
+
+        let extract (I x) = x
+
+      |]
+      xs <- liftIO $ process code
+      unlines xs --> 
+        [i|let extract ___patV0 = match ___patV0 with I x0 -> x0|]
     
 
    

@@ -11,20 +11,20 @@ data Result = Value Prim
             | Function (Result -> Reader (List (String, Result)) Result)
             | Error String
 
-val liftI :: (Int -> Int -> Int) -> (Prim -> Prim -> Prim)
-let liftI g x y = match (x, y) with (I v, I w) -> I (g v w) 
+val liftI :: (Int -> Int -> Int) -> (Prim, Prim) -> Prim
+let liftI g (I v, I w) = I (g v w) 
 
-val liftB :: (Int -> Int -> Bool) -> (Prim -> Prim -> Prim)
-let liftB g x y = match (x, y) with (I v, I w) -> B (g v w) 
+val liftB :: (Int -> Int -> Bool) -> (Prim, Prim) -> Prim
+let liftB g (I v, I w) = B (g v w) 
 
-val liftR :: (Prim -> Prim -> Prim) -> (Result -> Result -> Result)
-let liftR g x y = match (x, y) with (Value v, Value w) -> Value (g v w)
+val liftR :: ((Prim, Prim) -> Prim) -> (Result, Result) -> Result
+let liftR g (Value v, Value w) = Value (g (v, w))
               
 val ask :: Reader a a
-let ask = mkReader (\ctx -> ctx)
+let ask = mkReader id
  
 val local :: (a -> b) -> Reader a c -> Reader b c
-let local f m = mkReader (\ctx -> runReader m (f ctx)) 
+let local f m = mkReader (runReader m . f) 
  
 val lookUp :: Eq a => a -> List (a, b) -> b
 let lookUp s ctx = 
@@ -39,16 +39,16 @@ let alg e = match e with
           | Lit n -> pure (Value n)
           | Var s -> ask >>= (\ctx -> pure (lookUp s ctx))
           | Lam s e -> ask >>= (\ctx -> pure (Function (\r -> local (\ctx' -> (s, r) : (ctx ++ ctx')) e)))
-          | App e1 e2 -> e1 >>= (\x -> e2 >>= (\y -> match x with Function f -> f y))
+          | App e1 e2 -> e1 >>= (\(Function f) -> e2 >>= f)
           | Let s e1 e2 -> e1 >>= (\r -> local (\ctx -> (s, r) : ctx) e2) 
           | IfThenElse e1 e2 e3 -> e1 >>= (\b -> match b with (Value (B b')) -> if b' then e2 else e3)
                                                   
                            
 val env :: List (String, Result)
-let env = [("+", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (+) x y))))),
-           ("-", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (-) x y))))),
-           ("*", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (*) x y))))),
-           ("==", Function(\x -> pure (Function(\y -> pure ((liftR . liftB) (\x y -> x == y) x y)))))]
+let env = [("+", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (+) (x, y)))))),
+           ("-", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (-) (x, y)))))),
+           ("*", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (*) (x, y)))))),
+           ("==", Function(\x -> pure (Function(\y -> pure ((liftR . liftB) (\x y -> x == y) (x, y))))))]
                
 val eval :: Fix Expr -> Result
 let eval e = runReader (cataRec alg e) env
@@ -61,9 +61,3 @@ let main = eval (In (Let "fac"
                                 (In (App (In (App (In (Var "*")) (In (Var "n"))))
                                          (In (App (In (Var "fac")) (In (App (In (App (In (Var "-")) (In (Var "n")))) (In (Lit (I 1)))))))))))))
                                    (In (App (In (Var "fac")) (In (Lit (I 5))))))) 
-
-
-
-   
- 
-

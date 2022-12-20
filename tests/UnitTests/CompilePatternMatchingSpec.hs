@@ -112,7 +112,7 @@ tests = parallel $
         [i|  let foo v0 = matchFn((\\_v -> let (___patV0,___patV1) = _v in isNone ___patV0 && isSome ___patV1,
                                   \\_v -> let x1 = extractSome (snd _v) in x1):[])v0|]
 
-    it "pattern matching 7" $ do
+    it "pattern match 7" $ do
       let code = [i|
         data ListF a b = Empty | Cons a b
          let foo v = 
@@ -169,7 +169,7 @@ tests = parallel $
       unlines xs --> [i|
         lettoTuplev0=matchFn((isBackProp,\\_v->let(x11,x22,x33,x44)=extractBackProp_vin(x11,x22,x33,x44)):[])v0|]
 
-    it "pattern matching 11" $ do 
+    it "pattern match 11" $ do 
       let code = [i|
 
         data Fix f = In (f (Fix f))
