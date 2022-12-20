@@ -56,6 +56,18 @@ deriveConstructor tf (TyApp (TyApp (TyCon n) t2) t3) | t2 == tf && t3 == tf = pa
               return applyClosure(applyClosure(#{n}, applyClosure(env["f"], x)), applyClosure(env["f"], y));
     };
 |]
+deriveConstructor tf (TyApp (TyApp (TyApp (TyCon n) t2) t3) t4) | t2 == tf && t3 == tf && t4 == tf = pack [i|
+    if (m instanceof __#{n}) {
+              const [x, y, z] = applyClosure(extract#{n}, m);
+              return applyClosure(applyClosure(applyClosure(#{n}, applyClosure(env["f"], x)), applyClosure(env["f"], y)), applyClosure(env["f"], z));
+    };
+|]
+deriveConstructor tf (TyApp (TyApp (TyApp (TyCon n) _) t3) t4) | t3 == tf && t4 == tf = pack [i|
+    if (m instanceof __#{n}) {
+              const [x, y, z] = applyClosure(extract#{n}, m);
+              return applyClosure(applyClosure(applyClosure(#{n}, x), applyClosure(env["f"], y)), applyClosure(env["f"], z));
+    };
+|]
 deriveConstructor tf (TyApp (TyApp (TyCon n) _) t2) | t2 == tf = pack [i|
     if (m instanceof __#{n}) {
               const [x, y] = applyClosure(extract#{n}, m);

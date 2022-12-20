@@ -340,6 +340,8 @@ tests = parallel $ do
 
    it "Lambda calculus" $ "tests/jnrs_lib/lambda_calculus.jnr" ---> "7"
 
+   it "Monadic Interpreter" $ "tests/jnrs_lib/monadic_interpreter.jnr" ---> "{\"value\":{\"value\":120}}"
+
    it "Indexing into lists" $ do
       [i|let main = ['a', 'b', 'c'] !! 0|] --> "\"a\""
       [i|let main = ['a', 'b', 'c'] !! 2|] --> "\"c\""

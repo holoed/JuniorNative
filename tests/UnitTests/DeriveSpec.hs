@@ -77,7 +77,7 @@ const functorFooF = {
                [TyApp (TyCon "Lit") (TyCon "Int"), 
                 TyApp (TyCon "Var") (TyCon "String"),
                 TyApp (TyCon "App") (tyLam (TyVar "a" 0) (TyVar "a" 0)),
-                TyApp (TyCon "Lam") (tyLam (TyVar "a" 0) (TyVar "a" 0))] "Functor" `shouldBe` 
+                TyApp (TyCon "Lam") (tyLam (TyCon "String") (TyVar "a" 0))] "Functor" `shouldBe` 
                 pack [i|
 const functorExpr = {
   \"fmap\": mkClosure(function ([_, f]) {
@@ -97,6 +97,31 @@ const functorExpr = {
 
     if (m instanceof __Lam) {
               return applyClosure(Lam, function (x) { return applyClosure(env[\"f\"], applyClosure(extractLam, m)(x))}); 
+    };
+
+          throw new Error(\"Failed pattern match\");
+      })); 
+   })
+}
+|]
+
+    it "Derive Functor 4" $
+        derive (TyApp (TyCon "Expr") (TyVar "a" 0)) 
+               [TyApp (TyApp (TyCon "App") (TyVar "a" 0)) (TyVar "a" 0),
+                TyApp (TyApp (TyApp (TyCon "Let") (TyCon "String")) (TyVar "a" 0)) (TyVar "a" 0)] "Functor" `shouldBe` 
+                pack [i|
+const functorExpr = {
+  \"fmap\": mkClosure(function ([_, f]) {
+      return setEnv(\"f\", f, mkClosure(function ([env, m]) {
+          
+    if (m instanceof __App) {
+              const [x, y] = applyClosure(extractApp, m);
+              return applyClosure(applyClosure(App, applyClosure(env[\"f\"], x)), applyClosure(env[\"f\"], y));
+    };
+
+    if (m instanceof __Let) {
+              const [x, y, z] = applyClosure(extractLet, m);
+              return applyClosure(applyClosure(applyClosure(Let, x), applyClosure(env[\"f\"], y)), applyClosure(env[\"f\"], z));
     };
 
           throw new Error(\"Failed pattern match\");
