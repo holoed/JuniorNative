@@ -32,8 +32,6 @@ let lookUp s ctx =
   else let (k, v) = head ctx in
        if (k == s) then v else lookUp s (tail ctx)
 
-let (++) xs ys = foldr (:) ys xs
-
 val alg :: Expr (Reader (List (String, Result)) Result) -> Reader (List (String, Result)) Result
 let alg e = match e with
           | Lit n -> pure (Value n)
@@ -41,9 +39,9 @@ let alg e = match e with
           | Lam s e -> ask >>= (\ctx -> pure (Function (\r -> local (\ctx' -> (s, r) : (ctx ++ ctx')) e)))
           | App e1 e2 -> e1 >>= (\(Function f) -> e2 >>= f)
           | Let s e1 e2 -> e1 >>= (\r -> local (\ctx -> (s, r) : ctx) e2) 
-          | IfThenElse e1 e2 e3 -> e1 >>= (\b -> match b with (Value (B b')) -> if b' then e2 else e3)
+          | IfThenElse e1 e2 e3 -> e1 >>= (\(Value (B b')) -> if b' then e2 else e3)
                                                   
-                           
+                            
 val env :: List (String, Result)
 let env = [("+", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (+) (x, y)))))),
            ("-", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (-) (x, y)))))),
@@ -52,7 +50,7 @@ let env = [("+", Function(\x -> pure (Function(\y -> pure ((liftR . liftI) (+) (
                
 val eval :: Fix Expr -> Result
 let eval e = runReader (cataRec alg e) env
-
+ 
 val main :: Result
 let main = eval (In (Let "fac" 
                 (In (Lam "n" 

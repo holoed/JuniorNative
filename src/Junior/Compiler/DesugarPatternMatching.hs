@@ -80,6 +80,10 @@ desugarLambda attr e1' e2' = do
              (In (Ann attr (TuplePat [In (Ann _ (ConPat _ _)), In (Ann _ (ConPat _ _))]))) -> do
               var <- getNewVar
               return $ In (Ann attr (Lam (In (Ann attr (VarPat var))) (In (Ann attr (Match (In (Ann attr (Var var))) [In (Ann attr (MatchExp e1' e2'))])))))  
+             (In (Ann _ (ConPat n [In (Ann attr (ConPat n' [In (Ann attr' (VarPat _))]))]))) -> do
+              var <- getNewVar
+              e2'' <- desugarImp [In (Ann attr (Match (In (Ann attr (Var var))) [In (Ann attr (MatchExp e1' e2'))]))]
+              return $ In (Ann attr (Lam (In (Ann attr (VarPat var))) (head e2'')))
              (In (Ann _ (ConPat n [In (Ann attr (VarPat _))]))) -> do
               var <- getNewVar
               return $ In (Ann attr (Lam (In (Ann attr (VarPat var))) (In (Ann attr (Match (In (Ann attr (Var var))) [In (Ann attr (MatchExp e1' e2'))])))))

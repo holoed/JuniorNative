@@ -159,6 +159,10 @@ tests = parallel $ do
             | Cons x y -> x * y
          
          let main = hyloRec alg coAlg 5|])] --> "120" 
+
+   it "++" $ do
+       [("main", "let main = [1,2,3] ++ [4,5]")] --> "[1,2,3,4,5]"
+       [("main", "let main = Just 5 ++ [6, 7]")] --> "[5,6,7]"
        
 
        

@@ -38,6 +38,9 @@ let foldr1 f xs =
    let mf x m = if (isJust m) then Just(f x (fromJust m)) else Just x in
    fromMaybeLazy (error "foldr1: empty structure") (foldr mf Nothing xs)  
 
+val (++) :: Foldable a => a b -> List b -> List b
+let (++) xs ys = foldr (:) ys xs 
+
 val sum :: (Foldable t, Num a) => t a -> a
 let sum = foldr (+) 0
 
