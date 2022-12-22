@@ -958,10 +958,6 @@ const jsonToList = mkClosure(function([_, xs]){
   return xs;
 })
 
-const nullStr = mkClosure(function([_, xs]){
-  return xs.length == 0;
-})
-
 const headStr = mkClosure(function([_, xs]){
   return xs[0];
 })

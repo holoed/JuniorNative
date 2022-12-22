@@ -16,7 +16,7 @@ val zero :: P a
 let zero = P (\inp -> [])
 
 val item :: P Char
-let item = P (\inp -> if (nullStr inp) then []
+let item = P (\inp -> if (inp == "") then []
                       else (headStr inp, tailStr inp) : [])
 
 val sat :: (Char -> Bool) -> P Char
@@ -28,7 +28,7 @@ let char x = sat (\y -> x == y)
 val string :: String -> P String
 let string s = 
 	let string' cs = 
-      if nullStr cs then unit ""
+      if cs == "" then unit ""
       else let c   = headStr cs in
            let cs' = tailStr cs in 
            bind (char c) (\x1 ->

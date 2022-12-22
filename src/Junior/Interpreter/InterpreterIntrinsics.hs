@@ -320,7 +320,6 @@ env = (fromList [
     ("null", Function(\(List xs) -> return $ Value (B $ null xs))),
     ("headStr", Function(\(Value (S xs)) -> return $ Value (C $ Text.head xs))),
     ("tailStr", Function(\(Value (S xs)) -> return $ Value (S $ Text.tail xs))),
-    ("nullStr", Function(\(Value (S xs)) -> return $ Value (B $ Text.null xs))),
     ("&&", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x && y))))),
     ("||", Function(\(Value (B x)) -> return $ Function(\(Value (B y)) -> return $ Value (B (x || y))))),
     (".", Function(\(Function f) -> return $

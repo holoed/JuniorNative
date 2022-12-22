@@ -1,4 +1,4 @@
-let item = mkParser (\inp -> if (nullStr inp) then []
+let item = mkParser (\inp -> if (inp == "") then []
                              else (headStr inp, tailStr inp) : [])
    
 let or p q = mkParser(\inp -> let ret = runParser p inp in

@@ -1,7 +1,7 @@
 
 let zero = mkParser (\inp -> [])
 
-let item = mkParser (\inp -> if (nullStr inp) then []
+let item = mkParser (\inp -> if (inp == "") then []
                              else (headStr inp, tailStr inp) : [])
    
 let sat p = (>>=) item (\x ->

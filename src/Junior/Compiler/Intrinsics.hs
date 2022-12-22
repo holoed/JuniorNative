@@ -23,7 +23,6 @@ env = toEnv [
   ("&&",  Set.fromList [] :=> tyLam (TyCon "Bool") (tyLam (TyCon "Bool") (TyCon "Bool"))),
   ("||",  Set.fromList [] :=> tyLam (TyCon "Bool") (tyLam (TyCon "Bool") (TyCon "Bool"))),
   ("null", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyCon "Bool")),
-  ("nullStr", Set.fromList [] :=> tyLam (TyCon "String") (TyCon "Bool")),
   ("[]", Set.fromList [] :=> TyApp (TyCon "List") (TyVar "a" 0)),
   ("()", Set.fromList [] :=> TyCon "Unit"),
   ("head", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyVar "a" 0)),
@@ -104,7 +103,7 @@ env = toEnv [
   ("take", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("drop", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("quote", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (TyApp (TyApp (TyCon "Quotation") (TyVar "a" 0)) (TyVar "b" 0))),
-  ("remote", Set.fromList [] :=> tyLam ((TyApp (TyApp (TyCon "Quotation") (TyVar "a" 0)) (TyVar "b" 0))) (tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "b" 0)))),
+  ("remote", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Quotation") (TyVar "a" 0)) (TyVar "b" 0)) (tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "b" 0)))),
   ("round", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0))
  ]
 
