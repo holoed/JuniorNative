@@ -27,15 +27,15 @@ newName s = do (index, names) <- get
 extractNameFromPat :: TypedExp -> AlphaM (Map String String, TypedExp) 
 extractNameFromPat (In (Ann attr (VarPat s))) = do
   s' <- newName s
-  return $ (fromList [(s,s')], (In (Ann attr (VarPat s'))))
+  return (fromList [(s,s')], In (Ann attr (VarPat s')))
 extractNameFromPat (In (Ann attr (TuplePat ps))) = do
-  psAndNames <- sequence (extractNameFromPat <$> ps)
+  psAndNames <- mapM extractNameFromPat ps
   let (newNames, ps') = unzip psAndNames
-  return $ (foldl (<>) empty newNames, (In (Ann attr (TuplePat ps'))))
+  return (foldl (<>) empty newNames, In (Ann attr (TuplePat ps')))
 extractNameFromPat (In (Ann attr (ConPat name ps))) = do
-  psAndNames <- sequence (extractNameFromPat <$> ps)
+  psAndNames <- mapM extractNameFromPat ps
   let (newNames, ps') = unzip psAndNames
-  return $ (foldl (<>) empty newNames, (In (Ann attr (ConPat name ps'))))
+  return (foldl (<>) empty newNames, In (Ann attr (ConPat name ps')))
 extractNameFromPat _ = error "Unsupported"
 
 alg :: Ann (Maybe Loc, Qual Type) ExpF (AlphaM TypedExp) -> AlphaM TypedExp
@@ -63,4 +63,4 @@ alg x = fmap In (sequenceA x)
 
 rename :: [TypedExp] -> [TypedExp]
 rename e =
-  evalState (runReaderT (sequence (cataRec alg <$> e)) empty) (0, empty)
+  evalState (runReaderT (mapM (cataRec alg) e) empty) (0, empty)
