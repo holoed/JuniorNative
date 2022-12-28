@@ -412,3 +412,13 @@ tests = parallel $ do
                   
          let main = runReader mz 100
       |] --> "2600"
+
+  it "Pattern matching 8" $ do
+      [i|
+        let processResult v = 
+          match v with
+          | Just x -> "The result is: " <> show x
+          | Nothing -> "Division by zero is not allowed"
+       
+        let main = (processResult (Just 5), processResult Nothing)
+      |] --> "[\"The result is: 5\",\"Division by zero is not allowed\"]"

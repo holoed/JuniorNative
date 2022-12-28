@@ -326,5 +326,13 @@ tests = parallel $
         let foo v = match v with 
                     | (Value x, Value y) -> Value (x + y)
       |] --> "(Result, Result) -> Result"
+
+    it "pattern matching 11" $ do
+      [i|
+        let processResult v = 
+          match v with
+          | Just x -> "The result is: " <> show x
+          | Nothing  -> "Division by zero is not allowed"
+      |] --> "Show a => Maybe a -> String"
       
 
