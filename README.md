@@ -23,7 +23,7 @@ Some key features of Junior include:
 
 - Concurrency and parallelism: Junior has built-in support for concurrent and parallel programming, allowing you to easily write programs that can take advantage of multiple CPU cores and perform tasks in parallel.
 
-- Overall, Junior is a powerful and expressive functional programming language that brings the best features of Haskell and ML to the JavaScript ecosystem. It is easy to learn and use, while also providing strong guarantees around the correctness and safety of your code. The end
+- Overall, Junior is a powerful and expressive functional programming language that brings the best features of Haskell and ML to the JavaScript ecosystem. It is easy to learn and use, while also providing strong guarantees around the correctness and safety of your code. 
 
 
 
