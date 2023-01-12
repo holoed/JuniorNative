@@ -1123,3 +1123,44 @@ const eqList = mkClosure(function([_, inst]){
     "/=": setEnv("inst", inst, mkClosure(function([env,xs]) { return setEnv("inst", env["inst"], setEnv("xs", xs, mkClosure(eqListNotEqEq)))}))
   }
 })
+
+// Neural Networks with TensorFlow
+
+const feedForwardModel = mkClosure(function([_, x]) {
+  // Define a model Feed Forward Network
+  model = tf.sequential();
+  model.add(tf.layers.dense({ inputShape: [x[0]], units: x[1], activation: 'relu' }));
+  model.add(tf.layers.dense({ units: x[2], activation: 'sigmoid' }));
+  // Prepare the model for training: Specify the loss and the optimizer.
+  model.compile({ optimizer: 'adam', loss: 'meanSquaredError', metrics: ['binaryAccuracy'] });
+  return model;
+})
+
+const mkTensor2D = mkClosure(function([_, input]) {
+  return mkClosure(function([_, x]) {
+    return tf.tensor(input, [input.length, x]);
+  })
+})
+
+const trainModel = mkClosure(function([_, model]) {
+  return mkClosure(function([_, inputTensor]) {
+    return mkClosure(function([_, outputTensor]) {
+      return mkClosure(function([_, epochs]) {
+        return mkClosure(async function([_, shuffle]) {
+          await model.fit(inputTensor, outputTensor, {epochs: epochs, shuffle:shuffle})
+          return model
+        })
+      })
+    })
+  })
+})
+
+const predict = mkClosure(function([_, model]) {
+  return mkClosure(function([_, testTensor]) {
+    return model.predict(testTensor);
+  })
+})
+
+const tensor2DToArray = mkClosure(function ([_, tensor]){
+  return tensor.arraySync();
+})

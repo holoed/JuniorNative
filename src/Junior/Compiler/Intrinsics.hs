@@ -106,7 +106,12 @@ env = toEnv [
   ("drop", Set.fromList [] :=> tyLam (TyCon "Int") (tyLam (TyApp (TyCon "List") (TyVar "a" 0)) (TyApp (TyCon "List") (TyVar "a" 0)))),
   ("quote", Set.fromList [] :=> tyLam (tyLam (TyVar "a" 0) (TyVar "b" 0)) (TyApp (TyApp (TyCon "Quotation") (TyVar "a" 0)) (TyVar "b" 0))),
   ("remote", Set.fromList [] :=> tyLam (TyApp (TyApp (TyCon "Quotation") (TyVar "a" 0)) (TyVar "b" 0)) (tyLam (TyVar "a" 0) (TyApp (TyCon "Async") (TyVar "b" 0)))),
-  ("round", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0))
+  ("round", Set.fromList [IsIn "Integral" (TyVar "a" 0)] :=> tyLam (TyCon "Double") (TyVar "a" 0)),
+  ("feedForwardModel", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyCon "Int")) (TyCon "FeedForwardModel")),
+  ("mkTensor2D", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Double"))) (tyLam (TyCon "Double") (TyCon "Tensor2D"))),
+  ("trainModel", Set.fromList [] :=> tyLam (TyCon "FeedForwardModel") (tyLam (TyCon "Tensor2D") (tyLam (TyCon "Tensor2D") (tyLam (TyCon "Int") (tyLam (TyCon "Bool") (TyApp (TyCon "Async") (TyCon "TrainedFeedForwardModel"))))))),
+  ("predict", Set.fromList [] :=> tyLam (TyCon "TrainedFeedForwardModel") (tyLam (TyCon "Tensor2D") (TyCon "Tensor2D"))),
+  ("tensor2DToArray", Set.fromList [] :=> tyLam (TyCon "Tensor2D") (TyApp (TyCon "List") (TyApp (TyCon "List") (TyCon "Double"))))
  ]
 
 classEnv :: ClassEnv
