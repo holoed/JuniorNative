@@ -1147,7 +1147,17 @@ const trainModel = mkClosure(function([_, model]) {
     return mkClosure(function([_, outputTensor]) {
       return mkClosure(function([_, epochs]) {
         return mkClosure(async function([_, shuffle]) {
-          await model.fit(inputTensor, outputTensor, {epochs: epochs, shuffle:shuffle})
+          const metrics = ['loss', 'val_loss', 'acc', 'val_acc'];
+          const container = {
+            name: 'show.fitCallbacks',
+            tab: 'Training',
+            styles: {
+              height: '1000px'
+            }
+          };
+          const callbacks = tfvis.show.fitCallbacks(container, metrics);
+          tfvis.visor()
+          await model.fit(inputTensor, outputTensor, {epochs: epochs, shuffle:shuffle, callbacks: callbacks})
           return model
         })
       })
