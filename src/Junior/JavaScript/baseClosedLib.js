@@ -1126,11 +1126,11 @@ const eqList = mkClosure(function([_, inst]){
 
 // Neural Networks with TensorFlow
 
-const feedForwardModel = mkClosure(function([_, x]) {
+const feedForwardModel = mkClosure(function([_, xs]) {
   // Define a model Feed Forward Network
   model = tf.sequential();
-  model.add(tf.layers.dense({ inputShape: [x[0]], units: x[1], activation: 'relu' }));
-  model.add(tf.layers.dense({ units: x[2], activation: 'sigmoid' }));
+  model.add(tf.layers.dense({ inputShape: [xs[0]], units: xs[1], activation: 'relu' }));
+  xs.slice(2).map(x => model.add(tf.layers.dense({ units: x, activation: 'sigmoid' })));
   // Prepare the model for training: Specify the loss and the optimizer.
   model.compile({ optimizer: 'adam', loss: 'meanSquaredError', metrics: ['binaryAccuracy'] });
   return model;
