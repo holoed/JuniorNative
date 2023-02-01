@@ -1127,6 +1127,7 @@ const eqList = mkClosure(function([_, inst]){
 // Neural Networks with TensorFlow
 
 const feedForwardModel = mkClosure(function([_, xs]) {
+  tf.setBackend("cpu");
   // Define a model Feed Forward Network
   model = tf.sequential();
   model.add(tf.layers.dense({ inputShape: [xs[0]], units: xs[1], activation: 'relu' }));
