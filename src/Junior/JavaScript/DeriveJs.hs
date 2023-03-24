@@ -85,4 +85,12 @@ deriveConstructor tf (TyApp (TyCon n) (TyApp (TyApp (TyCon "->") t1) t2)) | t2 =
               return applyClosure(#{n}, function (x) { return applyClosure(env["f"], applyClosure(extract#{n}, m)(x))}); 
     };
 |]
-deriveConstructor t1 t2 = pack [i|// Implement deriveFunctor (#{show t1}) (#{show t2})|] 
+deriveConstructor tf (TyApp (TyApp (TyApp (TyCon n) _) (TyApp (TyCon t2) t3)) (TyApp (TyCon t4) t5)) | t3 == tf && t5 == tf = pack [i|
+    if (m instanceof __#{n}) {
+        const [x, left, right] = applyClosure(extract#{n}, m);
+        return applyClosure(applyClosure(applyClosure(#{n}, applyClosure(env["f"], x)), applyClosure(applyClosure(functor#{t2}.fmap, env["f"]), left)), applyClosure(applyClosure(functor#{t4}.fmap, env["f"]), right));
+    };
+|]
+deriveConstructor t1 t2 = pack [i|// Implement deriveFunctor (#{show t1}) (#{show t2})|]
+
+

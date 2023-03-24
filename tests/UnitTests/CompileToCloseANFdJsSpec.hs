@@ -307,6 +307,27 @@ tests = parallel $ do
                | Point3D x y z -> show x <> " " <> show y <> " " <> show z
                   
          let main = toString <$> [Point0D 1, Point2D 2 3, Point3D 4 5 6]|] --> "[\"1\",\"2 3\",\"4 5 6\"]"
+
+   it "pattern matching 8" $ do
+      [i|data Tree a = Leaf | Node (Tree a) a (Tree a)
+         let foo v =
+            match v with
+            | Leaf -> 0
+            | Node x y z -> y
+         let main = (foo Leaf, foo (Node Leaf 5 Leaf))|] --> "[0,5]"
+
+   it "pattern matching 9" $ do
+      [i|data Either a b = Left a | Right b
+         let foo v =
+            match v with
+            | Left x -> "Left"
+            | Right y -> "Right"
+         let main = (foo (Left 5), foo (Right 3))|] --> "[\"Left\",\"Right\"]"
+
+   it "fmap with a custom data type" $ do
+      [i|data Tree a = Leaf | Node a (Tree a) (Tree a) deriving Functor
+         let exampleTree = Node 1 (Node 2 Leaf Leaf) (Node 3 Leaf Leaf)
+         let main = fmap (\\x -> x * 2) exampleTree |] --> "{\"value1\":2,\"value2\":{\"value1\":4,\"value2\":{},\"value3\":{}},\"value3\":{\"value1\":6,\"value2\":{},\"value3\":{}}}"
    
    it "Parser Test 3" $ "tests/jnrs_lib/parser_example3.jnr" ---> "[[[1,2,-5,-3,7],\"\"]]"
 
