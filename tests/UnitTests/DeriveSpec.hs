@@ -130,6 +130,24 @@ const functorExpr = {
 }
 |]
 
+  -- it "Derive Functor 5" $
+  --   derive (TyCon "Pair") [TyApp (TyApp (TyCon "Pair") (TyVar "a" 0)) (TyVar "b" 0)] "Functor" `shouldBe`
+  --   pack [i|
+  -- const functorPair = {
+  --   "fmap": mkClosure(function ([_, f]) {
+  --       return setEnv("f", f, mkClosure(function ([env, m]) {
+            
+  --     if (m instanceof __Pair) {
+  --         const [x, y] = applyClosure(extractPair, m);
+  --         return applyClosure(applyClosure(Pair, applyClosure(env["f"], x)), applyClosure(env["f"], y));
+  --     };
+
+  --           throw new Error("Failed pattern match");
+  --       })); 
+  --   })
+  -- }
+  -- |]
+
   it "Derive unsupported typeclass" $
       derive (TyCon "Foo") [] "Eq" `shouldBe` pack "// not supported"
 
@@ -152,6 +170,10 @@ const functorFooF = {
 }
 |]
 
+  it "Derive Applicative" $
+      derive (TyApp (TyCon "FooF") (TyVar "a" 0)) 
+            [TyApp (TyCon "FooF") (TyVar "a" 0)] "Applicative" `shouldBe`
+            pack "// not supported"
 
 
 

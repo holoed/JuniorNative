@@ -51,3 +51,17 @@ tests = parallel $
 
      it "Rename match" $ do
         "let f x = match x with x -> x" --> "let f x00 = match x00 with x11 -> x11"
+
+     it "Rename nested lets" $
+       "let main = let x = 3 in let x = 4 in x" --> "let main = let x00 = fromInteger 3 in\n           let x11 = fromInteger 4 in x11"
+  
+     it "Rename nested lambdas" $
+       "let f x = (\\x -> (\\x -> x)) x x" --> "let f x00 = ((\\x11 x22 -> x22) x00) x00"
+  
+     it "Rename function with pattern matching on tuples" $
+       "let f (x, y) = x + y" --> "let f (x00, y11) = x00 + y11"
+  
+
+  
+
+
