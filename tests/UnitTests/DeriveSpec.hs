@@ -4,7 +4,7 @@ module UnitTests.DeriveSpec where
 import Test.Sandwich (TopSpec, shouldBe, describe, it, parallel)
 import Data.String.Interpolate (i)
 import Data.Text ( pack )
-import Junior.JavaScript.DeriveJs (derive)
+import Junior.JavaScript.DeriveJs (derive, deriveFunctor)
 import Junior.Core.Types (Type(TyApp, TyCon, TyVar), tyLam)
 
 
@@ -129,4 +129,30 @@ const functorExpr = {
    })
 }
 |]
+
+  it "Derive unsupported typeclass" $
+      derive (TyCon "Foo") [] "Eq" `shouldBe` pack "// not supported"
+
+  it "DeriveFunctor with nested TyApp" $
+      deriveFunctor (TyApp (TyApp (TyCon "FooF") (TyVar "a" 0)) (TyVar "b" 0)) 
+                    [TyApp (TyApp (TyCon "FooF") (TyVar "a" 0)) (TyVar "b" 0)] `shouldBe`
+          pack [i|
+const functorFooF = {
+  \"fmap\": mkClosure(function ([_, f]) {
+      return setEnv(\"f\", f, mkClosure(function ([env, m]) {
+          
+    if (m instanceof __FooF) {
+              const [x, y] = applyClosure(extractFooF, m);
+              return applyClosure(applyClosure(FooF, x), applyClosure(env["f"], y));
+    };
+
+          throw new Error(\"Failed pattern match\");
+      })); 
+   })
+}
+|]
+
+
+
+
 
