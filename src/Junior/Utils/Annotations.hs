@@ -1,6 +1,4 @@
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE DeriveFoldable #-}
 
 module Junior.Utils.Annotations where
 
