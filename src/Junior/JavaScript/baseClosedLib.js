@@ -1169,3 +1169,20 @@ const predict = mkClosure(function([_, model]) {
 const tensor2DToArray = mkClosure(function ([_, tensor]){
   return tensor.arraySync();
 })
+
+const memoize = 
+  mkClosure(function ([_, o]){
+    const cache = {};
+    return mkClosure(function ([_, fn]){
+      return mkClosure(function ([_, x]) {
+        const key = JSON.stringify(x);
+        if (cache[key]) {
+          return cache[key];
+        }
+        const result = applyClosure(fn, x)
+        cache[key] = result;
+        return result;
+      })
+    })
+  })
+

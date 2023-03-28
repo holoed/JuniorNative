@@ -324,6 +324,16 @@ tests = parallel $ do
             | Right y -> "Right"
          let main = (foo (Left 5), foo (Right 3))|] --> "[\"Left\",\"Right\"]"
 
+   it "Pattern matching 10" $ do
+      [i|
+        let processResult v = 
+          match v with
+          | Just x -> "The result is: " <> show x
+          | Nothing -> "Division by zero is not allowed"
+       
+        let main = (processResult (Just 5), processResult Nothing)
+      |] --> "[\"The result is: 5\",\"Division by zero is not allowed\"]"
+
    it "fmap with a custom data type" $ do
       [i|data Tree a = Leaf | Node a (Tree a) (Tree a) deriving Functor
          let exampleTree = Node 1 (Node 2 Leaf Leaf) (Node 3 Leaf Leaf)
@@ -434,12 +444,15 @@ tests = parallel $ do
          let main = runReader mz 100
       |] --> "2600"
 
-  it "Pattern matching 8" $ do
+   it "memoFix Fib" $ do
       [i|
-        let processResult v = 
-          match v with
-          | Just x -> "The result is: " <> show x
-          | Nothing -> "Division by zero is not allowed"
-       
-        let main = (processResult (Just 5), processResult Nothing)
-      |] --> "[\"The result is: 5\",\"Division by zero is not allowed\"]"
+         let fibR f n = if n == 0 then 0
+               else if n == 1 then 1
+               else f (n - 1) + f (n - 2)
+               
+         let fib = memoFix fibR
+  
+         let main = fib 100 
+      |] --> "354224848179262000000"
+
+   

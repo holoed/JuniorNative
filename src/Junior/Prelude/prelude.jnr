@@ -70,6 +70,11 @@ let foldKliesli = foldr1 (>=>)
 val fix :: ((a -> b) -> a -> b) -> a -> b
 let fix f x = f (fix f) x
 
+val memoFix :: ((a -> b) -> a -> b) -> a -> b
+let memoFix f = 
+  let memoize' = memoize () in 
+  fix (memoize' . f . memoize')
+
 -- Type Level Fix Point
 
 data Fix f = In (f (Fix f))
