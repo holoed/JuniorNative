@@ -108,6 +108,9 @@ const numInt = {
   const floatingDouble = {
     "cos": mkClosure(function([_, x]){ return Math.cos(x) }),
     "sin": mkClosure(function([_, x]){ return Math.sin(x) }),
+    "acos": mkClosure(function([_, x]){ return Math.acos(x) }),
+    "asin": mkClosure(function([_, x]){ return Math.asin(x) }),
+    "atan2": mkClosure(function([_, [x, y]]){ return Math.atan2(x, y) }),
     "sqrt": mkClosure(function([_, x]){ return Math.sqrt(x) }),
     "log": mkClosure(function([_, x]){ return Math.log(x) }),
     "exp": mkClosure(function([_, x]){ return Math.exp(x) })
@@ -201,6 +204,14 @@ const __pow = mkClosure(function([_, instA]) {
   })
 })
 
+const pow = mkClosure(function([_, inst]) {
+    return mkClosure(function([_, x]){
+      return setEnv("x", x, mkClosure(function([env, y]){
+        return Math.pow(env["x"], y);
+      }))
+    })
+})
+
 const toDouble = mkClosure(function([_, x]) { return x + 0.0; })
 
 const truncate = mkClosure(function([_, instA]) { 
@@ -210,6 +221,12 @@ const truncate = mkClosure(function([_, instA]) {
 const sin = mkClosure(function([_, inst]) { return inst["sin"]; })
 
 const cos = mkClosure(function([_, inst]) { return inst["cos"]; })
+
+const asin = mkClosure(function([_, inst]) { return inst["asin"]; })
+
+const acos = mkClosure(function([_, inst]) { return inst["acos"]; })
+
+const atan2 = mkClosure(function([_, inst]) { return inst["atan2"]; })
 
 const log = mkClosure(function([_, inst]) { return inst["log"]; })
 
@@ -447,6 +464,29 @@ const display = mkClosure(function([_, imageData]) {
     }
     resolve({});
   })
+});
+
+const renderPlot3D = mkClosure(function([_, xyz]) {
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    plotChart = document.getElementById("plotlyChart");
+    plotChart.style.display = "block"
+    const data = [{
+      type: 'scatter3d',
+      mode: 'markers',
+      marker: {
+        size: 5,
+        line: {
+        color: 'rgba(217, 217, 217, 0.14)',
+        width: 0.5},
+        opacity: 0.8},
+      x: xyz[0],
+      y: xyz[1],
+      z: xyz[2]
+    }];
+    Plotly.newPlot('plotlyChart', data);
+    resolve({});
+  });
 });
 
 const renderPlot = mkClosure(function([_, z1]) {
