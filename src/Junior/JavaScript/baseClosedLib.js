@@ -465,8 +465,14 @@ const renderTimeSeries = mkClosure(function([_, vs]) {
     plotChart = document.getElementById("plotlyChart");
     plotChart.style.display = "block"
     Plotly.newPlot("plotlyChart", vs.map(([s, xs, ys]) => {
-      const ys1 = ys.map(x => x == 0 ? null : x)
-      return {x: xs, y: ys1, name: s, type: 'scatter'}
+      const ysUndefined = ys.map(x => x === 0 ? null : x);
+      return {
+        x: xs,
+        y: ysUndefined,
+        name: s,
+        mode: 'lines',
+        connectgaps: true
+      };
     }), {showlegend: true});
     resolve({});
   });
