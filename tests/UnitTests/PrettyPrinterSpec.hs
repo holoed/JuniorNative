@@ -1,4 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
 module UnitTests.PrettyPrinterSpec where
 
 import Test.Sandwich ( describe, it, shouldBe, TopSpec, parallel )

@@ -18,7 +18,7 @@ tests :: TopSpec
 tests = parallel $ do
   describe "Build dependencies" $ do
 
-   let build code = deps globals $ (fromJust . toExp) <$> either (error . show) id (parseExpr code)
+   let build code = deps globals $ fromJust . toExp <$> either (error . show) id (parseExpr code)
    let (-->) x y = build x `shouldBe` y
 
    it "No deps" $ "let x = 42" --> [("x", [])]
@@ -38,7 +38,7 @@ tests = parallel $ do
 
   describe "Build chunks" $ do
 
-    let build code = chunks globals $ (fromJust . toExp) <$> either (error . show) id (parseExpr code)
+    let build code = chunks globals $ fromJust . toExp <$> either (error . show) id (parseExpr code)
     let (-->) x y = build x `shouldBe` y
     let (--->) x y = do handle <- liftIO $ openFile x ReadMode
                         contents <- liftIO $ hGetContents handle
@@ -93,4 +93,18 @@ tests = parallel $ do
           [("sequence", ["mapM"])], 
           [("split", ["fst", "partition", "reverse", "snd"])]
         ]
+
+    it "Reference to a binding defined later" $
+          [i|let y = z
+             let x = 1
+             let z = x + y
+           |] --> [[("x", [])], [("z", ["x", "y"])], [("y", ["z"])]]
+
+    it "Multiple bindings and multiple references to previously defined bindings" $
+          [i|let x = 1
+             let y = x + 2
+             let z = y * x
+            |] --> [[("x", [])], [("y", ["x"])], [("z", ["x", "y"])]]
+
+
 
