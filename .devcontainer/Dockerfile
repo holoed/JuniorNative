@@ -13,6 +13,4 @@ RUN apt-get update \
         pkg-config \
         zlib1g-dev
 
-RUN curl -sSL https://get.haskellstack.org/ | sh
-
 WORKDIR /workspace
