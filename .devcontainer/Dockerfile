@@ -23,9 +23,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
 # Set environment variables for GHCUP
 ENV PATH="/root/.ghcup/bin:$PATH"
 
-# Install GHC 9.2.0 and Haskell Language Server
-RUN ghcup install ghc 9.2.0 && \
-    ghcup set ghc 9.2.0 && \
+# Install GHC 9.2.4 and Haskell Language Server
+RUN ghcup install ghc 9.2.4 && \
+    ghcup set ghc 9.2.4 && \
     ghcup install hls && \
     ghcup set hls
 
