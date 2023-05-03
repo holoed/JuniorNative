@@ -13,4 +13,12 @@ RUN apt-get update \
         pkg-config \
         zlib1g-dev
 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+
+RUN ghcup install hls
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+RUN nvm install 18.4.0
+
 WORKDIR /workspace
