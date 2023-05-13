@@ -157,6 +157,7 @@ executable JuniorService
                        transformers,
                        mainland-pretty,
                        scotty,
+                       wai-middleware-static,
                        text,
                        wai,
                        wai-extra,

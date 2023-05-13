@@ -1,0 +1,39 @@
+openapi: 3.0.1
+info:
+  title: Junior Compiler Plugin
+  description: A plugin that allows the user to interact with the Type Checker of the Junior Programming Language
+  version: 'v1'
+servers:
+  - url: http://localhost:8080
+paths:
+  /type2:
+    post:
+      operationId: typeCheck
+      requestBody:
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/typeCheckerRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/typeCheckerResponse'
+components:
+  schemas:
+    typeCheckerRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          description: The code to type check
+          required: true
+    typeCheckerResponse:
+      type: array
+      items:
+        type: string
+      description: The Junior Type Checker response and symbol table
+    

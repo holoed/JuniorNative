@@ -1,0 +1,18 @@
+{
+    "schema_version": "v1",
+    "name_for_human": "Junior Plugin",
+    "name_for_model": "JuniorCompiler",
+    "description_for_human": "Plugin for Junior Compiler Service",
+    "description_for_model": "Plugin for Junior Compiler Service",
+    "auth": {
+        "type": "none"
+    },
+    "api": {
+        "type": "openapi",
+        "url": "http://localhost:8080/openapi.yaml",
+        "is_user_authenticated": false
+    },
+    "logo_url": "http://localhost:8080/logo.png",
+    "contact_email": "edmondo@gmail.com",
+    "legal_info_url": "http://localhost:8080/legal.txt"
+}
