@@ -9,10 +9,10 @@
     },
     "api": {
         "type": "openapi",
-        "url": "http://localhost:8080/openapi.yaml",
+        "url": "http://junior-type.default.192.168.1.73.nip.io/openapi.yaml",
         "is_user_authenticated": false
     },
-    "logo_url": "http://localhost:8080/logo.png",
+    "logo_url": "http://junior-type.default.192.168.1.73.nip.io/logo.png",
     "contact_email": "edmondo@gmail.com",
-    "legal_info_url": "http://localhost:8080/legal.txt"
+    "legal_info_url": "http://junior-type.default.192.168.1.73.nip.io/legal.txt"
 }
