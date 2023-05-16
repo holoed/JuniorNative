@@ -56,6 +56,10 @@ tests :: TopSpec
 tests = parallel $
   describe "Module Type Inference Tests" $ do
 
+    it "Not a binding" $ do
+           [i| 42 |] --> [("it","Int")]
+           [i| head |] --> [("it","List a -> a")]
+
     it "Simple bindings" $
            [i| let x = 12
                let y = True |] --> [("x","Int"),

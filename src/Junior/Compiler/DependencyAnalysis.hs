@@ -3,21 +3,26 @@ module Junior.Compiler.DependencyAnalysis where
 import Junior.Utils.Fixpoint ( Fix(In) )
 import Junior.Utils.Annotations ( Ann(Ann) )
 import Junior.Core.Ast (Exp, ExpF (Defn, VarPat))
-import Data.Set (Set, toList)
+import Data.Set (Set, toList, empty)
 import Data.List (groupBy, partition)
 import Junior.Compiler.FreeVariables (freeVars)
 import qualified Data.Graph as G
 
-getName :: Exp -> String
-getName (In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) = s
-getName _ = error "Expected a let binding"
+getName :: Exp -> Maybe String
+getName (In (Ann _ (Defn _ (In (Ann _ (VarPat s))) _))) = Just s
+getName _ = Nothing
 
-getDeps :: Set String -> Exp -> [String]
-getDeps globals e = toList (snd xs)
-    where (In (Ann xs (Defn _ _ _))) = freeVars globals e           
+getDeps :: Set String -> Exp -> Maybe (String, [String])
+getDeps globals e = case getName e of
+    Just name -> Just (name, toList (snd xs))
+    Nothing -> Nothing
+  where
+    xs = case freeVars globals e of 
+        (In (Ann xs' (Defn {}))) -> xs'
+        _ -> (Nothing, empty)          
 
 deps :: Set String -> [Exp] -> [(String, [String])]
-deps globals = foldl (\acc x -> (getName x, getDeps globals x) : acc) []
+deps globals = foldl (\acc x -> maybe acc (:acc) (getDeps globals x)) []
 
 groupLayers :: [(String, [String])] -> [(String, [String])]
 groupLayers xs = 

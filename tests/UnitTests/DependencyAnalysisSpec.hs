@@ -21,6 +21,8 @@ tests = parallel $ do
    let build code = deps globals $ fromJust . toExp <$> either (error . show) id (parseExpr code)
    let (-->) x y = build x `shouldBe` y
 
+   it "No deps and no lets" $ "42" --> []
+
    it "No deps" $ "let x = 42" --> [("x", [])]
 
    it "One dep" $ "let foo = fac 5" --> [("foo", ["fac"])]

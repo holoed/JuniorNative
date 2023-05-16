@@ -52,12 +52,14 @@ fromSynExpToDataDecl es = do
     let env' = foldr concatEnvs env $ fromTypeDeclToEnv <$> typeDecls'
     let classEnv' = foldr fromTypeDeclToClassEnv classEnv typeDecls'
     put (classEnv', env', symbols, typeDecls <> typeDecls')
-    return $ es
+    return es
 
 fromSynExpToExp :: [SynExp] -> CompileM [Exp]
 fromSynExpToExp es = return $ es >>= (maybeToList . toExp)
 
 dependencyAnalysis :: [Exp] -> CompileM [[(String, Exp)]]
+dependencyAnalysis [e@(In (Ann attr (Var _)))] = return [[("it", In (Ann attr (Defn Nothing (In (Ann attr (VarPat "it"))) e)))]]
+dependencyAnalysis [e@(In (Ann attr (Lit _)))] = return [[("it", In (Ann attr (Defn Nothing (In (Ann attr (VarPat "it"))) e)))]]
 dependencyAnalysis es = do
     (_, env, _, _) <- get
     let ns = (fst <$>) <$> chunks (Map.keysSet env) es
