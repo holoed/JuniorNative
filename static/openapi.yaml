@@ -22,6 +22,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/typeCheckerResponse'
+  /libTypes:
+    get:
+      operationId: libraryTypes
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/libraryTypesResponse'
 components:
   schemas:
     typeCheckerRequest:
@@ -36,4 +46,9 @@ components:
       items:
         type: string
       description: The Junior Type Checker response and symbol table
+    libraryTypesResponse:
+      type: array
+      items:
+        type: string
+      description: The Junior builtin library type signatures
     
