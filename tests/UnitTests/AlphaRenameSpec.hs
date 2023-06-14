@@ -60,7 +60,24 @@ tests = parallel $
   
      it "Rename function with pattern matching on tuples" $
        "let f (x, y) = x + y" --> "let f (x00, y11) = x00 + y11"
-  
+
+     it "Rename function with nested tuples" $ do
+       "let f ((x, y), z) = x + y + z" --> "let f ((x00, y11), z22) = x00 + y11 + z22" 
+
+     it "Rename function with multiple arguments" $ do
+       "let f x y z = x + y + z" --> "let f x00 y11 z22 = x00 + y11 + z22" 
+
+     it "Rename recursive function" $ do
+       "let f x = if x == 0 then 1 else x * f (x - 1)" --> "let f x00 = if x00 == fromInteger 0\n    then fromInteger 1\n    else x00 * f (x00 - fromInteger 1)" 
+
+     it "Rename function with pattern matching on constructors" $ do
+       "let f (Just x) = x" --> "let f Just x00 = x00" -- TODO: fix pretty printer
+       "let f Nothing = 0" --> "let f Nothing  = fromInteger 0" 
+
+     it "Rename function with shadowed variables in let expressions" $ do
+       "let f x = let x = 4 in x" --> "let f x00 = let x11 = fromInteger 4 in x11"
+       "let g x = let y = 3 in let x = 4 in x + y" --> "let g x00 = let y11 = fromInteger 3 in\n            let x22 = fromInteger 4 in x22 + y11" 
+ 
 
   
 
