@@ -164,6 +164,7 @@ executable JuniorService
                        wai-cors,
                        haskeline,
                        aeson,
+                       vector,
                        unordered-containers,
                        bytestring,
                        parallel,

@@ -20,8 +20,9 @@ import Network.Wai.Middleware.Static ( addBase, staticPolicy )
 import Network.Wai.Middleware.Cors (CorsResourcePolicy (corsMethods, corsRequestHeaders, corsOrigins, corsRequireOrigin), simpleCorsResourcePolicy, cors)
 import Data.ByteString.Lazy.Char8 as Char8 ( unpack )
 import Junior.Compiler.Intrinsics (classEnv )
+import qualified Data.Vector (fromList)
 import Data.Aeson
-    ( ToJSON(toJSON), FromJSON(..), object, KeyValue((.=)), decode )
+    ( ToJSON(toJSON), FromJSON(..), object, KeyValue((.=)), decode, Value (String) )
 import Junior.Compiler.Compiler (fullInterp, backendPrinted, frontEndPrinted, fullJSClosedANF)
 import Junior.Compiler.CompilerMonad (CompileM, run)
 import qualified Junior.Compiler.SymbolTable as S
@@ -31,6 +32,7 @@ import qualified Junior.TypeChecker.Environment as Environment
 import Data.Bifunctor (second)
 import Junior.Compiler.Junior (prelude)
 import Junior.Pretty.PrettyTypes (prettyQ)
+import Data.Aeson.Types (Value(Array))
 
 data Code where
   Code :: {code :: String} -> Code
@@ -101,6 +103,10 @@ route = do
     get "/libTypes" $ do
          (_, preludeEnv) <- liftIO prelude
          json $ second (show . prettyQ) <$> Environment.fromEnv preludeEnv
+    get "/keywords" $ do
+         let keywords = ["match", "with", "deriving", "data", "val", "let", "True", "False", "if", "then", "else", "in"]      
+         let jsonArray = Array $ Data.Vector.fromList (Data.Aeson.String <$> keywords)
+         json jsonArray
     post "/type2" $ do
        c <- body
        let (Code s) = fromJust (decode c :: Maybe Code)

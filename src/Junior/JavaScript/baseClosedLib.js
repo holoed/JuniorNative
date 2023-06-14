@@ -43,6 +43,15 @@ const ordChar = {
     "/=": eqChar["/="]
   }
 
+const ordString = {
+    ">": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] > y }))}),
+    "<": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] < y }))}),
+    ">=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] >= y }))}),
+    "<=": mkClosure(function([_, x]) { return setEnv("x", x, mkClosure(function([env, y]) { return env["x"] <= y }))}),
+    "==": eqChar["=="],
+    "/=": eqChar["/="]
+  }
+
 function __plusInt2([env, y]){
     return env["x"] + y; 
 }
@@ -531,6 +540,19 @@ const renderBarChart = mkClosure(function([_, vs]) {
   });
 });
 
+const renderPieChart = mkClosure(function([_, vs]) {
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    plotChart = document.getElementById("plotlyChart");
+    plotChart.style.display = "block"
+    Plotly.newPlot("plotlyChart", vs.map(([s, xs, ys]) => {
+      const ys1 = ys.map(x => x == 0 ? null : x)
+      return {labels: xs, values: ys1, name: s, type: 'pie'}
+    }), {showlegend: true});
+    resolve({});
+  });
+});
+
 const renderDataGrid = mkClosure(function([_, gridOptions]) {
   return new Promise((resolve, reject) => {
     clearPanels();
@@ -980,6 +1002,12 @@ const error = mkClosure(function([_, x]){
 })
 
 const showInt = {
+  "show" : mkClosure(function([_, x]) {
+    return `${x}`
+  })
+}
+
+const showDouble = {
   "show" : mkClosure(function([_, x]) {
     return `${x}`
   })

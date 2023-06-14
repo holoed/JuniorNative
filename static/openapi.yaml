@@ -32,6 +32,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/libraryTypesResponse'
+  /keywords:
+    get:
+      operationId: keywords
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/keywordsResponse'
 components:
   schemas:
     typeCheckerRequest:
@@ -51,4 +61,9 @@ components:
       items:
         type: string
       description: The Junior builtin library type signatures
+    keywordsResponse:
+      type: array
+      items:
+        type: string
+      description: The Junior programming language Keywords
     
