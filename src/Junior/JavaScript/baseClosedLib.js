@@ -553,25 +553,44 @@ const renderPieChart = mkClosure(function([_, vs]) {
   });
 });
 
+function addSectorLevelData(data) {
+    let sectorData = {};
+    data.forEach((d) => {
+        if (!(d[1] in sectorData)) {
+            sectorData[d[1]] = [d[1], "All sectors", null, null, null];
+        }
+        sectorData[d[1]][2] = null;
+        sectorData[d[1]][3] = null;
+        sectorData[d[1]][4] = null;
+    });
+
+    let newData = [["All sectors", "", null, null, null]];
+    for (let sector in sectorData) {
+        newData.push(sectorData[sector]);
+    }
+    return newData.concat(data);
+}
+
 const renderTreeMap = mkClosure(function([_, data]) {
   return new Promise((resolve, reject) => {
+    const dataWithSectors = addSectorLevelData(data)
     clearPanels();
     plotChart = document.getElementById("plotlyChart");
     plotChart.style.display = "block"  
     let trace = {
         type: "treemap",
-        labels: data.map((d) => d[0]),
-        parents: data.map((d) => ''),
-        values: data.map((d) => d[2] * d[3]),
+        labels: dataWithSectors.map((d) => d[0]),
+        parents: dataWithSectors.map((d) => d[1]),
+        values: dataWithSectors.map((d) => d[2] * d[3]),
         marker: {
-            colors: data.map((d) => d[2] * d[3] - d[2] * d[4]),
+            colors: dataWithSectors.map((d) => d[2] * d[3] - d[2] * d[4]),
             colorscale: [
               [0, 'red'], // color at the smallest value
               [0.5, 'grey'], // color at the midpoint
               [1, 'green'] // color at the largest value
             ],
-            cmin: -Math.max(...data.map((d) => d[2] * d[3] - d[2] * d[4])),
-            cmax: Math.max(...data.map((d) => d[2] * d[3] - d[2] * d[4]))
+            cmin: -Math.max(...dataWithSectors.map((d) => d[2] * d[3] - d[2] * d[4])),
+            cmax: Math.max(...dataWithSectors.map((d) => d[2] * d[3] - d[2] * d[4]))
         },
         textinfo: 'label+value'
     };
