@@ -66,6 +66,7 @@ env = toEnv [
         (TyApp (TyCon "List") (TyCon "Double")))
         (TyApp (TyCon "List") (TyCon "Double")))
         (TyApp (TyCon "List") (TyCon "Double"))) (TyApp (TyCon "Async") (TyCon "Unit"))),
+  ("renderTreeMap", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyCon "String", TyCon "String", TyCon "Int", TyCon "Double", TyCon "Double"])) (TyApp (TyCon "Async") (TyCon "Unit"))),
   ("renderTimeSeries", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyCon "String", TyApp (TyCon "List") (TyCon "String"), TyApp (TyCon "List") (TyCon "Double")])) (TyApp (TyCon "Async") (TyCon "Unit"))),
   ("renderBarChart", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyCon "String", TyApp (TyCon "List") (TyCon "String"), TyApp (TyCon "List") (TyCon "Double")])) (TyApp (TyCon "Async") (TyCon "Unit"))),
   ("renderPieChart", Set.fromList [] :=> tyLam (TyApp (TyCon "List") (tupleCon [TyCon "String", TyApp (TyCon "List") (TyCon "String"), TyApp (TyCon "List") (TyCon "Double")])) (TyApp (TyCon "Async") (TyCon "Unit"))),

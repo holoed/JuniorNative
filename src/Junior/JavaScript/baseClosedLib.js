@@ -553,6 +553,40 @@ const renderPieChart = mkClosure(function([_, vs]) {
   });
 });
 
+const renderTreeMap = mkClosure(function([_, data]) {
+  return new Promise((resolve, reject) => {
+    clearPanels();
+    plotChart = document.getElementById("plotlyChart");
+    plotChart.style.display = "block"  
+    let trace = {
+        type: "treemap",
+        labels: data.map((d) => d[0]),
+        parents: data.map((d) => ''),
+        values: data.map((d) => d[2] * d[3]),
+        marker: {
+            colors: data.map((d) => d[2] * d[3] - d[2] * d[4]),
+            colorscale: [
+              [0, 'red'], // color at the smallest value
+              [0.5, 'grey'], // color at the midpoint
+              [1, 'green'] // color at the largest value
+            ],
+            cmin: -Math.max(...data.map((d) => d[2] * d[3] - d[2] * d[4])),
+            cmax: Math.max(...data.map((d) => d[2] * d[3] - d[2] * d[4]))
+        },
+        textinfo: 'label+value'
+    };
+    
+    let layout = {
+        title: 'Stock Portfolio Treemap',
+    };
+    
+    let plotData = [trace];
+    
+    Plotly.newPlot('plotlyChart', plotData, layout);
+    resolve({});
+    });
+});
+
 const renderDataGrid = mkClosure(function([_, gridOptions]) {
   return new Promise((resolve, reject) => {
     clearPanels();
