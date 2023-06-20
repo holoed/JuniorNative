@@ -163,6 +163,9 @@ tests = parallel $ do
    it "++" $ do
        [("main", "let main = [1,2,3] ++ [4,5]")] --> "[1,2,3,4,5]"
        [("main", "let main = Just 5 ++ [6, 7]")] --> "[5,6,7]"
+
+   it "filter" $ do
+       [("main", "let main = filter (\\x -> mod x 2 == 0) [1,2,3,4,5]")] --> "[2,4]"
        
 
        

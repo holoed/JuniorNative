@@ -207,3 +207,6 @@ let transpose xss =
 val scanl :: (b -> a -> b) -> b -> List a -> List b
 let scanl f q ls = q : (if null ls then []
                         else scanl f (f q (head ls)) (tail ls))
+
+val filter :: Foldable a => (b -> Bool) -> a b -> List b
+let filter p = foldr (\x xs -> if (p x) then x : xs else xs) []
