@@ -592,7 +592,10 @@ const renderTreeMap = mkClosure(function([_, data]) {
             cmin: -Math.max(...dataWithSectors.map((d) => d[2] * d[3] - d[2] * d[4])),
             cmax: Math.max(...dataWithSectors.map((d) => d[2] * d[3] - d[2] * d[4]))
         },
-        textinfo: 'label+value'
+        textinfo: 'label+value',
+        textfont: { 
+          color: 'white',
+        }
     };
     
     let layout = {
