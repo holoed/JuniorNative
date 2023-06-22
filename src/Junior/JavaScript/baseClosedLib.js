@@ -557,14 +557,15 @@ function addSectorLevelData(data) {
     let sectorData = {};
     data.forEach((d) => {
         if (!(d[1] in sectorData)) {
-            sectorData[d[1]] = [d[1], "All sectors", null, null, null];
+            sectorData[d[1]] = [d[1], "All sectors", null, null, null, null];
         }
         sectorData[d[1]][2] = null;
         sectorData[d[1]][3] = null;
         sectorData[d[1]][4] = null;
+        sectorData[d[1]][5] = null;
     });
 
-    let newData = [["All sectors", "", null, null, null]];
+    let newData = [["All sectors", "", null, null, null, null]];
     for (let sector in sectorData) {
         newData.push(sectorData[sector]);
     }
@@ -579,7 +580,7 @@ const renderTreeMap = mkClosure(function([_, data]) {
     plotChart.style.display = "block"  
     let trace = {
         type: "treemap",
-        labels: dataWithSectors.map((d) => d[0]),
+        labels: dataWithSectors.map((d) => d[5] != null ? `${d[0]}<br>${d[5]} ${(d[2] * d[3]).toFixed(2)}` : d[0]),
         parents: dataWithSectors.map((d) => d[1]),
         values: dataWithSectors.map((d) => d[2] * d[3]),
         marker: {
@@ -592,7 +593,7 @@ const renderTreeMap = mkClosure(function([_, data]) {
             cmin: -Math.max(...dataWithSectors.map((d) => d[2] * d[3] - d[2] * d[4])),
             cmax: Math.max(...dataWithSectors.map((d) => d[2] * d[3] - d[2] * d[4]))
         },
-        textinfo: 'label+value',
+        textinfo: 'label',
         textfont: { 
           color: 'white',
         }
