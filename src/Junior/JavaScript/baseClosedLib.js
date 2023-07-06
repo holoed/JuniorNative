@@ -590,8 +590,8 @@ const renderTreeMap = mkClosure(function([_, data]) {
               [0.5, 'grey'], // color at the midpoint
               [1, 'green'] // color at the largest value
             ],
-            cmin: -Math.max(...dataWithSectors.map((d) => d[3] * d[4] - d[3] * d[5])),
-            cmax: Math.max(...dataWithSectors.map((d) => d[3] * d[4] - d[3] * d[5]))
+            cmin: Math.min(-Math.min(...dataWithSectors.map((d) => d[3] * d[4] - d[3] * d[5])), -1),
+            cmax: Math.max(Math.max(...dataWithSectors.map((d) => d[3] * d[4] - d[3] * d[5])), 1)
         },
         textinfo: 'label',
         textposition: 'middle center', // centers the label in the box,
