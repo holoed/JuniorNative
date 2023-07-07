@@ -554,23 +554,28 @@ const renderPieChart = mkClosure(function([_, vs]) {
 });
 
 function addSectorLevelData(data) {
-    let sectorData = {};
-    data.forEach((d) => {
-        if (!(d[2] in sectorData)) {
-            sectorData[d[2]] = [d[2], "All sectors", null, null, null, null];
-        }
-        sectorData[d[2]][2] = null;
-        sectorData[d[2]][3] = null;
-        sectorData[d[2]][4] = null;
-        sectorData[d[2]][5] = null;
-    });
+  let sectorData = {};
+  data.forEach((d) => {
+      if (!(d[2] in sectorData)) {
+          sectorData[d[2]] = [d[2], "All sectors", null, null, null, null];
+      }
+      sectorData[d[2]][2] = null;
+      sectorData[d[2]][3] = null;
+      sectorData[d[2]][4] = null;
+      sectorData[d[2]][5] = null;
+  });
 
-    let newData = [["All sectors", "", null, null, null, null]];
-    for (let sector in sectorData) {
-        newData.push(sectorData[sector]);
-    }
-    return newData.concat(data);
+  let newData = [["All sectors", "", null, null, null, null]];
+  for (let sector in sectorData) {
+      newData.push(sectorData[sector]);
+  }
+  return newData.concat(data);
 }
+
+function priceChange(d) {
+  return ((d[4] - d[5]) / d[5]) 
+};
+
 
 const renderTreeMap = mkClosure(function([_, data]) {
   return new Promise((resolve, reject) => {
@@ -580,18 +585,18 @@ const renderTreeMap = mkClosure(function([_, data]) {
     plotChart.style.display = "block"  
     let trace = {
         type: "treemap",
-        labels: dataWithSectors.map((d) => d[6] != null ? `<span style="font-size: 20px;">${d[0]}</span><br>${d[1]}<br>${d[6]} ${(d[3] * d[4]).toFixed(2)}` : d[0]),
+        labels: dataWithSectors.map((d) => d[6] != null ? `<span style="font-size: 20px;">${d[0]}</span><br>${d[1]}<br>% ${(priceChange(d) * 100).toFixed(2)}` : d[0]),
         parents: dataWithSectors.map((d) => d[2]),
         values: dataWithSectors.map((d) => d[3] * d[4]),
         marker: {
-            colors: dataWithSectors.map((d) => d[3] * d[4] - d[3] * d[5]),
+            colors: dataWithSectors.map(priceChange),
             colorscale: [
               [0, 'red'], // color at the smallest value
               [0.5, 'grey'], // color at the midpoint
               [1, 'green'] // color at the largest value
             ],
-            cmin: Math.min(-Math.min(...dataWithSectors.map((d) => d[3] * d[4] - d[3] * d[5])), -50),
-            cmax: Math.max(Math.max(...dataWithSectors.map((d) => d[3] * d[4] - d[3] * d[5])), 50)
+            cmin: -Math.max(...data.map(priceChange)),
+            cmax: Math.max(...data.map(priceChange))
         },
         textinfo: 'label',
         textposition: 'middle center', // centers the label in the box,
