@@ -25,7 +25,13 @@ Some key features of Junior include:
 
 - Overall, Junior is a powerful and expressive functional programming language that brings the best features of Haskell and ML to the JavaScript ecosystem. It is easy to learn and use, while also providing strong guarantees around the correctness and safety of your code. 
 
+Examples:
 
+![image](https://github.com/holoed/JuniorNative/assets/1761766/ad0d2fd1-4253-4fe5-a536-03e5baedafa2)
+
+![image](https://github.com/holoed/JuniorNative/assets/1761766/1a623a12-2c43-4bd5-803d-545a1c9f8526)
+
+![image](https://github.com/holoed/JuniorNative/assets/1761766/ebf450ec-1e47-45ec-801c-22d34f099f77)
 
 
 
