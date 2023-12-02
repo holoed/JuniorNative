@@ -1,4 +1,4 @@
-FROM haskell:9.2.2
+FROM haskell:9.2.4
 
 RUN cabal --version
 RUN cabal update
