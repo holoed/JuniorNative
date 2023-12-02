@@ -274,8 +274,6 @@ executable TestSuite
                        transformers,
                        mainland-pretty,
                        interpolate,
-                       -- patch due to a bug in 1.0 
-                       brick < 1.0, 
                        sandwich,
                        time,
                        exceptions,
