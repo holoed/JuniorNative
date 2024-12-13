@@ -15,7 +15,7 @@ import Junior.Compiler.CompilerSteps (desugarPatternMatching, compilePatternMatc
 import Junior.Compiler.Compiler (step, frontEnd)
 import Control.Monad ((>=>))
 import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 
 closed :: String -> CompileM [TypedExp]
 closed = frontEnd >=> 
@@ -34,7 +34,7 @@ trim :: String -> String
 trim = f . f
   where f = reverse . dropWhile isSpace
 
-(-->) :: MonadThrow m => String -> String -> m ()
+(-->) :: (MonadThrow m, MonadIO m) => String -> String -> m ()
 (-->) x y = (filter (\v -> (/=' ') v && (/='\n') v) x) `shouldBe` (filter (\v -> (/=' ') v && (/='\n') v) y) 
 
 tests :: TopSpec

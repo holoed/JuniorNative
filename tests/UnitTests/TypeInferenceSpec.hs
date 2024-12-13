@@ -22,6 +22,7 @@ import Data.Map (toList, fromList, (!), member)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import Junior.Core.BuiltIns (tupleCon)
+import Control.Monad.IO.Class (MonadIO)
 
 env' :: Env
 env' = concatEnvs env $ toEnv [
@@ -69,7 +70,7 @@ extractResults = getKey . fromList . filter (\(n, _) -> not $ containsScheme n e
           | member "main" dict = dict!"main"
           | otherwise = intercalate "\n" (snd <$> toList dict)
 
-(-->) :: MonadThrow m => String -> String -> m ()
+(-->) :: (MonadThrow m, MonadIO m) => String -> String -> m ()
 (-->) x y = either (\(PStr (txt, _)) -> txt) extractResults (typeOf x) `shouldBe` y
 
 tests :: TopSpec
